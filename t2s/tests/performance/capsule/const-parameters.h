@@ -33,8 +33,9 @@
     #define COOO        8
     #define COO         1
     #define CO          4
+    #define YYY_XXX     7
     #define YY_XX       7
-    #define Y_X         7
+    #define Y_X         1
     #define NN          1
 #else // FPGA
     // Inner loop bounds, which are static constant parameters of the design
@@ -44,7 +45,8 @@
         #define COOO        4
         #define COO         4
         #define CO          1
-        #define YY_XX       7
+        #define YYY_XXX     7
+        #define YY_XX       1
         #define Y_X         7
         #define NN          1
     #else
@@ -53,7 +55,8 @@
         #define COOO        8
         #define COO         4
         #define CO          1
-        #define YY_XX       10
+        #define YYY_XXX     10
+        #define YY_XX       1
         #define Y_X         5
         #define NN          4
     #endif

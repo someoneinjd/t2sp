@@ -25,18 +25,18 @@ using namespace Halide;
 int main(void)
 {
     // Dependences
-    #define P               cii,       cooo,   yy_xx,   my, mx, y_x, coo, nn, ky,      kx,      ci,      mk,   co, n
-    #define P_cii_minus_1   cii-1,     cooo,   yy_xx,   my, mx, y_x, coo, nn, ky,      kx,      ci,      mk,   co, n
-    #define P_ky_minus_1    cii+CII-1, cooo,   yy_xx,   my, mx, y_x, coo, nn, ky-1,    kx,      ci,      mk,   co, n
-    #define P_kx_minus_1    cii+CII-1, cooo,   yy_xx,   my, mx, y_x, coo, nn, ky+KY-1, kx-1,    ci,      mk,   co, n
-    #define P_ci_minus_1    cii+CII-1, cooo,   yy_xx,   my, mx, y_x, coo, nn, ky+KY-1, kx+KX-1, ci-1,    mk,   co, n
-    #define P_mk_minus_1    cii+CII-1, cooo,   yy_xx,   my, mx, y_x, coo, nn, ky+KY-1, kx+KX-1, ci+CI-1, mk-1, co, n
-    #define P_co3_minus_1   cii,       cooo-1, yy_xx,   my, mx, y_x, coo, nn, ky,      kx,      ci,      mk,   co, n
-    #define P_yx3_minus_1   cii,       cooo,   yy_xx-1, my, mx, y_x, coo, nn, ky,      kx,      ci,      mk,   co, n
-    #define P_Out                      cooo,   yy_xx,   my, mx, y_x, coo, nn,                                  co, n
-    // Linearized addresses
-    #define total_oy        ((yy_xx + YY_XX*y_x) % OY)
-    #define total_ox        ((yy_xx + YY_XX*y_x) / OY)
+    #define P               cii,       cooo,   my, mx, y_x, coo, nn, ky,      kx,      yyy_xxx,   yy_xx, ci,      mk,   co, n
+    #define P_cii_minus_1   cii-1,     cooo,   my, mx, y_x, coo, nn, ky,      kx,      yyy_xxx,   yy_xx, ci,      mk,   co, n
+    #define P_ky_minus_1    cii+CII-1, cooo,   my, mx, y_x, coo, nn, ky-1,    kx,      yyy_xxx,   yy_xx, ci,      mk,   co, n
+    #define P_kx_minus_1    cii+CII-1, cooo,   my, mx, y_x, coo, nn, ky+KY-1, kx-1,    yyy_xxx,   yy_xx, ci,      mk,   co, n
+    #define P_ci_minus_1    cii+CII-1, cooo,   my, mx, y_x, coo, nn, ky+KY-1, kx+KX-1, yyy_xxx,   yy_xx, ci-1,    mk,   co, n
+    #define P_mk_minus_1    cii+CII-1, cooo,   my, mx, y_x, coo, nn, ky+KY-1, kx+KX-1, yyy_xxx,   yy_xx, ci+CI-1, mk-1, co, n
+    #define P_co3_minus_1   cii,       cooo-1, my, mx, y_x, coo, nn, ky,      kx,      yyy_xxx,   yy_xx, ci,      mk,   co, n
+    #define P_yx3_minus_1   cii,       cooo,   my, mx, y_x, coo, nn, ky,      kx,      yyy_xxx-1, yy_xx, ci,      mk,   co, n
+    #define P_Out                      cooo,   my, mx, y_x, coo, nn,                   yyy_xxx,   yy_xx,                co, n
+    // Linearized addressesy
+    #define total_oy        ((yyy_xxx + YYY_XXX*yy_xx + YYY_XXX*YY_XX*y_x) % OY)
+    #define total_ox        ((yyy_xxx + YYY_XXX*yy_xx + YYY_XXX*YY_XX*y_x) / OY)
     #define total_iy        (total_oy * 2 + ky)
     #define total_ix        (total_ox * 2 + kx)
     #define total_co        (cooo + COOO*coo + COOO*COO*co)
@@ -62,10 +62,11 @@ int main(void)
 #endif
 
     // UREs
-    Var cii("cii"), cooo("cooo"), yy_xx("yy_xx"), my("my"), mx("mx"), y_x("y_x"), coo("coo"), nn("nn"), ky("ky"), kx("kx"), ci("ci"), mk("mk"), co("co"), n("n");
+    Var cii("cii"), cooo("cooo"), my("my"), mx("mx"), coo("coo"), nn("nn"), ky("ky"), kx("kx"), ci("ci"), mk("mk"), co("co"), n("n");
+    Var yyy_xxx("yyy_xxx"), yy_xx("yy_xx"), y_x("y_x");
     URE A("A", TTYPE, {P}), B("B", TTYPE, {P}), C("C", TTYPE, {P}), Out("Out");
     A(P) = select(cooo == 0, I(P_I), A(P_co3_minus_1));
-    B(P) = select(yy_xx == 0, K(P_K), B(P_yx3_minus_1));
+    B(P) = select(yyy_xxx == 0, K(P_K), B(P_yx3_minus_1));
     C(P) = select(cii == 0 && ci == 0 && mk == 0 && ky == 0 && kx == 0, 0,
                 select(cii == 0, select(ky == 0, select(kx == 0, select(ci == 0, C(P_mk_minus_1), C(P_ci_minus_1)), C(P_kx_minus_1)), C(P_ky_minus_1)), C(P_cii_minus_1)))
                 + A(P) * B(P);
@@ -75,37 +76,30 @@ int main(void)
     A.merge_ures(B, C, Out);
 
     // Explicitly set the loop bounds
-    A.set_bounds(cooo,  0, COOO,  coo, 0, COO, co, 0, CO)
-     .set_bounds(my,    0, MY,    mx,  0, MX,  mk, 0, MK)
-     .set_bounds(yy_xx, 0, YY_XX, y_x, 0, Y_X)
-     .set_bounds(cii,   0, CII,   ci,  0, CI)
-     .set_bounds(ky,    0, KY,    kx,  0, KX)
-     .set_bounds(nn,    0, NN,    n,   0, UN);
+    A.set_bounds(cooo,    0, COOO,    coo,   0, COO,   co,  0, CO)
+     .set_bounds(my,      0, MY,      mx,    0, MX,    mk,  0, MK)
+     .set_bounds(yyy_xxx, 0, YYY_XXX, yy_xx, 0, YY_XX, y_x, 0, Y_X)
+     .set_bounds(cii,     0, CII,     ci,    0, CI)
+     .set_bounds(ky,      0, KY,      kx,    0, KX)
+     .set_bounds(nn,      0, NN,      n,     0, UN);
+
+    // Create a systolic array
+    A.space_time_transform(cooo, yyy_xxx, yy_xx);
 
 #ifdef GPU
     // GPU can have many threads running in parallel.
     A.gpu_blocks(co, n).gpu_threads(my, mx);
-    A.space_time_transform(cooo, yy_xx, y_x);
-    A.reorder(cii, cooo, my, mx, coo, nn, ky, kx, yy_xx, y_x, ci, mk, co, n);
-#else
-    // Create a systolic array
-    A.space_time_transform(cooo, yy_xx);
 #endif
 
     // I/O network
     Stensor DI("iLoader", DRAM), SI("iFeeder", SRAM), DK("kLoader", DRAM), SK("kFeeder", SRAM);
     Stensor RO2("drainer", REG), RO1("collector", REG), DO("unloader", DRAM), O("deserializer");
-#ifdef GPU
-    SI.scope(y_x);
-#else
-    SI.scope(ci);
-#endif
     I >> DI.out(cii) >> FIFO(128)
-      >> SI.out(cii, yy_xx) >> FIFO(128);
+      >> SI.scope(yy_xx).out(cii, yyy_xxx) >> FIFO(128);
     K >> DK.out(cii) >> FIFO(128)
       >> SK.scope(ci).out(cii, cooo) >> FIFO(128);
-    Out >> FIFO(1024) >> RO2.scope(my).out(cooo, yy_xx)
-        >> FIFO(128)  >> RO1.scope(yy_xx).out(cooo)
+    Out >> FIFO(1024) >> RO2.scope(my).out(cooo, yyy_xxx)
+        >> FIFO(128)  >> RO1.scope(yyy_xxx).out(cooo)
         >> FIFO(128)  >> DO >> O(P_O);
 
     // Compile the kernel to an FPGA bitstream, and expose a C interface for the host to invoke
