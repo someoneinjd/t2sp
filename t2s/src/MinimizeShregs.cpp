@@ -81,9 +81,9 @@ using std::vector;
  *   V.shreg[vectorized dim if distances at it = 0][linearized time_dims]
  *          [linearized zero_dims_0][linearized zero_dims_1]...[linearized zero_dims_n][PE_dims]
  * The "PE_dims" are the unrolled loop(s) of space-time transform, but can be extended to include more loops (discussed below).
- * A "linearized zero_dims_*" is a group of linearized, contiguous, non-PE dims at which the distances of all the dependences
- * are 0. The "vectorized dim" is there only when all dependences' distances at the vectorized loop equals 0 (Otherwise, it
- * will be part of the "linearized time_dims" instead). All the other dimensions are linearized as a single
+ * The "vectorized dim" is there only when all dependences' distances at the vectorized loop equals 0 (Otherwise, it
+ * will be part of the "linearized time_dims" instead). A "linearized zero_dims_*" is a group of linearized, contiguous, non-PE,
+ * non-vectorized dims at which the distances of all the dependences are 0. All the other dimensions are linearized as a single
  * "linearized time_dims".
  *
  * For any "linearized zero_dims_*" or "linearized time_dims", shift/rotate the registers whenever its innermost dimension is
@@ -462,14 +462,14 @@ bool distances_can_be_non_zero_at_dims(const vector<FlowDependence> &dependences
 }
 
 // Find the first dimension at which all distances equal 0 from start (included) before the end.
-// Return end if no such dimension is found.
+// Return -1 if no such dimension is found.
 int first_zero_dim(const vector<FlowDependence> &dependences, int start, int end) {
     for (int i = start; i < end; i++) {
         if (distances_can_be_zero_at_dims(dependences, {i}) && !distances_can_be_non_zero_at_dims(dependences, {i})) {
             return i;
         }
     }
-    return end;
+    return -1;
 }
 
 // Find the first dimension at which some distance(s) != 0 from start (included) before the end.
@@ -495,43 +495,71 @@ Expr linearized_extent(const vector<Expr>      &args,
     return extent;
 }
 
+// The given dimension is a PE dimension
+bool is_PE_dimension(const int dim, const ShiftRegAlloc &alloc) {
+    return (std::find(alloc.PE_dims.begin(), alloc.PE_dims.end(), dim) != alloc.PE_dims.end());
+}
+
+// The given dimension is a vectorized dimension
+bool is_vectorized_dimension(const int dim, const ShiftRegAlloc &alloc) {
+    return (dim == alloc.vectorized_dim);
+}
+
 // Find contiguous zero dimensions from start (included) before the end.
 // Return the next dimension after the newly-found zero-dims, or end if
 // there is no zero-dims found.
 int make_one_group_of_zero_dims(const vector<FlowDependence> &dependences,
                                 const map<string, Expr>       loop_extents,
                                 int                           start,
-                                int                           end,
+                                int                           outermost_non_zero_dim,
                                 ShiftRegAlloc                &alloc) {
-    int next_start = first_zero_dim(dependences, start, end);
-    if (next_start == end) {
-        // No dimension is zero
-        return end;
+    vector<int> dims;
+    int index = start;
+    while (index < outermost_non_zero_dim) {
+        // All continuous zeros are in a group. Ignore PE and vectorized dimensions.
+        if (is_PE_dimension(index, alloc) || is_vectorized_dimension(index, alloc)) {
+            index++;
+            continue;
+        }
+        if (distances_can_be_non_zero_at_dims(dependences, {index})) {
+            if (!dims.empty()) {
+                // A group of zero dimensions has been formed
+                break;
+            } else {
+                index++;
+                continue;
+            }
+        } else {
+            // This dimension must be 0
+            dims.push_back(index);
+            index++;
+        }
     }
-    int next_end = first_non_zero_dim(dependences, next_start + 1, end);
-    // All dimensions in the range of [next_start, next_end) are zeros.
-    internal_assert(next_start <= next_end - 1);
-    vector<int> dims = range_to_vector(next_start, next_end - 1);
-    alloc.linearized_dims.push_back(dims);
-    Expr extent = linearized_extent(alloc.args, loop_extents, dims);
-    alloc.linearized_extents.push_back(extent);
-    alloc.rotate.push_back(true); // Always rotate registers for a zero_dims.
-    return next_end;
+    if (!dims.empty()) {
+        alloc.linearized_dims.push_back(dims);
+        Expr extent = linearized_extent(alloc.args, loop_extents, dims);
+        alloc.linearized_extents.push_back(extent);
+        alloc.rotate.push_back(true); // Always rotate registers for a zero_dims.
+        return index + 1; // Possible start for the next group
+    } else {
+        return outermost_non_zero_dim;
+    }
 }
 
 void make_zero_dims(const vector<FlowDependence> &dependences,
                     const map<string, Expr>       loop_extents,
                     int                           outermost_non_zero_dim,
                     ShiftRegAlloc                &alloc) {
-    int last_PE_dim;
+    // We group contiguous zero dimensions above the first PE dimension into a "linearized zero_dims_*".
+    // For zero dimensions below the first PE dimension, we will make them into "linearized time_dims" later.
+    int zero_dim_start;
     if (!alloc.PE_dims.empty()) {
-        last_PE_dim = alloc.PE_dims.back();
+        zero_dim_start = alloc.PE_dims[0] + 1;
     } else {
-        last_PE_dim = 0;
+        zero_dim_start = 0;
     }
-    int i = last_PE_dim + 1;
-    while (i < outermost_non_zero_dim) {
-        i = make_one_group_of_zero_dims(dependences, loop_extents, i, outermost_non_zero_dim, alloc);
+    while (zero_dim_start < outermost_non_zero_dim) {
+        zero_dim_start = make_one_group_of_zero_dims(dependences, loop_extents, zero_dim_start, outermost_non_zero_dim, alloc);
     }
 }
 
