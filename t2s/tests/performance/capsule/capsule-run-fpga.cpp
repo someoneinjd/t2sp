@@ -66,7 +66,7 @@ int main()
             }
         }
     }
-    Halide::Runtime::Buffer<float> O(COOO, YY_XX, MY, MX, Y_X, COO, NN, CO, N);
+    Halide::Runtime::Buffer<float> O(COOO, MY, MX, Y_X, COO, NN, YYY_XXX, YY_XX, CO, N);
     capsule(I, K, O);
 
 #ifdef TINY
@@ -78,6 +78,7 @@ int main()
     for (int cooo = 0; cooo < COOO; cooo++)
     for (int y_x = 0; y_x < Y_X; y_x++)
     for (int yy_xx = 0; yy_xx < YY_XX; yy_xx++)
+    for (int yyy_xxx = 0; yyy_xxx < YYY_XXX; yyy_xxx++)
     for (int mx = 0; mx < MX; mx++)
     for (int my = 0; my < MY; my++) {
         float golden = 0.0f;
@@ -93,7 +94,7 @@ int main()
             size_t total_n = nn + NN*n;
             golden += I(mk, mx, ci, total_iy, total_ix, total_n) * K(my, mk, ci, total_co, ky, kx);
         }
-        assert(fabs(golden - O(cooo, yy_xx, my, mx, y_x, coo, nn, co, n)) < 0.005*fabs(golden));
+        assert(fabs(golden - O(cooo, my, mx, y_x, coo, nn, yyy_xxx, yy_xx, co, n)) < 0.005*fabs(golden));
     }
 #else
     // Report performance. DSPs, FMax and ExecTime are automatically figured out from the static analysis
