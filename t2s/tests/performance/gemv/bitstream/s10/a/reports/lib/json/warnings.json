@@ -1,0 +1,3 @@
+{"nodes":[
+{"debug":[[{"filename":"/home/u146242/gemv_lab/s10_3/a.cl","line":"132"}]],"details":[{"text":"/home/u146242/gemv_lab/s10_3/a.cl:132:57: warning: unknown attribute 'numwriteports' ignored [-Wunknown-attributes]"}],"name":"unknown attribute 'numwriteports' ignored [-Wunknown-attributes]"}
+]}

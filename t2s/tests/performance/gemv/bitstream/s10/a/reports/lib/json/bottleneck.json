@@ -1,0 +1,508 @@
+{
+  "bottlenecks":
+  [
+    {
+      "name":"'_uA_s0_i'"
+      , "id":1854
+      , "src":"513"
+      , "dst":"519"
+      , "type":"fMAX/II"
+      , "brief":"Data dependency"
+      , "loop":"kernel_V.B2"
+      , "details":
+      [
+        {
+          "type":"table"
+          , "Variable on critical loop carried feedback path: ":"'_uA_s0_i'"
+          , "Declared at: ":
+          [
+            {
+              "type":"text"
+              , "text":"%L"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gemv_lab/s10_3/a.cl"
+                  , "line":"196"
+                }
+              ]
+            }
+          ]
+          , "Dependency: ":"Data dependency"
+          , "Estimated fmax reduced to: ":"388.8"
+          , "Loop feedback path that lowered II and Fmax: ":
+          [
+            {
+              "type":"text"
+              , "text":"+(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gemv_lab/s10_3/a.cl"
+                  , "line":"196"
+                }
+              ]
+            }
+            , {
+              "type":"text"
+              , "text":"Select(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gemv_lab/s10_3/a.cl"
+                  , "line":"269"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+      , "nodes":
+      [
+        {
+          "name":"'_uA_s0_i'"
+          , "id":513
+          , "start":"1.00"
+          , "parent":"kernel_V.B2"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gemv_lab/s10_3/a.cl"
+                , "line":269
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"+"
+          , "id":518
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gemv_lab/s10_3/a.cl"
+                , "line":196
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"Select"
+          , "id":514
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gemv_lab/s10_3/a.cl"
+                , "line":269
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"Feedback"
+          , "id":519
+          , "end":"1.00"
+          , "parent":"kernel_V.B2"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gemv_lab/s10_3/a.cl"
+                , "line":196
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+      ]
+      , "links":
+      [
+        {
+          "from":513
+          , "to":514
+        }
+        , {
+          "from":518
+          , "to":519
+        }
+        , {
+          "from":513
+          , "to":519
+          , "reverse":1
+        }
+      ]
+    }
+    , {
+      "name":"'_uA_s0_k'"
+      , "id":1855
+      , "src":"525"
+      , "dst":"534"
+      , "type":"fMAX/II"
+      , "brief":"Data dependency"
+      , "loop":"kernel_V.B3"
+      , "details":
+      [
+        {
+          "type":"table"
+          , "Variable on critical loop carried feedback path: ":"'_uA_s0_k'"
+          , "Declared at: ":
+          [
+            {
+              "type":"text"
+              , "text":"%L"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gemv_lab/s10_3/a.cl"
+                  , "line":"199"
+                }
+              ]
+            }
+          ]
+          , "Dependency: ":"Data dependency"
+          , "Estimated fmax reduced to: ":"388.8"
+          , "Loop feedback path that lowered II and Fmax: ":
+          [
+            {
+              "type":"text"
+              , "text":"+(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gemv_lab/s10_3/a.cl"
+                  , "line":"199"
+                }
+              ]
+            }
+            , {
+              "type":"text"
+              , "text":"Select(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gemv_lab/s10_3/a.cl"
+                  , "line":"269"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+      , "nodes":
+      [
+        {
+          "name":"'_uA_s0_k'"
+          , "id":525
+          , "start":"1.00"
+          , "parent":"kernel_V.B3"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gemv_lab/s10_3/a.cl"
+                , "line":269
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"Select"
+          , "id":526
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gemv_lab/s10_3/a.cl"
+                , "line":269
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"+"
+          , "id":533
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gemv_lab/s10_3/a.cl"
+                , "line":199
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"Feedback"
+          , "id":534
+          , "end":"1.00"
+          , "parent":"kernel_V.B3"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gemv_lab/s10_3/a.cl"
+                , "line":199
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+      ]
+      , "links":
+      [
+        {
+          "from":525
+          , "to":526
+        }
+        , {
+          "from":526
+          , "to":533
+        }
+        , {
+          "from":533
+          , "to":534
+        }
+        , {
+          "from":525
+          , "to":534
+          , "reverse":1
+        }
+      ]
+    }
+    , {
+      "name":"'_uA_s0_kk_ii'"
+      , "id":1856
+      , "src":"1141"
+      , "dst":"1602"
+      , "type":"fMAX/II"
+      , "brief":"Data dependency"
+      , "loop":"kernel_V.B5"
+      , "details":
+      [
+        {
+          "type":"table"
+          , "Variable on critical loop carried feedback path: ":"'_uA_s0_kk_ii'"
+          , "Declared at: ":
+          [
+            {
+              "type":"text"
+              , "text":"%L"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gemv_lab/s10_3/a.cl"
+                  , "line":"201"
+                }
+              ]
+            }
+          ]
+          , "Dependency: ":"Data dependency"
+          , "Estimated fmax reduced to: ":"432.0"
+          , "Loop feedback path that lowered II and Fmax: ":
+          [
+            {
+              "type":"text"
+              , "text":"+(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gemv_lab/s10_3/a.cl"
+                  , "line":"201"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+      , "nodes":
+      [
+        {
+          "name":"'_uA_s0_kk_ii'"
+          , "id":1141
+          , "start":"8.00"
+          , "parent":"kernel_V.B5"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gemv_lab/s10_3/a.cl"
+                , "line":201
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"+"
+          , "id":1599
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gemv_lab/s10_3/a.cl"
+                , "line":201
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"Feedback"
+          , "id":1602
+          , "end":"8.00"
+          , "parent":"kernel_V.B5"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gemv_lab/s10_3/a.cl"
+                , "line":201
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+      ]
+      , "links":
+      [
+        {
+          "from":1141
+          , "to":1599
+        }
+        , {
+          "from":1599
+          , "to":1602
+        }
+        , {
+          "from":1141
+          , "to":1602
+          , "reverse":1
+        }
+      ]
+    }
+    , {
+      "name":"_V_channel_array.s"
+      , "id":1857
+      , "src":"142"
+      , "dst":"147"
+      , "concurrency":"1"
+      , "type":"Occupancy limiter"
+      , "brief":"Memory dependency"
+      , "loop":"kernel_unloader.B4"
+      , "details":
+      [
+        {
+          "type":"table"
+          , "Variable on critical loop carried feedback path: ":"_V_channel_array.s"
+          , "Declared at: ":
+          [
+            {
+              "type":"text"
+              , "text":"%L"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gemv_lab/s10_3/a.cl"
+                  , "line":"302"
+                }
+              ]
+            }
+          ]
+          , "Dependency: ":"Memory dependency"
+          , "Concurrency value: ":"1"
+          , "Loop feedback path that lowered occupancy: ":
+          [
+            {
+              "type":"text"
+              , "text":"Loop: kernel_unloader.B6(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gemv_lab/s10_3/a.cl"
+                  , "line":"312"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+      , "nodes":
+      [
+        {
+          "name":"_V_channel_array.s"
+          , "id":142
+          , "start":"8.00"
+          , "parent":"kernel_unloader.B4"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gemv_lab/s10_3/a.cl"
+                , "line":314
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"kernel_unloader.B6"
+          , "id":36
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gemv_lab/s10_3/a.cl"
+                , "line":312
+              }
+            ]
+          ]
+          , "type":"loop"
+        }
+        , {
+          "name":"Feedback"
+          , "id":147
+          , "end":"1.00"
+          , "parent":"kernel_unloader.B5"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gemv_lab/s10_3/a.cl"
+                , "line":314
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+      ]
+      , "links":
+      [
+        {
+          "from":36
+          , "to":36
+        }
+        , {
+          "from":142
+          , "to":36
+        }
+        , {
+          "from":36
+          , "to":147
+        }
+        , {
+          "from":142
+          , "to":147
+          , "reverse":1
+        }
+      ]
+    }
+  ]
+}

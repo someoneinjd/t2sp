@@ -1,2 +1,2 @@
 [lfs]
-   fetchexclude = *.aocx
+   fetchexclude = *.aocx,*.mp4
