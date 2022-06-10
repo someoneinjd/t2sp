@@ -5,7 +5,7 @@
 | Device | Frequency | Throughput | Logic utilization | DSP blocks | RAM blocks | Efficiency | Matrix and vector Size | Device compiler |
 | ------ | --------- | ---------- | ----------------- | ---------- | ---------- | -----------| ----------- | --------------- |
 | Intel Arria 10 GX 1150 | 308 MHz | 7.9 GFLOPS (93 % machine peak) | 71,905 / 427,200 ( 17 % ) | 17 / 1,518 ( 1 % ) | 417 / 2,713 ( 15 % ) | 93 % DDR efficiency | X(64M) * Y(64M)  | aoc 19.4.0 (on s005-n001) |  
-| Intel Stratix 10 SX 2800 | 290 MHz | 17.8 GFLOPS (93 % machine peak) | 220,388 / 933,120 ( 24 % ) | 33 / 5,760 ( 1 % ) | 678 / 11,721 ( 6 % ) | 93 % DDR efficiency | X(64M) * Y(64M) | aoc 22.2.0 (on s001-n144) |
+| Intel Stratix 10 SX 2800 | 290 MHz | 17.8 GFLOPS (93 % machine peak) | 220,388 / 933,120 ( 24 % ) | 33 / 5,760 ( 1 % ) | 678 / 11,721 ( 6 % ) | 93 % DDR efficiency | X(128M) * Y(128M) | aoc 22.2.0 (on s001-n144) |
 
 Note: 
 
