@@ -1,4 +1,4 @@
-# Matrix Vector Multiply
+# DOT
 
 ## Performance (single precision)
 
