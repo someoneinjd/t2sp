@@ -1,0 +1,405 @@
+{
+  "nodes":
+  [
+    {
+      "name":"DDR"
+      , "id":322
+      , "details":
+      [
+        {
+          "type":"table"
+          , "Interleaving":"Yes"
+          , "Interleave Size":"4096 bytes"
+          , "Channels":"4 channels"
+          , "Maximum bandwidth the BSP can deliver":"76800.00 MB/s<br><small><i> Note: Realistic maximum bandwidth is about 90% of the above due to loss from interconnect and memory controller.</i></small>"
+          , "Channel DDR Width (bits)":"512, 512, 512, 512"
+        }
+      ]
+      , "type":"memsys"
+      , "children":
+      [
+        {
+          "name":"channel 0"
+          , "id":324
+          , "type":"bb"
+        }
+        , {
+          "name":"channel 1"
+          , "id":325
+          , "type":"bb"
+        }
+        , {
+          "name":"channel 2"
+          , "id":326
+          , "type":"bb"
+        }
+        , {
+          "name":"channel 3"
+          , "id":327
+          , "type":"bb"
+        }
+      ]
+    }
+    , {
+      "name":"Memory Controller"
+      , "id":323
+      , "parent":"322"
+      , "bw":"76800.00"
+      , "num_channels":"4"
+      , "interleave":"1"
+      , "details":
+      [
+        {
+          "type":"table"
+          , "Maximum bandwidth the BSP can deliver":"76800.00 MB/s<br><small><i> Note: Realistic maximum bandwidth is about 90% of the above due to loss from interconnect and memory controller.</i></small>"
+        }
+      ]
+      , "type":"bb"
+    }
+    , {
+      "name":"Global Memory Interconnect"
+      , "id":328
+      , "parent":"322"
+      , "type":"bb"
+      , "children":
+      [
+        {
+          "name":"SHARE"
+          , "id":329
+          , "type":"arb"
+        }
+        , {
+          "name":"Write Interconnect"
+          , "id":332
+          , "details":
+          [
+            {
+              "type":"table"
+              , "Name":"DDR"
+              , "Interconnect Style":"ring"
+              , "Writes":"1"
+              , "User specified force-single-store-ring flag":"False"
+              , "Store Rings":"4"
+            }
+          ]
+          , "type":"bb"
+        }
+        , {
+          "name":"Read Interconnect"
+          , "id":330
+          , "details":
+          [
+            {
+              "type":"table"
+              , "Name":"DDR"
+              , "Interconnect Style":"ring"
+              , "Reads":"4"
+            }
+          ]
+          , "type":"bb"
+        }
+        , {
+          "name":"Read Interconnect Router"
+          , "id":331
+          , "details":
+          [
+            {
+              "type":"table"
+              , "User specified num-reorder flag":"Unset"
+            }
+          ]
+          , "type":"memsys"
+          , "children":
+          [
+            {
+              "name":"Bus 0"
+              , "id":340
+              , "type":"memsys"
+            }
+            , {
+              "name":"Bus 1"
+              , "id":341
+              , "type":"memsys"
+            }
+            , {
+              "name":"Bus 2"
+              , "id":342
+              , "type":"memsys"
+            }
+            , {
+              "name":"Bus 3"
+              , "id":343
+              , "type":"memsys"
+            }
+          ]
+        }
+      ]
+    }
+    , {
+      "name":"Global Memory Loads"
+      , "id":333
+      , "parent":"322"
+      , "type":"bb"
+      , "children":
+      [
+        {
+          "name":"LD"
+          , "id":334
+          , "kwidth":"512"
+          , "mwidth":"512"
+          , "details":
+          [
+            {
+              "type":"table"
+              , "Start Cycle":"10"
+              , "Latency":"806 cycles"
+              , "Width":"512 bits"
+              , "DDR Width":"512 bits"
+              , "Uses Caching":"No"
+              , "LSU Style":"BURST-COALESCED"
+              , "Kernel":"kernel_xLoader_1"
+            }
+          ]
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146718/dot_lab/s10/a.cl"
+                , "line":78
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"LD"
+          , "id":335
+          , "kwidth":"512"
+          , "mwidth":"512"
+          , "details":
+          [
+            {
+              "type":"table"
+              , "Start Cycle":"10"
+              , "Latency":"806 cycles"
+              , "Width":"512 bits"
+              , "DDR Width":"512 bits"
+              , "Uses Caching":"No"
+              , "LSU Style":"BURST-COALESCED"
+              , "Kernel":"kernel_xLoader_1"
+            }
+          ]
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146718/dot_lab/s10/a.cl"
+                , "line":79
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"LD"
+          , "id":336
+          , "kwidth":"512"
+          , "mwidth":"512"
+          , "details":
+          [
+            {
+              "type":"table"
+              , "Start Cycle":"10"
+              , "Latency":"806 cycles"
+              , "Width":"512 bits"
+              , "DDR Width":"512 bits"
+              , "Uses Caching":"No"
+              , "LSU Style":"BURST-COALESCED"
+              , "Kernel":"kernel_yLoader_1"
+            }
+          ]
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146718/dot_lab/s10/a.cl"
+                , "line":103
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"LD"
+          , "id":337
+          , "kwidth":"512"
+          , "mwidth":"512"
+          , "details":
+          [
+            {
+              "type":"table"
+              , "Start Cycle":"10"
+              , "Latency":"806 cycles"
+              , "Width":"512 bits"
+              , "DDR Width":"512 bits"
+              , "Uses Caching":"No"
+              , "LSU Style":"BURST-COALESCED"
+              , "Kernel":"kernel_yLoader_1"
+            }
+          ]
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146718/dot_lab/s10/a.cl"
+                , "line":104
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+      ]
+    }
+    , {
+      "name":"Global Memory Stores"
+      , "id":338
+      , "parent":"322"
+      , "type":"bb"
+      , "children":
+      [
+        {
+          "name":"ST"
+          , "id":339
+          , "kwidth":"32"
+          , "mwidth":"512"
+          , "details":
+          [
+            {
+              "type":"table"
+              , "Start Cycle":"17"
+              , "Latency":"2 cycles"
+              , "Width":"32 bits"
+              , "DDR Width":"512 bits"
+              , "Uses Write Ack":"No"
+              , "LSU Style":"BURST-COALESCED"
+              , "Kernel":"kernel_unloader_1"
+            }
+          ]
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146718/dot_lab/s10/a.cl"
+                , "line":155
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+      ]
+    }
+  ]
+  , "links":
+  [
+    {
+      "from":324
+      , "to":323
+    }
+    , {
+      "from":323
+      , "to":324
+    }
+    , {
+      "from":325
+      , "to":323
+    }
+    , {
+      "from":323
+      , "to":325
+    }
+    , {
+      "from":326
+      , "to":323
+    }
+    , {
+      "from":323
+      , "to":326
+    }
+    , {
+      "from":327
+      , "to":323
+    }
+    , {
+      "from":323
+      , "to":327
+    }
+    , {
+      "from":330
+      , "to":329
+    }
+    , {
+      "from":332
+      , "to":329
+    }
+    , {
+      "from":329
+      , "to":323
+    }
+    , {
+      "from":334
+      , "to":330
+    }
+    , {
+      "from":335
+      , "to":330
+    }
+    , {
+      "from":336
+      , "to":330
+    }
+    , {
+      "from":337
+      , "to":330
+    }
+    , {
+      "from":339
+      , "to":332
+    }
+    , {
+      "from":323
+      , "to":340
+    }
+    , {
+      "from":323
+      , "to":341
+    }
+    , {
+      "from":323
+      , "to":342
+    }
+    , {
+      "from":323
+      , "to":343
+    }
+    , {
+      "from":340
+      , "to":334
+      , "reverse":1
+    }
+    , {
+      "from":341
+      , "to":335
+      , "reverse":1
+    }
+    , {
+      "from":342
+      , "to":336
+      , "reverse":1
+    }
+    , {
+      "from":343
+      , "to":337
+      , "reverse":1
+    }
+  ]
+}

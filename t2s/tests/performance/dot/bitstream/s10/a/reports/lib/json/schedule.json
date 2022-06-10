@@ -1,0 +1,5836 @@
+{
+  "1":
+  {
+    "nodes":
+    [
+      {
+        "name":"kernel_xLoader_1.B0"
+        , "id":5
+        , "start":"0"
+        , "end":"9"
+        , "details":
+        [
+          {
+            "type":"table"
+          }
+        ]
+        , "type":"bb"
+        , "children":
+        [
+          {
+            "name":"Cluster 0"
+            , "id":24
+            , "start":"1"
+            , "end":"9"
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Cluster Name":"i_sfc_s_c0_in_entry_kernel_xloader_1s_c0_enter_kernel_xloader_11"
+                , "Cluster Type":"Stall-Free"
+                , "Cluster Start Cycle":"1"
+                , "Cluster Latency":"8"
+              }
+            ]
+            , "type":"cluster"
+            , "children":
+            [
+              {
+                "name":"X_extent_0"
+                , "id":74
+                , "start":"0"
+                , "end":"2"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"Input Synchronization for 'X_extent_0'"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"0"
+                    , "Latency":"2"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":64
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"FFwd Src"
+                , "id":85
+                , "start":"2"
+                , "end":"2"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"FFwd Source"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"2"
+                    , "Latency":"0"
+                  }
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"X_extent_0"
+                , "id":75
+                , "start":"0"
+                , "end":"5"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"Input Synchronization for 'X_extent_0'"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"0"
+                    , "Latency":"5"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":64
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Compare"
+                , "id":76
+                , "start":"5"
+                , "end":"5"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"32-bit Integer Compare"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"5"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":73
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"FFwd Src"
+                , "id":86
+                , "start":"5"
+                , "end":"5"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"FFwd Source"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"5"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":73
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"X_extent_1"
+                , "id":77
+                , "start":"0"
+                , "end":"2"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"Input Synchronization for 'X_extent_1'"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"0"
+                    , "Latency":"2"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":65
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Compare"
+                , "id":78
+                , "start":"2"
+                , "end":"2"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"32-bit Integer Compare"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"2"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":70
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"FFwd Src"
+                , "id":87
+                , "start":"2"
+                , "end":"2"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"FFwd Source"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"2"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":70
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"X_extent_1"
+                , "id":79
+                , "start":"0"
+                , "end":"2"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"Input Synchronization for 'X_extent_1'"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"0"
+                    , "Latency":"2"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":65
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Compare"
+                , "id":80
+                , "start":"2"
+                , "end":"3"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"32-bit Integer Compare"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"2"
+                    , "Latency":"1"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":70
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"X_extent_1"
+                , "id":81
+                , "start":"0"
+                , "end":"3"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"Input Synchronization for 'X_extent_1'"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"0"
+                    , "Latency":"3"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":65
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Select"
+                , "id":82
+                , "start":"3"
+                , "end":"4"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"32-bit Select"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"3"
+                    , "Latency":"1"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":70
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"+"
+                , "id":83
+                , "start":"4"
+                , "end":"4"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"32-bit Integer Add"
+                    , "Constant Operand":"-1 (0xFFFFFFFF)"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"4"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":70
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"+"
+                , "id":84
+                , "start":"5"
+                , "end":"5"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"33-bit Integer Add"
+                    , "Constant Operand":"-1 (0x1FFFFFFFF)"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"5"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":70
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"FFwd Src"
+                , "id":88
+                , "start":"5"
+                , "end":"5"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"FFwd Source"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"5"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":70
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Exit"
+                , "id":72
+                , "start":"5"
+                , "end":"9"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Max Fanout":"2"
+                    , "Start Cycle":"5"
+                    , "Latency":"3"
+                    , "Exit FIFO Depth":"32"
+                    , "Exit FIFO Width":"8"
+                    , "Details":"Exit FIFO depth is sized to accommodate all data that may be in-flight in the stall-free cluster; this depth will be equal to or greater than the latency of the cluster.  The width of the FIFO depends on the amount of data that needs to pass from the stall-free logic cluster to the stall-able logic below it."
+                  }
+                ]
+                , "type":"inst"
+              }
+            ]
+          }
+          , {
+            "name":"Feedback"
+            , "id":23
+            , "start":"8"
+            , "end":"9"
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Instruction":"Feedback Read"
+                , "Variable":"Unknown variable"
+                , "Max Fanout":"1"
+                , "Start Cycle":"8"
+                , "Latency":"1"
+              }
+            ]
+            , "debug":
+            [
+              [
+                {
+                  "filename":"/home/u146718/dot_lab/s10/a.cl"
+                  , "line":64
+                }
+              ]
+            ]
+            , "type":"inst"
+          }
+        ]
+      }
+      , {
+        "name":"kernel_xLoader_1.B2"
+        , "id":7
+        , "start":"9"
+        , "end":"17"
+        , "details":
+        [
+          {
+            "type":"table"
+          }
+        ]
+        , "type":"bb"
+        , "children":
+        [
+          {
+            "name":"Cluster 1"
+            , "id":26
+            , "start":"9"
+            , "end":"17"
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Cluster Name":"i_sfc_s_c0_in_for_body_kernel_xloader_1s_c0_enter232_kernel_xloader_11"
+                , "Cluster Type":"Stall-Free"
+                , "Cluster Start Cycle":"0"
+                , "Cluster Latency":"8"
+              }
+            ]
+            , "type":"cluster"
+            , "children":
+            [
+              {
+                "name":"FFwd Dest"
+                , "id":92
+                , "start":"13"
+                , "end":"13"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"FFwd Destination"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"4"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":70
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"FFwd Dest"
+                , "id":94
+                , "start":"12"
+                , "end":"12"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"FFwd Destination"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"3"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":73
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"FFwd Dest"
+                , "id":95
+                , "start":"12"
+                , "end":"12"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"FFwd Destination"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"3"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":70
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"And"
+                , "id":96
+                , "start":"12"
+                , "end":"12"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"1-bit And"
+                    , "Max Fanout":"2"
+                    , "Start Cycle":"3"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":70
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"FFwd Dest"
+                , "id":97
+                , "start":"10"
+                , "end":"10"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"FFwd Destination"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"1"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":72
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":">>"
+                , "id":98
+                , "start":"10"
+                , "end":"10"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"32-bit Arithmetic Right Shift"
+                    , "Constant Operand":"5 (0x5)"
+                    , "Max Fanout":"2"
+                    , "Start Cycle":"1"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":72
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Compare"
+                , "id":99
+                , "start":"10"
+                , "end":"11"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"32-bit Integer Compare"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"1"
+                    , "Latency":"1"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":70
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Select"
+                , "id":100
+                , "start":"11"
+                , "end":"12"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"32-bit Select"
+                    , "Max Fanout":"2"
+                    , "Start Cycle":"2"
+                    , "Latency":"1"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":70
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Select"
+                , "id":101
+                , "start":"12"
+                , "end":"13"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"32-bit Select"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"3"
+                    , "Latency":"1"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":73
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"+"
+                , "id":102
+                , "start":"12"
+                , "end":"12"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"32-bit Integer Add"
+                    , "Constant Operand":"-1 (0xFFFFFFFF)"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"3"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":70
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"+"
+                , "id":103
+                , "start":"13"
+                , "end":"13"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"33-bit Integer Add"
+                    , "Constant Operand":"-1 (0x1FFFFFFFF)"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"4"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":70
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"FFwd Dest"
+                , "id":104
+                , "start":"13"
+                , "end":"13"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"FFwd Destination"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"4"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":70
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"And"
+                , "id":105
+                , "start":"13"
+                , "end":"13"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"1-bit And"
+                    , "Max Fanout":"3"
+                    , "Start Cycle":"4"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":70
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Select"
+                , "id":93
+                , "start":"13"
+                , "end":"13"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"33-bit Select"
+                    , "Max Fanout":"2"
+                    , "Start Cycle":"4"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":81
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Global variable"
+                , "id":107
+                , "start":"13"
+                , "end":"13"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"Feedback Read"
+                    , "Variable":"Global variable"
+                    , "Feedback FIFO Depth":"1"
+                    , "Feedback FIFO Width":"32"
+                    , "Max Fanout":"2"
+                    , "Start Cycle":"4"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":81
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"+"
+                , "id":108
+                , "start":"13"
+                , "end":"13"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"32-bit Integer Add"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"4"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":73
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Exit"
+                , "id":90
+                , "start":"13"
+                , "end":"17"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"4"
+                    , "Latency":"3"
+                    , "Exit FIFO Depth":"32"
+                    , "Exit FIFO Width":"192"
+                    , "Details":"Exit FIFO depth is sized to accommodate all data that may be in-flight in the stall-free cluster; this depth will be equal to or greater than the latency of the cluster.  The width of the FIFO depends on the amount of data that needs to pass from the stall-free logic cluster to the stall-able logic below it."
+                  }
+                ]
+                , "type":"inst"
+              }
+            ]
+          }
+        ]
+      }
+      , {
+        "name":"kernel_xLoader_1.B4"
+        , "id":9
+        , "start":"17"
+        , "end":"838"
+        , "details":
+        [
+          {
+            "type":"table"
+          }
+        ]
+        , "type":"bb"
+        , "children":
+        [
+          {
+            "name":"Cluster 2"
+            , "id":32
+            , "start":"17"
+            , "end":"26"
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Cluster Name":"i_sfc_s_c0_in_for_body5_kernel_xloader_1s_c0_enter263_kernel_xloader_15"
+                , "Cluster Type":"Stall-Free"
+                , "Cluster Start Cycle":"0"
+                , "Cluster Latency":"9"
+              }
+            ]
+            , "type":"cluster"
+            , "children":
+            [
+              {
+                "name":"Global variable"
+                , "id":115
+                , "start":"21"
+                , "end":"21"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"Feedback Read"
+                    , "Variable":"Global variable"
+                    , "Feedback FIFO Depth":"1"
+                    , "Feedback FIFO Width":"32"
+                    , "Max Fanout":"2"
+                    , "Start Cycle":"4"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":81
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"<<"
+                , "id":116
+                , "start":"21"
+                , "end":"22"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"32-bit Left Shift"
+                    , "Constant Operand":"4 (0x4)"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"4"
+                    , "Latency":"1"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":77
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"+"
+                , "id":121
+                , "start":"21"
+                , "end":"21"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"32-bit Integer Add"
+                    , "Constant Operand":"1 (0x1)"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"4"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":81
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Feedback"
+                , "id":113
+                , "start":"21"
+                , "end":"21"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"Feedback Read"
+                    , "Variable":"Unknown variable"
+                    , "Feedback FIFO Depth":"1"
+                    , "Feedback FIFO Width":"8"
+                    , "Max Fanout":"3"
+                    , "Start Cycle":"4"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":70
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Xor"
+                , "id":114
+                , "start":"21"
+                , "end":"22"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"1-bit Xor"
+                    , "Constant Operand":"1 (0x1)"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"4"
+                    , "Latency":"1"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":70
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"And"
+                , "id":122
+                , "start":"21"
+                , "end":"21"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"1-bit And"
+                    , "Max Fanout":"2"
+                    , "Start Cycle":"4"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":70
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"xSerializer_1"
+                , "id":117
+                , "start":"17"
+                , "end":"22"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"Input Synchronization for 'xSerializer_1'"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"0"
+                    , "Latency":"5"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":66
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Ptr. Comp."
+                , "id":118
+                , "start":"22"
+                , "end":"22"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"Pointer Computation"
+                    , "Max Fanout":"2"
+                    , "Start Cycle":"5"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":78
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"xSerializer_2"
+                , "id":119
+                , "start":"17"
+                , "end":"22"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"Input Synchronization for 'xSerializer_2'"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"0"
+                    , "Latency":"5"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":67
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Ptr. Comp."
+                , "id":120
+                , "start":"22"
+                , "end":"22"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"Pointer Computation"
+                    , "Max Fanout":"2"
+                    , "Start Cycle":"5"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":79
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Exit"
+                , "id":111
+                , "start":"22"
+                , "end":"26"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"5"
+                    , "Latency":"3"
+                    , "Exit FIFO Depth":"32"
+                    , "Exit FIFO Width":"256"
+                    , "Details":"Exit FIFO depth is sized to accommodate all data that may be in-flight in the stall-free cluster; this depth will be equal to or greater than the latency of the cluster.  The width of the FIFO depends on the amount of data that needs to pass from the stall-free logic cluster to the stall-able logic below it."
+                  }
+                ]
+                , "type":"inst"
+              }
+            ]
+          }
+          , {
+            "name":"LD"
+            , "id":34
+            , "start":"27"
+            , "end":"834"
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Instruction":"Load"
+                , "Width":"512 bits"
+                , "LSU Style":"Burst-coalesced"
+                , "Stall-free":"No"
+                , "Global Memory":"Yes"
+                , "Max Fanout":"16"
+                , "Start Cycle":"10"
+                , "Latency":"807"
+              }
+            ]
+            , "debug":
+            [
+              [
+                {
+                  "filename":"/home/u146718/dot_lab/s10/a.cl"
+                  , "line":79
+                }
+              ]
+            ]
+            , "type":"inst"
+          }
+          , {
+            "name":"LD"
+            , "id":33
+            , "start":"27"
+            , "end":"834"
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Instruction":"Load"
+                , "Width":"512 bits"
+                , "LSU Style":"Burst-coalesced"
+                , "Stall-free":"No"
+                , "Global Memory":"Yes"
+                , "Max Fanout":"16"
+                , "Start Cycle":"10"
+                , "Latency":"807"
+              }
+            ]
+            , "debug":
+            [
+              [
+                {
+                  "filename":"/home/u146718/dot_lab/s10/a.cl"
+                  , "line":78
+                }
+              ]
+            ]
+            , "type":"inst"
+          }
+          , {
+            "name":"Cluster 3"
+            , "id":35
+            , "start":"834"
+            , "end":"838"
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Cluster Name":"i_sfc_s_c1_in_for_body5_kernel_xloader_1s_c1_enter_kernel_xloader_112"
+                , "Cluster Type":"Stall-Free"
+                , "Cluster Start Cycle":"817"
+                , "Cluster Latency":"4"
+              }
+            ]
+            , "type":"cluster"
+            , "children":
+            [
+              {
+                "name":"Exit"
+                , "id":126
+                , "start":"834"
+                , "end":"838"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Max Fanout":"2"
+                    , "Start Cycle":"817"
+                    , "Latency":"3"
+                    , "Exit FIFO Depth":"32"
+                    , "Exit FIFO Width":"1536"
+                    , "Details":"Exit FIFO depth is sized to accommodate all data that may be in-flight in the stall-free cluster; this depth will be equal to or greater than the latency of the cluster.  The width of the FIFO depends on the amount of data that needs to pass from the stall-free logic cluster to the stall-able logic below it."
+                  }
+                ]
+                , "type":"inst"
+              }
+            ]
+          }
+          , {
+            "name":"WR"
+            , "id":36
+            , "start":"838"
+            , "end":"838"
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Instruction":"Channel Write"
+                , "Width":"1024 bits"
+                , "Depth":"256"
+                , "Channel Name":"_xLoader__1_channel"
+                , "Stall-free":"No"
+                , "Max Fanout":"1"
+                , "Start Cycle":"821"
+                , "Latency":"0"
+              }
+            ]
+            , "debug":
+            [
+              [
+                {
+                  "filename":"/home/u146718/dot_lab/s10/a.cl"
+                  , "line":80
+                }
+              ]
+            ]
+            , "type":"inst"
+          }
+        ]
+      }
+      , {
+        "name":"kernel_xLoader_1.B3"
+        , "id":8
+        , "start":"838"
+        , "end":"838"
+        , "details":
+        [
+          {
+            "type":"table"
+          }
+        ]
+        , "type":"bb"
+      }
+      , {
+        "name":"kernel_xLoader_1.B1"
+        , "id":6
+        , "start":"838"
+        , "end":"839"
+        , "details":
+        [
+          {
+            "type":"table"
+          }
+        ]
+        , "type":"bb"
+      }
+    ]
+    , "links":
+    [
+      {
+        "from":5
+        , "to":7
+      }
+      , {
+        "from":74
+        , "to":85
+      }
+      , {
+        "from":75
+        , "to":76
+      }
+      , {
+        "from":76
+        , "to":86
+      }
+      , {
+        "from":77
+        , "to":78
+      }
+      , {
+        "from":78
+        , "to":87
+      }
+      , {
+        "from":79
+        , "to":80
+      }
+      , {
+        "from":80
+        , "to":82
+      }
+      , {
+        "from":81
+        , "to":82
+      }
+      , {
+        "from":82
+        , "to":83
+      }
+      , {
+        "from":83
+        , "to":84
+      }
+      , {
+        "from":84
+        , "to":88
+      }
+      , {
+        "from":7
+        , "to":9
+      }
+      , {
+        "from":92
+        , "to":93
+      }
+      , {
+        "from":94
+        , "to":96
+      }
+      , {
+        "from":95
+        , "to":96
+      }
+      , {
+        "from":96
+        , "to":101
+      }
+      , {
+        "from":96
+        , "to":90
+      }
+      , {
+        "from":97
+        , "to":98
+      }
+      , {
+        "from":98
+        , "to":100
+      }
+      , {
+        "from":98
+        , "to":99
+      }
+      , {
+        "from":99
+        , "to":100
+      }
+      , {
+        "from":100
+        , "to":102
+      }
+      , {
+        "from":100
+        , "to":101
+      }
+      , {
+        "from":101
+        , "to":108
+      }
+      , {
+        "from":102
+        , "to":103
+      }
+      , {
+        "from":103
+        , "to":90
+      }
+      , {
+        "from":104
+        , "to":105
+      }
+      , {
+        "from":105
+        , "to":90
+      }
+      , {
+        "from":105
+        , "to":93
+      }
+      , {
+        "from":107
+        , "to":108
+      }
+      , {
+        "from":107
+        , "to":90
+      }
+      , {
+        "from":9
+        , "to":8
+      }
+      , {
+        "from":32
+        , "to":33
+      }
+      , {
+        "from":32
+        , "to":34
+      }
+      , {
+        "from":32
+        , "to":36
+      }
+      , {
+        "from":115
+        , "to":121
+      }
+      , {
+        "from":115
+        , "to":116
+      }
+      , {
+        "from":116
+        , "to":120
+      }
+      , {
+        "from":116
+        , "to":118
+      }
+      , {
+        "from":113
+        , "to":122
+      }
+      , {
+        "from":113
+        , "to":114
+      }
+      , {
+        "from":114
+        , "to":111
+      }
+      , {
+        "from":122
+        , "to":111
+      }
+      , {
+        "from":117
+        , "to":118
+      }
+      , {
+        "from":118
+        , "to":111
+      }
+      , {
+        "from":119
+        , "to":120
+      }
+      , {
+        "from":120
+        , "to":111
+      }
+      , {
+        "from":34
+        , "to":35
+      }
+      , {
+        "from":33
+        , "to":35
+      }
+      , {
+        "from":35
+        , "to":36
+      }
+      , {
+        "from":8
+        , "to":7
+      }
+      , {
+        "from":8
+        , "to":6
+      }
+    ]
+  }
+  , "2":
+  {
+    "nodes":
+    [
+      {
+        "name":"kernel_yLoader_1.B0"
+        , "id":10
+        , "start":"0"
+        , "end":"9"
+        , "details":
+        [
+          {
+            "type":"table"
+          }
+        ]
+        , "type":"bb"
+        , "children":
+        [
+          {
+            "name":"Cluster 4"
+            , "id":38
+            , "start":"1"
+            , "end":"9"
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Cluster Name":"i_sfc_s_c0_in_entry_kernel_yloader_1s_c0_enter_kernel_yloader_11"
+                , "Cluster Type":"Stall-Free"
+                , "Cluster Start Cycle":"1"
+                , "Cluster Latency":"8"
+              }
+            ]
+            , "type":"cluster"
+            , "children":
+            [
+              {
+                "name":"X_extent_0"
+                , "id":130
+                , "start":"0"
+                , "end":"2"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"Input Synchronization for 'X_extent_0'"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"0"
+                    , "Latency":"2"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":89
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"FFwd Src"
+                , "id":141
+                , "start":"2"
+                , "end":"2"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"FFwd Source"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"2"
+                    , "Latency":"0"
+                  }
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"X_extent_0"
+                , "id":131
+                , "start":"0"
+                , "end":"5"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"Input Synchronization for 'X_extent_0'"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"0"
+                    , "Latency":"5"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":89
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Compare"
+                , "id":132
+                , "start":"5"
+                , "end":"5"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"32-bit Integer Compare"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"5"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":98
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"FFwd Src"
+                , "id":142
+                , "start":"5"
+                , "end":"5"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"FFwd Source"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"5"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":98
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"X_extent_1"
+                , "id":133
+                , "start":"0"
+                , "end":"2"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"Input Synchronization for 'X_extent_1'"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"0"
+                    , "Latency":"2"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":90
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Compare"
+                , "id":134
+                , "start":"2"
+                , "end":"2"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"32-bit Integer Compare"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"2"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":95
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"FFwd Src"
+                , "id":143
+                , "start":"2"
+                , "end":"2"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"FFwd Source"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"2"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":95
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"X_extent_1"
+                , "id":135
+                , "start":"0"
+                , "end":"2"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"Input Synchronization for 'X_extent_1'"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"0"
+                    , "Latency":"2"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":90
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Compare"
+                , "id":136
+                , "start":"2"
+                , "end":"3"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"32-bit Integer Compare"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"2"
+                    , "Latency":"1"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":95
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"X_extent_1"
+                , "id":137
+                , "start":"0"
+                , "end":"3"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"Input Synchronization for 'X_extent_1'"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"0"
+                    , "Latency":"3"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":90
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Select"
+                , "id":138
+                , "start":"3"
+                , "end":"4"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"32-bit Select"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"3"
+                    , "Latency":"1"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":95
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"+"
+                , "id":139
+                , "start":"4"
+                , "end":"4"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"32-bit Integer Add"
+                    , "Constant Operand":"-1 (0xFFFFFFFF)"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"4"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":95
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"+"
+                , "id":140
+                , "start":"5"
+                , "end":"5"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"33-bit Integer Add"
+                    , "Constant Operand":"-1 (0x1FFFFFFFF)"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"5"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":95
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"FFwd Src"
+                , "id":144
+                , "start":"5"
+                , "end":"5"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"FFwd Source"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"5"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":95
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Exit"
+                , "id":128
+                , "start":"5"
+                , "end":"9"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Max Fanout":"2"
+                    , "Start Cycle":"5"
+                    , "Latency":"3"
+                    , "Exit FIFO Depth":"32"
+                    , "Exit FIFO Width":"8"
+                    , "Details":"Exit FIFO depth is sized to accommodate all data that may be in-flight in the stall-free cluster; this depth will be equal to or greater than the latency of the cluster.  The width of the FIFO depends on the amount of data that needs to pass from the stall-free logic cluster to the stall-able logic below it."
+                  }
+                ]
+                , "type":"inst"
+              }
+            ]
+          }
+          , {
+            "name":"Feedback"
+            , "id":37
+            , "start":"8"
+            , "end":"9"
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Instruction":"Feedback Read"
+                , "Variable":"Unknown variable"
+                , "Max Fanout":"1"
+                , "Start Cycle":"8"
+                , "Latency":"1"
+              }
+            ]
+            , "debug":
+            [
+              [
+                {
+                  "filename":"/home/u146718/dot_lab/s10/a.cl"
+                  , "line":89
+                }
+              ]
+            ]
+            , "type":"inst"
+          }
+        ]
+      }
+      , {
+        "name":"kernel_yLoader_1.B2"
+        , "id":12
+        , "start":"9"
+        , "end":"17"
+        , "details":
+        [
+          {
+            "type":"table"
+          }
+        ]
+        , "type":"bb"
+        , "children":
+        [
+          {
+            "name":"Cluster 5"
+            , "id":40
+            , "start":"9"
+            , "end":"17"
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Cluster Name":"i_sfc_s_c0_in_for_body_kernel_yloader_1s_c0_enter232_kernel_yloader_11"
+                , "Cluster Type":"Stall-Free"
+                , "Cluster Start Cycle":"0"
+                , "Cluster Latency":"8"
+              }
+            ]
+            , "type":"cluster"
+            , "children":
+            [
+              {
+                "name":"FFwd Dest"
+                , "id":148
+                , "start":"13"
+                , "end":"13"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"FFwd Destination"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"4"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":95
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"FFwd Dest"
+                , "id":150
+                , "start":"12"
+                , "end":"12"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"FFwd Destination"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"3"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":98
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"FFwd Dest"
+                , "id":151
+                , "start":"12"
+                , "end":"12"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"FFwd Destination"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"3"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":95
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"And"
+                , "id":152
+                , "start":"12"
+                , "end":"12"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"1-bit And"
+                    , "Max Fanout":"2"
+                    , "Start Cycle":"3"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":95
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"FFwd Dest"
+                , "id":153
+                , "start":"10"
+                , "end":"10"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"FFwd Destination"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"1"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":97
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":">>"
+                , "id":154
+                , "start":"10"
+                , "end":"10"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"32-bit Arithmetic Right Shift"
+                    , "Constant Operand":"5 (0x5)"
+                    , "Max Fanout":"2"
+                    , "Start Cycle":"1"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":97
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Compare"
+                , "id":155
+                , "start":"10"
+                , "end":"11"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"32-bit Integer Compare"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"1"
+                    , "Latency":"1"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":95
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Select"
+                , "id":156
+                , "start":"11"
+                , "end":"12"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"32-bit Select"
+                    , "Max Fanout":"2"
+                    , "Start Cycle":"2"
+                    , "Latency":"1"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":95
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Select"
+                , "id":157
+                , "start":"12"
+                , "end":"13"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"32-bit Select"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"3"
+                    , "Latency":"1"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":98
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"+"
+                , "id":158
+                , "start":"12"
+                , "end":"12"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"32-bit Integer Add"
+                    , "Constant Operand":"-1 (0xFFFFFFFF)"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"3"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":95
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"+"
+                , "id":159
+                , "start":"13"
+                , "end":"13"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"33-bit Integer Add"
+                    , "Constant Operand":"-1 (0x1FFFFFFFF)"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"4"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":95
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"FFwd Dest"
+                , "id":160
+                , "start":"13"
+                , "end":"13"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"FFwd Destination"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"4"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":95
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"And"
+                , "id":161
+                , "start":"13"
+                , "end":"13"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"1-bit And"
+                    , "Max Fanout":"3"
+                    , "Start Cycle":"4"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":95
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Select"
+                , "id":149
+                , "start":"13"
+                , "end":"13"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"33-bit Select"
+                    , "Max Fanout":"2"
+                    , "Start Cycle":"4"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":106
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Global variable"
+                , "id":163
+                , "start":"13"
+                , "end":"13"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"Feedback Read"
+                    , "Variable":"Global variable"
+                    , "Feedback FIFO Depth":"1"
+                    , "Feedback FIFO Width":"32"
+                    , "Max Fanout":"2"
+                    , "Start Cycle":"4"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":106
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"+"
+                , "id":164
+                , "start":"13"
+                , "end":"13"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"32-bit Integer Add"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"4"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":98
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Exit"
+                , "id":146
+                , "start":"13"
+                , "end":"17"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"4"
+                    , "Latency":"3"
+                    , "Exit FIFO Depth":"32"
+                    , "Exit FIFO Width":"192"
+                    , "Details":"Exit FIFO depth is sized to accommodate all data that may be in-flight in the stall-free cluster; this depth will be equal to or greater than the latency of the cluster.  The width of the FIFO depends on the amount of data that needs to pass from the stall-free logic cluster to the stall-able logic below it."
+                  }
+                ]
+                , "type":"inst"
+              }
+            ]
+          }
+        ]
+      }
+      , {
+        "name":"kernel_yLoader_1.B4"
+        , "id":14
+        , "start":"17"
+        , "end":"838"
+        , "details":
+        [
+          {
+            "type":"table"
+          }
+        ]
+        , "type":"bb"
+        , "children":
+        [
+          {
+            "name":"Cluster 6"
+            , "id":46
+            , "start":"17"
+            , "end":"26"
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Cluster Name":"i_sfc_s_c0_in_for_body5_kernel_yloader_1s_c0_enter263_kernel_yloader_15"
+                , "Cluster Type":"Stall-Free"
+                , "Cluster Start Cycle":"0"
+                , "Cluster Latency":"9"
+              }
+            ]
+            , "type":"cluster"
+            , "children":
+            [
+              {
+                "name":"Global variable"
+                , "id":171
+                , "start":"21"
+                , "end":"21"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"Feedback Read"
+                    , "Variable":"Global variable"
+                    , "Feedback FIFO Depth":"1"
+                    , "Feedback FIFO Width":"32"
+                    , "Max Fanout":"2"
+                    , "Start Cycle":"4"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":106
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"<<"
+                , "id":172
+                , "start":"21"
+                , "end":"22"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"32-bit Left Shift"
+                    , "Constant Operand":"4 (0x4)"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"4"
+                    , "Latency":"1"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":102
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"+"
+                , "id":177
+                , "start":"21"
+                , "end":"21"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"32-bit Integer Add"
+                    , "Constant Operand":"1 (0x1)"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"4"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":106
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Feedback"
+                , "id":169
+                , "start":"21"
+                , "end":"21"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"Feedback Read"
+                    , "Variable":"Unknown variable"
+                    , "Feedback FIFO Depth":"1"
+                    , "Feedback FIFO Width":"8"
+                    , "Max Fanout":"3"
+                    , "Start Cycle":"4"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":95
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Xor"
+                , "id":170
+                , "start":"21"
+                , "end":"22"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"1-bit Xor"
+                    , "Constant Operand":"1 (0x1)"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"4"
+                    , "Latency":"1"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":95
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"And"
+                , "id":178
+                , "start":"21"
+                , "end":"21"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"1-bit And"
+                    , "Max Fanout":"2"
+                    , "Start Cycle":"4"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":95
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"ySerializer_1"
+                , "id":173
+                , "start":"17"
+                , "end":"22"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"Input Synchronization for 'ySerializer_1'"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"0"
+                    , "Latency":"5"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":91
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Ptr. Comp."
+                , "id":174
+                , "start":"22"
+                , "end":"22"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"Pointer Computation"
+                    , "Max Fanout":"2"
+                    , "Start Cycle":"5"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":103
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"ySerializer_2"
+                , "id":175
+                , "start":"17"
+                , "end":"22"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"Input Synchronization for 'ySerializer_2'"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"0"
+                    , "Latency":"5"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":92
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Ptr. Comp."
+                , "id":176
+                , "start":"22"
+                , "end":"22"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"Pointer Computation"
+                    , "Max Fanout":"2"
+                    , "Start Cycle":"5"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":104
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Exit"
+                , "id":167
+                , "start":"22"
+                , "end":"26"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"5"
+                    , "Latency":"3"
+                    , "Exit FIFO Depth":"32"
+                    , "Exit FIFO Width":"256"
+                    , "Details":"Exit FIFO depth is sized to accommodate all data that may be in-flight in the stall-free cluster; this depth will be equal to or greater than the latency of the cluster.  The width of the FIFO depends on the amount of data that needs to pass from the stall-free logic cluster to the stall-able logic below it."
+                  }
+                ]
+                , "type":"inst"
+              }
+            ]
+          }
+          , {
+            "name":"LD"
+            , "id":48
+            , "start":"27"
+            , "end":"834"
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Instruction":"Load"
+                , "Width":"512 bits"
+                , "LSU Style":"Burst-coalesced"
+                , "Stall-free":"No"
+                , "Global Memory":"Yes"
+                , "Max Fanout":"16"
+                , "Start Cycle":"10"
+                , "Latency":"807"
+              }
+            ]
+            , "debug":
+            [
+              [
+                {
+                  "filename":"/home/u146718/dot_lab/s10/a.cl"
+                  , "line":104
+                }
+              ]
+            ]
+            , "type":"inst"
+          }
+          , {
+            "name":"LD"
+            , "id":47
+            , "start":"27"
+            , "end":"834"
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Instruction":"Load"
+                , "Width":"512 bits"
+                , "LSU Style":"Burst-coalesced"
+                , "Stall-free":"No"
+                , "Global Memory":"Yes"
+                , "Max Fanout":"16"
+                , "Start Cycle":"10"
+                , "Latency":"807"
+              }
+            ]
+            , "debug":
+            [
+              [
+                {
+                  "filename":"/home/u146718/dot_lab/s10/a.cl"
+                  , "line":103
+                }
+              ]
+            ]
+            , "type":"inst"
+          }
+          , {
+            "name":"Cluster 7"
+            , "id":49
+            , "start":"834"
+            , "end":"838"
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Cluster Name":"i_sfc_s_c1_in_for_body5_kernel_yloader_1s_c1_enter_kernel_yloader_112"
+                , "Cluster Type":"Stall-Free"
+                , "Cluster Start Cycle":"817"
+                , "Cluster Latency":"4"
+              }
+            ]
+            , "type":"cluster"
+            , "children":
+            [
+              {
+                "name":"Exit"
+                , "id":182
+                , "start":"834"
+                , "end":"838"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Max Fanout":"2"
+                    , "Start Cycle":"817"
+                    , "Latency":"3"
+                    , "Exit FIFO Depth":"32"
+                    , "Exit FIFO Width":"1536"
+                    , "Details":"Exit FIFO depth is sized to accommodate all data that may be in-flight in the stall-free cluster; this depth will be equal to or greater than the latency of the cluster.  The width of the FIFO depends on the amount of data that needs to pass from the stall-free logic cluster to the stall-able logic below it."
+                  }
+                ]
+                , "type":"inst"
+              }
+            ]
+          }
+          , {
+            "name":"WR"
+            , "id":50
+            , "start":"838"
+            , "end":"838"
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Instruction":"Channel Write"
+                , "Width":"1024 bits"
+                , "Depth":"256"
+                , "Channel Name":"_yLoader__1_channel"
+                , "Stall-free":"No"
+                , "Max Fanout":"1"
+                , "Start Cycle":"821"
+                , "Latency":"0"
+              }
+            ]
+            , "debug":
+            [
+              [
+                {
+                  "filename":"/home/u146718/dot_lab/s10/a.cl"
+                  , "line":105
+                }
+              ]
+            ]
+            , "type":"inst"
+          }
+        ]
+      }
+      , {
+        "name":"kernel_yLoader_1.B3"
+        , "id":13
+        , "start":"838"
+        , "end":"838"
+        , "details":
+        [
+          {
+            "type":"table"
+          }
+        ]
+        , "type":"bb"
+      }
+      , {
+        "name":"kernel_yLoader_1.B1"
+        , "id":11
+        , "start":"838"
+        , "end":"839"
+        , "details":
+        [
+          {
+            "type":"table"
+          }
+        ]
+        , "type":"bb"
+      }
+    ]
+    , "links":
+    [
+      {
+        "from":10
+        , "to":12
+      }
+      , {
+        "from":130
+        , "to":141
+      }
+      , {
+        "from":131
+        , "to":132
+      }
+      , {
+        "from":132
+        , "to":142
+      }
+      , {
+        "from":133
+        , "to":134
+      }
+      , {
+        "from":134
+        , "to":143
+      }
+      , {
+        "from":135
+        , "to":136
+      }
+      , {
+        "from":136
+        , "to":138
+      }
+      , {
+        "from":137
+        , "to":138
+      }
+      , {
+        "from":138
+        , "to":139
+      }
+      , {
+        "from":139
+        , "to":140
+      }
+      , {
+        "from":140
+        , "to":144
+      }
+      , {
+        "from":12
+        , "to":14
+      }
+      , {
+        "from":148
+        , "to":149
+      }
+      , {
+        "from":150
+        , "to":152
+      }
+      , {
+        "from":151
+        , "to":152
+      }
+      , {
+        "from":152
+        , "to":157
+      }
+      , {
+        "from":152
+        , "to":146
+      }
+      , {
+        "from":153
+        , "to":154
+      }
+      , {
+        "from":154
+        , "to":156
+      }
+      , {
+        "from":154
+        , "to":155
+      }
+      , {
+        "from":155
+        , "to":156
+      }
+      , {
+        "from":156
+        , "to":158
+      }
+      , {
+        "from":156
+        , "to":157
+      }
+      , {
+        "from":157
+        , "to":164
+      }
+      , {
+        "from":158
+        , "to":159
+      }
+      , {
+        "from":159
+        , "to":146
+      }
+      , {
+        "from":160
+        , "to":161
+      }
+      , {
+        "from":161
+        , "to":146
+      }
+      , {
+        "from":161
+        , "to":149
+      }
+      , {
+        "from":163
+        , "to":164
+      }
+      , {
+        "from":163
+        , "to":146
+      }
+      , {
+        "from":14
+        , "to":13
+      }
+      , {
+        "from":46
+        , "to":47
+      }
+      , {
+        "from":46
+        , "to":48
+      }
+      , {
+        "from":46
+        , "to":50
+      }
+      , {
+        "from":171
+        , "to":177
+      }
+      , {
+        "from":171
+        , "to":172
+      }
+      , {
+        "from":172
+        , "to":176
+      }
+      , {
+        "from":172
+        , "to":174
+      }
+      , {
+        "from":169
+        , "to":178
+      }
+      , {
+        "from":169
+        , "to":170
+      }
+      , {
+        "from":170
+        , "to":167
+      }
+      , {
+        "from":178
+        , "to":167
+      }
+      , {
+        "from":173
+        , "to":174
+      }
+      , {
+        "from":174
+        , "to":167
+      }
+      , {
+        "from":175
+        , "to":176
+      }
+      , {
+        "from":176
+        , "to":167
+      }
+      , {
+        "from":48
+        , "to":49
+      }
+      , {
+        "from":47
+        , "to":49
+      }
+      , {
+        "from":49
+        , "to":50
+      }
+      , {
+        "from":13
+        , "to":12
+      }
+      , {
+        "from":13
+        , "to":11
+      }
+    ]
+  }
+  , "3":
+  {
+    "nodes":
+    [
+      {
+        "name":"kernel_Z.B0"
+        , "id":15
+        , "start":"0"
+        , "end":"9"
+        , "details":
+        [
+          {
+            "type":"table"
+          }
+        ]
+        , "type":"bb"
+        , "children":
+        [
+          {
+            "name":"Cluster 8"
+            , "id":52
+            , "start":"1"
+            , "end":"9"
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Cluster Name":"i_sfc_s_c0_in_entry_kernel_zs_c0_enter_kernel_z1"
+                , "Cluster Type":"Stall-Free"
+                , "Cluster Start Cycle":"1"
+                , "Cluster Latency":"8"
+              }
+            ]
+            , "type":"cluster"
+            , "children":
+            [
+              {
+                "name":"X_extent_0"
+                , "id":186
+                , "start":"0"
+                , "end":"2"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"Input Synchronization for 'X_extent_0'"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"0"
+                    , "Latency":"2"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":113
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":">>"
+                , "id":187
+                , "start":"2"
+                , "end":"2"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"32-bit Arithmetic Right Shift"
+                    , "Constant Operand":"5 (0x5)"
+                    , "Max Fanout":"2"
+                    , "Start Cycle":"2"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":120
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Compare"
+                , "id":194
+                , "start":"2"
+                , "end":"3"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"32-bit Integer Compare"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"2"
+                    , "Latency":"1"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":118
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Select"
+                , "id":195
+                , "start":"3"
+                , "end":"4"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"32-bit Select"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"3"
+                    , "Latency":"1"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":118
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"+"
+                , "id":196
+                , "start":"4"
+                , "end":"4"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"32-bit Integer Add"
+                    , "Constant Operand":"-1 (0xFFFFFFFF)"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"4"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":118
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"+"
+                , "id":197
+                , "start":"5"
+                , "end":"5"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"33-bit Integer Add"
+                    , "Constant Operand":"-1 (0x1FFFFFFFF)"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"5"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":118
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"FFwd Src"
+                , "id":207
+                , "start":"5"
+                , "end":"5"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"FFwd Source"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"5"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":118
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"X_extent_0"
+                , "id":188
+                , "start":"0"
+                , "end":"2"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"Input Synchronization for 'X_extent_0'"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"0"
+                    , "Latency":"2"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":113
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Compare"
+                , "id":189
+                , "start":"2"
+                , "end":"3"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"32-bit Integer Compare"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"2"
+                    , "Latency":"1"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":122
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"X_extent_1"
+                , "id":190
+                , "start":"0"
+                , "end":"2"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"Input Synchronization for 'X_extent_1'"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"0"
+                    , "Latency":"2"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":114
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Compare"
+                , "id":191
+                , "start":"2"
+                , "end":"2"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"32-bit Integer Compare"
+                    , "Max Fanout":"3"
+                    , "Start Cycle":"2"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":118
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"And"
+                , "id":192
+                , "start":"3"
+                , "end":"3"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"1-bit And"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"3"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":118
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"FFwd Src"
+                , "id":205
+                , "start":"3"
+                , "end":"3"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"FFwd Source"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"3"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":118
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Xor"
+                , "id":193
+                , "start":"2"
+                , "end":"2"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"1-bit Xor"
+                    , "Constant Operand":"1 (0x1)"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"2"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":118
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"FFwd Src"
+                , "id":206
+                , "start":"2"
+                , "end":"2"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"FFwd Source"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"2"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":118
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"FFwd Src"
+                , "id":204
+                , "start":"2"
+                , "end":"2"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"FFwd Source"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"2"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":118
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"X_extent_1"
+                , "id":198
+                , "start":"0"
+                , "end":"2"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"Input Synchronization for 'X_extent_1'"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"0"
+                    , "Latency":"2"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":114
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Compare"
+                , "id":199
+                , "start":"2"
+                , "end":"3"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"32-bit Integer Compare"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"2"
+                    , "Latency":"1"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":118
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"X_extent_1"
+                , "id":200
+                , "start":"0"
+                , "end":"3"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"Input Synchronization for 'X_extent_1'"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"0"
+                    , "Latency":"3"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":114
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Select"
+                , "id":201
+                , "start":"3"
+                , "end":"4"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"32-bit Select"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"3"
+                    , "Latency":"1"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":118
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"+"
+                , "id":202
+                , "start":"4"
+                , "end":"4"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"32-bit Integer Add"
+                    , "Constant Operand":"-1 (0xFFFFFFFF)"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"4"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":118
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"+"
+                , "id":203
+                , "start":"5"
+                , "end":"5"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"33-bit Integer Add"
+                    , "Constant Operand":"-1 (0x1FFFFFFFF)"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"5"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":118
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"FFwd Src"
+                , "id":208
+                , "start":"5"
+                , "end":"5"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"FFwd Source"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"5"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":118
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Exit"
+                , "id":184
+                , "start":"5"
+                , "end":"9"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Max Fanout":"2"
+                    , "Start Cycle":"5"
+                    , "Latency":"3"
+                    , "Exit FIFO Depth":"32"
+                    , "Exit FIFO Width":"8"
+                    , "Details":"Exit FIFO depth is sized to accommodate all data that may be in-flight in the stall-free cluster; this depth will be equal to or greater than the latency of the cluster.  The width of the FIFO depends on the amount of data that needs to pass from the stall-free logic cluster to the stall-able logic below it."
+                  }
+                ]
+                , "type":"inst"
+              }
+            ]
+          }
+          , {
+            "name":"Feedback"
+            , "id":51
+            , "start":"8"
+            , "end":"9"
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Instruction":"Feedback Read"
+                , "Variable":"Unknown variable"
+                , "Max Fanout":"1"
+                , "Start Cycle":"8"
+                , "Latency":"1"
+              }
+            ]
+            , "debug":
+            [
+              [
+                {
+                  "filename":"/home/u146718/dot_lab/s10/a.cl"
+                  , "line":113
+                }
+              ]
+            ]
+            , "type":"inst"
+          }
+        ]
+      }
+      , {
+        "name":"kernel_Z.B2"
+        , "id":17
+        , "start":"9"
+        , "end":"17"
+        , "details":
+        [
+          {
+            "type":"table"
+          }
+        ]
+        , "type":"bb"
+        , "children":
+        [
+          {
+            "name":"Cluster 9"
+            , "id":54
+            , "start":"9"
+            , "end":"17"
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Cluster Name":"i_sfc_s_c0_in_for_body_kernel_zs_c0_enter823_kernel_z1"
+                , "Cluster Type":"Stall-Free"
+                , "Cluster Start Cycle":"0"
+                , "Cluster Latency":"8"
+              }
+            ]
+            , "type":"cluster"
+            , "children":
+            [
+              {
+                "name":"FFwd Dest"
+                , "id":212
+                , "start":"13"
+                , "end":"13"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"FFwd Destination"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"4"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":118
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"FFwd Dest"
+                , "id":214
+                , "start":"13"
+                , "end":"13"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"FFwd Destination"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"4"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":118
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"And"
+                , "id":215
+                , "start":"13"
+                , "end":"13"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"1-bit And"
+                    , "Max Fanout":"3"
+                    , "Start Cycle":"4"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":118
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Select"
+                , "id":213
+                , "start":"13"
+                , "end":"13"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"33-bit Select"
+                    , "Max Fanout":"2"
+                    , "Start Cycle":"4"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":118
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Exit"
+                , "id":210
+                , "start":"13"
+                , "end":"17"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"4"
+                    , "Latency":"3"
+                    , "Exit FIFO Depth":"32"
+                    , "Exit FIFO Width":"24"
+                    , "Details":"Exit FIFO depth is sized to accommodate all data that may be in-flight in the stall-free cluster; this depth will be equal to or greater than the latency of the cluster.  The width of the FIFO depends on the amount of data that needs to pass from the stall-free logic cluster to the stall-able logic below it."
+                  }
+                ]
+                , "type":"inst"
+              }
+            ]
+          }
+        ]
+      }
+      , {
+        "name":"kernel_Z.B4"
+        , "id":19
+        , "start":"17"
+        , "end":"52"
+        , "details":
+        [
+          {
+            "type":"table"
+          }
+        ]
+        , "type":"bb"
+        , "children":
+        [
+          {
+            "name":"Cluster 11"
+            , "id":61
+            , "start":"18"
+            , "end":"23"
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Cluster Name":"i_sfc_s_c0_in_for_body5_kernel_zs_c0_enter894_kernel_z1"
+                , "Cluster Type":"Stall-Free"
+                , "Cluster Start Cycle":"1"
+                , "Cluster Latency":"5"
+              }
+            ]
+            , "type":"cluster"
+            , "children":
+            [
+              {
+                "name":"Xor"
+                , "id":230
+                , "start":"19"
+                , "end":"19"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"1-bit Xor"
+                    , "Constant Operand":"1 (0x1)"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"2"
+                    , "Latency":"0"
+                  }
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"'_uX_s0_k'"
+                , "id":223
+                , "start":"18"
+                , "end":"18"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"Feedback Read"
+                    , "Variable":"'_uX_s0_k'"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"1"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":138
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"FFwd Dest"
+                , "id":222
+                , "start":"18"
+                , "end":"18"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"FFwd Destination"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"1"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":118
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Select"
+                , "id":224
+                , "start":"18"
+                , "end":"18"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"33-bit Select"
+                    , "Max Fanout":"2"
+                    , "Start Cycle":"1"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":138
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"+"
+                , "id":227
+                , "start":"18"
+                , "end":"18"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"33-bit Integer Add"
+                    , "Constant Operand":"-1 (0x1FFFFFFFF)"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"1"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":122
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"FFwd Dest"
+                , "id":225
+                , "start":"19"
+                , "end":"19"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"FFwd Destination"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"2"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":118
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Xor"
+                , "id":226
+                , "start":"19"
+                , "end":"19"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"1-bit Xor"
+                    , "Constant Operand":"1 (0x1)"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"2"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":118
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"FFwd Dest"
+                , "id":228
+                , "start":"18"
+                , "end":"18"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"FFwd Destination"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"1"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":118
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"And"
+                , "id":229
+                , "start":"18"
+                , "end":"18"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"1-bit And"
+                    , "Max Fanout":"3"
+                    , "Start Cycle":"1"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":118
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Exit"
+                , "id":220
+                , "start":"19"
+                , "end":"23"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Max Fanout":"2"
+                    , "Start Cycle":"2"
+                    , "Latency":"3"
+                    , "Exit FIFO Depth":"32"
+                    , "Exit FIFO Width":"56"
+                    , "Details":"Exit FIFO depth is sized to accommodate all data that may be in-flight in the stall-free cluster; this depth will be equal to or greater than the latency of the cluster.  The width of the FIFO depends on the amount of data that needs to pass from the stall-free logic cluster to the stall-able logic below it."
+                  }
+                ]
+                , "type":"inst"
+              }
+            ]
+          }
+          , {
+            "name":"RD"
+            , "id":62
+            , "start":"24"
+            , "end":"24"
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Instruction":"Channel Read"
+                , "Width":"1024 bits"
+                , "Depth":"256"
+                , "Channel Name":"_yLoader__1_channel"
+                , "Stall-free":"No"
+                , "Max Fanout":"1"
+                , "Start Cycle":"7"
+                , "Latency":"0"
+              }
+            ]
+            , "debug":
+            [
+              [
+                {
+                  "filename":"/home/u146718/dot_lab/s10/a.cl"
+                  , "line":124
+                }
+              ]
+            ]
+            , "type":"inst"
+          }
+          , {
+            "name":"RD"
+            , "id":63
+            , "start":"24"
+            , "end":"24"
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Instruction":"Channel Read"
+                , "Width":"1024 bits"
+                , "Depth":"256"
+                , "Channel Name":"_xLoader__1_channel"
+                , "Stall-free":"No"
+                , "Max Fanout":"1"
+                , "Start Cycle":"7"
+                , "Latency":"0"
+              }
+            ]
+            , "debug":
+            [
+              [
+                {
+                  "filename":"/home/u146718/dot_lab/s10/a.cl"
+                  , "line":126
+                }
+              ]
+            ]
+            , "type":"inst"
+          }
+          , {
+            "name":"Cluster 12"
+            , "id":64
+            , "start":"24"
+            , "end":"52"
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Cluster Name":"i_sfc_s_c1_in_for_body5_kernel_zs_c1_enter_kernel_z8"
+                , "Cluster Type":"Stall-Free"
+                , "Cluster Start Cycle":"7"
+                , "Cluster Latency":"28"
+              }
+            ]
+            , "type":"cluster"
+            , "children":
+            [
+              {
+                "name":"f32 Dot-32"
+                , "id":236
+                , "start":"24"
+                , "end":"44"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"32-bit Floating-point Dot Product of Size 32"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"7"
+                    , "Latency":"20"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":134
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"f32 FP Accum"
+                , "id":237
+                , "start":"44"
+                , "end":"48"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"32-bit Floating-point Accumulator"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"27"
+                    , "Latency":"4"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":135
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"FFwd Dest"
+                , "id":238
+                , "start":"48"
+                , "end":"48"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"FFwd Destination"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"31"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":118
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Select"
+                , "id":239
+                , "start":"48"
+                , "end":"48"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"32-bit Select"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"31"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":138
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Exit"
+                , "id":234
+                , "start":"48"
+                , "end":"52"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Max Fanout":"2"
+                    , "Start Cycle":"31"
+                    , "Latency":"3"
+                    , "Exit FIFO Depth":"32"
+                    , "Exit FIFO Width":"64"
+                    , "Details":"Exit FIFO depth is sized to accommodate all data that may be in-flight in the stall-free cluster; this depth will be equal to or greater than the latency of the cluster.  The width of the FIFO depends on the amount of data that needs to pass from the stall-free logic cluster to the stall-able logic below it."
+                  }
+                ]
+                , "type":"inst"
+              }
+            ]
+          }
+        ]
+      }
+      , {
+        "name":"kernel_Z.B3"
+        , "id":18
+        , "start":"52"
+        , "end":"57"
+        , "details":
+        [
+          {
+            "type":"table"
+          }
+        ]
+        , "type":"bb"
+        , "children":
+        [
+          {
+            "name":"Cluster 10"
+            , "id":57
+            , "start":"52"
+            , "end":"57"
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Cluster Name":"i_sfc_s_c0_in_for_cond_cleanup4_kernel_zs_c0_enter84_kernel_z0"
+                , "Cluster Type":"Stall-Free"
+                , "Cluster Start Cycle":"0"
+                , "Cluster Latency":"5"
+              }
+            ]
+            , "type":"cluster"
+            , "children":
+            [
+              {
+                "name":"FFwd Dest"
+                , "id":219
+                , "start":"53"
+                , "end":"53"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"FFwd Destination"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"1"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":118
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Exit"
+                , "id":217
+                , "start":"53"
+                , "end":"57"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Max Fanout":"2"
+                    , "Start Cycle":"1"
+                    , "Latency":"3"
+                    , "Exit FIFO Depth":"32"
+                    , "Exit FIFO Width":"16"
+                    , "Details":"Exit FIFO depth is sized to accommodate all data that may be in-flight in the stall-free cluster; this depth will be equal to or greater than the latency of the cluster.  The width of the FIFO depends on the amount of data that needs to pass from the stall-free logic cluster to the stall-able logic below it."
+                  }
+                ]
+                , "type":"inst"
+              }
+            ]
+          }
+          , {
+            "name":"WR"
+            , "id":58
+            , "start":"57"
+            , "end":"57"
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Instruction":"Channel Write"
+                , "Width":"32 bits"
+                , "Depth":"256"
+                , "Channel Name":"_Out_channel"
+                , "Stall-free":"No"
+                , "Max Fanout":"2"
+                , "Start Cycle":"5"
+                , "Latency":"0"
+              }
+            ]
+            , "debug":
+            [
+              [
+                {
+                  "filename":"/home/u146718/dot_lab/s10/a.cl"
+                  , "line":140
+                }
+              ]
+            ]
+            , "type":"inst"
+          }
+        ]
+      }
+      , {
+        "name":"kernel_Z.B1"
+        , "id":16
+        , "start":"57"
+        , "end":"58"
+        , "details":
+        [
+          {
+            "type":"table"
+          }
+        ]
+        , "type":"bb"
+      }
+    ]
+    , "links":
+    [
+      {
+        "from":15
+        , "to":17
+      }
+      , {
+        "from":186
+        , "to":187
+      }
+      , {
+        "from":187
+        , "to":195
+      }
+      , {
+        "from":187
+        , "to":194
+      }
+      , {
+        "from":194
+        , "to":195
+      }
+      , {
+        "from":195
+        , "to":196
+      }
+      , {
+        "from":196
+        , "to":197
+      }
+      , {
+        "from":197
+        , "to":207
+      }
+      , {
+        "from":188
+        , "to":189
+      }
+      , {
+        "from":189
+        , "to":192
+      }
+      , {
+        "from":190
+        , "to":191
+      }
+      , {
+        "from":191
+        , "to":204
+      }
+      , {
+        "from":191
+        , "to":193
+      }
+      , {
+        "from":191
+        , "to":192
+      }
+      , {
+        "from":192
+        , "to":205
+      }
+      , {
+        "from":193
+        , "to":206
+      }
+      , {
+        "from":198
+        , "to":199
+      }
+      , {
+        "from":199
+        , "to":201
+      }
+      , {
+        "from":200
+        , "to":201
+      }
+      , {
+        "from":201
+        , "to":202
+      }
+      , {
+        "from":202
+        , "to":203
+      }
+      , {
+        "from":203
+        , "to":208
+      }
+      , {
+        "from":17
+        , "to":19
+      }
+      , {
+        "from":212
+        , "to":213
+      }
+      , {
+        "from":214
+        , "to":215
+      }
+      , {
+        "from":215
+        , "to":210
+      }
+      , {
+        "from":215
+        , "to":213
+      }
+      , {
+        "from":19
+        , "to":18
+      }
+      , {
+        "from":61
+        , "to":63
+      }
+      , {
+        "from":61
+        , "to":62
+      }
+      , {
+        "from":61
+        , "to":64
+      }
+      , {
+        "from":230
+        , "to":220
+      }
+      , {
+        "from":223
+        , "to":224
+      }
+      , {
+        "from":222
+        , "to":224
+      }
+      , {
+        "from":224
+        , "to":227
+      }
+      , {
+        "from":224
+        , "to":229
+      }
+      , {
+        "from":225
+        , "to":226
+      }
+      , {
+        "from":226
+        , "to":220
+      }
+      , {
+        "from":228
+        , "to":229
+      }
+      , {
+        "from":229
+        , "to":220
+      }
+      , {
+        "from":62
+        , "to":64
+      }
+      , {
+        "from":63
+        , "to":64
+      }
+      , {
+        "from":236
+        , "to":237
+      }
+      , {
+        "from":237
+        , "to":239
+      }
+      , {
+        "from":238
+        , "to":239
+      }
+      , {
+        "from":239
+        , "to":234
+      }
+      , {
+        "from":18
+        , "to":17
+      }
+      , {
+        "from":18
+        , "to":16
+      }
+      , {
+        "from":57
+        , "to":58
+      }
+      , {
+        "from":219
+        , "to":217
+      }
+    ]
+  }
+  , "4":
+  {
+    "nodes":
+    [
+      {
+        "name":"kernel_unloader_1.B0"
+        , "id":20
+        , "start":"0"
+        , "end":"9"
+        , "details":
+        [
+          {
+            "type":"table"
+          }
+        ]
+        , "type":"bb"
+        , "children":
+        [
+          {
+            "name":"Cluster 13"
+            , "id":66
+            , "start":"1"
+            , "end":"9"
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Cluster Name":"i_sfc_s_c0_in_entry_kernel_unloader_1s_c0_enter_kernel_unloader_11"
+                , "Cluster Type":"Stall-Free"
+                , "Cluster Start Cycle":"1"
+                , "Cluster Latency":"8"
+              }
+            ]
+            , "type":"cluster"
+            , "children":
+            [
+              {
+                "name":"X_extent_1"
+                , "id":242
+                , "start":"0"
+                , "end":"2"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"Input Synchronization for 'X_extent_1'"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"0"
+                    , "Latency":"2"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":146
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Compare"
+                , "id":243
+                , "start":"2"
+                , "end":"2"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"32-bit Integer Compare"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"2"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":151
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"FFwd Src"
+                , "id":250
+                , "start":"2"
+                , "end":"2"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"FFwd Source"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"2"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":151
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"X_extent_1"
+                , "id":244
+                , "start":"0"
+                , "end":"2"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"Input Synchronization for 'X_extent_1'"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"0"
+                    , "Latency":"2"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":146
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Compare"
+                , "id":245
+                , "start":"2"
+                , "end":"3"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"32-bit Integer Compare"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"2"
+                    , "Latency":"1"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":151
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"X_extent_1"
+                , "id":246
+                , "start":"0"
+                , "end":"3"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"Input Synchronization for 'X_extent_1'"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"0"
+                    , "Latency":"3"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":146
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Select"
+                , "id":247
+                , "start":"3"
+                , "end":"4"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"32-bit Select"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"3"
+                    , "Latency":"1"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":151
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"+"
+                , "id":248
+                , "start":"4"
+                , "end":"4"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"32-bit Integer Add"
+                    , "Constant Operand":"-1 (0xFFFFFFFF)"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"4"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":151
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"+"
+                , "id":249
+                , "start":"5"
+                , "end":"5"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"33-bit Integer Add"
+                    , "Constant Operand":"-1 (0x1FFFFFFFF)"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"5"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":151
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"FFwd Src"
+                , "id":251
+                , "start":"5"
+                , "end":"5"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"FFwd Source"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"5"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":151
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Exit"
+                , "id":240
+                , "start":"5"
+                , "end":"9"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Max Fanout":"2"
+                    , "Start Cycle":"5"
+                    , "Latency":"3"
+                    , "Exit FIFO Depth":"32"
+                    , "Exit FIFO Width":"8"
+                    , "Details":"Exit FIFO depth is sized to accommodate all data that may be in-flight in the stall-free cluster; this depth will be equal to or greater than the latency of the cluster.  The width of the FIFO depends on the amount of data that needs to pass from the stall-free logic cluster to the stall-able logic below it."
+                  }
+                ]
+                , "type":"inst"
+              }
+            ]
+          }
+          , {
+            "name":"Feedback"
+            , "id":65
+            , "start":"8"
+            , "end":"9"
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Instruction":"Feedback Read"
+                , "Variable":"Unknown variable"
+                , "Max Fanout":"1"
+                , "Start Cycle":"8"
+                , "Latency":"1"
+              }
+            ]
+            , "debug":
+            [
+              [
+                {
+                  "filename":"/home/u146718/dot_lab/s10/a.cl"
+                  , "line":146
+                }
+              ]
+            ]
+            , "type":"inst"
+          }
+        ]
+      }
+      , {
+        "name":"kernel_unloader_1.B2"
+        , "id":22
+        , "start":"9"
+        , "end":"28"
+        , "details":
+        [
+          {
+            "type":"table"
+          }
+        ]
+        , "type":"bb"
+        , "children":
+        [
+          {
+            "name":"Cluster 14"
+            , "id":68
+            , "start":"9"
+            , "end":"17"
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Cluster Name":"i_sfc_s_c0_in_for_body_kernel_unloader_1s_c0_enter51_kernel_unloader_11"
+                , "Cluster Type":"Stall-Free"
+                , "Cluster Start Cycle":"0"
+                , "Cluster Latency":"8"
+              }
+            ]
+            , "type":"cluster"
+            , "children":
+            [
+              {
+                "name":"FFwd Dest"
+                , "id":255
+                , "start":"13"
+                , "end":"13"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"FFwd Destination"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"4"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":151
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"FFwd Dest"
+                , "id":257
+                , "start":"13"
+                , "end":"13"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"FFwd Destination"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"4"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":151
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Xor"
+                , "id":258
+                , "start":"13"
+                , "end":"13"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"1-bit Xor"
+                    , "Constant Operand":"1 (0x1)"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"4"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":151
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"FFwd Dest"
+                , "id":259
+                , "start":"13"
+                , "end":"13"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"FFwd Destination"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"4"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":151
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"And"
+                , "id":260
+                , "start":"13"
+                , "end":"13"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"1-bit And"
+                    , "Max Fanout":"3"
+                    , "Start Cycle":"4"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":151
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Select"
+                , "id":256
+                , "start":"13"
+                , "end":"13"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"33-bit Select"
+                    , "Max Fanout":"2"
+                    , "Start Cycle":"4"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":157
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Exit"
+                , "id":253
+                , "start":"13"
+                , "end":"17"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"4"
+                    , "Latency":"3"
+                    , "Exit FIFO Depth":"32"
+                    , "Exit FIFO Width":"40"
+                    , "Details":"Exit FIFO depth is sized to accommodate all data that may be in-flight in the stall-free cluster; this depth will be equal to or greater than the latency of the cluster.  The width of the FIFO depends on the amount of data that needs to pass from the stall-free logic cluster to the stall-able logic below it."
+                  }
+                ]
+                , "type":"inst"
+              }
+            ]
+          }
+          , {
+            "name":"Cluster 15"
+            , "id":70
+            , "start":"17"
+            , "end":"26"
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Cluster Name":"i_sfc_s_c1_in_for_body_kernel_unloader_1s_c1_enter_kernel_unloader_15"
+                , "Cluster Type":"Stall-Free"
+                , "Cluster Start Cycle":"8"
+                , "Cluster Latency":"9"
+              }
+            ]
+            , "type":"cluster"
+            , "children":
+            [
+              {
+                "name":"Global variable"
+                , "id":264
+                , "start":"21"
+                , "end":"21"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"Feedback Read"
+                    , "Variable":"Global variable"
+                    , "Feedback FIFO Depth":"1"
+                    , "Feedback FIFO Width":"32"
+                    , "Max Fanout":"2"
+                    , "Start Cycle":"12"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":157
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"+"
+                , "id":267
+                , "start":"21"
+                , "end":"21"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"32-bit Integer Add"
+                    , "Constant Operand":"1 (0x1)"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"12"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":157
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"unloader_1_mem_channel"
+                , "id":265
+                , "start":"9"
+                , "end":"22"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"Input Synchronization for 'unloader_1_mem_channel'"
+                    , "Max Fanout":"1"
+                    , "Start Cycle":"0"
+                    , "Latency":"13"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":147
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Ptr. Comp."
+                , "id":266
+                , "start":"22"
+                , "end":"22"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Instruction":"Pointer Computation"
+                    , "Max Fanout":"2"
+                    , "Start Cycle":"13"
+                    , "Latency":"0"
+                  }
+                ]
+                , "debug":
+                [
+                  [
+                    {
+                      "filename":"/home/u146718/dot_lab/s10/a.cl"
+                      , "line":155
+                    }
+                  ]
+                ]
+                , "type":"inst"
+              }
+              , {
+                "name":"Exit"
+                , "id":262
+                , "start":"22"
+                , "end":"26"
+                , "details":
+                [
+                  {
+                    "type":"table"
+                    , "Max Fanout":"2"
+                    , "Start Cycle":"13"
+                    , "Latency":"3"
+                    , "Exit FIFO Depth":"32"
+                    , "Exit FIFO Width":"128"
+                    , "Details":"Exit FIFO depth is sized to accommodate all data that may be in-flight in the stall-free cluster; this depth will be equal to or greater than the latency of the cluster.  The width of the FIFO depends on the amount of data that needs to pass from the stall-free logic cluster to the stall-able logic below it."
+                  }
+                ]
+                , "type":"inst"
+              }
+            ]
+          }
+          , {
+            "name":"RD"
+            , "id":69
+            , "start":"26"
+            , "end":"26"
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Instruction":"Channel Read"
+                , "Width":"32 bits"
+                , "Depth":"256"
+                , "Channel Name":"_Out_channel"
+                , "Stall-free":"No"
+                , "Max Fanout":"1"
+                , "Start Cycle":"17"
+                , "Latency":"0"
+              }
+            ]
+            , "debug":
+            [
+              [
+                {
+                  "filename":"/home/u146718/dot_lab/s10/a.cl"
+                  , "line":153
+                }
+              ]
+            ]
+            , "type":"inst"
+          }
+          , {
+            "name":"ST"
+            , "id":71
+            , "start":"26"
+            , "end":"28"
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Instruction":"Store"
+                , "Width":"32 bits"
+                , "LSU Style":"Burst-coalesced"
+                , "Stall-free":"No"
+                , "Global Memory":"Yes"
+                , "Max Fanout":"1"
+                , "Start Cycle":"17"
+                , "Latency":"2"
+              }
+            ]
+            , "debug":
+            [
+              [
+                {
+                  "filename":"/home/u146718/dot_lab/s10/a.cl"
+                  , "line":155
+                }
+              ]
+            ]
+            , "type":"inst"
+          }
+        ]
+      }
+      , {
+        "name":"kernel_unloader_1.B1"
+        , "id":21
+        , "start":"28"
+        , "end":"29"
+        , "details":
+        [
+          {
+            "type":"table"
+          }
+        ]
+        , "type":"bb"
+      }
+    ]
+    , "links":
+    [
+      {
+        "from":20
+        , "to":22
+      }
+      , {
+        "from":242
+        , "to":243
+      }
+      , {
+        "from":243
+        , "to":250
+      }
+      , {
+        "from":244
+        , "to":245
+      }
+      , {
+        "from":245
+        , "to":247
+      }
+      , {
+        "from":246
+        , "to":247
+      }
+      , {
+        "from":247
+        , "to":248
+      }
+      , {
+        "from":248
+        , "to":249
+      }
+      , {
+        "from":249
+        , "to":251
+      }
+      , {
+        "from":22
+        , "to":21
+      }
+      , {
+        "from":68
+        , "to":69
+      }
+      , {
+        "from":68
+        , "to":71
+      }
+      , {
+        "from":68
+        , "to":70
+      }
+      , {
+        "from":255
+        , "to":256
+      }
+      , {
+        "from":257
+        , "to":258
+      }
+      , {
+        "from":258
+        , "to":253
+      }
+      , {
+        "from":259
+        , "to":260
+      }
+      , {
+        "from":260
+        , "to":253
+      }
+      , {
+        "from":260
+        , "to":256
+      }
+      , {
+        "from":70
+        , "to":71
+      }
+      , {
+        "from":264
+        , "to":267
+      }
+      , {
+        "from":264
+        , "to":266
+      }
+      , {
+        "from":265
+        , "to":266
+      }
+      , {
+        "from":266
+        , "to":262
+      }
+      , {
+        "from":69
+        , "to":71
+      }
+    ]
+  }
+}
