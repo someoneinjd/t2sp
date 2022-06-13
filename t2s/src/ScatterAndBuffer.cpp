@@ -1052,6 +1052,7 @@ private:
     }
 
     void intialize_common_constants() {
+        internal_assert(original_read_node.defined());
         TYPE = original_read_node.type();
         WRITES = 1, READS = 1, PERIODS = 1;
         scatter_loop_removed_in_producer = false;
@@ -1123,7 +1124,7 @@ private:
 
         if (READS < WRITES) {
             user_warning << "Buffering in func " << func_name << ": READS (" << READS << ")" << " < WRITES("
-                    << WRITES << "). This buffer might not be abel to hide the latency of reading from the main memory\n";
+                    << WRITES << "). This buffer might not be able to hide the latency of reading from the main memory\n";
         }
 
         CYCLES_PER_PERIOD = std::max(READS, WRITES);
@@ -1389,7 +1390,8 @@ public:
         add_nonscatter_unroll_loops(op->device_api, new_body);
 
         // TODO: change here into while(1)
-        new_body = For::make(func_name + ".s0.outermost_loop", 0, Expr(PERIODS + 1) * Expr(CYCLES_PER_PERIOD), ForType::Serial, op->device_api, new_body);
+        new_body = For::make(func_name + ".s0.outermost_loop.infinite", 0, 10, ForType::Serial, op->device_api, new_body);  
+        // new_body = For::make(func_name + ".s0.outermost_loop", 0, Expr(PERIODS + 1) * Expr(CYCLES_PER_PERIOD), ForType::Serial, op->device_api, new_body);
 
         initialize(op->device_api, new_body);
     }
@@ -1471,7 +1473,7 @@ public:
             read_input = LetStmt::make(var_name(total_writes_so_far), period * Expr(WRITES) + offset - Expr(INIT), read_input);
         }
 
-        Expr condition = (period < PERIODS) && time_to_write_buffer;
+        Expr condition = time_to_write_buffer;
         read_input = IfThenElse::make(condition, read_input);
 
         read_input = LetStmt::make(var_name(time_to_write_buffer), (offset >= Expr(INIT)), read_input);
@@ -1691,9 +1693,9 @@ public:
 
         new_body = IfThenElse::make(_time_to_read, new_body);
 
-        Expr periods_unfinished = (_period <= PERIODS);
-        Expr val = (READS >= WRITES) ? ((_period > 0) && periods_unfinished) :
-                   ((_period > 0) && periods_unfinished && (_offset < Expr(READS)));
+        // Expr periods_unfinished = (_period <= PERIODS);
+        Expr val = (READS >= WRITES) ? (_period > 0) :
+                   ((_period > 0) && (_offset < Expr(READS)));
         new_body = LetStmt::make("_time_to_read", val, new_body);
     }
 };
@@ -1979,17 +1981,17 @@ public:
     }
 };
 
-/*
 // Send one more period of dummy data from a producer to its consumer to buffer
 class OneMorePeriod : public IRMutator {
     using IRMutator::visit;
 private:
-    bool in_producer;     // In the definition of a func that produces data for its consumer to buffer
-    string producer_name; // The name of the func that produces data for its consumer to buffer
-    string buffer_loop; // The loop under which a buffer is inserted in the consumer side
-    string innermost_loop; // The innermost loop name
-    vector<string> loops; // All the loops
-    vector<Expr> extents; // The original extents of the loops
+    bool in_producer;       // In the definition of a func that produces data for its consumer to buffer
+    string producer_name;   // The name of the func that produces data for its consumer to buffer
+    string buffer_loop;     // The loop under which a buffer is inserted in the consumer side
+    string innermost_loop;  // The innermost loop name
+    vector<string> loops;   // All the loops
+    vector<Expr> mins;      // The original mins of the loops
+    vector<Expr> extents;   // The original extents of the loops
 
     const ScatterBufferArgs     &scatterbuffer_args;
     const map<string, Function> &env;
@@ -1997,7 +1999,7 @@ private:
 public:
     Stmt visit(const ProducerConsumer *op) override {
         bool old_in_producer = in_producer;
-        if(op->is_producer) {
+        if (op->is_producer) {
             for (auto a : scatterbuffer_args) {
                 if (a.second.producer == op->name) {
                     in_producer = true;
@@ -2007,7 +2009,7 @@ public:
             }
         }
         if (in_producer) {
-            Stmt s= ProducerConsumer::make(op->name, op->is_producer, mutate(op->body));
+            Stmt s = ProducerConsumer::make(op->name, op->is_producer, mutate(op->body));
             in_producer = old_in_producer;
             return s;
         } else {
@@ -2024,57 +2026,59 @@ public:
         bool dummy_loop = ends_with(op->name, ".run_on_device");
         if (!dummy_loop) {
             loops.push_back(op->name);
+            mins.push_back(op->min);
+            extents.push_back(op->extent);
         }
 
-        Stmt body = IRMutator::mutate(op->body);
-        Stmt s;
+        Stmt body = mutate(op->body);
+        Expr min = op->min, extent = op->extent;
         if (!dummy_loop) {
             if (innermost_loop == op->name) {
                 // if (first loop < its extent || (second until buffer loop all equal 0) body
-                Expr cond1 = Expr(loops[0]) < extents[0];
-                Expr cond2;
-                for (size_t i = 0; i < loops.size(); i++) {
-                    cond2 = (i == 0) ? (Expr(loops[i]) < extents[i]) : (cond2 && (Expr(loops[i]) < extents[i]));
+                Expr cond1 = Variable::make(Int(32), loops[0]) < extents[0];
+                Expr cond2 = const_true();
+                for (size_t i = 1; i < loops.size(); i++) {
+                    Expr loop_var = Variable::make(Int(32), loops[i]);
+                    cond2 = cond2 && (loop_var == mins[i]);
                     if (loops[i] == buffer_loop) {
                         break;
                     }
                 }
-                body = IfThenElse::make(cond1 || cond2, body, Stmt());
+                body = IfThenElse::make(cond1 || cond2, body);
             }
             if (loops.size() == 1) {
                 // The outermost loop. Increase its extent by 1
-                s = For::make(op->name, op->min, op->extent + 1, op->for_type, op->device_api, body);
+                extent += 1;
             }
             loops.pop_back();
-            return s;
-        } else {
-            s = For::make(op->name, op->min, op->extent, op->for_type, op->device_api, body);
-            return s;
+            mins.pop_back();
+            extents.pop_back();
         }
+        return For::make(op->name, min, extent, op->for_type, op->device_api, body);
     }
 
     Expr visit(const Call *op) override {
         // TODO: here we should catch calls with side effects, or memory reads, and change them into
         // something like select(cond, op, dummy) instead. No need to change write_channel.
         // Also put the cond at the beginning of the innermost loop.
-        innermost_loop = loops.back();
-        if(op->is_intrinsic(Call::write_channel) && op->args[0].as<StringImm>()->value == (producer_name + ".channel")){
+        if (op->is_intrinsic(Call::write_channel) && op->args[0].as<StringImm>()->value == (producer_name + ".channel")) {
             // Change the value to write to the channel as
             //      select(first loop < its extent, current value, a dummy value);
+            innermost_loop = loops.back();
             Expr value = op->args[1];
-            Expr condition = Expr(loops[0]) < extents[0];
-            Expr dummy =
-            op->args[1] = Select::make(condition, value, )
+            Expr condition = Variable::make(Int(32), loops[0]) < extents[0];
+            Expr dummy = cast(value.type(), Expr(0));
+            vector<Expr> args= { op->args[0], Select::make(condition, value, dummy) };
+            return Call::make(op->type, op->name, args, op->call_type);
         } else {
             return IRMutator::visit(op);
         }
     }
 
 public:
-    OneMorePeriod(ScatterBufferArgs& _scatterbuffer_args,const map<string, Function>& _env):
+    OneMorePeriod(ScatterBufferArgs& _scatterbuffer_args, const map<string, Function>& _env):
         scatterbuffer_args(_scatterbuffer_args), env(_env){ in_producer = false; }
 };
-*/
 
 void get_ScatterBufferArgs(const map<string, Function> &envs, ScatterBufferArgs& scatterbuffer_args){
     for(const auto &e : envs){
@@ -2179,11 +2183,10 @@ Stmt scatter_buffer(Stmt s, const std::map<std::string, Function> &env){
     ScatterBufferInserter sbi(env, scatterbuffer_args, all_loops);
     s = sbi.mutate(s);
 
-/*
     // For double buffering, a producer needs send one more period of trash data to the consumer
-    OneMorePeriod omp(env, scatterbuffer_args);
+    OneMorePeriod omp(scatterbuffer_args, env);
     s = omp.mutate(s);
-*/
+
     // Finalize scatter loops.
     // First, find all the loops to be serialized in the entire IR.
     vector<string> all_loops_to_serialize;

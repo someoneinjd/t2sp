@@ -60,8 +60,8 @@ int main()
     // UREs
     Var kkk("kkk"), jjj("jjj"), iii("iii"), jj("jj"), ii("ii"), kk("kk"), k("k"), j("j"), i("i");
     URE X("X", TTYPE, {P}), Y("Y", TTYPE, {P}), Z("Z", TTYPE, {P}), Out("Out");
-    Expr AValue = select(total_k < total_i, 0,  A(total_k, total_i));
-    X(P) = select(jjj == 0, AValue, X(P_jjj_minus_1));
+    // Expr AValue = select(total_k < total_i, 0,  A(total_k, total_i));
+    X(P) = select(jjj == 0, A(total_k, total_i), X(P_jjj_minus_1));
     Y(P) = select(iii == 0, B(total_j, total_k), Y(P_iii_minus_1));
     Z(P) = select(kkk == 0 && kk == 0 && k == i, 0,
                 select(kkk == 0, select(kk == 0, Z(P_k_minus_1), Z(P_kk_minus_1)), Z(P_kkk_minus_1)))
@@ -81,8 +81,9 @@ int main()
 
     // Input path of matrix A
     Func ASerializer("ASerializer", Place::Host), ALoader("ALoader", Place::Device), AFeeder("AFeeder", Place::Device);
-    X.isolate_producer_chain(AValue, ALoader, AFeeder);
-    ALoader.isolate_producer(A, ASerializer);
+    X.isolate_producer_chain(A, ASerializer, ALoader, AFeeder);
+    AFeeder.buffer(ALoader, k);
+    AFeeder.scatter(ALoader, iii);
 
     // For simplicity, let ASerializer send the full matrix A, even though ALoader still reads just the upper part of A.
     // That is, because the producer and consumer communicate through memory, instead of being directly connected by a channel,
@@ -90,11 +91,16 @@ int main()
     // has finished all its writing to the memory before the consumer starts reading the memory.
     // TODO: enable sending only the upper triangle
     ASerializer.set_bounds(k, 0, K).remove(jjj, jj, j);
+    ALoader.remove(jjj, jj);
 
     // Input path of matrix B
     Func BSerializer("BSerializer", Place::Host), BLoader("BLoader", Place::Device), BFeeder("BFeeder", Place::Device);
     X.isolate_producer_chain(B, BSerializer, BLoader, BFeeder);
+    BFeeder.buffer(BLoader, k);
+    BFeeder.scatter(BLoader, jjj);
+
     BSerializer.set_bounds(k, 0, K).remove(iii, ii, i);
+    BLoader.remove(iii, ii);
 
     Func deserializer("deserializer", Place::Host), unloader("unloader", Place::Device);
     Out.relay(Z, jjj);
@@ -103,7 +109,7 @@ int main()
     // Note: ALoader cannot be vectorized, because different SIMD lanes are loading
     // AValues, which are conditioned with different kkk. The compiler requires that
     // all SIMD lanes have the same condition.
-    // ALoader.vectorize(kkk);
+    ALoader.vectorize(kkk);
     AFeeder.vectorize(kkk);
     BLoader.vectorize(kkk);
     BFeeder.vectorize(kkk);
