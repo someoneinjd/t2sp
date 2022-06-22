@@ -51,8 +51,8 @@ TOOLS_PATH=$T2S_PATH/install
 # Modify these 3 paths if you installed your own versions of gcc or llvm-clang
 # gcc should be located at $GCC_PATH/bin
 GCC_PATH=/usr
-export LLVM_CONFIG=$HOME/clang+llvm-9.0.0-x86_64-linux-gnu-ubuntu-18.04/bin/llvm-config
-export CLANG=$HOME/clang+llvm-9.0.0-x86_64-linux-gnu-ubuntu-18.04/bin/clang
+export LLVM_CONFIG=$TOOLS_PATH/bin/llvm-config
+export CLANG=$TOOLS_PATH/bin/clang
 
 if [ "$1" = "local" -a "$2" = "fpga" ]; then
     # Modify according to your machine's setting
@@ -87,24 +87,29 @@ if [ "$2" = "fpga" ]; then
         if [ -f /data/intel_fpga/devcloudLoginToolSetup.sh ]; then
             source /data/intel_fpga/devcloudLoginToolSetup.sh
         fi
-        pbsnodes -s v-qsvr-fpga  $(hostname) >& tmp.txt
+        pbsnodes $(hostname) >& tmp.txt
         if grep "fpga,arria10" tmp.txt; then
-            tools_setup -t  A10DS 1.2.1
+	    if grep "fpga_opencl" tmp.txt; then
+              tools_setup -t A10DS 1.2.1
+	    fi
             export FPGA_BOARD=pac_a10
         else
-            if grep "fpga,darby" tmp.txt; then
-                tools_setup -t S10DS
+            if grep "fpga,stratix10" tmp.txt; then
+		if grep "fpga_opencl" tmp.txt; then
+                  tools_setup -t S10DS
+		fi
                 export FPGA_BOARD=pac_s10_dc
             else
                 echo The current compute node does not have either an A10 or an S10 card with it.
                 echo Please choose another compute node from 'Nodes with Arria 10 Release 1.2.1',
-                echo or 'Nodes with Stratix 10', without OneAPI
+                echo or 'Nodes with Stratix 10'
                 return
             fi
         fi
         export AOCL_SO=$ALTERAOCLSDKROOT/host/linux64/lib/libalteracl.so
         export AOCL_BOARD_SO=$AOCL_BOARD_PACKAGE_ROOT/linux64/lib/libintel_opae_mmd.so
-        export AOCL_LIBS="-L$INTELFPGAOCLSDKROOT/linux64/lib -L$AOCL_BOARD_PACKAGE_ROOT/linux64/lib -L$INTELFPGAOCLSDKROOT/host/linux64/lib -Wl,--no-as-needed -lalteracl  -lintel_opae_mmd"
+        #export AOCL_LIBS="-L$INTELFPGAOCLSDKROOT/linux64/lib -L$AOCL_BOARD_PACKAGE_ROOT/linux64/lib -L$INTELFPGAOCLSDKROOT/host/linux64/lib -Wl,--no-as-needed -lalteracl  -lintel_opae_mmd"
+	export AOCL_LIBS="$(aocl link-config)"
 
         # The aoc on DevCloud has an LLVM whose version is different from that of the LLVM libHalide.so has linked with. Consequently, calling
         # aoc dynamically will have two LLVMs messed up: the aoc has some LLVM calls to some symbols that are not resolved to be in the aoc linked

@@ -37,11 +37,11 @@
         #define KK         8//2 // 4
     #elif S10
         #define KKK         16
-        #define JJJ         16
-        #define III         14
+        #define JJJ         8
+        #define III         16
         #define JJ          32
-        #define II          32
-        #define KK          32
+        #define II          16
+        #define KK          16
     #else   // For A10
         #define KKK         16
         #define JJJ         8
