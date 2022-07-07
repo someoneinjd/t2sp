@@ -202,9 +202,6 @@ private:
         if ((op->for_type == ForType::Vectorized) && names.size() > 2) {
             enclosing_unrolled_loops.push_back(op->name);
         }
-        if (op->device_api != DeviceAPI::OpenCL && op->device_api != DeviceAPI::OneAPI && (op->min.as<Variable>() || op->extent.as<Variable>())) {
-            is_set_bounds = false;
-        }
         Stmt stmt = IRMutator::visit(op);
         if ((op->for_type == ForType::Vectorized) && names.size() > 2) {
             enclosing_unrolled_loops.pop_back();
