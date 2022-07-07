@@ -2,10 +2,26 @@
 
 function show_usage {
     echo "DevCloud usage:"
-    echo "  source setenv.sh devcloud (fpga | gpu)"
+    echo "  source setenv.sh devcloud (fpga | gpu) (gen9 | gen12)"
     echo "Local usage:"
-    echo "  source setenv.sh local    (fpga | gpu)"
+    echo "  source setenv.sh local    (fpga | gpu) (gen9 | gen12)"
 }       
+
+function setup_dpcpp_devcloud {
+    if ! command -v dpcpp &> /dev/null
+    then
+        echo "sourcing dpcpp setup script"
+
+        # Using default configuration 
+        source /glob/development-tools/versions/oneapi/2022.1.2/oneapi/setvars.sh 
+        
+        # Using config file
+        # (NOTE) config file needs modification
+        # source /glob/development-tools/versions/oneapi/2022.1.2/oneapi/setvars.sh --config="${T2S_PATH}/oneapi_config.txt" 
+    else
+        echo "dpcpp command exists"
+    fi
+}
 
 if [ $0 == $BASH_SOURCE ]; then
    echo "This script should be sourced, not run."
@@ -126,14 +142,13 @@ if [ "$2" = "fpga" ]; then
 fi
 
 if [ "$2" = "gpu" ]; then
-    export CSDK_DIR=$T2S_PATH/install/cm_sdk_20211028
-    export PATH=$CSDK_DIR/usr/bin:$CSDK_DIR/usr/local/bin:$PATH
-    export LD_LIBRARY_PATH=$CSDK_DIR/usr/lib:$CSDK_DIR/usr/lib/x86_64-linux-gnu/:$CSDK_DIR/usr/local/lib:$LD_LIBRARY_PATH
-    if [ "$1" = "local" ]; then
-        export HW_LIBHALIDE_TO_LINK="-lHalide"
-    else
-        export HW_LIBHALIDE_TO_LINK="$T2S_PATH/Halide/lib/libHalide.a"
+    if [ "$3" = "gen9" ]; then
+        export CM_ROOT=$T2S_PATH/install/Linux_C_for_Metal_Development_Package_20200119
+        export LIBVA_DRIVERS_PATH=$CM_ROOT/drivers/media_driver/release/extract/usr/lib/x86_64-linux-gnu/dri
+        export PATH=$CM_ROOT/compiler/bin:$PATH
+        export LD_LIBRARY_PATH=$CM_ROOT/drivers/IGC/extract/usr/local/lib:$CM_ROOT/drivers/media_driver/release/extract/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
     fi
+    export HW_LIBHALIDE_TO_LINK="-lHalide"
 fi
 
 #A place to store generated Intel OpenCL files
@@ -144,10 +159,25 @@ export PATH=$TOOLS_PATH/bin:$PATH
 export LD_LIBRARY_PATH=$TOOLS_PATH/lib64:$TOOLS_PATH/lib:$LD_LIBRARY_PATH
 
 # Add gcc
-export PATH=$GCC_PATH/bin:$PATH
-export LD_LIBRARY_PATH=$GCC_PATH/bin:$GCC_PATH/lib64:$LD_LIBRARY_PATH   
+if [ "$1" != "devcloud" -o "$2" != "gpu" ]; then
+    export PATH=$GCC_PATH/bin:$PATH
+    export LD_LIBRARY_PATH=$GCC_PATH/bin:$GCC_PATH/lib64:$LD_LIBRARY_PATH
+fi
 
 # Add Halide
 export PATH=$T2S_PATH/Halide/bin:$PATH
 export LD_LIBRARY_PATH=$T2S_PATH/Halide/bin:$LD_LIBRARY_PATH
+
+# Common options for compiling a specification
+export COMMON_OPTIONS_COMPILING_SPEC="-I $T2S_PATH/Halide/include -L $T2S_PATH/Halide/bin -lz -lpthread -ldl -std=c++11"
+
+# Common options for running a specification to synthesize a kernel for emulation or execution
+export COMMON_AOC_OPTION_FOR_EMULATION="$EMULATOR_AOC_OPTION -board=$FPGA_BOARD -emulator-channel-depth-model=strict"
+export COMMON_AOC_OPTION_FOR_EXECUTION="-v -profile -fpc -fp-relaxed -board=$FPGA_BOARD"
+
+# Common options for comping a host file
+export COMMON_OPTIONS_COMPILING_HOST="$T2S_PATH/t2s/src/AOT-OpenCL-Runtime.cpp $T2S_PATH/t2s/src/Roofline.cpp $T2S_PATH/t2s/src/SharedUtilsInC.cpp -DLINUX -DALTERA_CL -fPIC -I$T2S_PATH/t2s/src/ -I $T2S_PATH/Halide/include -I$INTELFPGAOCLSDKROOT/examples_aoc/common/inc $INTELFPGAOCLSDKROOT/examples_aoc/common/src/AOCLUtils/opencl.cpp $INTELFPGAOCLSDKROOT/examples_aoc/common/src/AOCLUtils/options.cpp -I$INTELFPGAOCLSDKROOT/host/include -L$INTELFPGAOCLSDKROOT/linux64/lib -L$AOCL_BOARD_PACKAGE_ROOT/linux64/lib -L$INTELFPGAOCLSDKROOT/host/linux64/lib -lOpenCL -L $T2S_PATH/Halide/bin -lelf -lz -lpthread -ldl -std=c++11"
+export COMMON_OPTIONS_COMPILING_HOST_FOR_EMULATION="$COMMON_OPTIONS_COMPILING_HOST $EMULATOR_LIBHALIDE_TO_LINK"
+export COMMON_OPTIONS_COMPILING_HOST_FOR_EXECUTION="$COMMON_OPTIONS_COMPILING_HOST $HW_LIBHALIDE_TO_LINK"
+
 

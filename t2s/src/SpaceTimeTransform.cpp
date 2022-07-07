@@ -572,7 +572,7 @@ class SpaceTimeTransformer : public IRMutator {
                         for (size_t j = 0; j < merged_func.args().size(); j++) {
                             for (size_t k = 0; k < num_args; k++) {
                                 const Variable *loop_var = loop_vars[k].as<Variable>();
-                                if (ends_with(loop_var->name, merged_func.args()[j])) {
+                                if (extract_last_token(loop_var->name) == merged_func.args()[j]) {
                                     Expr min_expr = Min::make(substitute(global_max, loop_mins[k]), substitute(global_min, loop_mins[k]));
                                     Expr ext_expr = Max::make(substitute(global_max, loop_extents[k]), substitute(global_min, loop_extents[k]));
                                     reg_size_map[merged_func_name].mins.push_back(min_expr);
@@ -913,7 +913,7 @@ class SpaceTimeTransformer : public IRMutator {
                 // loop as Unrolled.
                 ForType for_type = target.has_feature(Target::IntelFPGA) ? ForType::Unrolled : ForType::Serial;
                 if (k == 0) {
-                    if (target.has_feature(Target::IntelFPGA) && vectorized_loop_name != "") {\
+                    if ((target.has_feature(Target::IntelFPGA) || target.has_feature(Target::OneAPI)) && vectorized_loop_name != "") {\
                         debug(4) << "Vectorize loop: " << vectorized_loop_name << "\n";
                         internal_assert(extract_last_token(vectorized_loop_name) == param.dst_vars[k])
                         << "After space time transformation, the vectorized loop "

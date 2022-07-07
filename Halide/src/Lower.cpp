@@ -90,6 +90,7 @@
 #include "../../t2s/src/PatternMatcher.h"
 #include "../../t2s/src/Place.h"
 #include "../../t2s/src/Relay.h"
+#include "../../t2s/src/RemoveDeadDimensions.h"
 #include "../../t2s/src/ScatterAndBuffer.h"
 #include "../../t2s/src/SpaceTimeTransform.h"
 #include "../../t2s/src/ScatterAndBuffer.h"
@@ -564,17 +565,19 @@ Module lower(const vector<Function> &output_funcs,
     debug(2) << "Lowering after lowering unsafe promises:\n"
              << s << "\n\n";
 
+    debug(1) << "Removing dead allocationss and dimensions...\n";
     s = remove_dead_allocations(s);
+    s = remove_dead_dimensions(s);
     s = simplify(s);
     // we don't need this for code generation
     //s = loop_invariant_code_motion(s);
     debug(1) << "Lowering after final simplification:\n"
              << s << "\n\n";
 
-    // debug(1) << "Promoting channels...\n";
-    // s = channel_promotion(s);
-    // debug(2) << "Lowering after channel promotion:\n"
-    //          << s << "\n\n";
+    debug(1) << "Promoting channels...\n";
+    s = channel_promotion(s);
+    debug(2) << "Lowering after channel promotion:\n"
+             << s << "\n\n";
 
     // For overlay, we don't need to flatten task loops.
     char *overlay_num = getenv("HL_OVERLAY_NUM");

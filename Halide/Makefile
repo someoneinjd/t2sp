@@ -802,6 +802,7 @@ T2S_SOURCE_FILES = \
   ChannelPromotion.cpp \
   CheckFuncConstraints.cpp \
   CheckRecursiveCalls.cpp \
+  CodeGen_OneAPI_Dev.cpp \
   CombineChannels.cpp \
   CmdQueue.cpp \
   ComputeLoopBounds.cpp \
@@ -823,6 +824,7 @@ T2S_SOURCE_FILES = \
   Place.cpp \
   PreprocessBeforeLower.cpp \
   Relay.cpp \
+  RemoveDeadDimensions.cpp \
   ScatterAndBuffer.cpp \
   SliceExprTree.cpp \
   SpaceTimeTransform.cpp \
@@ -834,8 +836,10 @@ T2S_SOURCE_FILES = \
 T2S_HEADER_FILES = \
   AutorunKernels.h \
   BuildCallRelation.h \
+  ChannelPromotion.h \
   CheckFuncConstraints.h \
   CheckRecursiveCalls.h \
+  CodeGen_OneAPI_Dev.h \
   CombineChannels.h \
   CmdQueue.h \
   ComputeLoopBounds.h \
@@ -854,6 +858,7 @@ T2S_HEADER_FILES = \
   Place.h \
   PreprocessBeforeLower.h \
   Relay.h \
+  RemoveDeadDimensions.h \
   ScatterAndBuffer.h \
   SliceExprTree.h \
   SpaceTimeTransform.h \
