@@ -494,6 +494,7 @@ SOURCE_FILES = \
   CodeGen_RISCV.cpp \
   CodeGen_WebAssembly.cpp \
   CodeGen_X86.cpp \
+  Complex32.cpp \
   CPlusPlusMangle.cpp \
   CSE.cpp \
   Debug.cpp \
@@ -665,6 +666,7 @@ HEADER_FILES = \
   CodeGen_RISCV.h \
   CodeGen_WebAssembly.h \
   CodeGen_X86.h \
+  Complex32.h \
   ConciseCasts.h \
   CPlusPlusMangle.h \
   CSE.h \
