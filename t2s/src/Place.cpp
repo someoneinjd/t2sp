@@ -49,7 +49,7 @@ private:
                 << "Device Func " << op->name << " is expected to have one and only one definition\n";
             Stmt body = mutate(op->body);
             Stmt new_body;
-            if( target.has_feature(Target::OneAPI) ){
+            if( target.has_feature(Target::OneAPI) && !target.has_feature(Target::IntelGPU)){
                 new_body = For::make(op->name + ".s0.run_on_device",
                                         0,
                                         1,
@@ -201,6 +201,9 @@ private:
         vector<string> names = split_string(op->name, ".");
         if ((op->for_type == ForType::Vectorized) && names.size() > 2) {
             enclosing_unrolled_loops.push_back(op->name);
+        }
+        if (op->device_api != DeviceAPI::OpenCL && op->device_api != DeviceAPI::OneAPI && (op->min.as<Variable>() || op->extent.as<Variable>())) {
+            //is_set_bounds = false;
         }
         Stmt stmt = IRMutator::visit(op);
         if ((op->for_type == ForType::Vectorized) && names.size() > 2) {
