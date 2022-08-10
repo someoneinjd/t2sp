@@ -26,7 +26,8 @@ using namespace Halide;
 
 int main()
 {
-    // Dependences
+    // Dependences. We do not flatten i and k because k does not exist in P_Out.
+    // We do not flatten i and j either, because we need remove j from A_serializer.
     #define P               kkk,      jjj,  iii,  jj, ii, kk,     k,  j,i
     #define P_kkk_minus_1   kkk-1,    jjj,  iii,  jj, ii, kk,     k,  j,i
     #define P_kk_minus_1    kkk+KKK-1,jjj,  iii,  jj, ii, kk-1,   k,  j,i
@@ -37,111 +38,119 @@ int main()
 
     // Linearized addresses
     #define total_i         (iii + III * ii + III * II * i)
-    #define total_j         (jjj + III * jj + III * II * j)
+    #define total_j         (jjj + JJJ * jj + JJJ * JJ * j)
     #define total_k         (kkk + KKK * kk + KKK * KK * k)
 
-    #define is_bot          (i >= j)
+    // For now, do not flatten i and k. Enable this feature in the next step, and
+    // transfer only half of the matrix A.
+    // #define i_k             ((((2 * K - i + 1) * i) / 2) + (k - i + 1))
 
-    #define top_i           (iii + III * ii + III * II * i)
-    #define top_j           (jjj + III * jj + III * II * j - III * II)
+    // Outer loop bounds, which are determined by input sizes
+    #define I (A.dim(1).extent() / (III * II))
+    #define J (B.dim(0).extent() / (JJJ * JJ))
+    #define K (A.dim(0).extent() / (KKK * KK))
 
-    #define bot_i           (III * II * I - iii - III * ii - III * II * i - 1)
-    #define bot_j           (III * II * I - jjj - III * jj - III * II * j - 1)
-
-    // Type of the data to process in C and T2S
+    // Type of the data to process in C and T2S 
     #define CTYPE float
     #define TTYPE Float(32)
 
     // Inputs
-    Param<int> OpA;
-    Param<float> Alpha, Beta;
-    ImageParam A("A", TTYPE, 2), C("C", TTYPE, 2);
+    ImageParam A("A", TTYPE, 2), B("B", TTYPE, 2);
 
     // UREs
     Var kkk("kkk"), jjj("jjj"), iii("iii"), jj("jj"), ii("ii"), kk("kk"), k("k"), j("j"), i("i");
-    URE uA("uA", TTYPE, {P}), uB("uB", TTYPE, {P}), Z("Z", TTYPE, {P}), V("V"), Out("Out");
-
-    uA(P) = select(jjj == 0, select(is_bot, A(total_k, bot_i), A(total_k, top_i)), uA(P_jjj_minus_1));
-    uB(P) = select(iii == 0, select(is_bot, A(total_k, bot_j), A(total_k, top_j)), uB(P_iii_minus_1));
-
+    URE X("X", TTYPE, {P}), Y("Y", TTYPE, {P}), Z("Z", TTYPE, {P}), Out("Out");
+    // Expr AValue = select(total_k < total_i, 0,  A(total_k, total_i));
+    X(P) = select(jjj == 0, A(total_k, total_i), X(P_jjj_minus_1));
+    Y(P) = select(iii == 0, B(total_j, total_k), Y(P_iii_minus_1));
     Z(P) = select(kkk == 0 && kk == 0 && k == 0, 0,
-                  select(kkk == 0, 
-                         select(kk == 0, Z(P_k_minus_1), Z(P_kk_minus_1)),
-                         Z(P_kkk_minus_1)))
-                  + uA(P) * uB(P);
-
-    V(P_Out) = select(kkk == KKK-1 && kk == KK-1 && k == K-1, Z(P));
-
-    Out(P_Out) = Alpha * V(P_Out) + Beta * select(is_bot, C(bot_j, bot_i), C(top_j, top_i));
+                select(kkk == 0, select(kk == 0, Z(P_k_minus_1), Z(P_kk_minus_1)), Z(P_kkk_minus_1)))
+                + X(P) * Y(P);
+    Out(P_Out) = select(kkk == KKK-1 && kk == KK-1 && k == K-1, Z(P));
 
     // Put all the UREs inside the same loop nest of X.
-    uA.merge_ures(uB, Z, V);
+    X.merge_ures(Y, Z, Out);
 
     // Explicitly set the loop bounds
-    uA.set_bounds(jjj, 0, III,   iii, 0, III,   kkk, 0, KKK)
-      .set_bounds(jj,  0, II,    ii,  0, II,    kk,  0, KK)
-      .set_bounds(j,   0, I + 1, i,   0, I / 2, k,   0, K);
-
-    Out.set_bounds(jjj, 0, III,   iii, 0, III)
-       .set_bounds(jj,  0, II,    ii,  0, II)
-       .set_bounds(j,   0, I + 1, i,   0, I / 2);
+    X.set_bounds(jjj, 0, JJJ, iii, 0, III, kkk, 0, KKK)
+     .set_bounds(jj,  0, JJ,  ii,  0, II,  kk,  0, KK)
+     .set_bounds(j,   i, J-i, i,   0, I,   k,   0, K);
 
     // Create a systolic array
-    uA.space_time_transform(jjj, iii);
-    uA.vectorize(kkk);
+    X.space_time_transform(jjj, iii);
 
-    // I/O network
-    Func aSerializer("aSerializer", Place::Host), aLoader("aLoader", Place::Device), aFeeder("aFeeder", Place::Device);
-    Func bSerializer("bSerializer", Place::Host), bLoader("bLoader", Place::Device), bFeeder("bFeeder", Place::Device);
-    Func cSerializer("cSerializer", Place::Host), cLoader("cLoader", Place::Device);
-    Func drainer("drainer", Place::Device), collector("collector", Place::Device), unloader("unloader", Place::Device);
-    Func deserializer("deserializer", Place::Host);
+    // Input path of matrix A
+    Func ASerializer("ASerializer", Place::Host), ALoader("ALoader", Place::Device), AFeeder("AFeeder", Place::Device);
+    X.isolate_producer_chain(A, ASerializer, ALoader, AFeeder);
+    AFeeder.buffer(ALoader, k);
+    AFeeder.scatter(ALoader, iii);
 
-    uA.isolate_producer_chain(select(is_bot, A(total_k, bot_i), A(total_k, top_i)), aSerializer, aLoader, aFeeder);
-    uA.isolate_producer_chain(select(is_bot, A(total_k, bot_j), A(total_k, top_j)), bSerializer, bLoader, bFeeder);
+    // For simplicity, let ASerializer send the full matrix A, even though ALoader still reads just the upper part of A.
+    // That is, because the producer and consumer communicate through memory, instead of being directly connected by a channel,
+    // the producer can write the memory in any way, and the consumer can read the memory in any way, as long as the producer
+    // has finished all its writing to the memory before the consumer starts reading the memory.
+    // TODO: enable sending only the upper triangle
+    ASerializer.remove(jjj, jj, j);
+    ALoader.remove(jjj, jj);
 
-    aSerializer.remove(jjj, jj);
-    bSerializer.remove(iii, ii);
+    // Input path of matrix B
+    Func BSerializer("BSerializer", Place::Host), BLoader("BLoader", Place::Device), BFeeder("BFeeder", Place::Device);
+    X.isolate_producer_chain(B, BSerializer, BLoader, BFeeder);
+    BFeeder.buffer(BLoader, k);
+    BFeeder.scatter(BLoader, jjj);
 
-    aLoader.remove(jjj, jj);
-    aFeeder.scatter(aLoader, iii);
-    aFeeder.buffer(aLoader, k);
-    aLoader.vectorize(kkk);
-    aFeeder.vectorize(kkk);
-    aLoader.min_depth(256);
-    aFeeder.min_depth(256);
+    BSerializer.set_bounds(j, 0, J).remove(iii, ii, i);
+    BLoader.remove(iii, ii);
 
-    bLoader.remove(iii, ii);
-    bFeeder.scatter(bLoader, jjj);
-    bFeeder.buffer(bLoader, k);
-    bLoader.vectorize(kkk);
-    bFeeder.vectorize(kkk);
-    bLoader.min_depth(256);
-    bFeeder.min_depth(256);
+    Func deserializer("deserializer", Place::Host), unloader("unloader", Place::Device);
+    Out.relay(Z, jjj);
+    Out.isolate_consumer_chain(unloader, deserializer);
+    unloader.set_bounds(j, 0, J);
+    deserializer.set_bounds(j, 0, J);
 
-    V.min_depth(128);
-
-    Out.isolate_producer_chain(select(is_bot, C(bot_j, bot_i), C(top_j, top_i)), cSerializer, cLoader);
-    cLoader.min_depth(256);
-    cSerializer.vectorize(jjj);
-    cLoader.vectorize(jjj);
-
-    Out.min_depth(1024);
-    drainer.min_depth(256);
-    collector.min_depth(256);
-
-    Out.isolate_consumer_chain(drainer, collector, unloader, deserializer);
-    Out.vectorize(jjj);
-    drainer.vectorize(jjj);
-    collector.vectorize(jjj);
+    // Note: ALoader cannot be vectorized, because different SIMD lanes are loading
+    // AValues, which are conditioned with different kkk. The compiler requires that
+    // all SIMD lanes have the same condition.
+    ALoader.vectorize(kkk);
+    AFeeder.vectorize(kkk);
+    BLoader.vectorize(kkk);
+    BFeeder.vectorize(kkk);
+    X.vectorize(kkk);
     unloader.vectorize(jjj);
     deserializer.vectorize(jjj);
-    collector.gather(drainer, jjj);
+    /*
+     * T2X emits: X.isolate_producer_chain({A}, A_serializer, aLoader, aFeeder);
+   2 T2X emits: aLoader.remove(jjj, jj);
+   3 T2X emits: A_serializer.remove(jjj, jj, j);
+   4 T2X emits: aFeeder.scatter(aLoader, iii);
+   5 T2X emits: aFeeder.buffer(aLoader, k);
+   6 T2X emits: aLoader.vectorize(kkk);
+   7 T2X emits: aFeeder.vectorize(kkk);
+   8 T2X emits: X.vectorize(kkk);
+   9 T2X emits: aLoader.min_depth(256);
+  10 T2X emits: aFeeder.min_depth(256);
+  11 T2X emits: X.isolate_producer_chain({B}, B_serializer, bLoader, bFeeder);
+  12 T2X emits: bLoader.remove(iii, ii);
+  13 T2X emits: B_serializer.remove(iii, ii, i);
+  14 T2X emits: bFeeder.scatter(bLoader, jjj);
+  15 T2X emits: bFeeder.buffer(bLoader, k);
+  16 T2X emits: bLoader.vectorize(kkk);
+  17 T2X emits: bFeeder.vectorize(kkk);
+  18 T2X emits: X.vectorize(kkk);
+  19 T2X emits: bLoader.min_depth(256);
+  20 T2X emits: bFeeder.min_depth(256);
+  21 T2X emits: Out.relay(Z, jjj);
+  22 T2X emits: Out.isolate_consumer_chain(unloader, deserializer);
+  23 T2X emits: unloader.vectorize(jjj);
+  24 T2X emits: deserializer.vectorize(jjj);
+     *
+     */
 
+    // Compile the kernel to an FPGA bitstream, and expose a C interface for the host to invoke
     Target acc = get_host_target();
     acc.set_feature(Target::IntelFPGA);
     acc.set_feature(Target::EnableSynthesis);
-    deserializer.compile_to_host("syrk-interface", { OpA, Alpha, Beta, A, C }, "syrk", acc);
+    deserializer.compile_to_host("syrk-interface", { A, B }, "syrk", acc);
 
     printf("Success\n");
     return 0;

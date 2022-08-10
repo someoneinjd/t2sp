@@ -1,0 +1,671 @@
+{
+  "bottlenecks":
+  [
+    {
+      "name":"'_Z_pipe_iter_temp'"
+      , "id":9262
+      , "src":"2783"
+      , "dst":"2785"
+      , "type":"fMAX/II"
+      , "brief":"Data dependency"
+      , "loop":"kernel_Out.B5"
+      , "details":
+      [
+        {
+          "type":"table"
+          , "Variable on critical loop carried feedback path: ":"'_Z_pipe_iter_temp'"
+          , "Declared at: ":
+          [
+            {
+              "type":"text"
+              , "text":"%L"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/trmm_lab/s10/a.cl"
+                  , "line":"488"
+                }
+              ]
+            }
+          ]
+          , "Dependency: ":"Data dependency"
+          , "Estimated fmax reduced to: ":"432.0"
+          , "Loop feedback path that lowered II and Fmax: ":
+          [
+            {
+              "type":"text"
+              , "text":"+(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/trmm_lab/s10/a.cl"
+                  , "line":"501"
+                }
+              ]
+            }
+            , {
+              "type":"text"
+              , "text":"+(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/trmm_lab/s10/a.cl"
+                  , "line":"501"
+                }
+              ]
+            }
+            , {
+              "type":"text"
+              , "text":"+(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/trmm_lab/s10/a.cl"
+                  , "line":"504"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+      , "nodes":
+      [
+        {
+          "name":"'_Z_pipe_iter_temp'"
+          , "id":2783
+          , "start":"3.00"
+          , "parent":"kernel_Out.B5"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/trmm_lab/s10/a.cl"
+                , "line":488
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"+"
+          , "id":2782
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/trmm_lab/s10/a.cl"
+                , "line":501
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"+"
+          , "id":2784
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/trmm_lab/s10/a.cl"
+                , "line":504
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"+"
+          , "id":2786
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/trmm_lab/s10/a.cl"
+                , "line":501
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"Feedback"
+          , "id":2785
+          , "end":"3.00"
+          , "parent":"kernel_Out.B5"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/trmm_lab/s10/a.cl"
+                , "line":504
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+      ]
+      , "links":
+      [
+        {
+          "from":2782
+          , "to":2782
+        }
+        , {
+          "from":2783
+          , "to":2784
+        }
+        , {
+          "from":2784
+          , "to":2785
+        }
+        , {
+          "from":2783
+          , "to":2785
+          , "reverse":1
+        }
+      ]
+    }
+    , {
+      "name":"Feedback"
+      , "id":9263
+      , "src":"2815"
+      , "dst":"2901"
+      , "type":"fMAX/II"
+      , "brief":"Data dependency"
+      , "loop":"kernel_Out.B7"
+      , "details":
+      [
+        {
+          "type":"table"
+          , "Loop: ":"kernel_Out.B7"
+          , "Declared at: ":
+          [
+            {
+              "type":"text"
+              , "text":"%L"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/trmm_lab/s10/a.cl"
+                  , "line":"504"
+                }
+              ]
+            }
+          ]
+          , "Dependency: ":"Data dependency"
+          , "Estimated fmax reduced to: ":"388.8"
+          , "Loop feedback path that lowered II and Fmax: ":
+          [
+            {
+              "type":"text"
+              , "text":"+(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/trmm_lab/s10/a.cl"
+                  , "line":"504"
+                }
+              ]
+            }
+            , {
+              "type":"text"
+              , "text":"+(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/trmm_lab/s10/a.cl"
+                  , "line":"506"
+                }
+              ]
+            }
+            , {
+              "type":"text"
+              , "text":"+(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/trmm_lab/s10/a.cl"
+                  , "line":"506"
+                }
+              ]
+            }
+            , {
+              "type":"text"
+              , "text":"+(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/trmm_lab/s10/a.cl"
+                  , "line":"508"
+                }
+              ]
+            }
+            , {
+              "type":"text"
+              , "text":"+(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/trmm_lab/s10/a.cl"
+                  , "line":"508"
+                }
+              ]
+            }
+            , {
+              "type":"text"
+              , "text":"+(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/trmm_lab/s10/a.cl"
+                  , "line":"712"
+                }
+              ]
+            }
+            , {
+              "type":"text"
+              , "text":"Select(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/trmm_lab/s10/a.cl"
+                  , "line":"488"
+                }
+              ]
+            }
+            , {
+              "type":"text"
+              , "text":"Select(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/trmm_lab/s10/a.cl"
+                  , "line":"488"
+                }
+              ]
+            }
+            , {
+              "type":"text"
+              , "text":"Select(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/trmm_lab/s10/a.cl"
+                  , "line":"488"
+                }
+              ]
+            }
+            , {
+              "type":"text"
+              , "text":"Select(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/trmm_lab/s10/a.cl"
+                  , "line":"488"
+                }
+              ]
+            }
+            , {
+              "type":"text"
+              , "text":"Select(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/trmm_lab/s10/a.cl"
+                  , "line":"488"
+                }
+              ]
+            }
+            , {
+              "type":"text"
+              , "text":"Select(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/trmm_lab/s10/a.cl"
+                  , "line":"504"
+                }
+              ]
+            }
+            , {
+              "type":"text"
+              , "text":"Select(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/trmm_lab/s10/a.cl"
+                  , "line":"506"
+                }
+              ]
+            }
+            , {
+              "type":"text"
+              , "text":"Select(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/trmm_lab/s10/a.cl"
+                  , "line":"506"
+                }
+              ]
+            }
+            , {
+              "type":"text"
+              , "text":"Select(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/trmm_lab/s10/a.cl"
+                  , "line":"508"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+      , "nodes":
+      [
+        {
+          "name":"Feedback"
+          , "id":2815
+          , "start":"2.00"
+          , "parent":"kernel_Out.B7"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/trmm_lab/s10/a.cl"
+                , "line":506
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"Select"
+          , "id":2890
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/trmm_lab/s10/a.cl"
+                , "line":508
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"Select"
+          , "id":2883
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/trmm_lab/s10/a.cl"
+                , "line":506
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"+"
+          , "id":2880
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/trmm_lab/s10/a.cl"
+                , "line":506
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"+"
+          , "id":2877
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/trmm_lab/s10/a.cl"
+                , "line":508
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"Select"
+          , "id":2892
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/trmm_lab/s10/a.cl"
+                , "line":504
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"Select"
+          , "id":2888
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/trmm_lab/s10/a.cl"
+                , "line":506
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"+"
+          , "id":2885
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/trmm_lab/s10/a.cl"
+                , "line":504
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"+"
+          , "id":7928
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/trmm_lab/s10/a.cl"
+                , "line":712
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"+"
+          , "id":7930
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/trmm_lab/s10/a.cl"
+                , "line":508
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"Select"
+          , "id":7931
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/trmm_lab/s10/a.cl"
+                , "line":488
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"Select"
+          , "id":7932
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/trmm_lab/s10/a.cl"
+                , "line":488
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"+"
+          , "id":7934
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/trmm_lab/s10/a.cl"
+                , "line":506
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"Select"
+          , "id":7935
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/trmm_lab/s10/a.cl"
+                , "line":488
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"Select"
+          , "id":7936
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/trmm_lab/s10/a.cl"
+                , "line":488
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"Select"
+          , "id":7937
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/trmm_lab/s10/a.cl"
+                , "line":488
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"Feedback"
+          , "id":2901
+          , "end":"2.00"
+          , "parent":"kernel_Out.B7"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/trmm_lab/s10/a.cl"
+                , "line":506
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+      ]
+      , "links":
+      [
+        {
+          "from":2815
+          , "to":2883
+        }
+        , {
+          "from":2815
+          , "to":2880
+        }
+        , {
+          "from":2883
+          , "to":2888
+        }
+        , {
+          "from":7928
+          , "to":7931
+        }
+        , {
+          "from":7930
+          , "to":7931
+        }
+        , {
+          "from":7930
+          , "to":7932
+        }
+        , {
+          "from":7932
+          , "to":7935
+        }
+        , {
+          "from":7934
+          , "to":7935
+        }
+        , {
+          "from":7931
+          , "to":7936
+        }
+        , {
+          "from":7934
+          , "to":7936
+        }
+        , {
+          "from":7934
+          , "to":7937
+        }
+        , {
+          "from":2888
+          , "to":2901
+        }
+        , {
+          "from":2815
+          , "to":2901
+          , "reverse":1
+        }
+      ]
+    }
+  ]
+}
