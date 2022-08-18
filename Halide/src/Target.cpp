@@ -324,6 +324,7 @@ const std::map<std::string, Target::Feature> feature_name_map = {
     {"cuda_capability_50", Target::CUDACapability50},
     {"cuda_capability_61", Target::CUDACapability61},
     {"opencl", Target::OpenCL},
+    {"oneapi", Target::OneAPI},
     {"sz_cl", Target::SZ_CL},
     {"cl_doubles", Target::CLDoubles},
     {"cl_half", Target::CLHalf},
@@ -372,6 +373,7 @@ const std::map<std::string, Target::Feature> feature_name_map = {
     {"sve2", Target::SVE2},
     {"intel_fpga", Target::IntelFPGA},
     {"intel_gpu", Target::IntelGPU},
+    {"cm", Target::CM},
     {"enable_synthesis", Target::EnableSynthesis}
     // NOTE: When adding features to this map, be sure to update
     // PyEnums.cpp and halide.cmake as well.
@@ -662,7 +664,10 @@ bool Target::supported() const {
     bad |= has_feature(Target::CUDA);
 #endif
 #if !defined(WITH_OPENCL)
-    bad |= has_feature(Target::OpenCL);
+    bad |= has_feature(Target::OpenCL); 
+#endif
+#if !defined(WITH_ONEAPI)
+    bad |= has_feature(Target::OneAPI);
 #endif
 #if !defined(WITH_CM)
     bad |= has_feature(Target::IntelGPU);
@@ -732,7 +737,7 @@ Target Target::without_feature(Feature f) const {
 }
 
 bool Target::has_gpu_feature() const {
-    return has_feature(CUDA) || has_feature(OpenCL) || has_feature(Metal) || has_feature(D3D12Compute) || has_feature(IntelGPU);
+    return has_feature(CUDA) || has_feature(OpenCL) || has_feature(Metal) || has_feature(D3D12Compute) || has_feature(IntelGPU) ||  has_feature(OneAPI);
 }
 
 bool Target::has_vectorize_feature() const {
@@ -777,6 +782,10 @@ bool Target::supports_type(const Type &t, DeviceAPI device) const {
         if (t.is_float() && t.bits() == 64) {
             return has_feature(Target::CLDoubles);
         }
+    } else if (device == DeviceAPI::OneAPI) {
+        if (t.is_float() && t.bits() == 64) {
+            return has_feature(Target::CLDoubles);
+        }
     } else if (device == DeviceAPI::D3D12Compute) {
         // Shader Model 5.x can optionally support double-precision; 64-bit int
         // types are not supported.
@@ -809,6 +818,8 @@ Target::Feature target_feature_for_device_api(DeviceAPI api) {
         return Target::CUDA;
     case DeviceAPI::OpenCL:
         return Target::OpenCL;
+    case DeviceAPI::OneAPI:
+        return Target::OneAPI;
     case DeviceAPI::CM:
         return Target::IntelGPU;
     case DeviceAPI::GLSL:

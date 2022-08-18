@@ -2663,11 +2663,12 @@ Func &Func::gpu_fetch(Var loop_level, MemoryType mem_type, vector<Var> outs, vec
     return *this;
 }
 
-Func &Func::gpu_store(const vector<Expr> &args, size_t sz) {
+Func &Func::gpu_store(const vector<Expr> &args, const string &name, size_t sz) {
     invalidate_cache();
 
     StoreParams &rp = func.definition().schedule().store_params();
     rp.shape_args = args;
+    rp.name = name;
     rp.rw_len = sz;
 
     return *this;
@@ -3357,6 +3358,13 @@ void Func::compile_to_header(const string &filename, const vector<Argument> &arg
 void Func::compile_to_c(const string &filename, const vector<Argument> &args,
                         const string &fn_name, const Target &target) {
     pipeline().compile_to_c(filename, args, fn_name, target);
+}
+
+void Func::compile_to_oneapi(const vector<Argument> &args,
+                        const string &fn_name, const Target &target) {
+    user_assert( target.has_feature(Target::IntelFPGA) || target.has_feature(Target::IntelGPU) ) << " IntelFPGA or IntelGPU Target not found.\n";
+    user_assert( target.has_feature((Target::OneAPI)) ) << " OneAPI Target not found.\n";
+    pipeline().compile_to_oneapi(args, fn_name, target);
 }
 
 void Func::compile_to_cm(const string &fn_name,

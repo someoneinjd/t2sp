@@ -341,6 +341,24 @@ void Pipeline::compile_to_c(const string &filename,
     m.compile(single_output(filename, m, Output::c_source));
 }
 
+void Pipeline::compile_to_oneapi(const vector<Argument> &args,
+                            const string &fn_name,
+                            const Target &target) {
+    // check that target has IntelFPGA and OneAPI targets set. Else throw an error
+    user_assert( target.has_feature(Target::IntelFPGA) || target.has_feature(Target::IntelGPU) ) << " IntelFPGA or IntelGPU Target not found.\n";
+    user_assert( target.has_feature((Target::OneAPI)) ) << " OneAPI Target not found.\n";
+    
+    debug(2) << "OneAPI-compiling for: " << target << "\n";
+    Module m = compile_to_module(args, fn_name, target);
+    if (target.has_feature(Target::IntelGPU)) {
+        m.compile(single_output(fn_name, m, Output::oneapi_gpu));
+    }
+    else if (target.has_feature(Target::IntelFPGA)) {
+        auto ext = get_output_info(target);
+        m.compile(single_output( fn_name + ext.at(Output::oneapi_fpga).extension, m, Output::oneapi_fpga));
+    }
+}
+
 void Pipeline::print_loop_nest() {
     user_assert(defined()) << "Can't print loop nest of undefined Pipeline.\n";
     debug(0) << Halide::Internal::print_loop_nest(contents->outputs);
@@ -397,6 +415,7 @@ void Pipeline::compile_to_host(const string &filename_prefix,
     auto ext = get_output_info(target);
     std::map<Output, std::string> outputs = {
         {Output::dev_src, fn_name},
+        {Output::oneapi_gpu, fn_name},
         {Output::host_header, filename_prefix + ext.at(Output::host_header).extension},
         {Output::host_src, filename_prefix + ext.at(Output::host_src).extension},
     };

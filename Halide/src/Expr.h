@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 
+#include "Complex32.h"
 #include "Debug.h"
 #include "Error.h"
 #include "Float16.h"
@@ -238,7 +239,7 @@ struct UIntImm : public ExprNode<UIntImm> {
     uint64_t value;
 
     static const UIntImm *make(Type t, uint64_t value) {
-        internal_assert(t.is_uint() && t.is_scalar())
+        internal_assert((t.is_uint() || t.is_complex()) && t.is_scalar())
             << "UIntImm must be a scalar UInt\n";
         internal_assert(t.bits() == 1 || t.bits() == 8 || t.bits() == 16 || t.bits() == 32 || t.bits() == 64)
             << "UIntImm must be 1, 8, 16, 32, or 64-bit\n";
@@ -357,6 +358,9 @@ struct Expr : public Internal::IRHandle {
     explicit Expr(double x)
         : IRHandle(Internal::FloatImm::make(Float(64), x)) {
     }
+    Expr(complex32_t x)
+        : IRHandle(Internal::UIntImm::make(Complex(32), x.to_bits())) {
+    }
     // @}
 
     /** Make an expression representing a const string (i.e. a StringImm) */
@@ -410,6 +414,7 @@ enum class DeviceAPI {
     Default_GPU,
     CUDA,
     OpenCL,
+    OneAPI,
     CM,
     GLSL,
     OpenGLCompute,
@@ -426,6 +431,7 @@ const DeviceAPI all_device_apis[] = {DeviceAPI::None,
                                      DeviceAPI::Default_GPU,
                                      DeviceAPI::CUDA,
                                      DeviceAPI::OpenCL,
+                                     DeviceAPI::OneAPI,
                                      DeviceAPI::CM,
                                      DeviceAPI::GLSL,
                                      DeviceAPI::OpenGLCompute,

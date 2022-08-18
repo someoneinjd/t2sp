@@ -305,6 +305,7 @@ CodeGen_LLVM *CodeGen_LLVM::new_for_target(const Target &target,
     // The awkward mapping from targets to code generators
     if (target.features_any_of({Target::CUDA,
                                 Target::OpenCL,
+                                Target::OneAPI,
                                 Target::IntelGPU,
                                 Target::OpenGL,
                                 Target::OpenGLCompute,
@@ -575,8 +576,6 @@ void CodeGen_LLVM::init_codegen(const std::string &name, bool any_strict_float) 
 
     internal_assert(module && context);
 
-    debug(1) << "Target triple of initial module: " << module->getTargetTriple() << "\n";
-
     module->setModuleIdentifier(name);
 
     // Add some target specific info to the module as metadata.
@@ -634,8 +633,6 @@ void CodeGen_LLVM::compile_to_devsrc(const Module &input) {
         const auto names = get_mangled_names(f, get_target());
         compile_func(f, names.simple_name, names.extern_name);
     }
-
-    debug(2) << module.get() << "\n";;
 }
 
 std::unique_ptr<llvm::Module> CodeGen_LLVM::compile(const Module &input) {
@@ -647,7 +644,6 @@ std::unique_ptr<llvm::Module> CodeGen_LLVM::compile(const Module &input) {
     add_external_code(input);
 
     // Generate the code for this module.
-    debug(1) << "Generating llvm bitcode...\n";
     for (const auto &b : input.buffers()) {
         compile_buffer(b);
     }
@@ -668,8 +664,6 @@ std::unique_ptr<llvm::Module> CodeGen_LLVM::compile(const Module &input) {
             }
         }
     }
-
-    debug(2) << module.get() << "\n";
 
     return finish_codegen();
 }
@@ -1083,7 +1077,6 @@ llvm::Function *CodeGen_LLVM::add_argv_wrapper(llvm::Function *fn,
             wrapper_args.push_back(builder->CreateLoad(ptr));
         }
     }
-    debug(4) << "Creating call from wrapper to actual function\n";
     llvm::CallInst *result = builder->CreateCall(fn, wrapper_args);
     // This call should never inline
     result->setIsNoInline();
@@ -1218,11 +1211,7 @@ llvm::Type *CodeGen_LLVM::llvm_type_of(const Type &t) const {
 }
 
 void CodeGen_LLVM::optimize_module() {
-    debug(3) << "Optimizing module\n";
 
-    if (debug::debug_level() >= 3) {
-        module->print(dbgs(), nullptr, false, true);
-    }
 
     std::unique_ptr<TargetMachine> tm = make_target_machine(*module);
 
@@ -1340,7 +1329,6 @@ void CodeGen_LLVM::optimize_module() {
             : legacy::FunctionPassManager(m) {
         }
         void add(Pass *p) override {
-            debug(2) << "Adding function pass: " << p->getPassName().str() << "\n";
             legacy::FunctionPassManager::add(p);
         }
     };
@@ -1348,7 +1336,6 @@ void CodeGen_LLVM::optimize_module() {
     class MyModulePassManager : public legacy::PassManager {
     public:
         void add(Pass *p) override {
-            debug(2) << "Adding module pass: " << p->getPassName().str() << "\n";
             legacy::PassManager::add(p);
         }
     };
@@ -1433,10 +1420,7 @@ void CodeGen_LLVM::optimize_module() {
     module_pass_manager.run(*module);
 #endif
 
-    debug(3) << "After LLVM optimizations:\n";
-    if (debug::debug_level() >= 2) {
-        module->print(dbgs(), nullptr, false, true);
-    }
+
 }
 
 void CodeGen_LLVM::sym_push(const string &name, llvm::Value *value) {
@@ -1476,7 +1460,6 @@ bool CodeGen_LLVM::sym_exists(const string &name) const {
 
 Value *CodeGen_LLVM::codegen(Expr e) {
     internal_assert(e.defined());
-    debug(4) << "Codegen: " << e.type() << ", " << e << "\n";
     value = nullptr;
     e.accept(this);
     internal_assert(value) << "Codegen of an expr did not produce an llvm value\n";
@@ -1502,7 +1485,6 @@ Value *CodeGen_LLVM::codegen(Expr e) {
 
 void CodeGen_LLVM::codegen(Stmt s) {
     internal_assert(s.defined());
-    debug(3) << "Codegen: " << s << "\n";
     value = nullptr;
     s.accept(this);
 }
@@ -1540,7 +1522,11 @@ void CodeGen_LLVM::visit(const IntImm *op) {
 }
 
 void CodeGen_LLVM::visit(const UIntImm *op) {
-    value = ConstantInt::get(llvm_type_of(op->type), op->value);
+    if (op->type.is_complex()) {
+        codegen(reinterpret(Complex(32), make_const(UInt(64), op->value)));
+    } else {
+        value = ConstantInt::get(llvm_type_of(op->type), op->value);
+    }
 }
 
 void CodeGen_LLVM::visit(const FloatImm *op) {
@@ -1564,7 +1550,6 @@ void CodeGen_LLVM::visit(const Cast *op) {
     if (upgrade_type_for_arithmetic(src) != src ||
         upgrade_type_for_arithmetic(dst) != dst) {
         // Handle casts to and from types for which we don't have native support.
-        debug(4) << "Emulating cast from " << src << " to " << dst << "\n";
         if ((src.is_float() && src.bits() < 32) ||
             (dst.is_float() && dst.bits() < 32)) {
             Expr equiv = lower_float16_cast(op);
@@ -1631,6 +1616,27 @@ void CodeGen_LLVM::visit(const Add *op) {
     Value *b = codegen(op->b);
     if (op->type.is_float()) {
         value = builder->CreateFAdd(a, b);
+    } else if (op->type.is_complex()) {
+        ArrayType *float_array_type = ArrayType::get(f32_t, 2);
+        Value *float_array = builder->CreateAlloca(float_array_type);
+        Value *arr_ptr_0 = builder->CreateConstInBoundsGEP2_32(float_array_type, float_array, 0, 0);
+        Value *arr_ptr_1 = builder->CreateConstInBoundsGEP2_32(float_array_type, float_array, 0, 1);
+        Value *ptr64 = builder->CreatePointerCast(arr_ptr_0, llvm::Type::getInt64PtrTy(*context));
+
+        builder->CreateStore(a, ptr64);
+        Value *a_re = builder->CreateLoad(f32_t, arr_ptr_0);
+        Value *a_im = builder->CreateLoad(f32_t, arr_ptr_1);
+
+        builder->CreateStore(b, ptr64);
+        Value *b_re = builder->CreateLoad(f32_t, arr_ptr_0);
+        Value *b_im = builder->CreateLoad(f32_t, arr_ptr_1);
+
+        Value *result_re = builder->CreateFAdd(a_re, b_re);
+        Value *result_im = builder->CreateFAdd(a_im, b_im);
+
+        builder->CreateStore(result_re, arr_ptr_0);
+        builder->CreateStore(result_im, arr_ptr_1);
+        value = builder->CreateLoad(ptr64);
     } else if (op->type.is_int() && op->type.bits() >= 32) {
         // We tell llvm integers don't wrap, so that it generates good
         // code for loop indices.
@@ -1651,6 +1657,27 @@ void CodeGen_LLVM::visit(const Sub *op) {
     Value *b = codegen(op->b);
     if (op->type.is_float()) {
         value = builder->CreateFSub(a, b);
+    } else if (op->type.is_complex()) {
+        ArrayType *float_array_type = ArrayType::get(f32_t, 2);
+        Value *float_array = builder->CreateAlloca(float_array_type);
+        Value *arr_ptr_0 = builder->CreateConstInBoundsGEP2_32(float_array_type, float_array, 0, 0);
+        Value *arr_ptr_1 = builder->CreateConstInBoundsGEP2_32(float_array_type, float_array, 0, 1);
+        Value *ptr64 = builder->CreatePointerCast(arr_ptr_0, llvm::Type::getInt64PtrTy(*context));
+
+        builder->CreateStore(a, ptr64);
+        Value *a_re = builder->CreateLoad(f32_t, arr_ptr_0);
+        Value *a_im = builder->CreateLoad(f32_t, arr_ptr_1);
+
+        builder->CreateStore(b, ptr64);
+        Value *b_re = builder->CreateLoad(f32_t, arr_ptr_0);
+        Value *b_im = builder->CreateLoad(f32_t, arr_ptr_1);
+
+        Value *result_re = builder->CreateFSub(a_re, b_re);
+        Value *result_im = builder->CreateFSub(a_im, b_im);
+
+        builder->CreateStore(result_re, arr_ptr_0);
+        builder->CreateStore(result_im, arr_ptr_1);
+        value = builder->CreateLoad(ptr64);
     } else if (op->type.is_int() && op->type.bits() >= 32) {
         // We tell llvm integers don't wrap, so that it generates good
         // code for loop indices.
@@ -1671,6 +1698,31 @@ void CodeGen_LLVM::visit(const Mul *op) {
     Value *b = codegen(op->b);
     if (op->type.is_float()) {
         value = builder->CreateFMul(a, b);
+    } else if (op->type.is_complex()) {
+        ArrayType *float_array_type = ArrayType::get(f32_t, 2);
+        Value *float_array = builder->CreateAlloca(float_array_type);
+        Value *arr_ptr_0 = builder->CreateConstInBoundsGEP2_32(float_array_type, float_array, 0, 0);
+        Value *arr_ptr_1 = builder->CreateConstInBoundsGEP2_32(float_array_type, float_array, 0, 1);
+        Value *ptr64 = builder->CreatePointerCast(arr_ptr_0, llvm::Type::getInt64PtrTy(*context));
+
+        builder->CreateStore(a, ptr64);
+        Value *a_re = builder->CreateLoad(f32_t, arr_ptr_0);
+        Value *a_im = builder->CreateLoad(f32_t, arr_ptr_1);
+
+        builder->CreateStore(b, ptr64);
+        Value *b_re = builder->CreateLoad(f32_t, arr_ptr_0);
+        Value *b_im = builder->CreateLoad(f32_t, arr_ptr_1);
+
+        Value *re_re = builder->CreateFMul(a_re, b_re);
+        Value *im_im = builder->CreateFMul(a_im, b_im);
+        Value *re_im = builder->CreateFMul(a_re, b_im);
+        Value *im_re = builder->CreateFMul(a_im, b_re);
+        Value *result_re = builder->CreateFSub(re_re, im_im);
+        Value *result_im = builder->CreateFAdd(re_im, im_re);
+
+        builder->CreateStore(result_re, arr_ptr_0);
+        builder->CreateStore(result_im, arr_ptr_1);
+        value = builder->CreateLoad(ptr64);
     } else if (op->type.is_int() && op->type.bits() >= 32) {
         // We tell llvm integers don't wrap, so that it generates good
         // code for loop indices.
@@ -1697,6 +1749,36 @@ void CodeGen_LLVM::visit(const Div *op) {
         Value *a = codegen(op->a);
         Value *b = codegen(op->b);
         value = builder->CreateFDiv(a, b);
+    } else if (op->type.is_complex()) {
+        Value *a = codegen(op->a);
+        Value *b = codegen(op->b);
+        ArrayType *float_array_type = ArrayType::get(f32_t, 2);
+        Value *float_array = builder->CreateAlloca(float_array_type);
+        Value *arr_ptr_0 = builder->CreateConstInBoundsGEP2_32(float_array_type, float_array, 0, 0);
+        Value *arr_ptr_1 = builder->CreateConstInBoundsGEP2_32(float_array_type, float_array, 0, 1);
+        Value *ptr64 = builder->CreatePointerCast(arr_ptr_0, llvm::Type::getInt64PtrTy(*context));
+
+        builder->CreateStore(a, ptr64);
+        Value *a_re = builder->CreateLoad(f32_t, arr_ptr_0);
+        Value *a_im = builder->CreateLoad(f32_t, arr_ptr_1);
+
+        builder->CreateStore(b, ptr64);
+        Value *b_re = builder->CreateLoad(f32_t, arr_ptr_0);
+        Value *b_im = builder->CreateLoad(f32_t, arr_ptr_1);
+
+        Value *re_re = builder->CreateFMul(a_re, b_re);
+        Value *im_im = builder->CreateFMul(a_im, b_im);
+        Value *re_im = builder->CreateFMul(a_re, b_im);
+        Value *im_re = builder->CreateFMul(a_im, b_re);
+        Value *abs_square = builder->CreateFAdd(builder->CreateFMul(b_re, b_re), builder->CreateFMul(b_im, b_im));
+        Value *result_re = builder->CreateFAdd(re_re, im_im);
+        result_re = builder->CreateFDiv(result_re, abs_square);
+        Value *result_im = builder->CreateFSub(im_re, re_im);
+        result_im = builder->CreateFDiv(result_im, abs_square);
+
+        builder->CreateStore(result_re, arr_ptr_0);
+        builder->CreateStore(result_im, arr_ptr_1);
+        value = builder->CreateLoad(ptr64);
     } else {
         value = codegen(lower_int_uint_div(op->a, op->b));
     }
@@ -2296,7 +2378,6 @@ void CodeGen_LLVM::scalarize(Expr e) {
 void CodeGen_LLVM::codegen_predicated_vector_store(const Store *op) {
     const Ramp *ramp = op->index.as<Ramp>();
     if (ramp && is_one(ramp->stride)) {  // Dense vector store
-        debug(4) << "Predicated dense vector store\n\t" << Stmt(op) << "\n";
         Value *vpred = codegen(op->predicate);
         Halide::Type value_type = op->value.type();
         Value *val = codegen(op->value);
@@ -2342,7 +2423,6 @@ void CodeGen_LLVM::codegen_predicated_vector_store(const Store *op) {
             add_tbaa_metadata(store_inst, op->name, slice_index);
         }
     } else {  // It's not dense vector store, we need to scalarize it
-        debug(4) << "Scalarize predicated vector store\n";
         Type value_type = op->value.type().element_of();
         Value *vpred = codegen(op->predicate);
         Value *vval = codegen(op->value);
@@ -2375,7 +2455,6 @@ void CodeGen_LLVM::codegen_predicated_vector_store(const Store *op) {
 }
 
 Value *CodeGen_LLVM::codegen_dense_vector_load(const Load *load, Value *vpred) {
-    debug(4) << "Vectorize predicated dense vector load:\n\t" << Expr(load) << "\n";
 
     const Ramp *ramp = load->index.as<Ramp>();
     internal_assert(ramp && is_one(ramp->stride)) << "Should be dense vector load\n";
@@ -2449,7 +2528,6 @@ void CodeGen_LLVM::codegen_predicated_vector_load(const Load *op) {
         Value *vpred = codegen(op->predicate);
         value = codegen_dense_vector_load(op, vpred);
     } else if (ramp && stride && stride->value == -1) {
-        debug(4) << "Predicated dense vector load with stride -1\n\t" << Expr(op) << "\n";
         vector<int> indices(ramp->lanes);
         for (int i = 0; i < ramp->lanes; i++) {
             indices[i] = ramp->lanes - 1 - i;
@@ -2474,7 +2552,6 @@ void CodeGen_LLVM::codegen_predicated_vector_load(const Load *op) {
     } else {  // It's not dense vector load, we need to scalarize it
         Expr load_expr = Load::make(op->type, op->name, op->index, op->image,
                                     op->param, const_true(op->type.lanes()), op->alignment);
-        debug(4) << "Scalarize predicated vector load\n\t" << load_expr << "\n";
         Expr pred_load = Call::make(load_expr.type(),
                                     Call::if_then_else,
                                     {op->predicate, load_expr, make_zero(load_expr.type())},
@@ -2948,6 +3025,8 @@ void CodeGen_LLVM::visit(const Call *op) {
                     } else {
                         buf_size += 14;  // Scientific notation with 6 decimal places.
                     }
+                } else if (t.is_complex()) {
+                    buf_size += 94;
                 } else if (t == type_of<halide_buffer_t *>()) {
                     // Not a strict upper bound (there isn't one), but ought to be enough for most buffers.
                     buf_size += 512;
@@ -2974,6 +3053,7 @@ void CodeGen_LLVM::visit(const Call *op) {
             llvm::Function *append_double = module->getFunction("halide_double_to_string");
             llvm::Function *append_pointer = module->getFunction("halide_pointer_to_string");
             llvm::Function *append_buffer = module->getFunction("halide_buffer_to_string");
+            // llvm::Function *append_complex = module->getFunction("halide_complex_to_string");
 
             internal_assert(append_string);
             internal_assert(append_int64);
@@ -3012,6 +3092,10 @@ void CodeGen_LLVM::visit(const Call *op) {
                     // Use scientific notation for doubles
                     call_args.push_back(ConstantInt::get(i32_t, t.bits() == 64 ? 1 : 0));
                     dst = builder->CreateCall(append_double, call_args);
+                } else if (t.is_complex()) {
+                    call_args.push_back(codegen(Cast::make(Complex(32), op->args[i])));
+                    call_args.push_back(ConstantInt::get(i32_t, 1));
+                    dst = builder->CreateCall(append_uint64, call_args);
                 } else if (t == type_of<halide_buffer_t *>()) {
                     Value *buf = codegen(op->args[i]);
                     buf = builder->CreatePointerCast(buf, append_buffer->getFunctionType()->getParamType(2));
@@ -3137,8 +3221,6 @@ void CodeGen_LLVM::visit(const Call *op) {
                                                        current_function_args,
                                                        get_target())
                                          .extern_name;
-                debug(1) << "Did not find function " << sub_fn_name
-                         << ", assuming extern \"C\" " << extern_sub_fn_name << "\n";
                 vector<llvm::Type *> arg_types;
                 for (const auto &arg : function->args()) {
                     arg_types.push_back(arg.getType());
@@ -3152,7 +3234,6 @@ void CodeGen_LLVM::visit(const Call *op) {
 
             llvm::GlobalValue *sub_fn_ptr = module->getNamedValue(extern_sub_fn_name);
             if (!sub_fn_ptr) {
-                debug(1) << "Did not find function ptr " << extern_sub_fn_name << ", assuming extern \"C\".\n";
                 sub_fn_ptr = new GlobalVariable(*module, sub_fn->getType(),
                                                 /*isConstant*/ true, GlobalValue::ExternalLinkage,
                                                 /*initializer*/ nullptr, extern_sub_fn_name);
@@ -3387,7 +3468,6 @@ void CodeGen_LLVM::visit(const Call *op) {
         bool takes_user_context = function_takes_user_context(op->name);
         if (takes_user_context) {
             internal_assert(fn) << "External function " << op->name << " is marked as taking user_context, but is not in the runtime module. Check if runtime_api.cpp needs to be rebuilt.\n";
-            debug(4) << "Adding user_context to " << op->name << " args\n";
             args.insert(args.begin(), get_user_context());
         }
 
@@ -3412,9 +3492,7 @@ void CodeGen_LLVM::visit(const Call *op) {
 
             fn = llvm::Function::Create(func_t, llvm::Function::ExternalLinkage, name, module.get());
             fn->setCallingConv(CallingConv::C);
-            debug(4) << "Did not find " << op->name << ". Declared it extern \"C\".\n";
         } else {
-            debug(4) << "Found " << op->name << "\n";
 
             // TODO: Say something more accurate here as there is now
             // partial information in the handle_type field, but it is
@@ -3441,8 +3519,6 @@ void CodeGen_LLVM::visit(const Call *op) {
                     }
 
                     if (t != args[i]->getType()) {
-                        debug(4) << "Pointer casting argument to extern call: "
-                                 << halide_arg << "\n";
                         args[i] = builder->CreatePointerCast(args[i], t);
                     }
                 }
@@ -3953,7 +4029,6 @@ void CodeGen_LLVM::do_parallel_tasks(const vector<ParallelTask> &tasks) {
             internal_assert(do_par_for) << "Could not find halide_do_par_for in initial module\n";
             do_par_for->addParamAttr(4, Attribute::NoAlias);
             Value *args[] = {get_user_context(), task_ptr, min, extent, closure_ptr};
-            debug(4) << "Creating call to do_par_for\n";
             result = builder->CreateCall(do_par_for, args);
         } else {
             // Populate the task struct

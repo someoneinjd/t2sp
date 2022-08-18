@@ -146,17 +146,20 @@ protected:
             CodeGen_OpenCL_C* parent;
             std::map<std::string, std::vector<std::string>> &shift_regs_allocates; // For all shift regs
             std::map<std::string, size_t> &shift_regs_bounds; // Only for shift regs whose types are nonstandard_vectors
+            std::map<std::string, size_t> &temp_regs_bounds; // Only for temp regs whose types are nonstandard_vectors
             std::map<std::string, std::vector<Expr>> &space_vars;
         public:
             GatherShiftRegsAllocates(CodeGen_OpenCL_C* parent, std::map<std::string, std::vector<std::string>> &shift_regs_allocates,
-                std::map<std::string, size_t> &shift_regs_bounds, std::map<std::string, std::vector<Expr>> &space_vars) :
-                    parent(parent), shift_regs_allocates(shift_regs_allocates), shift_regs_bounds(shift_regs_bounds), space_vars(space_vars) {}
+                std::map<std::string, size_t> &shift_regs_bounds, std::map<std::string, size_t> &temp_regs_bounds, 
+                std::map<std::string, std::vector<Expr>> &space_vars) :
+                    parent(parent), shift_regs_allocates(shift_regs_allocates), shift_regs_bounds(shift_regs_bounds), temp_regs_bounds(temp_regs_bounds), space_vars(space_vars) {}
             void visit(const Call *op) override;
             void visit(const Realize *op) override;
             void print_irregular_bounds_allocates(std::string reg_name, std::string type, std::string name, Region space_bounds, Region time_bounds, int space_bound_level);
         };
         std::map<std::string, std::vector<std::string>> shift_regs_allocates; // For all shift regs
         std::map<std::string, size_t> shift_regs_bounds; // Only for shift regs whose types are nonstandard_vectors
+        std::map<std::string, size_t> temp_regs_bounds; // Only for temp regs whose types are nonstandard_vectors
         std::map<std::string, std::vector<Expr>> space_vars; // For shift regs with irregular bounds
         // For saving the pointer args streamed from scehduler
         std::map<std::string, std::string> pointer_args;

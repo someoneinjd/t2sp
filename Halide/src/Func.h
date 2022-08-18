@@ -1001,6 +1001,13 @@ public:
                       const std::string &fn_name = "",
                       const Target &target = get_target_from_environment());
 
+    /** Statically compile this function to DPCPP source code.
+     * This relies on the original OpenCL device code wrapped in DPCPP/SYCL calls/
+     * To compile this code, one will need to install Intel's OneAPI with DPCPP. */
+    void compile_to_oneapi(const std::vector<Argument> &,
+                      const std::string &fn_name = "",
+                      const Target &target = get_target_from_environment());
+
     /** Write out an internal representation of lowered code. Useful
      * for analyzing and debugging scheduling. Can emit html or plain
      * text. */
@@ -2225,7 +2232,7 @@ public:
     Func &compute_at(LoopLevel loop_level);
 
     Func &gpu_fetch(Var loop_level, MemoryType mem_type, vector<Var> outs, vector<Expr> reuse_args);
-    Func &gpu_store(const vector<Expr> &args, size_t sz = 16);
+    Func &gpu_store(const vector<Expr> &args, const string &name, size_t sz = 16);
 
     /** Schedule the iteration over the initial definition of this function
      *  to be fused with another stage 's' from outermost loop to a

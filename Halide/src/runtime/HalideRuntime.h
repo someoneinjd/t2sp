@@ -406,6 +406,7 @@ typedef enum halide_type_code_t
     halide_type_float = 2, //!< IEEE floating point numbers
     halide_type_handle = 3, //!< opaque pointer type (void *)
     halide_type_bfloat = 4, //!< floating point numbers in the bfloat format
+    halide_type_complex = 5,
 } halide_type_code_t;
 
 // Note that while __attribute__ can go before or after the declaration,
@@ -1307,8 +1308,10 @@ typedef enum halide_target_feature_t {
     halide_target_feature_sve2, ///< Enable ARM Scalable Vector Extensions v2
     halide_target_feature_egl,            ///< Force use of EGL support.
     halide_target_feature_intel_fpga, ///< Enable Intel FPGAs
+    halide_target_feature_one_api, ///< Enable Intel OneAPI dpcpp program generation
     halide_target_feature_intel_gpu, ///< Enable Intel Graphics
     halide_target_feature_enable_synthesis, ///< Enable synthesizing binaries. Currently used only for Intel FPGAs.
+    halide_target_feature_cm, ///< Enable C for metal
     halide_target_feature_end ///< A sentinel. Every target is considered to have this feature, and setting this feature does nothing.
 } halide_target_feature_t;
 

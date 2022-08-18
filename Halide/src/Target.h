@@ -125,8 +125,10 @@ struct Target {
         SVE = halide_target_feature_sve,
         SVE2 = halide_target_feature_sve2,
         IntelFPGA = halide_target_feature_intel_fpga,
+        OneAPI = halide_target_feature_one_api,
         IntelGPU = halide_target_feature_intel_gpu,
         EnableSynthesis = halide_target_feature_enable_synthesis,
+        CM = halide_target_feature_cm,
         FeatureEnd = halide_target_feature_end
     };
     Target()
