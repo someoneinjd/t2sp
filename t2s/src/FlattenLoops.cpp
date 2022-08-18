@@ -1016,9 +1016,9 @@ private:
             if (extract_before_tokens(p.first, 2) != channel)
                 continue;
 
-            string type = extract_token(p.first, 3);
-            internal_assert(type=="buffer" || type=="min" || type=="extent" || type=="stride")
-                << "Unexpected let statement \n";
+            string type = extract_last_token(p.first);
+            // internal_assert(type=="buffer" || type=="min" || type=="extent" || type=="stride")
+            //     << "Unexpected let statement \n";
             if (type == "buffer") {
                 body = rebuild_buffer_stmt(channel, buf_t, dims, body);
                 continue;
