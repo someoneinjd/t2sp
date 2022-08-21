@@ -171,66 +171,53 @@ int main() {
     // Discover and initialize the platforms
     //----------------------------------------------
     cl_uint numPlatforms = 0;
-    cl_platform_id *platforms = NULL;
+    cl_platform_id platform;
 
-    // Use clGetPlatformIDs() to retrieve the
-    // number of platforms
-    status = clGetPlatformIDs(0, NULL, &numPlatforms);
-    DPRINTF("Number of platforms = %d\n", numPlatforms);
-
-    // Allocate enough space for each platform
-    // platforms = (cl_platform_id*) acl_aligned_malloc (numplatforms * sizeof(cl_platform_id));
-    platforms = (cl_platform_id *)malloc(numPlatforms * sizeof(cl_platform_id));
-
-    DPRINTF("Allocated space for Platform\n");
-
-    // Fill in platforms with clGetPlatformIDs()
-    status = clGetPlatformIDs(numPlatforms, platforms, NULL);
-    CHECK(status);
-    DPRINTF("Filled in platforms\n");
-
-    //----------------------------------------------
-    // Discover and initialize the devices
-    //----------------------------------------------
+    const char *name = getenv("INTEL_FPGA_OCL_PLATFORM_NAME");
+    platform = findPlatform(name);
+    if(platform == NULL) {
+        DPRINTF("ERROR: Unable to find Intel(R) FPGA OpenCL platform\n");
+        return -1;
+    }
 
     cl_uint numDevices = 0;
-
+    cl_device_id *devices = NULL;
     // Device info
     char buffer[4096];
     unsigned int buf_uint;
     int device_found = 0;
-    const cl_uint maxDevices = 4;
-    cl_device_id devices[maxDevices];
-    DPRINTF("Initializing IDs\n");
-    for (int i = 0; i < numPlatforms; i++) {
-        status = clGetDeviceIDs(platforms[i],
-                                CL_DEVICE_TYPE_ALL,
-                                maxDevices,
-                                devices,
-                                &numDevices);
 
-        if (status == CL_SUCCESS) {
-            clGetPlatformInfo(platforms[i],
-                              CL_PLATFORM_NAME,
-                              4096,
-                              buffer,
-                              NULL);
-#if defined(ALTERA_CL)
-            if (strstr(buffer, "Altera") != NULL) {
+    printf("Initializing IDs\n");
+    status = clGetDeviceIDs(platform,
+                    CL_DEVICE_TYPE_ALL,
+                    0,
+                    NULL,
+                    &numDevices);
+
+    if(status == CL_SUCCESS){
+        printf("Found IDs\n");
+        clGetPlatformInfo(platform,
+                        CL_PLATFORM_VENDOR,
+                        4096,
+                        buffer,
+                        NULL);
+
+        if(strstr(buffer, "Intel(R)") != NULL){
                 device_found = 1;
-            }
-            DPRINTF("%s\n", buffer);
-#elif defined(NVIDIA_CL)
-            if (strstr(buffer, "NVIDIA") != NULL) {
-                device_found = 1;
-            }
-#else
-            if (strstr(buffer, "Intel") != NULL) {
-                device_found = 1;
-            }
-#endif
-            DPRINTF("Platform found : %s\n", buffer);
-            device_found = 1;
+        }
+        printf("%s\n", buffer);
+
+        if(device_found){
+            // Allocate enough space for each device
+            devices = (cl_device_id*)
+            acl_aligned_malloc (numDevices * sizeof(cl_device_id));
+
+            // Fill in devices with clGetDeviceIDs()
+            status = clGetDeviceIDs(platform,
+                            CL_DEVICE_TYPE_ALL,
+                            numDevices,
+                            devices,
+                            NULL);
         }
     }
 
@@ -239,43 +226,7 @@ int main() {
         exit(-1);
     }
 
-    DPRINTF("Total number of devices: %d", numDevices);
-    for (int i = 0; i < numDevices; i++) {
-        clGetDeviceInfo(devices[i],
-                        CL_DEVICE_NAME,
-                        4096,
-                        buffer,
-                        NULL);
-        DPRINTF("\nDevice Name: %s\n", buffer);
-
-        clGetDeviceInfo(devices[i],
-                        CL_DEVICE_VENDOR,
-                        4096,
-                        buffer,
-                        NULL);
-        DPRINTF("Device Vendor: %s\n", buffer);
-
-        clGetDeviceInfo(devices[i],
-                        CL_DEVICE_MAX_COMPUTE_UNITS,
-                        sizeof(buf_uint),
-                        &buf_uint,
-                        NULL);
-        DPRINTF("Device Computing Units: %u\n", buf_uint);
-
-        clGetDeviceInfo(devices[i],
-                        CL_DEVICE_GLOBAL_MEM_SIZE,
-                        sizeof(unsigned long),
-                        &buffer,
-                        NULL);
-        //DPRINTF("Global Memory Size: %i\n", *((unsigned long*)buffer));
-
-        clGetDeviceInfo(devices[i],
-                        CL_DEVICE_MAX_MEM_ALLOC_SIZE,
-                        sizeof(unsigned long),
-                        &buffer,
-                        NULL);
-        //DPRINTF("Global Memory Allocation Size: %i\n\n", *((unsigned long*)buffer));
-    }
+    DPRINTF("Total number of devices: %d\n", numDevices);
 
     //----------------------------------------------
     // Create a context
@@ -646,7 +597,7 @@ int main() {
     // multiplied by 1.0e-9 to get G-FLOPs
     printf("\n");
 
-    double num_operations = (double)2.0 * (TOTAL_K) * (double)(TOTAL_I);
+    double num_operations = (double)8.0 * (TOTAL_K) * (double)(TOTAL_I);
 
     printf("  # operations = %.0f\n", num_operations );
     printf("  Throughput: %.5f GFLOPS\n", (double)1.0e-9 * num_operations / k_overall_exec_time);
