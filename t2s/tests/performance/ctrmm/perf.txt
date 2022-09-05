@@ -1,0 +1,40 @@
+Initializing IDs
+Intel(R) Corporation
+Total number of devices: 1
+
+===== Host-CPU setting up OpenCL program and kernels ======
+
+Create program with binary
+Creating kernel[0]: kernel_ALoader_1
+Creating kernel[1]: kernel_BLoader_1
+Creating kernel[2]: kernel_Out_1
+Creating kernel[3]: kernel_unloader_1
+All kernels created
+halide_opencl_buffer_copy: host to host copy with source address equal to destination address. Do nothing. 
+Command queue 0: copying 134217728 bytes data from host to device. Done.
+halide_opencl_buffer_copy: host to host copy with source address equal to destination address. Do nothing. 
+Command queue 1: copying 134217728 bytes data from host to device. Done.
+
+===== Host-CPU enqeuing the OpenCL kernels to the FPGA device ======
+
+clEnqueueNDRangeKernel[0]: kernel_ALoader_1!
+clEnqueueNDRangeKernel[1]: kernel_BLoader_1!
+clEnqueueNDRangeKernel[2]: kernel_Out_1!
+clEnqueueNDRangeKernel[3]: kernel_unloader_1!
+
+ *** FPGA execution started!
+cmd queue: 0
+cmd queue: 1
+cmd queue: 2
+cmd queue: 3
+ *** FPGA execution finished!
+
+Command queue 4: copying 134217728 bytes data from device to host. Done.
+halide_opencl_buffer_copy: host to host copy with source address equal to destination address. Do nothing. 
+cannot open quartus report: /home/u114360/t2sp/t2s/tests/performance/ctrmm/bitstream/a10/a_unsigned/acl_quartus_report.txt! 
+cannot open quartus report: /home/u114360/t2sp/t2s/tests/performance/ctrmm/bitstream/a10/a_unsigned/acl_quartus_report.txt! 
+GFlops: 1039.095555
+Run command: python $T2S_PATH/t2s/src/Roofline.py 33.000000 2.000000 549755813888.000000 6509559808.000000 529071471.000000
+Size of matrix A: 4096 * 4096
+Size of matrix B: 4096 * 4096
+Success
