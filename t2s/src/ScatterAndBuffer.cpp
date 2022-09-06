@@ -453,8 +453,7 @@ class BufferInserter: public IRMutator{
                         counter = counter / loop_extents[i];
                     }
                 };
-                Expr read_buffer_cond = (Variable::make(Int(32),"period") <= Variable::make(Int(32),"period_num")) && 
-                                        (Variable::make(Int(32),"period") > 0);
+                Expr read_buffer_cond = (Variable::make(Int(32),"period") > 0);
                 new_body = IfThenElse::make(read_buffer_cond,new_body);
             }
 
@@ -466,8 +465,7 @@ class BufferInserter: public IRMutator{
                 if(original_condition.defined()){
                     write_buffer = IfThenElse::make(original_condition,write_buffer);
                 }
-                Expr write_buffer_cond = (Variable::make(Int(32),"period") < Variable::make(Int(32),"period_num")) && 
-                                        (Variable::make(Int(32),"offset") >= init);
+                Expr write_buffer_cond = (Variable::make(Int(32),"offset") >= init);
                 Expr counter = 
                     writes * Variable::make(Int(32),"period") + 
                     Variable::make(Int(32), "offset") - init;
@@ -510,7 +508,8 @@ class BufferInserter: public IRMutator{
             // this part will change "new_body" stmt, take care
             {// add "inc counter" part in the end of new_body
                 Stmt inc_counter = Provide::make(cycle_name,{Call::make(Int(32),cycle_name,cycle_args,Call::PureIntrinsic)+1},cycle_args);
-                Expr inc_counter_cond = (Variable::make(Int(32),"period") <= Variable::make(Int(32),"period_num"));
+                // Expr inc_counter_cond = (Variable::make(Int(32),"period") <= Variable::make(Int(32),"period_num"));
+                Expr inc_counter_cond = const_true();
                 if(new_condition.defined())
                     inc_counter_cond = new_condition && inc_counter_cond;
                 inc_counter = IfThenElse::make(inc_counter_cond, inc_counter);
@@ -594,9 +593,9 @@ class BufferInserter: public IRMutator{
             );
 
 
-            new_body = LetStmt::make(
-                "period_num", period_num, new_body
-            );
+            // new_body = LetStmt::make(
+            //     "period_num", period_num, new_body
+            // );
         }
         return new_body;
     }
