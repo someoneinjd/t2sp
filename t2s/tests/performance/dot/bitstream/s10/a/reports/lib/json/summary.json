@@ -1,0 +1,290 @@
+{
+  "performanceSummary":
+  {
+    "name":"Kernel Summary"
+    , "columns":
+    ["Kernel Name", "Kernel Type", "Autorun", "Workgroup Size", "# Compute Units", "Hyper-Optimized Handshaking"]
+    , "children":
+    [
+      {
+        "name":"kernel_Z"
+        , "data":
+        [
+          "Single work-item"
+          , "No"
+          , [1, 1, 1]
+          , 1
+          , "Off"
+        ]
+        , "details":
+        [
+          {
+            "type":"text"
+            , "text":"Kernel type: Single work-item"
+          }
+          , {
+            "type":"text"
+            , "text":"Required workgroup size: (1, 1, 1)"
+          }
+          , {
+            "type":"text"
+            , "text":"Maximum workgroup size: 1"
+          }
+          , {
+            "type":"text"
+            , "text":"Hyper-optimized handshaking disabled due to loop orchestration compiler optimization being disabled in loop kernel_Z.B4."
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"/home/u146718/dot_lab/s10/a.cl"
+              , "line":112
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_unloader_1"
+        , "data":
+        [
+          "Single work-item"
+          , "No"
+          , [1, 1, 1]
+          , 1
+          , "Off"
+        ]
+        , "details":
+        [
+          {
+            "type":"text"
+            , "text":"Kernel type: Single work-item"
+          }
+          , {
+            "type":"text"
+            , "text":"Required workgroup size: (1, 1, 1)"
+          }
+          , {
+            "type":"text"
+            , "text":"Maximum workgroup size: 1"
+          }
+          , {
+            "type":"text"
+            , "text":"Hyper-optimized handshaking disabled due to instruction in Kernel kernel_Z"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"/home/u146718/dot_lab/s10/a.cl"
+              , "line":145
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_xLoader_1"
+        , "data":
+        [
+          "Single work-item"
+          , "No"
+          , [1, 1, 1]
+          , 1
+          , "Off"
+        ]
+        , "details":
+        [
+          {
+            "type":"text"
+            , "text":"Kernel type: Single work-item"
+          }
+          , {
+            "type":"text"
+            , "text":"Required workgroup size: (1, 1, 1)"
+          }
+          , {
+            "type":"text"
+            , "text":"Maximum workgroup size: 1"
+          }
+          , {
+            "type":"text"
+            , "text":"Hyper-optimized handshaking disabled due to instruction in Kernel kernel_Z"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"/home/u146718/dot_lab/s10/a.cl"
+              , "line":63
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_yLoader_1"
+        , "data":
+        [
+          "Single work-item"
+          , "No"
+          , [1, 1, 1]
+          , 1
+          , "Off"
+        ]
+        , "details":
+        [
+          {
+            "type":"text"
+            , "text":"Kernel type: Single work-item"
+          }
+          , {
+            "type":"text"
+            , "text":"Required workgroup size: (1, 1, 1)"
+          }
+          , {
+            "type":"text"
+            , "text":"Maximum workgroup size: 1"
+          }
+          , {
+            "type":"text"
+            , "text":"Hyper-optimized handshaking disabled due to instruction in Kernel kernel_Z"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"/home/u146718/dot_lab/s10/a.cl"
+              , "line":88
+            }
+          ]
+        ]
+      }
+    ]
+  }
+  , "estimatedResources":
+  {
+    "name":"Estimated Resource Usage"
+    , "columns":
+    ["Kernel Name", "ALUTs ", "FFs  ", "RAMs ", "DSPs ", "MLABs"]
+    , "children":
+    [
+      {
+        "name":"kernel_Z"
+        , "data":
+        [2120, 2643, 0, 33, 13]
+        , "debug":
+        [
+          [
+            {
+              "filename":"/home/u146718/dot_lab/s10/a.cl"
+              , "line":112
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_unloader_1"
+        , "data":
+        [2242, 4041, 17, 0, 14]
+        , "debug":
+        [
+          [
+            {
+              "filename":"/home/u146718/dot_lab/s10/a.cl"
+              , "line":145
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_xLoader_1"
+        , "data":
+        [4248, 8742, 60, 0, 122]
+        , "debug":
+        [
+          [
+            {
+              "filename":"/home/u146718/dot_lab/s10/a.cl"
+              , "line":63
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_yLoader_1"
+        , "data":
+        [4248, 8742, 60, 0, 122]
+        , "debug":
+        [
+          [
+            {
+              "filename":"/home/u146718/dot_lab/s10/a.cl"
+              , "line":88
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"Kernel Subtotal"
+        , "classes":
+        ["summary-highlight", "nohover"]
+        , "data":
+        [12858, 24168, 137, 33, 271]
+      }
+      , {
+        "name":"Global Interconnect"
+        , "classes":
+        ["summary-highlight", "nohover"]
+        , "data":
+        [16956, 19160, 0, 0, 0]
+      }
+      , {
+        "name":"Board Interface"
+        , "classes":
+        ["summary-highlight", "nohover"]
+        , "data":
+        [466792, 928428, 3039, 1291, 0]
+      }
+      , {
+        "name":"System description ROM"
+        , "classes":
+        ["summary-highlight", "nohover"]
+        , "data":
+        [2, 71, 2, 0, 0]
+      }
+      , {
+        "name":"Pipe and channel resources"
+        , "classes":
+        ["summary-highlight", "nohover"]
+        , "data":
+        [33, 6258, 53, 0, 0]
+      }
+      , {
+        "name":"Total"
+        , "classes":
+        ["summary-highlight", "nohover"]
+        , "data":
+        [496641, 978085, 3231, 1324, 271]
+        , "data_percent":
+        [26.6119, 26.2047, 27.5659, 22.9861]
+      }
+      , {
+        "name":"Available"
+        , "classes":
+        ["summary-highlight", "nohover"]
+        , "data":
+        [1866240, 3732480, 11721, 5760, 0]
+      }
+    ]
+  }
+  , "compileWarnings":
+  {
+    "name":"Compile Warnings"
+    , "children":
+    [
+    ]
+  }
+}

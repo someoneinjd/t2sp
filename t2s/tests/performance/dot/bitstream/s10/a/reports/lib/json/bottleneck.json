@@ -1,0 +1,141 @@
+{
+  "bottlenecks":
+  [
+    {
+      "name":"'_uX_s0_k'"
+      , "id":309
+      , "src":"223"
+      , "dst":"231"
+      , "type":"fMAX/II"
+      , "brief":"Data dependency"
+      , "loop":"kernel_Z.B4"
+      , "details":
+      [
+        {
+          "type":"table"
+          , "Variable on critical loop carried feedback path: ":"'_uX_s0_k'"
+          , "Declared at: ":
+          [
+            {
+              "type":"text"
+              , "text":"%L"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146718/dot_lab/s10/a.cl"
+                  , "line":"122"
+                }
+              ]
+            }
+          ]
+          , "Dependency: ":"Data dependency"
+          , "Estimated fmax reduced to: ":"388.8"
+          , "Loop feedback path that lowered II and Fmax: ":
+          [
+            {
+              "type":"text"
+              , "text":"+(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146718/dot_lab/s10/a.cl"
+                  , "line":"122"
+                }
+              ]
+            }
+            , {
+              "type":"text"
+              , "text":"Select(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146718/dot_lab/s10/a.cl"
+                  , "line":"138"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+      , "nodes":
+      [
+        {
+          "name":"'_uX_s0_k'"
+          , "id":223
+          , "start":"1.00"
+          , "parent":"kernel_Z.B4"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146718/dot_lab/s10/a.cl"
+                , "line":138
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"+"
+          , "id":227
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146718/dot_lab/s10/a.cl"
+                , "line":122
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"Select"
+          , "id":224
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146718/dot_lab/s10/a.cl"
+                , "line":138
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"Feedback"
+          , "id":231
+          , "end":"1.00"
+          , "parent":"kernel_Z.B4"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146718/dot_lab/s10/a.cl"
+                , "line":122
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+      ]
+      , "links":
+      [
+        {
+          "from":223
+          , "to":224
+        }
+        , {
+          "from":227
+          , "to":231
+        }
+        , {
+          "from":223
+          , "to":231
+          , "reverse":1
+        }
+      ]
+    }
+  ]
+}

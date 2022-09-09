@@ -1,0 +1,1123 @@
+{
+  "nodes":
+  [
+    {
+      "type":"kernel"
+      , "id":2
+      , "name":"kernel_Z"
+      , "children":
+      [
+        {
+          "type":"bb"
+          , "id":3
+          , "name":"kernel_Z.B0"
+          , "details":
+          [
+            {
+              "type":"table"
+              , "Latency":"2"
+            }
+          ]
+        }
+        , {
+          "type":"bb"
+          , "id":4
+          , "name":"kernel_Z.B1"
+          , "details":
+          [
+            {
+              "type":"table"
+              , "Latency":"0"
+            }
+          ]
+        }
+        , {
+          "type":"bb"
+          , "id":5
+          , "name":"kernel_Z.B2"
+          , "details":
+          [
+            {
+              "type":"table"
+              , "Latency":"4"
+              , "II":"1"
+              , "Subloops":"Yes"
+              , "Pipelined":"Yes"
+              , "Fmax Bottlenecks":"No"
+              , "Loop Info":"Entry to loop. "
+              , "Loops To":"15"
+            }
+          ]
+        }
+        , {
+          "type":"bb"
+          , "id":6
+          , "name":"kernel_Z.B3"
+          , "children":
+          [
+            {
+              "type":"inst"
+              , "id":8
+              , "name":"Channel Write"
+              , "debug":
+              [
+                [
+                  {
+                    "filename":"a.cl"
+                    , "line":136
+                  }
+                ]
+              ]
+              , "details":
+              [
+                {
+                  "type":"table"
+                  , "Width":"32 bits"
+                  , "Depth":"256"
+                  , "Stall-free":"No"
+                  , "Start Cycle":"0"
+                  , "Latency":"0"
+                  , "Reference":
+                  [
+                    {
+                      "type":"text"
+                      , "text":"See %L for more information"
+                      , "links":
+                      [
+                        {
+                          "guide":"Best Practices Guide : Channels"
+                          , "link":"https://www.intel.com/content/www/us/en/programmable/documentation/mwh1391807516407.html#qah1476410829821"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+            , {
+              "type":"inst"
+              , "id":14
+              , "name":"Begin"
+              , "details":
+              [
+                {
+                  "type":"table"
+                  , "Start Cycle":"0"
+                  , "Latency":"1"
+                }
+              ]
+            }
+            , {
+              "type":"inst"
+              , "id":15
+              , "name":"End"
+              , "details":
+              [
+                {
+                  "type":"table"
+                  , "Start Cycle":"0"
+                  , "Latency":"1"
+                }
+              ]
+            }
+          ]
+          , "details":
+          [
+            {
+              "type":"table"
+              , "Latency":"0"
+              , "II":"1"
+              , "Subloops":"Yes"
+              , "Pipelined":"Yes"
+              , "Fmax Bottlenecks":"No"
+              , "Loop Info":"Exit which branches back to loop. "
+            }
+          ]
+        }
+        , {
+          "type":"bb"
+          , "id":7
+          , "name":"kernel_Z.B4"
+          , "children":
+          [
+            {
+              "type":"inst"
+              , "id":10
+              , "name":"Channel Read"
+              , "debug":
+              [
+                [
+                  {
+                    "filename":"a.cl"
+                    , "line":120
+                  }
+                ]
+              ]
+              , "details":
+              [
+                {
+                  "type":"table"
+                  , "Width":"512 bits"
+                  , "Depth":"256"
+                  , "Stall-free":"No"
+                  , "Start Cycle":"6"
+                  , "Latency":"0"
+                  , "Reference":
+                  [
+                    {
+                      "type":"text"
+                      , "text":"See %L for more information"
+                      , "links":
+                      [
+                        {
+                          "guide":"Best Practices Guide : Channels"
+                          , "link":"https://www.intel.com/content/www/us/en/programmable/documentation/mwh1391807516407.html#qah1476410829821"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+            , {
+              "type":"inst"
+              , "id":12
+              , "name":"Channel Read"
+              , "debug":
+              [
+                [
+                  {
+                    "filename":"a.cl"
+                    , "line":122
+                  }
+                ]
+              ]
+              , "details":
+              [
+                {
+                  "type":"table"
+                  , "Width":"512 bits"
+                  , "Depth":"256"
+                  , "Stall-free":"No"
+                  , "Start Cycle":"6"
+                  , "Latency":"0"
+                  , "Reference":
+                  [
+                    {
+                      "type":"text"
+                      , "text":"See %L for more information"
+                      , "links":
+                      [
+                        {
+                          "guide":"Best Practices Guide : Channels"
+                          , "link":"https://www.intel.com/content/www/us/en/programmable/documentation/mwh1391807516407.html#qah1476410829821"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+            , {
+              "type":"inst"
+              , "id":16
+              , "name":"Loop Input"
+              , "debug":
+              [
+                [
+                  {
+                    "filename":"a.cl"
+                    , "line":118
+                  }
+                ]
+              ]
+              , "details":
+              [
+                {
+                  "type":"table"
+                  , "Start Cycle":"0"
+                  , "Latency":"1"
+                  , "Loops To":"17"
+                }
+              ]
+            }
+            , {
+              "type":"inst"
+              , "id":17
+              , "name":"Loop End"
+              , "details":
+              [
+                {
+                  "type":"table"
+                  , "Start Cycle":"27"
+                  , "Latency":"1"
+                }
+              ]
+            }
+          ]
+          , "details":
+          [
+            {
+              "type":"table"
+              , "Latency":"27"
+              , "II":"1"
+              , "Subloops":"No"
+              , "Pipelined":"Yes"
+              , "Fmax Bottlenecks":"No"
+              , "Loop Info":""
+            }
+          ]
+        }
+      ]
+    }
+    , {
+      "type":"kernel"
+      , "id":18
+      , "name":"kernel_xLoader_1"
+      , "children":
+      [
+        {
+          "type":"bb"
+          , "id":19
+          , "name":"kernel_xLoader_1.B0"
+          , "details":
+          [
+            {
+              "type":"table"
+              , "Latency":"2"
+            }
+          ]
+        }
+        , {
+          "type":"bb"
+          , "id":20
+          , "name":"kernel_xLoader_1.B1"
+          , "details":
+          [
+            {
+              "type":"table"
+              , "Latency":"0"
+            }
+          ]
+        }
+        , {
+          "type":"bb"
+          , "id":21
+          , "name":"kernel_xLoader_1.B2"
+          , "details":
+          [
+            {
+              "type":"table"
+              , "Latency":"4"
+              , "II":"1"
+              , "Subloops":"Yes"
+              , "Pipelined":"Yes"
+              , "Fmax Bottlenecks":"No"
+              , "Loop Info":"Entry to loop. "
+              , "Loops To":"22"
+            }
+          ]
+        }
+        , {
+          "type":"bb"
+          , "id":22
+          , "name":"kernel_xLoader_1.B3"
+          , "details":
+          [
+            {
+              "type":"table"
+              , "Latency":"0"
+              , "II":"1"
+              , "Subloops":"Yes"
+              , "Pipelined":"Yes"
+              , "Fmax Bottlenecks":"No"
+              , "Loop Info":"Exit which branches back to loop. "
+            }
+          ]
+        }
+        , {
+          "type":"bb"
+          , "id":23
+          , "name":"kernel_xLoader_1.B4"
+          , "children":
+          [
+            {
+              "type":"inst"
+              , "id":24
+              , "name":"Load"
+              , "debug":
+              [
+                [
+                  {
+                    "filename":"a.cl"
+                    , "line":77
+                  }
+                ]
+              ]
+              , "details":
+              [
+                {
+                  "type":"table"
+                  , "Width":"512 bits"
+                  , "Type":"Burst-coalesced"
+                  , "Stall-free":"No"
+                  , "Start Cycle":"7"
+                  , "Latency":"127"
+                  , "Reference":
+                  [
+                    {
+                      "type":"text"
+                      , "text":"See %L for more information"
+                      , "links":
+                      [
+                        {
+                          "guide":"Best Practices Guide : Load-Store Units"
+                          , "link":"https://www.intel.com/content/www/us/en/programmable/documentation/mwh1391807516407.html#yeo1491314105959"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+            , {
+              "type":"inst"
+              , "id":25
+              , "name":"Channel Write"
+              , "debug":
+              [
+                [
+                  {
+                    "filename":"a.cl"
+                    , "line":78
+                  }
+                ]
+              ]
+              , "details":
+              [
+                {
+                  "type":"table"
+                  , "Width":"512 bits"
+                  , "Depth":"256"
+                  , "Stall-free":"No"
+                  , "Start Cycle":"135"
+                  , "Latency":"0"
+                  , "Reference":
+                  [
+                    {
+                      "type":"text"
+                      , "text":"See %L for more information"
+                      , "links":
+                      [
+                        {
+                          "guide":"Best Practices Guide : Channels"
+                          , "link":"https://www.intel.com/content/www/us/en/programmable/documentation/mwh1391807516407.html#qah1476410829821"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+            , {
+              "type":"inst"
+              , "id":26
+              , "name":"Loop Input"
+              , "debug":
+              [
+                [
+                  {
+                    "filename":"a.cl"
+                    , "line":72
+                  }
+                ]
+              ]
+              , "details":
+              [
+                {
+                  "type":"table"
+                  , "Start Cycle":"0"
+                  , "Latency":"1"
+                  , "Loops To":"27"
+                }
+              ]
+            }
+            , {
+              "type":"inst"
+              , "id":27
+              , "name":"Loop End"
+              , "details":
+              [
+                {
+                  "type":"table"
+                  , "Start Cycle":"135"
+                  , "Latency":"1"
+                }
+              ]
+            }
+          ]
+          , "details":
+          [
+            {
+              "type":"table"
+              , "Latency":"135"
+              , "II":"1"
+              , "Subloops":"No"
+              , "Pipelined":"Yes"
+              , "Fmax Bottlenecks":"No"
+              , "Loop Info":""
+            }
+          ]
+        }
+      ]
+    }
+    , {
+      "type":"kernel"
+      , "id":29
+      , "name":"kernel_yLoader_1"
+      , "children":
+      [
+        {
+          "type":"bb"
+          , "id":30
+          , "name":"kernel_yLoader_1.B0"
+          , "details":
+          [
+            {
+              "type":"table"
+              , "Latency":"2"
+            }
+          ]
+        }
+        , {
+          "type":"bb"
+          , "id":31
+          , "name":"kernel_yLoader_1.B1"
+          , "details":
+          [
+            {
+              "type":"table"
+              , "Latency":"0"
+            }
+          ]
+        }
+        , {
+          "type":"bb"
+          , "id":32
+          , "name":"kernel_yLoader_1.B2"
+          , "details":
+          [
+            {
+              "type":"table"
+              , "Latency":"4"
+              , "II":"1"
+              , "Subloops":"Yes"
+              , "Pipelined":"Yes"
+              , "Fmax Bottlenecks":"No"
+              , "Loop Info":"Entry to loop. "
+              , "Loops To":"33"
+            }
+          ]
+        }
+        , {
+          "type":"bb"
+          , "id":33
+          , "name":"kernel_yLoader_1.B3"
+          , "details":
+          [
+            {
+              "type":"table"
+              , "Latency":"0"
+              , "II":"1"
+              , "Subloops":"Yes"
+              , "Pipelined":"Yes"
+              , "Fmax Bottlenecks":"No"
+              , "Loop Info":"Exit which branches back to loop. "
+            }
+          ]
+        }
+        , {
+          "type":"bb"
+          , "id":34
+          , "name":"kernel_yLoader_1.B4"
+          , "children":
+          [
+            {
+              "type":"inst"
+              , "id":35
+              , "name":"Load"
+              , "debug":
+              [
+                [
+                  {
+                    "filename":"a.cl"
+                    , "line":100
+                  }
+                ]
+              ]
+              , "details":
+              [
+                {
+                  "type":"table"
+                  , "Width":"512 bits"
+                  , "Type":"Burst-coalesced"
+                  , "Stall-free":"No"
+                  , "Start Cycle":"7"
+                  , "Latency":"127"
+                  , "Reference":
+                  [
+                    {
+                      "type":"text"
+                      , "text":"See %L for more information"
+                      , "links":
+                      [
+                        {
+                          "guide":"Best Practices Guide : Load-Store Units"
+                          , "link":"https://www.intel.com/content/www/us/en/programmable/documentation/mwh1391807516407.html#yeo1491314105959"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+            , {
+              "type":"inst"
+              , "id":36
+              , "name":"Channel Write"
+              , "debug":
+              [
+                [
+                  {
+                    "filename":"a.cl"
+                    , "line":101
+                  }
+                ]
+              ]
+              , "details":
+              [
+                {
+                  "type":"table"
+                  , "Width":"512 bits"
+                  , "Depth":"256"
+                  , "Stall-free":"No"
+                  , "Start Cycle":"135"
+                  , "Latency":"0"
+                  , "Reference":
+                  [
+                    {
+                      "type":"text"
+                      , "text":"See %L for more information"
+                      , "links":
+                      [
+                        {
+                          "guide":"Best Practices Guide : Channels"
+                          , "link":"https://www.intel.com/content/www/us/en/programmable/documentation/mwh1391807516407.html#qah1476410829821"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+            , {
+              "type":"inst"
+              , "id":37
+              , "name":"Loop Input"
+              , "debug":
+              [
+                [
+                  {
+                    "filename":"a.cl"
+                    , "line":95
+                  }
+                ]
+              ]
+              , "details":
+              [
+                {
+                  "type":"table"
+                  , "Start Cycle":"0"
+                  , "Latency":"1"
+                  , "Loops To":"38"
+                }
+              ]
+            }
+            , {
+              "type":"inst"
+              , "id":38
+              , "name":"Loop End"
+              , "details":
+              [
+                {
+                  "type":"table"
+                  , "Start Cycle":"135"
+                  , "Latency":"1"
+                }
+              ]
+            }
+          ]
+          , "details":
+          [
+            {
+              "type":"table"
+              , "Latency":"135"
+              , "II":"1"
+              , "Subloops":"No"
+              , "Pipelined":"Yes"
+              , "Fmax Bottlenecks":"No"
+              , "Loop Info":""
+            }
+          ]
+        }
+      ]
+    }
+    , {
+      "type":"kernel"
+      , "id":39
+      , "name":"kernel_unloader_1"
+      , "children":
+      [
+        {
+          "type":"bb"
+          , "id":40
+          , "name":"kernel_unloader_1.B0"
+          , "details":
+          [
+            {
+              "type":"table"
+              , "Latency":"2"
+            }
+          ]
+        }
+        , {
+          "type":"bb"
+          , "id":41
+          , "name":"kernel_unloader_1.B1"
+          , "details":
+          [
+            {
+              "type":"table"
+              , "Latency":"0"
+            }
+          ]
+        }
+        , {
+          "type":"bb"
+          , "id":42
+          , "name":"kernel_unloader_1.B2"
+          , "children":
+          [
+            {
+              "type":"inst"
+              , "id":43
+              , "name":"Channel Read"
+              , "debug":
+              [
+                [
+                  {
+                    "filename":"a.cl"
+                    , "line":149
+                  }
+                ]
+              ]
+              , "details":
+              [
+                {
+                  "type":"table"
+                  , "Width":"32 bits"
+                  , "Depth":"256"
+                  , "Stall-free":"No"
+                  , "Start Cycle":"10"
+                  , "Latency":"0"
+                  , "Reference":
+                  [
+                    {
+                      "type":"text"
+                      , "text":"See %L for more information"
+                      , "links":
+                      [
+                        {
+                          "guide":"Best Practices Guide : Channels"
+                          , "link":"https://www.intel.com/content/www/us/en/programmable/documentation/mwh1391807516407.html#qah1476410829821"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+            , {
+              "type":"inst"
+              , "id":44
+              , "name":"Store"
+              , "debug":
+              [
+                [
+                  {
+                    "filename":"a.cl"
+                    , "line":151
+                  }
+                ]
+              ]
+              , "details":
+              [
+                {
+                  "type":"table"
+                  , "Width":"32 bits"
+                  , "Type":"Burst-coalesced"
+                  , "Stall-free":"No"
+                  , "Start Cycle":"10"
+                  , "Latency":"2"
+                  , "Reference":
+                  [
+                    {
+                      "type":"text"
+                      , "text":"See %L for more information"
+                      , "links":
+                      [
+                        {
+                          "guide":"Best Practices Guide : Load-Store Units"
+                          , "link":"https://www.intel.com/content/www/us/en/programmable/documentation/mwh1391807516407.html#yeo1491314105959"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+            , {
+              "type":"inst"
+              , "id":45
+              , "name":"Loop Input"
+              , "debug":
+              [
+                [
+                  {
+                    "filename":"a.cl"
+                    , "line":147
+                  }
+                ]
+              ]
+              , "details":
+              [
+                {
+                  "type":"table"
+                  , "Start Cycle":"0"
+                  , "Latency":"1"
+                  , "Loops To":"46"
+                }
+              ]
+            }
+            , {
+              "type":"inst"
+              , "id":46
+              , "name":"Loop End"
+              , "details":
+              [
+                {
+                  "type":"table"
+                  , "Start Cycle":"12"
+                  , "Latency":"1"
+                }
+              ]
+            }
+          ]
+          , "details":
+          [
+            {
+              "type":"table"
+              , "Latency":"12"
+              , "II":"1"
+              , "Subloops":"No"
+              , "Pipelined":"Yes"
+              , "Fmax Bottlenecks":"No"
+              , "Loop Info":""
+            }
+          ]
+        }
+      ]
+    }
+    , {
+      "type":"memtype"
+      , "id":1
+      , "name":"Global Memory"
+      , "children":
+      [
+        {
+          "type":"memsys"
+          , "id":28
+          , "name":"DDR"
+          , "details":
+          [
+            {
+              "type":"table"
+              , "Number of banks":"2"
+            }
+          ]
+        }
+      ]
+    }
+    , {
+      "type":"channel"
+      , "id":9
+      , "name":"_Out_channel"
+      , "debug":
+      [
+        [
+          {
+            "filename":"a.cl"
+            , "line":108
+          }
+        ]
+      ]
+      , "details":
+      [
+        {
+          "type":"table"
+          , "Width":"32 bits"
+          , "Depth":"256"
+        }
+      ]
+    }
+    , {
+      "type":"channel"
+      , "id":13
+      , "name":"_xLoader__1_channel"
+      , "debug":
+      [
+        [
+          {
+            "filename":"a.cl"
+            , "line":108
+          }
+        ]
+      ]
+      , "details":
+      [
+        {
+          "type":"table"
+          , "Width":"512 bits"
+          , "Depth":"256"
+        }
+      ]
+    }
+    , {
+      "type":"channel"
+      , "id":11
+      , "name":"_yLoader__1_channel"
+      , "debug":
+      [
+        [
+          {
+            "filename":"a.cl"
+            , "line":108
+          }
+        ]
+      ]
+      , "details":
+      [
+        {
+          "type":"table"
+          , "Width":"512 bits"
+          , "Depth":"256"
+        }
+      ]
+    }
+  ]
+  , "links":
+  [
+    {
+      "from":8
+      , "to":9
+    }
+    , {
+      "from":11
+      , "to":10
+    }
+    , {
+      "from":13
+      , "to":12
+    }
+    , {
+      "from":15
+      , "to":4
+    }
+    , {
+      "from":15
+      , "to":5
+    }
+    , {
+      "from":3
+      , "to":5
+    }
+    , {
+      "from":17
+      , "to":14
+    }
+    , {
+      "from":8
+      , "to":15
+    }
+    , {
+      "from":17
+      , "to":16
+    }
+    , {
+      "from":5
+      , "to":16
+    }
+    , {
+      "from":10
+      , "to":17
+    }
+    , {
+      "from":12
+      , "to":17
+    }
+    , {
+      "from":14
+      , "to":8
+    }
+    , {
+      "from":16
+      , "to":10
+    }
+    , {
+      "from":16
+      , "to":12
+    }
+    , {
+      "from":25
+      , "to":13
+    }
+    , {
+      "from":22
+      , "to":20
+    }
+    , {
+      "from":22
+      , "to":21
+    }
+    , {
+      "from":19
+      , "to":21
+    }
+    , {
+      "from":27
+      , "to":22
+    }
+    , {
+      "from":27
+      , "to":26
+    }
+    , {
+      "from":21
+      , "to":26
+    }
+    , {
+      "from":24
+      , "to":27
+    }
+    , {
+      "from":25
+      , "to":27
+    }
+    , {
+      "from":26
+      , "to":24
+    }
+    , {
+      "from":24
+      , "to":25
+    }
+    , {
+      "from":28
+      , "to":24
+    }
+    , {
+      "from":36
+      , "to":11
+    }
+    , {
+      "from":33
+      , "to":31
+    }
+    , {
+      "from":33
+      , "to":32
+    }
+    , {
+      "from":30
+      , "to":32
+    }
+    , {
+      "from":38
+      , "to":33
+    }
+    , {
+      "from":38
+      , "to":37
+    }
+    , {
+      "from":32
+      , "to":37
+    }
+    , {
+      "from":35
+      , "to":38
+    }
+    , {
+      "from":36
+      , "to":38
+    }
+    , {
+      "from":37
+      , "to":35
+    }
+    , {
+      "from":35
+      , "to":36
+    }
+    , {
+      "from":28
+      , "to":35
+    }
+    , {
+      "from":9
+      , "to":43
+    }
+    , {
+      "from":46
+      , "to":41
+    }
+    , {
+      "from":46
+      , "to":45
+    }
+    , {
+      "from":40
+      , "to":45
+    }
+    , {
+      "from":43
+      , "to":46
+    }
+    , {
+      "from":44
+      , "to":46
+    }
+    , {
+      "from":45
+      , "to":43
+    }
+    , {
+      "from":43
+      , "to":44
+    }
+    , {
+      "from":44
+      , "to":28
+    }
+  ]
+}
