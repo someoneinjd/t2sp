@@ -15,6 +15,12 @@ array=(
         "complex-img.cpp"
         "complex-fpga.cpp"
         "complex-extern.cpp"
+        "complex-double-buffer.cpp"
+        "complex-double-param.cpp"
+        "complex-double-const.cpp"
+        "complex-double-img.cpp"
+        "complex-double-fpga.cpp"
+        "complex-double-extern.cpp"
       )
 
 succ=0

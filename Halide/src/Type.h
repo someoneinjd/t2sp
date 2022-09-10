@@ -1,7 +1,7 @@
 #ifndef HALIDE_TYPE_H
 #define HALIDE_TYPE_H
 
-#include "Complex32.h"
+#include "Complex.h"
 #include "Error.h"
 #include "Float16.h"
 #include "Util.h"
@@ -166,6 +166,7 @@ HALIDE_DECLARE_EXTERN_SIMPLE_TYPE(int32_t);
 HALIDE_DECLARE_EXTERN_SIMPLE_TYPE(uint32_t);
 HALIDE_DECLARE_EXTERN_SIMPLE_TYPE(int64_t);
 HALIDE_DECLARE_EXTERN_SIMPLE_TYPE(uint64_t);
+//HALIDE_DECLARE_EXTERN_SIMPLE_TYPE(uint128_t);
 HALIDE_DECLARE_EXTERN_SIMPLE_TYPE(Halide::float16_t);
 HALIDE_DECLARE_EXTERN_SIMPLE_TYPE(Halide::bfloat16_t);
 HALIDE_DECLARE_EXTERN_SIMPLE_TYPE(float);
@@ -179,6 +180,7 @@ HALIDE_DECLARE_EXTERN_STRUCT_TYPE(halide_semaphore_t);
 HALIDE_DECLARE_EXTERN_STRUCT_TYPE(halide_parallel_task_t);
 
 HALIDE_DECLARE_EXTERN_STRUCT_TYPE(Halide::complex32_t);
+HALIDE_DECLARE_EXTERN_STRUCT_TYPE(Halide::complex64_t);
 
 // You can make arbitrary user-defined types be "Known" using the
 // macro above. This is useful for making Param<> arguments for
