@@ -1337,6 +1337,13 @@ Expr strict_float(Expr e);
  */
 Expr unsafe_promise_clamped(Expr value, Expr min, Expr max);
 
+
+/** Construct an expression to extract the real or imaginary part of a complex double*/
+// @{
+Expr re_complex64(const Expr &e);
+Expr im_complex64(const Expr &e);
+// @}
+
 }  // namespace Halide
 
 #endif

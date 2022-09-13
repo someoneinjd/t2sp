@@ -2255,4 +2255,23 @@ Range::Range(const Expr &min_in, const Expr &extent_in)
     }
 }
 
+/** Construct an expression to extract the real and imaginary part of a complex double*/
+// @{
+Expr re_complex64(const Expr &e) {
+    internal_assert(e.type().is_complex() && e.type().bits() == 128);
+    Expr shift = make_const(UInt(8), 64);
+    Expr data = Cast::make(UInt(128), e);
+    Expr extract = ((data << shift) >> shift);
+    return Cast::make(Float(64), extract);
+}
+
+Expr im_complex64(const Expr &e) {
+    internal_assert(e.type().is_complex() && e.type().bits() == 128);
+    Expr shift = make_const(UInt(8), 64);
+    Expr data = Cast::make(UInt(128), e);
+    Expr extract = (data >> shift);
+    return Cast::make(Float(64), extract);
+}
+// @}
+
 }  // namespace Halide
