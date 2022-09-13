@@ -196,7 +196,7 @@ public:
     // scalars.
     bool const_float(const Expr &e, double *f);
     bool const_int(const Expr &e, int64_t *i);
-    bool const_uint(const Expr &e, uint64_t *u);
+    bool const_uint(const Expr &e, __uint128_t *u);
 
     // Put the args to a commutative op in a canonical order
     HALIDE_ALWAYS_INLINE

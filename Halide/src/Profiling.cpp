@@ -121,7 +121,8 @@ private:
         // always conditionally false. remove_dead_allocations() is called after
         // inject_profiling() so this is a possible scenario.
         if (!is_zero(size) && on_stack) {
-            const uint64_t *int_size = as_const_uint(size);
+            internal_assert(!size.type().is_complex());
+            const uint64_t *int_size = (const uint64_t *)as_const_uint(size);
             internal_assert(int_size != NULL);  // Stack size is always a const int
             func_stack_current[idx] += *int_size;
             func_stack_peak[idx] = std::max(func_stack_peak[idx], func_stack_current[idx]);
@@ -175,7 +176,8 @@ private:
                     stmt = Block::make(Evaluate::make(set_task), stmt);
                 }
             } else {
-                const uint64_t *int_size = as_const_uint(alloc.size);
+                internal_assert(!alloc.size.type().is_complex());
+                const uint64_t *int_size = (const uint64_t *)as_const_uint(alloc.size);
                 internal_assert(int_size != nullptr);
 
                 func_stack_current[idx] -= *int_size;

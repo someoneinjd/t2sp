@@ -30,6 +30,7 @@
 #include "Pipeline.h"
 #include "Simplify.h"
 #include "Util.h"
+#include "../../t2s/src/DebugPrint.h"
 
 #if !(__cplusplus > 199711L || _MSC_VER >= 1800)
 
@@ -1523,7 +1524,12 @@ void CodeGen_LLVM::visit(const IntImm *op) {
 
 void CodeGen_LLVM::visit(const UIntImm *op) {
     if (op->type.is_complex()) {
-        codegen(reinterpret(Complex(32), make_const(UInt(64), op->value)));
+        if (op->type.bits() == 64) {
+            codegen(reinterpret(Complex(32), make_const(UInt(64), op->value)));
+        } else {
+//            codegen(reinterpret(Complex(64), make_const(UInt(128), op->value)));
+            value = ConstantInt::get(llvm_type_of(UInt(128)), op->value);
+        }
     } else {
         value = ConstantInt::get(llvm_type_of(op->type), op->value);
     }

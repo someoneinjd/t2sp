@@ -23,7 +23,7 @@ bool scalar_from_constant_expr(Expr e, T *val) {
         *val = (T)(*i);
         return true;
     } else if (type_of<T>().is_uint()) {
-        const uint64_t *u = as_const_uint(e);
+        const __uint128_t *u = as_const_uint(e);
         if (!u) return false;
         *val = (T)(*u);
         return true;

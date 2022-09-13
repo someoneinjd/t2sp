@@ -183,7 +183,7 @@ const int64_t *as_const_int(const Expr &e) {
     }
 }
 
-const uint64_t *as_const_uint(const Expr &e) {
+const __uint128_t *as_const_uint(const Expr &e) {
     if (!e.defined()) {
         return nullptr;
     } else if (const Broadcast *b = e.as<Broadcast>()) {
@@ -216,12 +216,12 @@ bool is_const_power_of_two_integer(const Expr &e, int *bits) {
     const Cast *c = e.as<Cast>();
     if (c) return is_const_power_of_two_integer(c->value, bits);
 
-    uint64_t val = 0;
+    __uint128_t val = 0;
 
     if (const int64_t *i = as_const_int(e)) {
         if (*i < 0) return false;
         val = (uint64_t)(*i);
-    } else if (const uint64_t *u = as_const_uint(e)) {
+    } else if (const __uint128_t *u = as_const_uint(e)) {
         val = *u;
     }
 
@@ -345,7 +345,11 @@ Expr make_const_helper(Type t, T val) {
     } else if (t.is_float()) {
         return FloatImm::make(t, (double)val);
     } else if (t.is_complex()) {
-        return UIntImm::make(t, (uint64_t)val);
+        if (t.bits() == 64) {
+            return UIntImm::make(t, (uint64_t)val);
+        } else {
+            return UIntImm::make(t, (__uint128_t)val);
+        }
     } else {
         internal_error << "Can't make a constant of type " << t << "\n";
         return Expr();
@@ -359,6 +363,10 @@ Expr make_const(Type t, int64_t val) {
 }
 
 Expr make_const(Type t, uint64_t val) {
+    return make_const_helper(t, val);
+}
+
+Expr make_const(Type t, __uint128_t val) {
     return make_const_helper(t, val);
 }
 
@@ -1525,7 +1533,7 @@ Expr cast(Type t, Expr a) {
     if (const int64_t *i = as_const_int(a)) {
         return Internal::make_const(t, *i);
     }
-    if (const uint64_t *u = as_const_uint(a)) {
+    if (const __uint128_t *u = as_const_uint(a)) {
         return Internal::make_const(t, *u);
     }
     if (const double *f = as_const_float(a)) {
@@ -1831,9 +1839,13 @@ Expr fast_inverse_sqrt(Expr x) {
 }
 
 Expr conjugate(Expr x) {
-    user_assert(x.type() == Complex(32)) << "conj only takes complex arguments\n";
+    user_assert(x.type().is_complex()) << "conj only takes complex arguments\n";
     Type t = x.type();
-    return Internal::Call::make(t, "conjugate", {std::move(x)}, Internal::Call::PureExtern);
+    if (t.bits() == 64) {
+        return Internal::Call::make(t, "conjugate_c32", {std::move(x)}, Internal::Call::PureExtern);
+    } else {
+        return Internal::Call::make(t, "conjugate_c64", {std::move(x)}, Internal::Call::PureExtern);
+    }
 }
 
 Expr floor(Expr x) {

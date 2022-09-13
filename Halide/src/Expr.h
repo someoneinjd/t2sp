@@ -236,7 +236,7 @@ struct IntImm : public ExprNode<IntImm> {
 
 /** Unsigned integer constants */
 struct UIntImm : public ExprNode<UIntImm> {
-    uint64_t value;
+    __uint128_t value;
 
     static const UIntImm *make(Type t, __uint128_t value) {
         internal_assert((t.is_uint() || t.is_complex()) && t.is_scalar())

@@ -46,8 +46,8 @@ int main()
     #define K (A.dim(0).extent() / (KKK * KK))
 
     // Type of the data to process in C and T2S
-    #define CTYPE double
-    #define TTYPE Float(64)
+    #define CTYPE complex64_t
+    #define TTYPE Complex(64)
 
     // Inputs
     ImageParam A("A", TTYPE, 2), B("B", TTYPE, 2);
@@ -90,9 +90,9 @@ int main()
 
     // Compile the kernel to an FPGA bitstream, and expose a C interface for the host to invoke
 #ifdef GPU
-    C.compile_to_host("gemm-interface", { A, B }, "gemm", IntelGPU);
+    C.compile_to_host("zgemm-interface", { A, B }, "gemm", IntelGPU);
 #else
-    C.compile_to_host("gemm-interface", { A, B }, "gemm", IntelFPGA);
+    C.compile_to_host("zgemm-interface", { A, B }, "gemm", IntelFPGA);
 #endif
     printf("Success\n");
     return 0;

@@ -51,7 +51,7 @@ bool CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::is_standard_opencl_type(Type type) {
         }
     } else {
         if ((bits == 1 && lanes == 1) || (bits == 8) ||
-            (bits == 16) || (bits == 32) || (bits == 64)) {
+            (bits == 16) || (bits == 32) || (bits == 64) || (bits == 128)) {
             standard_bits = true;
         }
     }
@@ -86,7 +86,7 @@ string CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::print_type(Type type, AppendSpaceIf
             user_error << "Can't represent a float with this many bits in OpenCL C: " << type << "\n";
         }
     } else if (type.is_complex()) {
-        oss << "complex";
+        oss << (type.bits() == 64 ? "complex" : "complexd");
     } else {
         if (type.is_uint() && type.bits() > 1) oss << 'u';
         switch (type.bits()) {
@@ -1210,13 +1210,17 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Load *op) {
                    << print_type(op->type) << "*)(" << print_name(op->name)
                    << " + " << id_ramp_base << "))";
         } else if (op->type.is_complex()) {
+            string ctype = "float";
+            if (op->type.bits() == 128) {
+                ctype = "double";
+            }
             if (op->type.lanes() == 1) {
                 rhs << "vload" << op->type.lanes() * 2
-                    << "(0, (" << get_memory_space(op->name) << " float*)("
+                    << "(0, (" << get_memory_space(op->name) << " " << ctype << "*)("
                     << print_name(op->name) << " + " << id_ramp_base << "))";
             } else {
                 rhs << "{vload" << op->type.lanes() * 2
-                    << "(0, (" << get_memory_space(op->name) << " float*)("
+                    << "(0, (" << get_memory_space(op->name) << " " << ctype << "*)("
                     << print_name(op->name) << " + " << id_ramp_base << "))}";
             }
         } else {
@@ -1399,16 +1403,20 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Store *op) {
                    << print_type(t) << "*)(" << print_name(op->name)
                    << " + " << id_ramp_base << ")) = " << id_value << ";\n";
         } else if (t.is_complex()) {
+            string ctype = "float";
+            if (t.bits() == 128) {
+                ctype = "double";
+            }
             if (t.lanes() == 1) {
                 stream << get_indent() << "vstore" << t.lanes() * 2 << "("
                     << id_value << ", "
-                    << 0 << ", (" << get_memory_space(op->name) << " float*)("
+                    << 0 << ", (" << get_memory_space(op->name) << " " << ctype << "*)("
                     << print_name(op->name) << " + " << id_ramp_base
                     << "));\n";
             } else {
                 stream << get_indent() << "vstore" << t.lanes() * 2 << "("
                     << id_value << ".t, "
-                    << 0 << ", (" << get_memory_space(op->name) << " float*)("
+                    << 0 << ", (" << get_memory_space(op->name) << " " << ctype << "*)("
                     << print_name(op->name) << " + " << id_ramp_base
                     << "));\n";
             }
@@ -2008,10 +2016,18 @@ void CodeGen_OpenCL_Dev::init_module() {
                << "typedef union { float4 t; float2 s[2]; } complex2;\n"
                << "typedef union { float8 t; float2 s[4]; } complex4;\n"
                << "typedef union { float16 t; float2 s[8]; } complex8;\n"
-               << "inline float2 conjugate(float2 x) {return (float2)(x.s0, -x.s1); }\n"
+               << "inline float2 conjugate_c32(float2 x) {return (float2)(x.s0, -x.s1); }\n"
                << "inline float2 sqrt_c32(float2 x) {return (float2)(sqrt_f32(x.s0), 0.0f); }\n"
                << "inline float2 fast_inverse_c32(float2 x) {return (float2)(fast_inverse_f32(x.s0), 0.0f); }\n"
-               << "inline float2 fast_inverse_sqrt_c32(float2 x) {return (float2)(fast_inverse_sqrt_f32(x.s0), 0.0f); }\n";
+               << "inline float2 fast_inverse_sqrt_c32(float2 x) {return (float2)(fast_inverse_sqrt_f32(x.s0), 0.0f); }\n"
+               << "typedef double2 complexd;\n"
+               << "typedef union { double4 t; double2 s[2]; } complexd2;\n"
+               << "typedef union { double8 t; double2 s[4]; } complexd4;\n"
+               << "typedef union { double16 t; double2 s[8]; } complexd8;\n"
+               << "inline double2 conjugate_c64(double2 x) {return (double2)(x.s0, -x.s1); }\n";
+//               << "inline double2 sqrt_c64(double2 x) {return (double2)(sqrt_f64(x.s0), 0.0f); }\n"
+//               << "inline double2 fast_inverse_c64(double2 x) {return (double2)(fast_inverse_f64(x.s0), 0.0f); }\n"
+//               << "inline double2 fast_inverse_sqrt_c64(double2 x) {return (double2)(fast_inverse_sqrt_f64(x.s0), 0.0f); }\n";
 
     // __shared always has address space __local.
     src_stream << "#define __address_space___shared __local\n";

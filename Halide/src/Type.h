@@ -166,7 +166,7 @@ HALIDE_DECLARE_EXTERN_SIMPLE_TYPE(int32_t);
 HALIDE_DECLARE_EXTERN_SIMPLE_TYPE(uint32_t);
 HALIDE_DECLARE_EXTERN_SIMPLE_TYPE(int64_t);
 HALIDE_DECLARE_EXTERN_SIMPLE_TYPE(uint64_t);
-//HALIDE_DECLARE_EXTERN_SIMPLE_TYPE(uint128_t);
+HALIDE_DECLARE_EXTERN_SIMPLE_TYPE(__uint128_t);
 HALIDE_DECLARE_EXTERN_SIMPLE_TYPE(Halide::float16_t);
 HALIDE_DECLARE_EXTERN_SIMPLE_TYPE(Halide::bfloat16_t);
 HALIDE_DECLARE_EXTERN_SIMPLE_TYPE(float);
@@ -457,7 +457,7 @@ public:
     // @{
     bool can_represent(double x) const;
     bool can_represent(int64_t x) const;
-    bool can_represent(uint64_t x) const;
+    bool can_represent(__uint128_t x) const;
     // @}
 
     /** Check if an integer constant value is the maximum or minimum
