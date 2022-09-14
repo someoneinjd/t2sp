@@ -242,6 +242,12 @@ if [ "$component" == "cm" ]; then
     # install_cm_20211028
     install_cm_20200119
 fi
+if [ "$component" == "ninja" ]; then
+    install_ninja
+fi
+if [ "$component" == "re2c" ]; then
+    install_re2c
+fi
 if [ "$component" == "git-lfs" ]; then
     install_git_lfs 3.1.4
 fi
