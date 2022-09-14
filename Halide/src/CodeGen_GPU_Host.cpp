@@ -313,29 +313,6 @@ public:
     }
 };
 
-string create_kernel_name(const For *op) {
-    // Remove already useless info from the loop name, so as to get a cleaner kernel name.
-    string loop_name = op->name;
-    string func_name = extract_first_token(loop_name);
-    string kernel_name = unique_name("kernel_" + func_name);
-
-    // If the kernel writes to memory, append "_WAIT_FINISH" so that the OpenCL runtime knows to wait for this
-    // kernel to finish.
-    KernelStoresToMemory checker;
-    op->body.accept(&checker);
-    if (checker.stores_to_memory) {
-        // TOFIX: overlay does not work well with this change of name
-        // kernel_name += "_WAIT_FINISH";
-    }
-
-    for (size_t i = 0; i < kernel_name.size(); i++) {
-        if (!isalnum(kernel_name[i])) {
-            kernel_name[i] = '_';
-        }
-    }
-    return kernel_name;
-}
-
 template<typename CodeGen_CPU>
 void CodeGen_GPU_Host<CodeGen_CPU>::visit(const For *loop) {
     if (CodeGen_GPU_Dev::is_gpu_var(loop->name) || ends_with(loop->name, ".run_on_device") || (target.has_feature(Target::OneAPI) && !target.has_feature(Target::IntelGPU))) {

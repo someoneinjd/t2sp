@@ -3640,36 +3640,6 @@ void CodeGen_OneAPI_Dev::EmitOneAPIFunc::compile(const LoweredFunc &f){
 
 }
 
-
-// EmitOneAPIFunc
-std::string CodeGen_OneAPI_Dev::EmitOneAPIFunc::create_kernel_name(const For *op) {
-    // Remove already useless info from the loop name, so as to get a cleaner kernel name.
-    std::string loop_name = op->name;
-    std::string func_name = extract_first_token(loop_name);
-    std::string kernel_name;
-    {
-        using namespace llvm;
-        kernel_name = unique_name("kernel_" + func_name);
-    }
-
-    // If the kernel writes to memory, append "_WAIT_FINISH" so that the OpenCL runtime knows to wait for this
-    // kernel to finish.
-    // KernelStoresToMemory checker;
-    // op->body.accept(&checker);
-    // if (checker.stores_to_memory) {
-    //     // TOFIX: overlay does not work well with this change of name
-    //     // kernel_name += "_WAIT_FINISH";
-    // }
-
-    for (size_t i = 0; i < kernel_name.size(); i++) {
-        if (!isalnum(kernel_name[i])) {
-            kernel_name[i] = '_';
-        }
-    }
-    return kernel_name;
-}
-
-
 void CodeGen_OneAPI_Dev::EmitOneAPIFunc::create_kernel_wrapper(const std::string &name, std::string q_device_name, const std::vector<DeviceArgument> &args, bool begining, bool is_run_on_device){
     // (TODO), will need a function wrapper if user wants to ever
     // use the compile_to_devsrc to generate the kernels alone
