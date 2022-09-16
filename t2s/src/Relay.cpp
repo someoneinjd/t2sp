@@ -1,5 +1,6 @@
 #include <numeric>
 #include <set>
+#include "../../Halide/src/CSE.h"
 #include "DebugPrint.h"
 #include "Func.h"
 #include "FlattenLoops.h"
@@ -94,7 +95,7 @@ vector<string> find_output_loops(string bank_loop, const vector<int> &output_dim
 }
 
 // Data relaying executes like a pipeline. For example, for the PE dims iii and jjj, we would
-// generate jjj pipelines where iii PEs share the one. PEs put its output value onto the pipeline,
+// generate jjj pipelines where iii PEs share one pipeline. PEs put its output value onto the pipeline,
 // and the pipeline move forward. At the head of pipeline, we could collect data from all pipelines.
 class DataRelaying : public IRMutator {
     const RelayItem &param;
@@ -294,6 +295,8 @@ class DataRelaying : public IRMutator {
     }
 
     Stmt make_flag_update() {
+        debug(4) << "....make_flag_update. lincode=" << to_string(pipe_alloc.lin_cond) << "\n"
+                << "           emit_code=" << to_string(pipe_alloc.emit_cond) << "\n";
         Expr update_cond = pipe_alloc.lin_cond;
         vector<Expr> conds = break_logic_into_conjunction(pipe_alloc.emit_cond);
         // Remove conjunctions with variables inside PE dims
@@ -301,6 +304,7 @@ class DataRelaying : public IRMutator {
         for (auto &e : conds) {
             int i = 0;
             for (; i <= PE_dim; i++) {
+                debug(4) << "      i=" << i << "allocargs=" << to_string(alloc.args[i]) << "\n";
                 internal_assert(alloc.args[i].as<Variable>());
                 auto name = alloc.args[i].as<Variable>()->name;
                 CheckVarUsage cvu(name);
@@ -413,7 +417,7 @@ public:
     Stmt visit(const ProducerConsumer *op) override {
         if (op->is_producer && op->name == param.from_func) {
             inside_pipe = true;
-            Stmt body = flatten_outer_loops(op->body, flattened_loop, env);
+            Stmt body = op->body; //flatten_outer_loops(op->body, flattened_loop, env);
             body = mutate(body);
             inside_pipe = false;
             return ProducerConsumer::make(op->name, op->is_producer, body);
@@ -618,6 +622,14 @@ Stmt relay_data(Stmt s, std::map<std::string, Function> &env, const map<string, 
             s = late_reorder_along_consumer_chain(s, env, kv.first, loops);
         }
     }
+
+    std::set<string> funcs;
+    for(auto entry : env){
+        if (entry.second.place() == Place::Device) {
+            funcs.insert(entry.first);
+        }
+    }
+    s = remove_lets(s, false, true, true, true, funcs);
     return s;
 }
 

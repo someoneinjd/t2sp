@@ -294,14 +294,13 @@ class ConstLoopFlattening : public IRMutator {
 
 typedef struct DynamicForLoopContainer {
     std::string name;
+    Expr min;
     Expr extent;
 } DynamicForLoopContainer_t;
 
 class FlattenOuterLoops : public IRMutator {
-    string &loop_level;
-    bool up_loop_level = true;
-
-    std::vector<DynamicForLoopContainer_t> flattened_loops;
+    string &loop_level; // The innermost loop that might get flattened. Do not flatten its inner loops.
+    std::vector<DynamicForLoopContainer_t> flattened_loops; // A set of loops that can be flattened.
 
 public:
     using IRMutator::visit;
@@ -309,47 +308,78 @@ public:
     FlattenOuterLoops(string &_l)
         : loop_level(_l) {}
 
+    bool flattenable(const For *op) {
+        if (!ends_with(op->name, ".infinite") && !ends_with(op->name, ".run_on_device")) {
+            if (op->for_type == ForType::Serial && is_const(op->min) && is_const(op->extent)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    Stmt flatten(const For *op) { // op is the current innermost loop to flatten
+        internal_assert(!flattened_loops.empty());
+        Stmt body = op->body;
+        string name = extract_before_tokens(op->name, 2);
+        Expr final_extent = 1;
+        for (auto &l : flattened_loops) {
+            name += "." + extract_after_tokens(l.name, 2);
+            final_extent *= l.extent;
+        }
+        final_extent = simplify(final_extent);
+        loop_level = name;
+
+        size_t num_loops = flattened_loops.size();
+        Expr mod_part = 1;
+        for (int i = num_loops-1; i >= 0; i--) {
+            Expr value = Variable::make(Int(32), name);
+            Expr div_part = mod_part;
+            mod_part *= flattened_loops[i].extent;
+            debug(4) << "mod part = " << mod_part << ", div part = " << div_part << "\n";
+            value = Mod::make(value, mod_part);
+            value = Div::make(value, div_part);
+            value = value + flattened_loops[i].min;
+            value = simplify(value);
+            body = LetStmt::make(flattened_loops[i].name, value, body);
+        }
+        debug(4) << "...... after flattening: body is >>>>>>>\n" << to_string(body) << "\n<<<<<<<\n\n";
+        return For::make(name, op->min, final_extent, op->for_type, op->device_api, body);
+    }
+
     Stmt visit(const For* op) override {
-        if (ends_with(op->name, ".infinite") || ends_with(op->name, ".run_on_device")) {
-            return IRMutator::visit(op);
-        }
-        if (extract_last_token(op->name) == loop_level && is_const(op->min)) {
-            internal_assert(op->for_type == ForType::Serial && is_const(op->min));
-            up_loop_level = false;
-            DynamicForLoopContainer_t f = {op->name, op->extent};
+        if (flattenable(op)) {
+            DynamicForLoopContainer_t f = {op->name, op->min, op->extent};
             flattened_loops.push_back(f);
+            if  (extract_last_token(op->name) == loop_level) {
+                // Flatten the current loops found so far and stop flattening inner loops
+                return flatten(op);
+            } else {
+                const For *inner_loop = (op->body.as<For>());
+                if (flattenable(inner_loop)) {
+                    // Let the inner loop handle the flattening
+                    return mutate(op->body);
+                } else {
+                    // Flatten the inner loop(s) separately
+                    auto old_flattened_loops = flattened_loops;
+                    flattened_loops.clear();
+                    Stmt new_body = mutate(op->body);
 
-            Stmt body = mutate(op->body);
-            string name = extract_before_tokens(op->name, 2);
-            Expr final_extent = 1;
-            for (auto &l : flattened_loops) {
-                name += "." + extract_after_tokens(l.name, 2);
-                final_extent *= l.extent;
+                    // Now faltten the loops with the new body
+                    flattened_loops = old_flattened_loops;
+                    Stmt new_loop = flatten(op);
+                    return new_loop;
+                }
             }
-            final_extent = simplify(final_extent);
-            loop_level = name;
-
-            size_t num_loops = flattened_loops.size();
-            Expr mod_part = 1;
-            for (int i = num_loops-1; i >= 0; i--) {
-                Expr value = Variable::make(Int(32), name);
-                Expr div_part = mod_part;
-                mod_part *= flattened_loops[i].extent;
-                debug(4) << "mod part = " << mod_part << ", div part = " << div_part << "\n";
-                value = Mod::make(value, mod_part);
-                value = Div::make(value, div_part);
-                value = simplify(value);
-                body = LetStmt::make(flattened_loops[i].name, value, body);
+        } else {
+            // We ensure it is impossible to have flattenable outer loops above
+            internal_assert(flattened_loops.empty());
+            if  (extract_last_token(op->name) == loop_level) {
+                // Done.
+                return op;
+            } else {
+                return IRMutator::visit(op);
             }
-            return For::make(name, op->min, final_extent, op->for_type, op->device_api, body);
         }
-        if (up_loop_level && op->for_type == ForType::Serial) {
-            internal_assert(op->body.as<For>());
-            DynamicForLoopContainer_t f = {op->name, op->extent};
-            flattened_loops.push_back(f);
-            return mutate(op->body);
-        }
-        return IRMutator::visit(op);
     }
 };
 
@@ -986,9 +1016,9 @@ private:
             if (extract_before_tokens(p.first, 2) != channel)
                 continue;
 
-            string type = extract_token(p.first, 3);
-            internal_assert(type=="buffer" || type=="min" || type=="extent" || type=="stride")
-                << "Unexpected let statement \n";
+            string type = extract_last_token(p.first);
+            // internal_assert(type=="buffer" || type=="min" || type=="extent" || type=="stride")
+            //     << "Unexpected let statement \n";
             if (type == "buffer") {
                 body = rebuild_buffer_stmt(channel, buf_t, dims, body);
                 continue;
@@ -1337,13 +1367,6 @@ Stmt flatten_outer_loops(Stmt s, string &loop_lvl, const std::map<std::string, F
     FlattenOuterLoops fol(loop_lvl);
     s = fol.mutate(s);
 
-    std::set<string> funcs;
-    for(auto entry : env){
-        if (entry.second.place() == Place::Device) {
-            funcs.insert(entry.first);
-        }
-    }
-    s = remove_lets(s, false, true, true, true, funcs);
     debug(2) << "IR after outer loop flattening ...\n\n" << s << "\n";
 
     return s;

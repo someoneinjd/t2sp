@@ -2,6 +2,7 @@
 downloads
 install
 .vscode
+
 # T2S generated tmp
 *.out
 tmp.txt
@@ -14,7 +15,7 @@ profile.mon
 *-interface.*
 *_genx.cpp
 temp*
-.png
+*.png
 *.o
 *.isa
 signed* 

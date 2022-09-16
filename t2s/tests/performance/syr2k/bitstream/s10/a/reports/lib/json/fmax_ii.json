@@ -1,0 +1,2265 @@
+{
+  "basicblocks":
+  {
+    "kernel_ALoader.B0":
+    {
+      "name":"kernel_ALoader.B0"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":10
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":0
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_ALoader.B1":
+    {
+      "name":"kernel_ALoader.B1"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":0
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_ALoader.B2":
+    {
+      "name":"kernel_ALoader.B2"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":17
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"No"
+      , "loop_layer":1
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                , "line":"81"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_ALoader.B3":
+    {
+      "name":"kernel_ALoader.B3"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":1
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_ALoader.B4":
+    {
+      "name":"kernel_ALoader.B4"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":11
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"No"
+      , "loop_layer":2
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                , "line":"85"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_ALoader.B5":
+    {
+      "name":"kernel_ALoader.B5"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":12
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"No"
+      , "loop_layer":3
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                , "line":"88"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_ALoader.B6":
+    {
+      "name":"kernel_ALoader.B6"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":2
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_ALoader.B7":
+    {
+      "name":"kernel_ALoader.B7"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":209
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"Yes"
+      , "loop_layer":4
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                , "line":"91"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_ALoader.B8":
+    {
+      "name":"kernel_ALoader.B8"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":3
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_AFeeder.B0":
+    {
+      "name":"kernel_AFeeder.B0"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":2
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":0
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_AFeeder.B1":
+    {
+      "name":"kernel_AFeeder.B1"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":53
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"Yes"
+      , "loop_layer":1
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                , "line":"156"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_BLoader.B0":
+    {
+      "name":"kernel_BLoader.B0"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":10
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":0
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_BLoader.B1":
+    {
+      "name":"kernel_BLoader.B1"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":0
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_BLoader.B2":
+    {
+      "name":"kernel_BLoader.B2"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":15
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"No"
+      , "loop_layer":1
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                , "line":"285"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_BLoader.B3":
+    {
+      "name":"kernel_BLoader.B3"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":1
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_BLoader.B4":
+    {
+      "name":"kernel_BLoader.B4"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":17
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"No"
+      , "loop_layer":2
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                , "line":"289"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_BLoader.B5":
+    {
+      "name":"kernel_BLoader.B5"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":12
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"No"
+      , "loop_layer":3
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                , "line":"292"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_BLoader.B6":
+    {
+      "name":"kernel_BLoader.B6"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":2
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_BLoader.B7":
+    {
+      "name":"kernel_BLoader.B7"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":209
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"Yes"
+      , "loop_layer":4
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                , "line":"295"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_BLoader.B8":
+    {
+      "name":"kernel_BLoader.B8"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":3
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_BFeeder.B0":
+    {
+      "name":"kernel_BFeeder.B0"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":2
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":0
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_BFeeder.B1":
+    {
+      "name":"kernel_BFeeder.B1"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":53
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"Yes"
+      , "loop_layer":1
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                , "line":"360"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_Out.B0":
+    {
+      "name":"kernel_Out.B0"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":20
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":0
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_Out.B1":
+    {
+      "name":"kernel_Out.B1"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":0
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_Out.B2":
+    {
+      "name":"kernel_Out.B2"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":10
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"No"
+      , "loop_layer":1
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                , "line":"503"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_Out.B3":
+    {
+      "name":"kernel_Out.B3"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"432.0"
+      , "achieved_ii":1
+      , "latency":8
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"Yes"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"No"
+      , "loop_layer":2
+      , "details":
+      [
+        {
+          "type":"text"
+          , "text":"Variable on loop carried feedback path"
+        }
+      ]
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                , "line":"506"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_Out.B4":
+    {
+      "name":"kernel_Out.B4"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":1
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_Out.B5":
+    {
+      "name":"kernel_Out.B5"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"388.8"
+      , "achieved_ii":1
+      , "latency":75
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"Yes"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"Yes"
+      , "loop_layer":3
+      , "details":
+      [
+        {
+          "type":"text"
+          , "text":"Variable on loop carried feedback path"
+        }
+        , {
+          "type":"text"
+          , "text":"Loop feedback path that lowered Fmax "
+          , "details":
+          [
+            {
+              "type":"text"
+              , "text":"Node: 32-bit Integer Add Operation (%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                  , "line":"511"
+                }
+              ]
+            }
+            , {
+              "type":"text"
+              , "text":"Node: 32-bit Select Operation (%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                  , "line":"511"
+                }
+              ]
+            }
+            , {
+              "type":"text"
+              , "text":"Node: 32-bit Select Operation (%L, %L, %L, %L, %L, %L, %L, %L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                  , "line":"495"
+                }
+                , {
+                  "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                  , "line":"496"
+                }
+                , {
+                  "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                  , "line":"497"
+                }
+                , {
+                  "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                  , "line":"662"
+                }
+                , {
+                  "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                  , "line":"679"
+                }
+                , {
+                  "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                  , "line":"714"
+                }
+                , {
+                  "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                  , "line":"715"
+                }
+                , {
+                  "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                  , "line":"716"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                , "line":"509"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_Out.B6":
+    {
+      "name":"kernel_Out.B6"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":2
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_ALoader_T.B0":
+    {
+      "name":"kernel_ALoader_T.B0"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":10
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":0
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_ALoader_T.B1":
+    {
+      "name":"kernel_ALoader_T.B1"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":0
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_ALoader_T.B2":
+    {
+      "name":"kernel_ALoader_T.B2"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":15
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"No"
+      , "loop_layer":1
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                , "line":"733"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_ALoader_T.B3":
+    {
+      "name":"kernel_ALoader_T.B3"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":1
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_ALoader_T.B4":
+    {
+      "name":"kernel_ALoader_T.B4"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":17
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"No"
+      , "loop_layer":2
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                , "line":"737"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_ALoader_T.B5":
+    {
+      "name":"kernel_ALoader_T.B5"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":12
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"No"
+      , "loop_layer":3
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                , "line":"740"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_ALoader_T.B6":
+    {
+      "name":"kernel_ALoader_T.B6"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":2
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_ALoader_T.B7":
+    {
+      "name":"kernel_ALoader_T.B7"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":209
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"Yes"
+      , "loop_layer":4
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                , "line":"743"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_ALoader_T.B8":
+    {
+      "name":"kernel_ALoader_T.B8"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":3
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_AFeeder_T.B0":
+    {
+      "name":"kernel_AFeeder_T.B0"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":2
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":0
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_AFeeder_T.B1":
+    {
+      "name":"kernel_AFeeder_T.B1"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":53
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"Yes"
+      , "loop_layer":1
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                , "line":"808"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_BLoader_T.B0":
+    {
+      "name":"kernel_BLoader_T.B0"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":10
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":0
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_BLoader_T.B1":
+    {
+      "name":"kernel_BLoader_T.B1"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":0
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_BLoader_T.B2":
+    {
+      "name":"kernel_BLoader_T.B2"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":17
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"No"
+      , "loop_layer":1
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                , "line":"936"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_BLoader_T.B3":
+    {
+      "name":"kernel_BLoader_T.B3"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":1
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_BLoader_T.B4":
+    {
+      "name":"kernel_BLoader_T.B4"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":11
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"No"
+      , "loop_layer":2
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                , "line":"940"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_BLoader_T.B5":
+    {
+      "name":"kernel_BLoader_T.B5"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":12
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"No"
+      , "loop_layer":3
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                , "line":"943"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_BLoader_T.B6":
+    {
+      "name":"kernel_BLoader_T.B6"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":2
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_BLoader_T.B7":
+    {
+      "name":"kernel_BLoader_T.B7"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":209
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"Yes"
+      , "loop_layer":4
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                , "line":"946"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_BLoader_T.B8":
+    {
+      "name":"kernel_BLoader_T.B8"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":3
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_BFeeder_T.B0":
+    {
+      "name":"kernel_BFeeder_T.B0"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":2
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":0
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_BFeeder_T.B1":
+    {
+      "name":"kernel_BFeeder_T.B1"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":53
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"Yes"
+      , "loop_layer":1
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                , "line":"1011"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_Out_T.B0":
+    {
+      "name":"kernel_Out_T.B0"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":20
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":0
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_Out_T.B1":
+    {
+      "name":"kernel_Out_T.B1"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":0
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_Out_T.B2":
+    {
+      "name":"kernel_Out_T.B2"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":10
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"No"
+      , "loop_layer":1
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                , "line":"1156"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_Out_T.B3":
+    {
+      "name":"kernel_Out_T.B3"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"432.0"
+      , "achieved_ii":1
+      , "latency":8
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"Yes"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"No"
+      , "loop_layer":2
+      , "details":
+      [
+        {
+          "type":"text"
+          , "text":"Variable on loop carried feedback path"
+        }
+      ]
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                , "line":"1159"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_Out_T.B4":
+    {
+      "name":"kernel_Out_T.B4"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":1
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_Out_T.B5":
+    {
+      "name":"kernel_Out_T.B5"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"388.8"
+      , "achieved_ii":1
+      , "latency":75
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"Yes"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"Yes"
+      , "loop_layer":3
+      , "details":
+      [
+        {
+          "type":"text"
+          , "text":"Variable on loop carried feedback path"
+        }
+        , {
+          "type":"text"
+          , "text":"Loop feedback path that lowered Fmax "
+          , "details":
+          [
+            {
+              "type":"text"
+              , "text":"Node: 32-bit Integer Add Operation (%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                  , "line":"1164"
+                }
+              ]
+            }
+            , {
+              "type":"text"
+              , "text":"Node: 32-bit Select Operation (%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                  , "line":"1164"
+                }
+              ]
+            }
+            , {
+              "type":"text"
+              , "text":"Node: 32-bit Select Operation (%L, %L, %L, %L, %L, %L, %L, %L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                  , "line":"1148"
+                }
+                , {
+                  "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                  , "line":"1149"
+                }
+                , {
+                  "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                  , "line":"1150"
+                }
+                , {
+                  "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                  , "line":"1315"
+                }
+                , {
+                  "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                  , "line":"1332"
+                }
+                , {
+                  "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                  , "line":"1367"
+                }
+                , {
+                  "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                  , "line":"1368"
+                }
+                , {
+                  "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                  , "line":"1369"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                , "line":"1162"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_Out_T.B6":
+    {
+      "name":"kernel_Out_T.B6"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":2
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_E.B0":
+    {
+      "name":"kernel_E.B0"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":11
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":0
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_E.B1":
+    {
+      "name":"kernel_E.B1"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":0
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_E.B2":
+    {
+      "name":"kernel_E.B2"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":13
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"No"
+      , "loop_layer":1
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                , "line":"1382"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_E.B3":
+    {
+      "name":"kernel_E.B3"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":10
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"No"
+      , "loop_layer":2
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                , "line":"1386"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_E.B4":
+    {
+      "name":"kernel_E.B4"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":1
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_E.B5":
+    {
+      "name":"kernel_E.B5"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":21
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"Yes"
+      , "loop_layer":3
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                , "line":"1389"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_E.B6":
+    {
+      "name":"kernel_E.B6"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":2
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_unloader.B0":
+    {
+      "name":"kernel_unloader.B0"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":11
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":0
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_unloader.B1":
+    {
+      "name":"kernel_unloader.B1"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":0
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_unloader.B2":
+    {
+      "name":"kernel_unloader.B2"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":14
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"No"
+      , "loop_layer":1
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                , "line":"1416"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_unloader.B3":
+    {
+      "name":"kernel_unloader.B3"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":10
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"No"
+      , "loop_layer":2
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                , "line":"1420"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_unloader.B4":
+    {
+      "name":"kernel_unloader.B4"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":1
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_unloader.B5":
+    {
+      "name":"kernel_unloader.B5"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"432.0"
+      , "achieved_ii":1
+      , "latency":19
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"Yes"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"Yes"
+      , "loop_layer":3
+      , "details":
+      [
+        {
+          "type":"text"
+          , "text":"Variable on loop carried feedback path"
+        }
+      ]
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+                , "line":"1423"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_unloader.B6":
+    {
+      "name":"kernel_unloader.B6"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":2
+      , "loop_location":
+      {
+      }
+    }
+    , "Intel_Internal_Collect_Autorun_Profiling.B0":
+    {
+      "name":"Intel_Internal_Collect_Autorun_Profiling.B0"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"480.0"
+      , "achieved_ii":1
+      , "latency":1
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":0
+      , "loop_location":
+      {
+      }
+    }
+  }
+  , "functions":
+  {
+    "kernel_ALoader":
+    {
+      "debug":
+      [
+        {
+          "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+          , "line":73
+        }
+      ]
+      , "loop_hierachy":
+      {
+        "kernel_ALoader__no_loop":
+        [
+          "kernel_ALoader.B0"
+          , "kernel_ALoader.B1"
+        ]
+        , "kernel_ALoader.B2":
+        [
+          "kernel_ALoader.B2"
+          , "kernel_ALoader.B4"
+          , "kernel_ALoader.B3"
+        ]
+        , "kernel_ALoader.B4":
+        [
+          "kernel_ALoader.B4"
+          , "kernel_ALoader.B5"
+          , "kernel_ALoader.B6"
+        ]
+        , "kernel_ALoader.B5":
+        [
+          "kernel_ALoader.B5"
+          , "kernel_ALoader.B7"
+          , "kernel_ALoader.B8"
+        ]
+        , "kernel_ALoader.B7":
+        [
+          "kernel_ALoader.B7"
+        ]
+      }
+    }
+    , "kernel_AFeeder":
+    {
+      "debug":
+      [
+        {
+          "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+          , "line":137
+        }
+      ]
+      , "loop_hierachy":
+      {
+        "kernel_AFeeder__no_loop":
+        [
+          "kernel_AFeeder.B0"
+        ]
+        , "kernel_AFeeder.B1":
+        [
+          "kernel_AFeeder.B1"
+        ]
+      }
+    }
+    , "kernel_BLoader":
+    {
+      "debug":
+      [
+        {
+          "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+          , "line":277
+        }
+      ]
+      , "loop_hierachy":
+      {
+        "kernel_BLoader__no_loop":
+        [
+          "kernel_BLoader.B0"
+          , "kernel_BLoader.B1"
+        ]
+        , "kernel_BLoader.B2":
+        [
+          "kernel_BLoader.B2"
+          , "kernel_BLoader.B4"
+          , "kernel_BLoader.B3"
+        ]
+        , "kernel_BLoader.B4":
+        [
+          "kernel_BLoader.B4"
+          , "kernel_BLoader.B5"
+          , "kernel_BLoader.B6"
+        ]
+        , "kernel_BLoader.B5":
+        [
+          "kernel_BLoader.B5"
+          , "kernel_BLoader.B7"
+          , "kernel_BLoader.B8"
+        ]
+        , "kernel_BLoader.B7":
+        [
+          "kernel_BLoader.B7"
+        ]
+      }
+    }
+    , "kernel_BFeeder":
+    {
+      "debug":
+      [
+        {
+          "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+          , "line":341
+        }
+      ]
+      , "loop_hierachy":
+      {
+        "kernel_BFeeder__no_loop":
+        [
+          "kernel_BFeeder.B0"
+        ]
+        , "kernel_BFeeder.B1":
+        [
+          "kernel_BFeeder.B1"
+        ]
+      }
+    }
+    , "kernel_Out":
+    {
+      "debug":
+      [
+        {
+          "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+          , "line":479
+        }
+      ]
+      , "loop_hierachy":
+      {
+        "kernel_Out__no_loop":
+        [
+          "kernel_Out.B0"
+          , "kernel_Out.B1"
+        ]
+        , "kernel_Out.B2":
+        [
+          "kernel_Out.B2"
+          , "kernel_Out.B3"
+          , "kernel_Out.B4"
+        ]
+        , "kernel_Out.B3":
+        [
+          "kernel_Out.B3"
+          , "kernel_Out.B5"
+          , "kernel_Out.B6"
+        ]
+        , "kernel_Out.B5":
+        [
+          "kernel_Out.B5"
+        ]
+      }
+    }
+    , "kernel_ALoader_T":
+    {
+      "debug":
+      [
+        {
+          "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+          , "line":725
+        }
+      ]
+      , "loop_hierachy":
+      {
+        "kernel_ALoader_T__no_loop":
+        [
+          "kernel_ALoader_T.B0"
+          , "kernel_ALoader_T.B1"
+        ]
+        , "kernel_ALoader_T.B2":
+        [
+          "kernel_ALoader_T.B2"
+          , "kernel_ALoader_T.B4"
+          , "kernel_ALoader_T.B3"
+        ]
+        , "kernel_ALoader_T.B4":
+        [
+          "kernel_ALoader_T.B4"
+          , "kernel_ALoader_T.B5"
+          , "kernel_ALoader_T.B6"
+        ]
+        , "kernel_ALoader_T.B5":
+        [
+          "kernel_ALoader_T.B5"
+          , "kernel_ALoader_T.B7"
+          , "kernel_ALoader_T.B8"
+        ]
+        , "kernel_ALoader_T.B7":
+        [
+          "kernel_ALoader_T.B7"
+        ]
+      }
+    }
+    , "kernel_AFeeder_T":
+    {
+      "debug":
+      [
+        {
+          "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+          , "line":789
+        }
+      ]
+      , "loop_hierachy":
+      {
+        "kernel_AFeeder_T__no_loop":
+        [
+          "kernel_AFeeder_T.B0"
+        ]
+        , "kernel_AFeeder_T.B1":
+        [
+          "kernel_AFeeder_T.B1"
+        ]
+      }
+    }
+    , "kernel_BLoader_T":
+    {
+      "debug":
+      [
+        {
+          "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+          , "line":928
+        }
+      ]
+      , "loop_hierachy":
+      {
+        "kernel_BLoader_T__no_loop":
+        [
+          "kernel_BLoader_T.B0"
+          , "kernel_BLoader_T.B1"
+        ]
+        , "kernel_BLoader_T.B2":
+        [
+          "kernel_BLoader_T.B2"
+          , "kernel_BLoader_T.B4"
+          , "kernel_BLoader_T.B3"
+        ]
+        , "kernel_BLoader_T.B4":
+        [
+          "kernel_BLoader_T.B4"
+          , "kernel_BLoader_T.B5"
+          , "kernel_BLoader_T.B6"
+        ]
+        , "kernel_BLoader_T.B5":
+        [
+          "kernel_BLoader_T.B5"
+          , "kernel_BLoader_T.B7"
+          , "kernel_BLoader_T.B8"
+        ]
+        , "kernel_BLoader_T.B7":
+        [
+          "kernel_BLoader_T.B7"
+        ]
+      }
+    }
+    , "kernel_BFeeder_T":
+    {
+      "debug":
+      [
+        {
+          "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+          , "line":992
+        }
+      ]
+      , "loop_hierachy":
+      {
+        "kernel_BFeeder_T__no_loop":
+        [
+          "kernel_BFeeder_T.B0"
+        ]
+        , "kernel_BFeeder_T.B1":
+        [
+          "kernel_BFeeder_T.B1"
+        ]
+      }
+    }
+    , "kernel_Out_T":
+    {
+      "debug":
+      [
+        {
+          "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+          , "line":1131
+        }
+      ]
+      , "loop_hierachy":
+      {
+        "kernel_Out_T__no_loop":
+        [
+          "kernel_Out_T.B0"
+          , "kernel_Out_T.B1"
+        ]
+        , "kernel_Out_T.B2":
+        [
+          "kernel_Out_T.B2"
+          , "kernel_Out_T.B3"
+          , "kernel_Out_T.B4"
+        ]
+        , "kernel_Out_T.B3":
+        [
+          "kernel_Out_T.B3"
+          , "kernel_Out_T.B5"
+          , "kernel_Out_T.B6"
+        ]
+        , "kernel_Out_T.B5":
+        [
+          "kernel_Out_T.B5"
+        ]
+      }
+    }
+    , "kernel_E":
+    {
+      "debug":
+      [
+        {
+          "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+          , "line":1377
+        }
+      ]
+      , "loop_hierachy":
+      {
+        "kernel_E__no_loop":
+        [
+          "kernel_E.B0"
+          , "kernel_E.B1"
+        ]
+        , "kernel_E.B2":
+        [
+          "kernel_E.B2"
+          , "kernel_E.B3"
+          , "kernel_E.B4"
+        ]
+        , "kernel_E.B3":
+        [
+          "kernel_E.B3"
+          , "kernel_E.B5"
+          , "kernel_E.B6"
+        ]
+        , "kernel_E.B5":
+        [
+          "kernel_E.B5"
+        ]
+      }
+    }
+    , "kernel_unloader":
+    {
+      "debug":
+      [
+        {
+          "filename":"/home/u146242/syr2k_lab/s10/a.cl"
+          , "line":1408
+        }
+      ]
+      , "loop_hierachy":
+      {
+        "kernel_unloader__no_loop":
+        [
+          "kernel_unloader.B0"
+          , "kernel_unloader.B1"
+        ]
+        , "kernel_unloader.B2":
+        [
+          "kernel_unloader.B2"
+          , "kernel_unloader.B3"
+          , "kernel_unloader.B4"
+        ]
+        , "kernel_unloader.B3":
+        [
+          "kernel_unloader.B3"
+          , "kernel_unloader.B5"
+          , "kernel_unloader.B6"
+        ]
+        , "kernel_unloader.B5":
+        [
+          "kernel_unloader.B5"
+        ]
+      }
+    }
+    , "Intel_Internal_Collect_Autorun_Profiling":
+    {
+      "debug":
+      [
+        {
+          "filename":"Unknown location"
+          , "line":0
+        }
+      ]
+      , "loop_hierachy":
+      {
+        "Intel_Internal_Collect_Autorun_Profiling__no_loop":
+        [
+          "Intel_Internal_Collect_Autorun_Profiling.B0"
+        ]
+      }
+    }
+  }
+}

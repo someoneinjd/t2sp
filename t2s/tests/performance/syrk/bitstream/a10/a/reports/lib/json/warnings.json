@@ -1,0 +1,8 @@
+{"rows":[
+{"debug":[[{"filename":"/home/u146718/syrk_lab/a10_3/a.cl"
+,"line":139}]]
+,"details":["/home/u146718/syrk_lab/a10_3/a.cl:139:58: warning: attributes numreadports/numwriteports/numports_readonly_writeonly are deprecated
+, use max_replicates attribute instead"]
+,"name":"attributes numreadports/numwriteports/numports_readonly_writeonly are deprecated
+, use max_replicates attribute instead"}
+]}

@@ -21,6 +21,7 @@
 #include "Simplify.h"
 #include "Util.h"
 #include "VaryingAttributes.h"
+
 namespace Halide {
 namespace Internal {
 

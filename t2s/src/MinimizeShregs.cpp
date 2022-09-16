@@ -1132,6 +1132,8 @@ public:
                 if (func_to_deps.empty()) {
                     return op;
                 }
+                // Clear saved state
+                vectorized_loop_var = Expr();
 
                 // Loop info.
                 vector<Expr> all_loop_vars, all_unrolled_loop_vars; // No order is enforced on these vars. Instead, we will

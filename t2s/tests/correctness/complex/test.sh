@@ -66,7 +66,7 @@ function test_func {
     fi 
 }
         
-echo "Testing FPGA target."
+echo "Testing complex."
 rm -rf success.txt failure.txt exec_time.txt a $HOME/tmp/a.*
 index=0
 while [ "$index" -lt "${#array[*]}" ]; do

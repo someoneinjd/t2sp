@@ -523,6 +523,17 @@ inline Type type_of() {
     return Type(halide_type_of<T>(), halide_handle_traits<T>::type_info());
 }
 
+/** Construct Halide float or complex type */
+inline Type type_of_float(int size) {
+    user_assert(size == 32 || size == 64);
+    return (size == 32 ? Float(32) : Float(64));
+}
+
+inline Type type_of_complex(int size) {
+    user_assert(size == 32 || size == 64);
+    return (size == 32 ? Complex(32) : Complex(64));
+}
+
 /** Halide type to a C++ type */
 std::string type_to_c_type(Type type, bool include_space, bool c_plus_plus = true);
 
