@@ -14,7 +14,7 @@ The design is the same as GEMV, except that `k` starts from `i`.
 | Device | Frequency | Throughput | Logic utilization | DSP blocks | RAM blocks | Efficiency | Matrix and vector Size | Device compiler |
 | ------ | --------- | ---------- | ----------------- | ---------- | ---------- | -----------| ----------- | --------------- |
 | Intel Arria 10 GX 1150 | 254 MHz | 29.7 GFLOPS (174 % machine peak) | 96,851 / 427,200 ( 23 % ) | 34 / 1,518 ( 2 % ) | 591 / 2,713 ( 22 % ) | 87 % DDR efficiency | A(32K,32K) * X(32K)  | aoc 19.4.0 (on s001-n137) |  
-| Intel Stratix 10 SX 2800 | 267 MHz | 76.8 GFLOPS (184 % machine peak) | 286,247 / 933,120 ( 31 % ) | 66 / 5,760 ( 1 % ) | 1,077 / 11,721 ( 9 % ) | 85 % DDR efficiency | A(64K,64K) * X(64K) | aoc 22.2.0 (on s001-n143) |
+| Intel Stratix 10 SX 2800 | 267 MHz | 65.1 GFLOPS (184 % machine peak) | 286,247 / 933,120 ( 31 % ) | 66 / 5,760 ( 1 % ) | 1,077 / 11,721 ( 9 % ) | 85 % DDR efficiency | A(64K,64K) * X(64K) | aoc 22.2.0 (on s001-n143) |
 
 Note: 
 
