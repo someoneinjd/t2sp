@@ -13,7 +13,7 @@ Creating kernel[4]: kernel_Out
 Creating kernel[5]: kernel_unloader
 All kernels created
 halide_opencl_buffer_copy: host to host copy with source address equal to destination address. Do nothing. 
-Command queue 0: copying 536870912 bytes data from host to device. Done.
+Command queue 0: copying 603979776 bytes data from host to device. Done.
 halide_opencl_buffer_copy: host to host copy with source address equal to destination address. Do nothing. 
 Command queue 2: copying 268435456 bytes data from host to device. Done.
 
@@ -35,11 +35,11 @@ cmd queue: 4
 cmd queue: 5
  *** FPGA execution finished!
 
-Command queue 6: copying 268435456 bytes data from device to host. Done.
+Command queue 6: copying 301989888 bytes data from device to host. Done.
 halide_opencl_buffer_copy: host to host copy with source address equal to destination address. Do nothing. 
-kernel kernel_unloader exec time: 5415353783.000000
-GFlops: 101.517987
-Run command: python $T2S_PATH/t2s/src/Roofline.py 33.000000 457814.500000 549755813888.000000 13019119616.000000 5415353783.000000
-Size of matrix A: 8192 * 8192
+kernel kernel_unloader exec time: 4882644554.000000
+GFlops: 126.668096
+Run command: python $T2S_PATH/t2s/src/Roofline.py 33.000000 520563.560000 618475290624.000000 28219277312.000000 4882644554.000000
+Size of matrix A: 9216 * 8192
 Size of matrix B: 8192 * 4096
 Success

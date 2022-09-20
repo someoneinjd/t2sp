@@ -45,7 +45,7 @@
     #else   // For A10
         #define KKK         8
         #define JJJ         4
-        #define III         8
+        #define III         9
         #define JJ          32
         #define II          32
         #define KK          32
