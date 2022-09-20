@@ -1,0 +1,491 @@
+{
+  "performanceSummary":
+  {
+    "name":"Kernel Summary"
+    , "columns":
+    ["Kernel Name", "Kernel Type", "Autorun", "Workgroup Size", "# Compute Units", "Hyper-Optimized Handshaking"]
+    , "children":
+    [
+      {
+        "name":"Intel_Internal_Collect_Autorun_Profiling"
+        , "data":
+        [
+          "NDRange"
+          , "No"
+          , "n/a"
+          , 1
+          , "Off"
+        ]
+        , "details":
+        [
+          {
+            "type":"text"
+            , "text":"Kernel type: NDRange"
+          }
+          , {
+            "type":"text"
+            , "text":"The kernel does not use any work-group information (such as get_local_id() or get_group_id()).Local work-group size will be automatically modified to match global work-group size on launch.This is a hardware optimization."
+          }
+          , {
+            "type":"text"
+            , "text":"Hyper-optimized handshaking disabled due to instruction in Kernel kernel_xLoader"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":""
+              , "line":0
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_aLoader"
+        , "data":
+        [
+          "Single work-item"
+          , "No"
+          , [1, 1, 1]
+          , 1
+          , "Off"
+        ]
+        , "details":
+        [
+          {
+            "type":"text"
+            , "text":"Kernel type: Single work-item"
+          }
+          , {
+            "type":"text"
+            , "text":"Required workgroup size: (1, 1, 1)"
+          }
+          , {
+            "type":"text"
+            , "text":"Maximum workgroup size: 1"
+          }
+          , {
+            "type":"text"
+            , "text":"Hyper-optimized handshaking disabled due to instruction in Kernel kernel_xLoader"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"/home/u146242/ger_lab/s10_1/a.cl"
+              , "line":230
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_uZ"
+        , "data":
+        [
+          "Single work-item"
+          , "No"
+          , [1, 1, 1]
+          , 1
+          , "Off"
+        ]
+        , "details":
+        [
+          {
+            "type":"text"
+            , "text":"Kernel type: Single work-item"
+          }
+          , {
+            "type":"text"
+            , "text":"Required workgroup size: (1, 1, 1)"
+          }
+          , {
+            "type":"text"
+            , "text":"Maximum workgroup size: 1"
+          }
+          , {
+            "type":"text"
+            , "text":"Hyper-optimized handshaking disabled due to instruction in Kernel kernel_xLoader"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"/home/u146242/ger_lab/s10_1/a.cl"
+              , "line":259
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_unloader"
+        , "data":
+        [
+          "Single work-item"
+          , "No"
+          , [1, 1, 1]
+          , 1
+          , "Off"
+        ]
+        , "details":
+        [
+          {
+            "type":"text"
+            , "text":"Kernel type: Single work-item"
+          }
+          , {
+            "type":"text"
+            , "text":"Required workgroup size: (1, 1, 1)"
+          }
+          , {
+            "type":"text"
+            , "text":"Maximum workgroup size: 1"
+          }
+          , {
+            "type":"text"
+            , "text":"Hyper-optimized handshaking disabled due to instruction in Kernel kernel_xLoader"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"/home/u146242/ger_lab/s10_1/a.cl"
+              , "line":328
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_xLoader"
+        , "data":
+        [
+          "Single work-item"
+          , "No"
+          , [1, 1, 1]
+          , 1
+          , "Off"
+        ]
+        , "details":
+        [
+          {
+            "type":"text"
+            , "text":"Kernel type: Single work-item"
+          }
+          , {
+            "type":"text"
+            , "text":"Required workgroup size: (1, 1, 1)"
+          }
+          , {
+            "type":"text"
+            , "text":"Maximum workgroup size: 1"
+          }
+          , {
+            "type":"text"
+            , "text":"Hyper-optimized handshaking disabled due to instruction Load Operation which does not support it."
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"/home/u146242/ger_lab/s10_1/a.cl"
+              , "line":67
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_yFeeder"
+        , "data":
+        [
+          "Single work-item"
+          , "Yes"
+          , [1, 1, 1]
+          , 1
+          , "Off"
+        ]
+        , "details":
+        [
+          {
+            "type":"text"
+            , "text":"Kernel type: Single work-item"
+          }
+          , {
+            "type":"text"
+            , "text":"Autorun Kernel: This kernel will start running before any other kernel is explicitly launched by the host.  The kernel will be automatically restarted as soon as it finishes."
+          }
+          , {
+            "type":"text"
+            , "text":"Max global work dimension: 0"
+          }
+          , {
+            "type":"text"
+            , "text":"Required workgroup size: (1, 1, 1)"
+          }
+          , {
+            "type":"text"
+            , "text":"Maximum workgroup size: 1"
+          }
+          , {
+            "type":"text"
+            , "text":"Hyper-optimized handshaking disabled due to instruction in Kernel kernel_xLoader"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"/home/u146242/ger_lab/s10_1/a.cl"
+              , "line":139
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_yLoader"
+        , "data":
+        [
+          "Single work-item"
+          , "No"
+          , [1, 1, 1]
+          , 1
+          , "Off"
+        ]
+        , "details":
+        [
+          {
+            "type":"text"
+            , "text":"Kernel type: Single work-item"
+          }
+          , {
+            "type":"text"
+            , "text":"Required workgroup size: (1, 1, 1)"
+          }
+          , {
+            "type":"text"
+            , "text":"Maximum workgroup size: 1"
+          }
+          , {
+            "type":"text"
+            , "text":"Hyper-optimized handshaking disabled due to instruction in Kernel kernel_xLoader"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"/home/u146242/ger_lab/s10_1/a.cl"
+              , "line":93
+            }
+          ]
+        ]
+      }
+    ]
+  }
+  , "estimatedResources":
+  {
+    "name":"Estimated Resource Usage"
+    , "columns":
+    ["Kernel Name", "ALUTs ", "FFs  ", "RAMs ", "DSPs ", "MLABs"]
+    , "children":
+    [
+      {
+        "name":"Intel_Internal_Collect_Autorun_Profiling"
+        , "data":
+        [1463, 1467, 0, 0, 6]
+        , "debug":
+        [
+          [
+            {
+              "filename":""
+              , "line":0
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_aLoader"
+        , "data":
+        [4557, 9526, 60, 0, 132]
+        , "debug":
+        [
+          [
+            {
+              "filename":"/home/u146242/ger_lab/s10_1/a.cl"
+              , "line":230
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_uZ"
+        , "data":
+        [5210, 10999, 62, 32, 130]
+        , "debug":
+        [
+          [
+            {
+              "filename":"/home/u146242/ger_lab/s10_1/a.cl"
+              , "line":259
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_unloader"
+        , "data":
+        [3856, 10109, 34, 0, 83]
+        , "debug":
+        [
+          [
+            {
+              "filename":"/home/u146242/ger_lab/s10_1/a.cl"
+              , "line":328
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_xLoader"
+        , "data":
+        [5508, 7242, 134, 0, 23]
+        , "debug":
+        [
+          [
+            {
+              "filename":"/home/u146242/ger_lab/s10_1/a.cl"
+              , "line":67
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_yFeeder"
+        , "data":
+        [5331, 10105, 37, 0, 107]
+        , "debug":
+        [
+          [
+            {
+              "filename":"/home/u146242/ger_lab/s10_1/a.cl"
+              , "line":139
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_yLoader"
+        , "data":
+        [5552, 7076, 135, 0, 17]
+        , "debug":
+        [
+          [
+            {
+              "filename":"/home/u146242/ger_lab/s10_1/a.cl"
+              , "line":93
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"Kernel Subtotal"
+        , "classes":
+        ["summary-highlight", "nohover"]
+        , "data":
+        [31477, 56524, 462, 32, 498]
+      }
+      , {
+        "name":"Global Interconnect"
+        , "classes":
+        ["summary-highlight", "nohover"]
+        , "data":
+        [16956, 19160, 0, 0, 0]
+      }
+      , {
+        "name":"Board Interface"
+        , "classes":
+        ["summary-highlight", "nohover"]
+        , "data":
+        [466792, 928428, 3039, 1291, 0]
+      }
+      , {
+        "name":"System description ROM"
+        , "classes":
+        ["summary-highlight", "nohover"]
+        , "data":
+        [2, 71, 2, 0, 0]
+      }
+      , {
+        "name":"Pipe and channel resources"
+        , "classes":
+        ["summary-highlight", "nohover"]
+        , "data":
+        [55, 9438, 80, 0, 0]
+      }
+      , {
+        "name":"Total"
+        , "classes":
+        ["summary-highlight", "nohover"]
+        , "data":
+        [515282, 1013621, 3583, 1323, 498]
+        , "data_percent":
+        [27.6107, 27.1568, 30.5691, 22.9688]
+      }
+      , {
+        "name":"Available"
+        , "classes":
+        ["summary-highlight", "nohover"]
+        , "data":
+        [1866240, 3732480, 11721, 5760, 0]
+      }
+    ]
+  }
+  , "compileWarnings":
+  {
+    "name":"Compile Warnings"
+    , "children":
+    [
+      {
+        "name":"Load uses a Burst-coalesced cached LSU"
+        , "details":
+        [
+          {
+            "type":"text"
+            , "text":"Load with a private 512 kilobit cache. Cache is not shared with any other load. It is flushed on kernel start. Use Dynamic Profiler to verify cache effectiveness. Other kernels should not be updating the data in global memory while this kernel is using it. Cache is created when memory access pattern is data-dependent or appears to be repetitive. Simplify access pattern or mark pointer as 'volatile' to disable generation of this cache."
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"/home/u146242/ger_lab/s10_1/a.cl"
+              , "line":82
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"Load uses a Burst-coalesced cached LSU"
+        , "details":
+        [
+          {
+            "type":"text"
+            , "text":"Load with a private 512 kilobit cache. Cache is not shared with any other load. It is flushed on kernel start. Use Dynamic Profiler to verify cache effectiveness. Other kernels should not be updating the data in global memory while this kernel is using it. Cache is created when memory access pattern is data-dependent or appears to be repetitive. Simplify access pattern or mark pointer as 'volatile' to disable generation of this cache."
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"/home/u146242/ger_lab/s10_1/a.cl"
+              , "line":119
+            }
+          ]
+        ]
+      }
+    ]
+  }
+}

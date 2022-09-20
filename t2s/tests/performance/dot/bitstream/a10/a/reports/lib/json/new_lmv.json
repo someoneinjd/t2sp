@@ -1,0 +1,266 @@
+{
+  "nodes":
+  [
+    {
+      "name":"kernel_Z"
+      , "id":1669594872
+      , "type":"kernel"
+      , "children":
+      [
+        {
+          "name":"Local Memory"
+          , "id":1
+          , "type":"memtype"
+          , "children":
+          [
+            {
+              "name":"_yLoader__1_channel_array"
+              , "id":2
+              , "details":
+              [
+                {
+                  "type":"table"
+                  , "Declared at":
+                  [
+                    {
+                      "type":"text"
+                      , "text":"%L"
+                      , "links":
+                      [
+                        {
+                          "filename":"a.cl"
+                          , "line":"112"
+                        }
+                      ]
+                    }
+                  ]
+                  , "Additional information":"This variable is carried through the pipeline in registers (rather than being stored in RAM)"
+                }
+              ]
+              , "debug":
+              [
+                [
+                  {
+                    "filename":"a.cl"
+                    , "line":112
+                  }
+                ]
+              ]
+              , "type":"reg"
+            }
+            , {
+              "name":"_xLoader__1_channel_array"
+              , "id":3
+              , "details":
+              [
+                {
+                  "type":"table"
+                  , "Declared at":
+                  [
+                    {
+                      "type":"text"
+                      , "text":"%L"
+                      , "links":
+                      [
+                        {
+                          "filename":"a.cl"
+                          , "line":"113"
+                        }
+                      ]
+                    }
+                  ]
+                  , "Additional information":"This variable is carried through the pipeline in registers (rather than being stored in RAM)"
+                }
+              ]
+              , "debug":
+              [
+                [
+                  {
+                    "filename":"a.cl"
+                    , "line":113
+                  }
+                ]
+              ]
+              , "type":"reg"
+            }
+            , {
+              "name":"__17"
+              , "id":4
+              , "details":
+              [
+                {
+                  "type":"table"
+                  , "Declared at":
+                  [
+                    {
+                      "type":"text"
+                      , "text":"%L"
+                      , "links":
+                      [
+                        {
+                          "filename":"a.cl"
+                          , "line":"120"
+                        }
+                      ]
+                    }
+                  ]
+                  , "Additional information":"This variable is carried through the pipeline in registers (rather than being stored in RAM)"
+                }
+              ]
+              , "debug":
+              [
+                [
+                  {
+                    "filename":"a.cl"
+                    , "line":120
+                  }
+                ]
+              ]
+              , "type":"reg"
+            }
+            , {
+              "name":"__18"
+              , "id":5
+              , "details":
+              [
+                {
+                  "type":"table"
+                  , "Declared at":
+                  [
+                    {
+                      "type":"text"
+                      , "text":"%L"
+                      , "links":
+                      [
+                        {
+                          "filename":"a.cl"
+                          , "line":"122"
+                        }
+                      ]
+                    }
+                  ]
+                  , "Additional information":"This variable is carried through the pipeline in registers (rather than being stored in RAM)"
+                }
+              ]
+              , "debug":
+              [
+                [
+                  {
+                    "filename":"a.cl"
+                    , "line":122
+                  }
+                ]
+              ]
+              , "type":"reg"
+            }
+          ]
+        }
+      ]
+    }
+    , {
+      "name":"kernel_xLoader_1"
+      , "id":1669765432
+      , "type":"kernel"
+      , "children":
+      [
+        {
+          "name":"Local Memory"
+          , "id":6
+          , "type":"memtype"
+          , "children":
+          [
+            {
+              "name":"_temp"
+              , "id":7
+              , "details":
+              [
+                {
+                  "type":"table"
+                  , "Declared at":
+                  [
+                    {
+                      "type":"text"
+                      , "text":"%L"
+                      , "links":
+                      [
+                        {
+                          "filename":"a.cl"
+                          , "line":"74"
+                        }
+                      ]
+                    }
+                  ]
+                  , "Additional information":"This variable is carried through the pipeline in registers (rather than being stored in RAM)"
+                }
+              ]
+              , "debug":
+              [
+                [
+                  {
+                    "filename":"a.cl"
+                    , "line":74
+                  }
+                ]
+              ]
+              , "type":"reg"
+            }
+          ]
+        }
+      ]
+    }
+    , {
+      "name":"kernel_yLoader_1"
+      , "id":1669769704
+      , "type":"kernel"
+      , "children":
+      [
+        {
+          "name":"Local Memory"
+          , "id":8
+          , "type":"memtype"
+          , "children":
+          [
+            {
+              "name":"_temp"
+              , "id":9
+              , "details":
+              [
+                {
+                  "type":"table"
+                  , "Declared at":
+                  [
+                    {
+                      "type":"text"
+                      , "text":"%L"
+                      , "links":
+                      [
+                        {
+                          "filename":"a.cl"
+                          , "line":"97"
+                        }
+                      ]
+                    }
+                  ]
+                  , "Additional information":"This variable is carried through the pipeline in registers (rather than being stored in RAM)"
+                }
+              ]
+              , "debug":
+              [
+                [
+                  {
+                    "filename":"a.cl"
+                    , "line":97
+                  }
+                ]
+              ]
+              , "type":"reg"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+  , "links":
+  [
+  ]
+}

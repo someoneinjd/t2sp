@@ -140,6 +140,8 @@ Expr Parameter::scalar_expr() const {
         switch (t.bits()) {
         case 64:
             return Expr(scalar<complex32_t>());
+        case 128:
+            return Expr(scalar<complex64_t>());
         }
     } else if (t.is_handle()) {
         // handles are always uint64 internally.

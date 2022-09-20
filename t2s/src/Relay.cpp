@@ -334,9 +334,13 @@ public:
         if (op->is_intrinsic(Call::IntrinsicOp::read_channel)) {
             // Add a guarding condition to the read_channel
             if (inside_pipe) {
-                if (op->type.is_complex())
-                    return Select::make(pipe_alloc.valid_cond, op, UIntImm::make(Complex(32), complex32_t(0, 0).to_bits()));
-                else
+                if (op->type.is_complex()) {
+                    if (op->type.bits() == 64) {
+                        return Select::make(pipe_alloc.valid_cond, op, UIntImm::make(Complex(32), complex32_t(0, 0).to_bits()));
+                    } else {
+                        return Select::make(pipe_alloc.valid_cond, op, UIntImm::make(Complex(64), complex64_t(0, 0).to_bits()));
+                    }
+                } else
                     return Select::make(pipe_alloc.valid_cond, op, FloatImm::make(op->type, 0));
             }
             auto name = op->args[0].as<StringImm>();

@@ -1366,6 +1366,7 @@ Stmt flatten_loops(Stmt s, const std::map<std::string, Function> &env) {
 Stmt flatten_outer_loops(Stmt s, string &loop_lvl, const std::map<std::string, Function> &env) {
     FlattenOuterLoops fol(loop_lvl);
     s = fol.mutate(s);
+
     debug(2) << "IR after outer loop flattening ...\n\n" << s << "\n";
 
     return s;

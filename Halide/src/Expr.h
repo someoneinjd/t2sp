@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-#include "Complex32.h"
+#include "Complex.h"
 #include "Debug.h"
 #include "Error.h"
 #include "Float16.h"
@@ -236,17 +236,17 @@ struct IntImm : public ExprNode<IntImm> {
 
 /** Unsigned integer constants */
 struct UIntImm : public ExprNode<UIntImm> {
-    uint64_t value;
+    __uint128_t value;
 
-    static const UIntImm *make(Type t, uint64_t value) {
+    static const UIntImm *make(Type t, __uint128_t value) {
         internal_assert((t.is_uint() || t.is_complex()) && t.is_scalar())
             << "UIntImm must be a scalar UInt\n";
-        internal_assert(t.bits() == 1 || t.bits() == 8 || t.bits() == 16 || t.bits() == 32 || t.bits() == 64)
-            << "UIntImm must be 1, 8, 16, 32, or 64-bit\n";
+        internal_assert(t.bits() == 1 || t.bits() == 8 || t.bits() == 16 || t.bits() == 32 || t.bits() == 64 || t.bits() == 128)
+            << "UIntImm must be 1, 8, 16, 32, 64, or 128-bit\n";
 
         // Normalize the value by dropping the high bits
-        value <<= (64 - t.bits());
-        value >>= (64 - t.bits());
+        value <<= (128 - t.bits());
+        value >>= (128 - t.bits());
 
         UIntImm *node = new UIntImm;
         node->type = t;
@@ -346,6 +346,9 @@ struct Expr : public Internal::IRHandle {
     explicit Expr(uint64_t x)
         : IRHandle(Internal::UIntImm::make(UInt(64), x)) {
     }
+    explicit Expr(__uint128_t x)
+        : IRHandle(Internal::UIntImm::make(UInt(128), x)) {
+    }
     Expr(float16_t x)
         : IRHandle(Internal::FloatImm::make(Float(16), (double)x)) {
     }
@@ -360,6 +363,9 @@ struct Expr : public Internal::IRHandle {
     }
     Expr(complex32_t x)
         : IRHandle(Internal::UIntImm::make(Complex(32), x.to_bits())) {
+    }
+    Expr(complex64_t x)
+        : IRHandle(Internal::UIntImm::make(Complex(64), x.to_bits())) {
     }
     // @}
 

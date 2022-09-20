@@ -1,0 +1,837 @@
+{
+  "name":"loop_attributes"
+  , "id":1809
+  , "nodes":
+  [
+    {
+      "name":"kernel_aLoader"
+      , "id":1
+      , "clk":"No"
+      , "fmax":"480.00"
+      , "debug":
+      [
+        [
+          {
+            "filename":"/home/u146242/gemv_lab/s10_3/a.cl"
+            , "line":68
+          }
+        ]
+      ]
+      , "type":"kernel"
+      , "children":
+      [
+        {
+          "name":"kernel_aLoader.B0"
+          , "id":6
+          , "af":"480.00"
+          , "br":"0"
+          , "ci":"0"
+          , "fo":"Disabled"
+          , "ii":"1"
+          , "ll":"1"
+          , "lt":"9.000000"
+          , "mi":"n/a"
+          , "pl":"Yes"
+          , "tc":"0"
+          , "tn":"1"
+          , "type":"bb"
+        }
+        , {
+          "name":"kernel_aLoader.B2"
+          , "id":8
+          , "af":"480.00"
+          , "br":"0"
+          , "ci":"0"
+          , "fo":"Enabled"
+          , "ii":"1"
+          , "ll":"1"
+          , "lt":"8.000000"
+          , "mi":"1"
+          , "pl":"Yes"
+          , "tc":"0"
+          , "tn":"1"
+          , "details":
+          [
+            {
+              "type":"text"
+              , "text":"Hyper-Optimized loop structure: enabled."
+            }
+          ]
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gemv_lab/s10_3/a.cl"
+                , "line":71
+              }
+            ]
+          ]
+          , "type":"loop"
+          , "children":
+          [
+            {
+              "name":"kernel_aLoader.B3"
+              , "id":9
+              , "af":"480.00"
+              , "br":"0"
+              , "ci":"0"
+              , "fo":"Enabled"
+              , "ii":"1"
+              , "ll":"2"
+              , "lt":"8.000000"
+              , "mi":"1"
+              , "pl":"Yes"
+              , "tc":"0"
+              , "tn":"1"
+              , "details":
+              [
+                {
+                  "type":"text"
+                  , "text":"Hyper-Optimized loop structure: enabled."
+                }
+              ]
+              , "debug":
+              [
+                [
+                  {
+                    "filename":"/home/u146242/gemv_lab/s10_3/a.cl"
+                    , "line":74
+                  }
+                ]
+              ]
+              , "type":"loop"
+              , "children":
+              [
+                {
+                  "name":"kernel_aLoader.B6"
+                  , "id":12
+                  , "af":"480.00"
+                  , "br":"1"
+                  , "ci":"0"
+                  , "fo":"Enabled"
+                  , "ii":"1"
+                  , "ll":"3"
+                  , "lt":"853.000000"
+                  , "mi":"1"
+                  , "pl":"Yes"
+                  , "tc":"1024"
+                  , "tn":"1"
+                  , "details":
+                  [
+                    {
+                      "type":"text"
+                      , "text":"Hyper-Optimized loop structure: enabled."
+                    }
+                  ]
+                  , "debug":
+                  [
+                    [
+                      {
+                        "filename":"/home/u146242/gemv_lab/s10_3/a.cl"
+                        , "line":76
+                      }
+                    ]
+                  ]
+                  , "type":"loop"
+                }
+              ]
+            }
+            , {
+              "name":"kernel_aLoader.B5"
+              , "id":11
+              , "af":"480.00"
+              , "br":"1"
+              , "ci":"0"
+              , "fo":"Disabled"
+              , "ii":"1"
+              , "ll":"2"
+              , "lt":"0.000000"
+              , "mi":"n/a"
+              , "pl":"Yes"
+              , "tc":"0"
+              , "tn":"1"
+              , "type":"bb"
+            }
+          ]
+        }
+        , {
+          "name":"kernel_aLoader.B4"
+          , "id":10
+          , "af":"480.00"
+          , "br":"1"
+          , "ci":"0"
+          , "fo":"Disabled"
+          , "ii":"1"
+          , "ll":"1"
+          , "lt":"0.000000"
+          , "mi":"n/a"
+          , "pl":"Yes"
+          , "tc":"0"
+          , "tn":"1"
+          , "type":"bb"
+        }
+        , {
+          "name":"kernel_aLoader.B1"
+          , "id":7
+          , "af":"480.00"
+          , "br":"0"
+          , "ci":"0"
+          , "fo":"Disabled"
+          , "ii":"1"
+          , "ll":"1"
+          , "lt":"1.000000"
+          , "mi":"n/a"
+          , "pl":"Yes"
+          , "tc":"0"
+          , "tn":"1"
+          , "type":"bb"
+        }
+      ]
+    }
+    , {
+      "name":"kernel_xLoader"
+      , "id":2
+      , "clk":"No"
+      , "fmax":"480.00"
+      , "debug":
+      [
+        [
+          {
+            "filename":"/home/u146242/gemv_lab/s10_3/a.cl"
+            , "line":98
+          }
+        ]
+      ]
+      , "type":"kernel"
+      , "children":
+      [
+        {
+          "name":"kernel_xLoader.B0"
+          , "id":13
+          , "af":"480.00"
+          , "br":"0"
+          , "ci":"0"
+          , "fo":"Disabled"
+          , "ii":"1"
+          , "ll":"1"
+          , "lt":"9.000000"
+          , "mi":"n/a"
+          , "pl":"Yes"
+          , "tc":"0"
+          , "tn":"1"
+          , "type":"bb"
+        }
+        , {
+          "name":"kernel_xLoader.B2"
+          , "id":15
+          , "af":"480.00"
+          , "br":"0"
+          , "ci":"0"
+          , "fo":"Enabled"
+          , "ii":"1"
+          , "ll":"1"
+          , "lt":"8.000000"
+          , "mi":"1"
+          , "pl":"Yes"
+          , "tc":"0"
+          , "tn":"1"
+          , "details":
+          [
+            {
+              "type":"text"
+              , "text":"Hyper-Optimized loop structure: enabled."
+            }
+          ]
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gemv_lab/s10_3/a.cl"
+                , "line":102
+              }
+            ]
+          ]
+          , "type":"loop"
+          , "children":
+          [
+            {
+              "name":"kernel_xLoader.B3"
+              , "id":16
+              , "af":"480.00"
+              , "br":"0"
+              , "ci":"0"
+              , "fo":"Enabled"
+              , "ii":"1"
+              , "ll":"2"
+              , "lt":"8.000000"
+              , "mi":"1"
+              , "pl":"Yes"
+              , "tc":"0"
+              , "tn":"1"
+              , "details":
+              [
+                {
+                  "type":"text"
+                  , "text":"Hyper-Optimized loop structure: enabled."
+                }
+              ]
+              , "debug":
+              [
+                [
+                  {
+                    "filename":"/home/u146242/gemv_lab/s10_3/a.cl"
+                    , "line":105
+                  }
+                ]
+              ]
+              , "type":"loop"
+              , "children":
+              [
+                {
+                  "name":"kernel_xLoader.B6"
+                  , "id":19
+                  , "af":"480.00"
+                  , "br":"1"
+                  , "ci":"0"
+                  , "fo":"Enabled"
+                  , "ii":"1"
+                  , "ll":"3"
+                  , "lt":"899.000000"
+                  , "mi":"1"
+                  , "pl":"Yes"
+                  , "tc":"32"
+                  , "tn":"1"
+                  , "details":
+                  [
+                    {
+                      "type":"text"
+                      , "text":"Hyper-Optimized loop structure: enabled."
+                    }
+                  ]
+                  , "debug":
+                  [
+                    [
+                      {
+                        "filename":"/home/u146242/gemv_lab/s10_3/a.cl"
+                        , "line":107
+                      }
+                    ]
+                  ]
+                  , "type":"loop"
+                }
+              ]
+            }
+            , {
+              "name":"kernel_xLoader.B5"
+              , "id":18
+              , "af":"480.00"
+              , "br":"1"
+              , "ci":"0"
+              , "fo":"Disabled"
+              , "ii":"1"
+              , "ll":"2"
+              , "lt":"0.000000"
+              , "mi":"n/a"
+              , "pl":"Yes"
+              , "tc":"0"
+              , "tn":"1"
+              , "type":"bb"
+            }
+          ]
+        }
+        , {
+          "name":"kernel_xLoader.B4"
+          , "id":17
+          , "af":"480.00"
+          , "br":"1"
+          , "ci":"0"
+          , "fo":"Disabled"
+          , "ii":"1"
+          , "ll":"1"
+          , "lt":"0.000000"
+          , "mi":"n/a"
+          , "pl":"Yes"
+          , "tc":"0"
+          , "tn":"1"
+          , "type":"bb"
+        }
+        , {
+          "name":"kernel_xLoader.B1"
+          , "id":14
+          , "af":"480.00"
+          , "br":"0"
+          , "ci":"0"
+          , "fo":"Disabled"
+          , "ii":"1"
+          , "ll":"1"
+          , "lt":"1.000000"
+          , "mi":"n/a"
+          , "pl":"Yes"
+          , "tc":"0"
+          , "tn":"1"
+          , "type":"bb"
+        }
+      ]
+    }
+    , {
+      "name":"kernel_xFeeder"
+      , "id":3
+      , "clk":"No"
+      , "fmax":"480.00"
+      , "debug":
+      [
+        [
+          {
+            "filename":"/home/u146242/gemv_lab/s10_3/a.cl"
+            , "line":127
+          }
+        ]
+      ]
+      , "type":"kernel"
+      , "children":
+      [
+        {
+          "name":"kernel_xFeeder.B0"
+          , "id":20
+          , "af":"480.00"
+          , "br":"0"
+          , "ci":"0"
+          , "fo":"Disabled"
+          , "ii":"1"
+          , "ll":"1"
+          , "lt":"18.000000"
+          , "mi":"n/a"
+          , "pl":"Yes"
+          , "tc":"0"
+          , "tn":"1"
+          , "type":"bb"
+        }
+        , {
+          "name":"kernel_xFeeder.B2"
+          , "id":22
+          , "af":"480.00"
+          , "br":"1"
+          , "ci":"0"
+          , "fo":"Enabled"
+          , "ii":"1"
+          , "ll":"1"
+          , "lt":"20.000000"
+          , "mi":"1"
+          , "pl":"Yes"
+          , "tc":"0"
+          , "tn":"1"
+          , "details":
+          [
+            {
+              "type":"text"
+              , "text":"Hyper-Optimized loop structure: enabled."
+            }
+          ]
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gemv_lab/s10_3/a.cl"
+                , "line":139
+              }
+            ]
+          ]
+          , "type":"loop"
+        }
+        , {
+          "name":"kernel_xFeeder.B1"
+          , "id":21
+          , "af":"480.00"
+          , "br":"0"
+          , "ci":"0"
+          , "fo":"Disabled"
+          , "ii":"1"
+          , "ll":"1"
+          , "lt":"1.000000"
+          , "mi":"n/a"
+          , "pl":"Yes"
+          , "tc":"0"
+          , "tn":"1"
+          , "type":"bb"
+        }
+      ]
+    }
+    , {
+      "name":"kernel_V"
+      , "id":4
+      , "clk":"No"
+      , "fmax":"480.00"
+      , "debug":
+      [
+        [
+          {
+            "filename":"/home/u146242/gemv_lab/s10_3/a.cl"
+            , "line":185
+          }
+        ]
+      ]
+      , "type":"kernel"
+      , "children":
+      [
+        {
+          "name":"kernel_V.B0"
+          , "id":23
+          , "af":"480.00"
+          , "br":"0"
+          , "ci":"0"
+          , "fo":"Disabled"
+          , "ii":"1"
+          , "ll":"1"
+          , "lt":"9.000000"
+          , "mi":"n/a"
+          , "pl":"Yes"
+          , "tc":"0"
+          , "tn":"1"
+          , "type":"bb"
+        }
+        , {
+          "name":"kernel_V.B2"
+          , "id":25
+          , "af":"388.80"
+          , "br":"0"
+          , "ci":"0"
+          , "fo":"Disabled"
+          , "ii":"1"
+          , "ll":"1"
+          , "lt":"6.000000"
+          , "mi":"1"
+          , "pl":"Yes"
+          , "tc":"0"
+          , "tn":"1"
+          , "details":
+          [
+            {
+              "type":"text"
+              , "text":"Hyper-Optimized loop structure: disabled."
+            }
+          ]
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gemv_lab/s10_3/a.cl"
+                , "line":196
+              }
+            ]
+          ]
+          , "type":"loop"
+          , "children":
+          [
+            {
+              "name":"kernel_V.B3"
+              , "id":26
+              , "af":"388.80"
+              , "br":"0"
+              , "ci":"0"
+              , "fo":"Disabled"
+              , "ii":"1"
+              , "ll":"2"
+              , "lt":"7.000000"
+              , "mi":"1"
+              , "pl":"Yes"
+              , "tc":"0"
+              , "tn":"0"
+              , "details":
+              [
+                {
+                  "type":"text"
+                  , "text":"Hyper-Optimized loop structure: disabled."
+                }
+              ]
+              , "debug":
+              [
+                [
+                  {
+                    "filename":"/home/u146242/gemv_lab/s10_3/a.cl"
+                    , "line":199
+                  }
+                ]
+              ]
+              , "type":"loop"
+              , "children":
+              [
+                {
+                  "name":"kernel_V.B5"
+                  , "id":28
+                  , "af":"432.00"
+                  , "br":"1"
+                  , "ci":"0"
+                  , "fo":"Disabled"
+                  , "ii":"1"
+                  , "ll":"3"
+                  , "lt":"143.000000"
+                  , "mi":"1"
+                  , "pl":"Yes"
+                  , "tc":"1024"
+                  , "tn":"0"
+                  , "details":
+                  [
+                    {
+                      "type":"text"
+                      , "text":"Hyper-Optimized loop structure: disabled."
+                      , "details":
+                      [
+                        {
+                          "type":"text"
+                          , "text":"Hyper-Optimized loop structure is disabled due to compressed push-pop"
+                        }
+                      ]
+                    }
+                  ]
+                  , "debug":
+                  [
+                    [
+                      {
+                        "filename":"/home/u146242/gemv_lab/s10_3/a.cl"
+                        , "line":201
+                      }
+                    ]
+                  ]
+                  , "type":"loop"
+                }
+              ]
+            }
+            , {
+              "name":"kernel_V.B6"
+              , "id":29
+              , "af":"480.00"
+              , "br":"1"
+              , "ci":"0"
+              , "fo":"Disabled"
+              , "ii":"1"
+              , "ll":"2"
+              , "lt":"0.000000"
+              , "mi":"n/a"
+              , "pl":"Yes"
+              , "tc":"0"
+              , "tn":"1"
+              , "type":"bb"
+            }
+          ]
+        }
+        , {
+          "name":"kernel_V.B4"
+          , "id":27
+          , "af":"480.00"
+          , "br":"1"
+          , "ci":"0"
+          , "fo":"Disabled"
+          , "ii":"1"
+          , "ll":"1"
+          , "lt":"0.000000"
+          , "mi":"n/a"
+          , "pl":"Yes"
+          , "tc":"0"
+          , "tn":"1"
+          , "type":"bb"
+        }
+        , {
+          "name":"kernel_V.B1"
+          , "id":24
+          , "af":"480.00"
+          , "br":"0"
+          , "ci":"0"
+          , "fo":"Disabled"
+          , "ii":"1"
+          , "ll":"1"
+          , "lt":"1.000000"
+          , "mi":"n/a"
+          , "pl":"Yes"
+          , "tc":"0"
+          , "tn":"1"
+          , "type":"bb"
+        }
+      ]
+    }
+    , {
+      "name":"kernel_unloader"
+      , "id":5
+      , "clk":"No"
+      , "fmax":"480.00"
+      , "debug":
+      [
+        [
+          {
+            "filename":"/home/u146242/gemv_lab/s10_3/a.cl"
+            , "line":301
+          }
+        ]
+      ]
+      , "type":"kernel"
+      , "children":
+      [
+        {
+          "name":"kernel_unloader.B0"
+          , "id":30
+          , "af":"480.00"
+          , "br":"0"
+          , "ci":"0"
+          , "fo":"Disabled"
+          , "ii":"1"
+          , "ll":"1"
+          , "lt":"9.000000"
+          , "mi":"n/a"
+          , "pl":"Yes"
+          , "tc":"0"
+          , "tn":"1"
+          , "type":"bb"
+        }
+        , {
+          "name":"kernel_unloader.B1"
+          , "id":31
+          , "af":"480.00"
+          , "br":"0"
+          , "ci":"0"
+          , "fo":"Enabled"
+          , "ii":"1"
+          , "ll":"1"
+          , "lt":"8.000000"
+          , "mi":"1"
+          , "pl":"Yes"
+          , "tc":"0"
+          , "tn":"1"
+          , "details":
+          [
+            {
+              "type":"text"
+              , "text":"Hyper-Optimized loop structure: enabled."
+            }
+          ]
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gemv_lab/s10_3/a.cl"
+                , "line":306
+              }
+            ]
+          ]
+          , "type":"loop"
+          , "children":
+          [
+            {
+              "name":"kernel_unloader.B4"
+              , "id":34
+              , "af":"480.00"
+              , "br":"0"
+              , "ci":"0"
+              , "fo":"Enabled"
+              , "ii":"1"
+              , "ll":"2"
+              , "lt":"15.000000"
+              , "mi":"1"
+              , "pl":"Yes"
+              , "tc":"0"
+              , "tn":"1"
+              , "details":
+              [
+                {
+                  "type":"text"
+                  , "text":"Hyper-Optimized loop structure: enabled."
+                }
+              ]
+              , "debug":
+              [
+                [
+                  {
+                    "filename":"/home/u146242/gemv_lab/s10_3/a.cl"
+                    , "line":308
+                  }
+                ]
+              ]
+              , "type":"loop"
+              , "children":
+              [
+                {
+                  "name":"kernel_unloader.B6"
+                  , "id":36
+                  , "af":"480.00"
+                  , "br":"1"
+                  , "ci":"0"
+                  , "fo":"Enabled"
+                  , "ii":"1"
+                  , "ll":"3"
+                  , "lt":"15.000000"
+                  , "mi":"1"
+                  , "pl":"Yes"
+                  , "tc":"64"
+                  , "tn":"1"
+                  , "details":
+                  [
+                    {
+                      "type":"text"
+                      , "text":"Hyper-Optimized loop structure: enabled."
+                    }
+                  ]
+                  , "debug":
+                  [
+                    [
+                      {
+                        "filename":"/home/u146242/gemv_lab/s10_3/a.cl"
+                        , "line":312
+                      }
+                    ]
+                  ]
+                  , "type":"loop"
+                }
+              ]
+            }
+            , {
+              "name":"kernel_unloader.B5"
+              , "id":35
+              , "af":"480.00"
+              , "br":"1"
+              , "ci":"0"
+              , "fo":"Disabled"
+              , "ii":"1"
+              , "ll":"2"
+              , "lt":"1.000000"
+              , "mi":"n/a"
+              , "pl":"Yes"
+              , "tc":"32"
+              , "tn":"1"
+              , "type":"bb"
+            }
+          ]
+        }
+        , {
+          "name":"kernel_unloader.B3"
+          , "id":33
+          , "af":"480.00"
+          , "br":"1"
+          , "ci":"0"
+          , "fo":"Disabled"
+          , "ii":"1"
+          , "ll":"1"
+          , "lt":"0.000000"
+          , "mi":"n/a"
+          , "pl":"Yes"
+          , "tc":"0"
+          , "tn":"1"
+          , "type":"bb"
+        }
+        , {
+          "name":"kernel_unloader.B2"
+          , "id":32
+          , "af":"480.00"
+          , "br":"0"
+          , "ci":"0"
+          , "fo":"Disabled"
+          , "ii":"1"
+          , "ll":"1"
+          , "lt":"1.000000"
+          , "mi":"n/a"
+          , "pl":"Yes"
+          , "tc":"0"
+          , "tn":"1"
+          , "type":"bb"
+        }
+      ]
+    }
+  ]
+}

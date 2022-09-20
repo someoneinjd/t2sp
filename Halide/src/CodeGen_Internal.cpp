@@ -228,9 +228,11 @@ bool can_allocation_fit_on_stack(int64_t size) {
 }
 
 Expr lower_int_uint_div(Expr a, Expr b) {
+    internal_assert(!a.type().is_complex());
+    internal_assert(!b.type().is_complex());
     // Detect if it's a small int division
     const int64_t *const_int_divisor = as_const_int(b);
-    const uint64_t *const_uint_divisor = as_const_uint(b);
+    const uint64_t *const_uint_divisor = (const uint64_t *)as_const_uint(b);
 
     Type t = a.type();
     internal_assert(!t.is_float())
@@ -325,9 +327,11 @@ Expr lower_int_uint_div(Expr a, Expr b) {
 }
 
 Expr lower_int_uint_mod(Expr a, Expr b) {
+    internal_assert(!a.type().is_complex());
+    internal_assert(!b.type().is_complex());
     // Detect if it's a small int modulus
     const int64_t *const_int_divisor = as_const_int(b);
-    const uint64_t *const_uint_divisor = as_const_uint(b);
+    const uint64_t *const_uint_divisor = (const uint64_t *)as_const_uint(b);
 
     Type t = a.type();
     internal_assert(!t.is_float())

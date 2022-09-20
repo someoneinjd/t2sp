@@ -1,0 +1,700 @@
+{
+  "performanceSummary":
+  {
+    "name":"Kernel Summary"
+    , "columns":
+    ["Kernel Name", "Kernel Type", "Autorun", "Workgroup Size", "# Compute Units", "Hyper-Optimized Handshaking"]
+    , "children":
+    [
+      {
+        "name":"Intel_Internal_Collect_Autorun_Profiling"
+        , "data":
+        [
+          "NDRange"
+          , "No"
+          , "n/a"
+          , 1
+          , "Off"
+        ]
+        , "details":
+        [
+          {
+            "type":"text"
+            , "text":"Kernel type: NDRange"
+          }
+          , {
+            "type":"text"
+            , "text":"The kernel does not use any work-group information (such as get_local_id() or get_group_id()).Local work-group size will be automatically modified to match global work-group size on launch.This is a hardware optimization."
+          }
+          , {
+            "type":"text"
+            , "text":"Hyper-optimized handshaking disabled due to instruction in Kernel kernel_V"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":""
+              , "line":0
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_AFeeder_T"
+        , "data":
+        [
+          "Single work-item"
+          , "Yes"
+          , [1, 1, 1]
+          , 1
+          , "Off"
+        ]
+        , "details":
+        [
+          {
+            "type":"text"
+            , "text":"Kernel type: Single work-item"
+          }
+          , {
+            "type":"text"
+            , "text":"Autorun Kernel: This kernel will start running before any other kernel is explicitly launched by the host.  The kernel will be automatically restarted as soon as it finishes."
+          }
+          , {
+            "type":"text"
+            , "text":"Max global work dimension: 0"
+          }
+          , {
+            "type":"text"
+            , "text":"Required workgroup size: (1, 1, 1)"
+          }
+          , {
+            "type":"text"
+            , "text":"Maximum workgroup size: 1"
+          }
+          , {
+            "type":"text"
+            , "text":"Hyper-optimized handshaking disabled due to instruction in Kernel kernel_V"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"/home/u146242/symv_lab/s10/a.cl"
+              , "line":405
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_ALoader"
+        , "data":
+        [
+          "Single work-item"
+          , "No"
+          , [1, 1, 1]
+          , 1
+          , "Off"
+        ]
+        , "details":
+        [
+          {
+            "type":"text"
+            , "text":"Kernel type: Single work-item"
+          }
+          , {
+            "type":"text"
+            , "text":"Required workgroup size: (1, 1, 1)"
+          }
+          , {
+            "type":"text"
+            , "text":"Maximum workgroup size: 1"
+          }
+          , {
+            "type":"text"
+            , "text":"Hyper-optimized handshaking disabled due to instruction in Kernel kernel_V"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"/home/u146242/symv_lab/s10/a.cl"
+              , "line":69
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_V"
+        , "data":
+        [
+          "Single work-item"
+          , "No"
+          , [1, 1, 1]
+          , 1
+          , "Off"
+        ]
+        , "details":
+        [
+          {
+            "type":"text"
+            , "text":"Kernel type: Single work-item"
+          }
+          , {
+            "type":"text"
+            , "text":"Required workgroup size: (1, 1, 1)"
+          }
+          , {
+            "type":"text"
+            , "text":"Maximum workgroup size: 1"
+          }
+          , {
+            "type":"text"
+            , "text":"Hyper-optimized handshaking disabled due to loop orchestration compiler optimization being disabled in loop kernel_V.B2."
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"/home/u146242/symv_lab/s10/a.cl"
+              , "line":210
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_V_T"
+        , "data":
+        [
+          "Single work-item"
+          , "No"
+          , [1, 1, 1]
+          , 1
+          , "Off"
+        ]
+        , "details":
+        [
+          {
+            "type":"text"
+            , "text":"Kernel type: Single work-item"
+          }
+          , {
+            "type":"text"
+            , "text":"Required workgroup size: (1, 1, 1)"
+          }
+          , {
+            "type":"text"
+            , "text":"Maximum workgroup size: 1"
+          }
+          , {
+            "type":"text"
+            , "text":"Hyper-optimized handshaking disabled due to instruction in Kernel kernel_V"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"/home/u146242/symv_lab/s10/a.cl"
+              , "line":528
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_XFeeder"
+        , "data":
+        [
+          "Single work-item"
+          , "Yes"
+          , [1, 1, 1]
+          , 1
+          , "Off"
+        ]
+        , "details":
+        [
+          {
+            "type":"text"
+            , "text":"Kernel type: Single work-item"
+          }
+          , {
+            "type":"text"
+            , "text":"Autorun Kernel: This kernel will start running before any other kernel is explicitly launched by the host.  The kernel will be automatically restarted as soon as it finishes."
+          }
+          , {
+            "type":"text"
+            , "text":"Max global work dimension: 0"
+          }
+          , {
+            "type":"text"
+            , "text":"Required workgroup size: (1, 1, 1)"
+          }
+          , {
+            "type":"text"
+            , "text":"Maximum workgroup size: 1"
+          }
+          , {
+            "type":"text"
+            , "text":"Hyper-optimized handshaking disabled due to instruction in Kernel kernel_V"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"/home/u146242/symv_lab/s10/a.cl"
+              , "line":166
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_XFeeder_T"
+        , "data":
+        [
+          "Single work-item"
+          , "Yes"
+          , [1, 1, 1]
+          , 1
+          , "Off"
+        ]
+        , "details":
+        [
+          {
+            "type":"text"
+            , "text":"Kernel type: Single work-item"
+          }
+          , {
+            "type":"text"
+            , "text":"Autorun Kernel: This kernel will start running before any other kernel is explicitly launched by the host.  The kernel will be automatically restarted as soon as it finishes."
+          }
+          , {
+            "type":"text"
+            , "text":"Max global work dimension: 0"
+          }
+          , {
+            "type":"text"
+            , "text":"Required workgroup size: (1, 1, 1)"
+          }
+          , {
+            "type":"text"
+            , "text":"Maximum workgroup size: 1"
+          }
+          , {
+            "type":"text"
+            , "text":"Hyper-optimized handshaking disabled due to instruction in Kernel kernel_V"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"/home/u146242/symv_lab/s10/a.cl"
+              , "line":484
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_XLoader"
+        , "data":
+        [
+          "Single work-item"
+          , "No"
+          , [1, 1, 1]
+          , 1
+          , "Off"
+        ]
+        , "details":
+        [
+          {
+            "type":"text"
+            , "text":"Kernel type: Single work-item"
+          }
+          , {
+            "type":"text"
+            , "text":"Required workgroup size: (1, 1, 1)"
+          }
+          , {
+            "type":"text"
+            , "text":"Maximum workgroup size: 1"
+          }
+          , {
+            "type":"text"
+            , "text":"Hyper-optimized handshaking disabled due to instruction in Kernel kernel_V"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"/home/u146242/symv_lab/s10/a.cl"
+              , "line":119
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_XLoader_T"
+        , "data":
+        [
+          "Single work-item"
+          , "No"
+          , [1, 1, 1]
+          , 1
+          , "Off"
+        ]
+        , "details":
+        [
+          {
+            "type":"text"
+            , "text":"Kernel type: Single work-item"
+          }
+          , {
+            "type":"text"
+            , "text":"Required workgroup size: (1, 1, 1)"
+          }
+          , {
+            "type":"text"
+            , "text":"Maximum workgroup size: 1"
+          }
+          , {
+            "type":"text"
+            , "text":"Hyper-optimized handshaking disabled due to instruction in Kernel kernel_V"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"/home/u146242/symv_lab/s10/a.cl"
+              , "line":359
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_unloader"
+        , "data":
+        [
+          "Single work-item"
+          , "No"
+          , [1, 1, 1]
+          , 1
+          , "Off"
+        ]
+        , "details":
+        [
+          {
+            "type":"text"
+            , "text":"Kernel type: Single work-item"
+          }
+          , {
+            "type":"text"
+            , "text":"Required workgroup size: (1, 1, 1)"
+          }
+          , {
+            "type":"text"
+            , "text":"Maximum workgroup size: 1"
+          }
+          , {
+            "type":"text"
+            , "text":"Hyper-optimized handshaking disabled due to instruction in Kernel kernel_V"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"/home/u146242/symv_lab/s10/a.cl"
+              , "line":328
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_unloader_T"
+        , "data":
+        [
+          "Single work-item"
+          , "No"
+          , [1, 1, 1]
+          , 1
+          , "Off"
+        ]
+        , "details":
+        [
+          {
+            "type":"text"
+            , "text":"Kernel type: Single work-item"
+          }
+          , {
+            "type":"text"
+            , "text":"Required workgroup size: (1, 1, 1)"
+          }
+          , {
+            "type":"text"
+            , "text":"Maximum workgroup size: 1"
+          }
+          , {
+            "type":"text"
+            , "text":"Hyper-optimized handshaking disabled due to instruction in Kernel kernel_V"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"/home/u146242/symv_lab/s10/a.cl"
+              , "line":641
+            }
+          ]
+        ]
+      }
+    ]
+  }
+  , "estimatedResources":
+  {
+    "name":"Estimated Resource Usage"
+    , "columns":
+    ["Kernel Name", "ALUTs ", "FFs  ", "RAMs ", "DSPs ", "MLABs"]
+    , "children":
+    [
+      {
+        "name":"Intel_Internal_Collect_Autorun_Profiling"
+        , "data":
+        [1463, 1467, 0, 0, 6]
+        , "debug":
+        [
+          [
+            {
+              "filename":""
+              , "line":0
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_AFeeder_T"
+        , "data":
+        [151391, 302270, 4192, 0, 41]
+        , "debug":
+        [
+          [
+            {
+              "filename":"/home/u146242/symv_lab/s10/a.cl"
+              , "line":405
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_ALoader"
+        , "data":
+        [8978, 19823, 119, 1.5, 361]
+        , "debug":
+        [
+          [
+            {
+              "filename":"/home/u146242/symv_lab/s10/a.cl"
+              , "line":69
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_V"
+        , "data":
+        [42231, 106684, 313, 64, 1079]
+        , "debug":
+        [
+          [
+            {
+              "filename":"/home/u146242/symv_lab/s10/a.cl"
+              , "line":210
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_V_T"
+        , "data":
+        [41557, 104942, 340, 64, 966]
+        , "debug":
+        [
+          [
+            {
+              "filename":"/home/u146242/symv_lab/s10/a.cl"
+              , "line":528
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_XFeeder"
+        , "data":
+        [346, 429, 4, 0, 9]
+        , "debug":
+        [
+          [
+            {
+              "filename":"/home/u146242/symv_lab/s10/a.cl"
+              , "line":166
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_XFeeder_T"
+        , "data":
+        [346, 429, 4, 0, 9]
+        , "debug":
+        [
+          [
+            {
+              "filename":"/home/u146242/symv_lab/s10/a.cl"
+              , "line":484
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_XLoader"
+        , "data":
+        [3468, 6112, 31, 0, 35]
+        , "debug":
+        [
+          [
+            {
+              "filename":"/home/u146242/symv_lab/s10/a.cl"
+              , "line":119
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_XLoader_T"
+        , "data":
+        [6121, 8633, 135, 0, 41]
+        , "debug":
+        [
+          [
+            {
+              "filename":"/home/u146242/symv_lab/s10/a.cl"
+              , "line":359
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_unloader"
+        , "data":
+        [3678, 10906, 60, 0, 119]
+        , "debug":
+        [
+          [
+            {
+              "filename":"/home/u146242/symv_lab/s10/a.cl"
+              , "line":328
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_unloader_T"
+        , "data":
+        [15596, 24256, 0, 0, 258]
+        , "debug":
+        [
+          [
+            {
+              "filename":"/home/u146242/symv_lab/s10/a.cl"
+              , "line":641
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"Kernel Subtotal"
+        , "classes":
+        ["summary-highlight", "nohover"]
+        , "data":
+        [275175, 585951, 5198, 129, 2924]
+      }
+      , {
+        "name":"Global Interconnect"
+        , "classes":
+        ["summary-highlight", "nohover"]
+        , "data":
+        [19004, 21208, 0, 0, 0]
+      }
+      , {
+        "name":"Board Interface"
+        , "classes":
+        ["summary-highlight", "nohover"]
+        , "data":
+        [466792, 928428, 3039, 1291, 0]
+      }
+      , {
+        "name":"System description ROM"
+        , "classes":
+        ["summary-highlight", "nohover"]
+        , "data":
+        [2, 71, 2, 0, 0]
+      }
+      , {
+        "name":"Pipe and channel resources"
+        , "classes":
+        ["summary-highlight", "nohover"]
+        , "data":
+        [99, 31158, 264, 0, 0]
+      }
+      , {
+        "name":"Total"
+        , "classes":
+        ["summary-highlight", "nohover"]
+        , "data":
+        [761072, 1566816, 8503, 1420, 2924]
+        , "data_percent":
+        [40.781, 41.9779, 72.545, 24.6701]
+      }
+      , {
+        "name":"Available"
+        , "classes":
+        ["summary-highlight", "nohover"]
+        , "data":
+        [1866240, 3732480, 11721, 5760, 0]
+      }
+    ]
+  }
+  , "compileWarnings":
+  {
+    "name":"Compile Warnings"
+    , "children":
+    [
+      {
+        "name":"Load uses a Burst-coalesced cached LSU"
+        , "details":
+        [
+          {
+            "type":"text"
+            , "text":"Load with a private 512 kilobit cache. Cache is not shared with any other load. It is flushed on kernel start. Use Dynamic Profiler to verify cache effectiveness. Other kernels should not be updating the data in global memory while this kernel is using it. Cache is created when memory access pattern is data-dependent or appears to be repetitive. Simplify access pattern or mark pointer as 'volatile' to disable generation of this cache."
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"/home/u146242/symv_lab/s10/a.cl"
+              , "line":385
+            }
+          ]
+        ]
+      }
+    ]
+  }
+}

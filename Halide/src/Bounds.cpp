@@ -205,6 +205,8 @@ private:
 
         Type to = op->type.element_of();
         Type from = op->value.type().element_of();
+        internal_assert(!to.is_complex());
+        internal_assert(!from.is_complex());
 
         if (a.is_single_point()) {
             interval = Interval::single_point(Cast::make(to, a.min));

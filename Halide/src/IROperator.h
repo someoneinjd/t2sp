@@ -30,7 +30,7 @@ const int64_t *as_const_int(const Expr &e);
 
 /** If an expression is a UIntImm or a Broadcast of a UIntImm, return
  * a pointer to its value. Otherwise returns nullptr. */
-const uint64_t *as_const_uint(const Expr &e);
+const __uint128_t *as_const_uint(const Expr &e);
 
 /** If an expression is a FloatImm or a Broadcast of a FloatImm,
  * return a pointer to its value. Otherwise returns nullptr. */
@@ -86,6 +86,7 @@ bool is_pure(const Expr &e);
 // @{
 Expr make_const(Type t, int64_t val);
 Expr make_const(Type t, uint64_t val);
+Expr make_const(Type t, __uint128_t val);
 Expr make_const(Type t, double val);
 inline Expr make_const(Type t, int32_t val) {
     return make_const(t, (int64_t)val);
@@ -1335,6 +1336,13 @@ Expr strict_float(Expr e);
  * Target::CheckUnsafePromises. This is intended for debugging only.
  */
 Expr unsafe_promise_clamped(Expr value, Expr min, Expr max);
+
+
+/** Construct an expression to extract the real or imaginary part of a complex double*/
+// @{
+Expr re_complex64(const Expr &e);
+Expr im_complex64(const Expr &e);
+// @}
 
 }  // namespace Halide
 

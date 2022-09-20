@@ -1,0 +1,71 @@
+{
+    "quartusFitClockSummary"         : {
+        "nodes" : [{
+            "name"              : "Quartus Fitter: Clock Frequency (MHz)",
+            "kernel clock"      : "290.00",
+            "kernel clock fmax" : "290.00",
+            "clock1x"           : "290.00",
+            "clock2x"           : "580.00",
+            "details"           : [{
+                "text" : "The actual frequency of kernel clock is 290.00 MHz after platform PLL adjustment. The maximum frequency for kernel clock is 290.00 MHz. "
+            }],
+            "type"              : "system"
+        }]
+    },
+    "quartusFitResourceUsageSummary" : {
+        "nodes" : [{
+            "type" : "system",
+            "id"   : "1000",
+            "name" : "Quartus Fitter: Kernel System",
+            "alm"  : "28251.6",
+            "reg"  : "75823",
+            "dsp"  : "33",
+            "ram"  : "247",
+            "mlab" : "167"
+        },{
+            "type" : "kernel",
+            "id"   : "1010",
+            "name" : "kernel_Z",
+            "alm"  : "2451.4",
+            "reg"  : "4774",
+            "dsp"  : "33",
+            "ram"  : "0",
+            "mlab" : "6"
+        },{
+            "type" : "kernel",
+            "id"   : "1010",
+            "name" : "kernel_unloader_1",
+            "alm"  : "4111.0",
+            "reg"  : "10393",
+            "dsp"  : "0",
+            "ram"  : "0",
+            "mlab" : "36"
+        },{
+            "type" : "kernel",
+            "id"   : "1010",
+            "name" : "kernel_xLoader_1",
+            "alm"  : "5451.6",
+            "reg"  : "12202",
+            "dsp"  : "0",
+            "ram"  : "60",
+            "mlab" : "60"
+        },{
+            "type" : "kernel",
+            "id"   : "1010",
+            "name" : "kernel_yLoader_1",
+            "alm"  : "5442.9",
+            "reg"  : "14261",
+            "dsp"  : "0",
+            "ram"  : "60",
+            "mlab" : "60"
+        },{
+            "type" : "aclsystem",
+            "id"   : "1001",
+            "name" : "Quartus Fitter: Total Used (Entire System)",
+            "alm"  : "220,388",
+            "reg"  : "360,120",
+            "dsp"  : "33",
+            "ram"  : "678"
+        }]
+    }
+}

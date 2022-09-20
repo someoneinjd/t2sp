@@ -674,7 +674,7 @@ HEADER_FILES = \
   CodeGen_RISCV.h \
   CodeGen_WebAssembly.h \
   CodeGen_X86.h \
-  Complex32.h \
+  Complex.h \
   ConciseCasts.h \
   CPlusPlusMangle.h \
   CSE.h \

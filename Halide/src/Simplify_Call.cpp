@@ -93,7 +93,7 @@ Expr Simplify::visit(const Call *op, ExprInfo *bounds) {
         Expr a = mutate(op->args[0], nullptr);
 
         uint64_t ua = 0;
-        if (const_int(a, (int64_t *)(&ua)) || const_uint(a, &ua)) {
+        if (const_int(a, (int64_t *)(&ua)) || const_uint(a, (__uint128_t *)&ua)) {
             const int bits = op->type.bits();
             const uint64_t mask = std::numeric_limits<uint64_t>::max() >> (64 - bits);
             ua &= mask;
@@ -131,7 +131,7 @@ Expr Simplify::visit(const Call *op, ExprInfo *bounds) {
 
         uint64_t ub = 0;
         int64_t sb = 0;
-        bool b_is_const_uint = const_uint(b, &ub);
+        bool b_is_const_uint = const_uint(b, (__uint128_t *)&ub);
         bool b_is_const_int = const_int(b, &sb);
         if (b_is_const_uint || b_is_const_int) {
             if (b_is_const_int) {
@@ -186,17 +186,17 @@ Expr Simplify::visit(const Call *op, ExprInfo *bounds) {
         if (const_int(a, &ia) &&
             const_int(b, &ib)) {
             return make_const(op->type, ia & ib);
-        } else if (const_uint(a, &ua) &&
-                   const_uint(b, &ub)) {
+        } else if (const_uint(a, (__uint128_t *)&ua) &&
+                   const_uint(b, (__uint128_t *)&ub)) {
             return make_const(op->type, ua & ub);
         } else if (const_int(b, &ib) &&
                    !b.type().is_max(ib) &&
                    is_const_power_of_two_integer(make_const(a.type(), ib + 1), &bits)) {
             return Mod::make(a, make_const(a.type(), ib + 1));
-        } else if (const_uint(b, &ub) &&
+        } else if (const_uint(b, (__uint128_t *)&ub) &&
                    b.type().is_max(ub)) {
             return a;
-        } else if (const_uint(b, &ub) &&
+        } else if (const_uint(b, (__uint128_t *)&ub) &&
                    is_const_power_of_two_integer(make_const(a.type(), ub + 1), &bits)) {
             return Mod::make(a, make_const(a.type(), ub + 1));
         } else if (a.same_as(op->args[0]) && b.same_as(op->args[1])) {
@@ -213,8 +213,8 @@ Expr Simplify::visit(const Call *op, ExprInfo *bounds) {
         if (const_int(a, &ia) &&
             const_int(b, &ib)) {
             return make_const(op->type, ia | ib);
-        } else if (const_uint(a, &ua) &&
-                   const_uint(b, &ub)) {
+        } else if (const_uint(a, (__uint128_t *)&ua) &&
+                   const_uint(b, (__uint128_t *)&ub)) {
             return make_const(op->type, ua | ub);
         } else if (a.same_as(op->args[0]) && b.same_as(op->args[1])) {
             return op;
@@ -228,7 +228,7 @@ Expr Simplify::visit(const Call *op, ExprInfo *bounds) {
         uint64_t ua;
         if (const_int(a, &ia)) {
             return make_const(op->type, ~ia);
-        } else if (const_uint(a, &ua)) {
+        } else if (const_uint(a, (__uint128_t *)&ua)) {
             return make_const(op->type, ~ua);
         } else if (a.same_as(op->args[0])) {
             return op;
@@ -244,8 +244,8 @@ Expr Simplify::visit(const Call *op, ExprInfo *bounds) {
         if (const_int(a, &ia) &&
             const_int(b, &ib)) {
             return make_const(op->type, ia ^ ib);
-        } else if (const_uint(a, &ua) &&
-                   const_uint(b, &ub)) {
+        } else if (const_uint(a, (__uint128_t *)&ua) &&
+                   const_uint(b, (__uint128_t *)&ub)) {
             return make_const(op->type, ua ^ ub);
         } else if (a.same_as(op->args[0]) && b.same_as(op->args[1])) {
             return op;
@@ -263,7 +263,7 @@ Expr Simplify::visit(const Call *op, ExprInfo *bounds) {
         } else if (const_int(a, &ia) && op->type.is_uint() && !vector) {
             // int -> uint
             return make_const(op->type, (uint64_t)ia);
-        } else if (const_uint(a, &ua) && op->type.is_int() && !vector) {
+        } else if (const_uint(a, (__uint128_t *)&ua) && op->type.is_int() && !vector) {
             // uint -> int
             return make_const(op->type, (int64_t)ua);
         } else if (a.same_as(op->args[0])) {
@@ -319,7 +319,7 @@ Expr Simplify::visit(const Call *op, ExprInfo *bounds) {
             internal_assert(op->type.is_uint());
             const uint64_t d = ia > ib ? (uint64_t)(ia - ib) : (uint64_t)(ib - ia);
             return make_const(op->type, d);
-        } else if (ta.is_uint() && const_uint(a, &ua) && const_uint(b, &ub)) {
+        } else if (ta.is_uint() && const_uint(a, (__uint128_t *)&ua) && const_uint(b, (__uint128_t *)&ub)) {
             const uint64_t d = ua > ub ? ua - ub : ub - ua;
             return make_const(op->type, d);
         } else if (const_float(a, &fa) && const_float(b, &fb)) {

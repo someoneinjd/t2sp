@@ -1,0 +1,1718 @@
+{
+  "columns":
+  ["", "Pipelined", "II", "Speculated iterations", "Details"]
+  , "children":
+  [
+    {
+      "name":"Kernel: kernel_aFeeder"
+      , "data":
+      ["", "", ""]
+      , "debug":
+      [
+        [
+          {
+            "filename":"a.cl"
+            , "line":111
+          }
+        ]
+      ]
+      , "details":
+      [
+        {
+          "type":"brief"
+          , "text":"Single work-item execution"
+        }
+        , {
+          "type":"text"
+          , "text":"Single work-item execution"
+        }
+        , {
+          "type":"text"
+          , "text":"Fmax bottlenck block: None"
+        }
+        , {
+          "type":"text"
+          , "text":"See %L for more information"
+          , "links":
+          [
+            {
+              "guide":"Best Practices Guide : Kernels"
+              , "link":"https://www.intel.com/content/www/us/en/programmable/documentation/mwh1391807516407.html#ipp1476408832230"
+            }
+          ]
+        }
+      ]
+      , "children":
+      [
+        {
+          "name":"kernel_aFeeder.B2"
+          , "data":
+          ["Yes", "~1", "3"]
+          , "debug":
+          [
+            [
+              {
+                "filename":"a.cl"
+                , "line":139
+              }
+            ]
+          ]
+          , "details":
+          [
+            {
+              "type":"brief"
+              , "text":" "
+            }
+            , {
+              "type":"text"
+              , "text":"Hyper-Optimized loop structure: n/a"
+            }
+            , {
+              "type":"text"
+              , "text":"II is an approximation due to the following stallable instructions:"
+              , "details":
+              [
+                {
+                  "type":"text"
+                  , "text":"Channel Read Operation (%L)"
+                  , "links":
+                  [
+                    {
+                      "filename":"a.cl"
+                      , "line":"158"
+                    }
+                  ]
+                }
+                , {
+                  "type":"text"
+                  , "text":"Channel Write Operation (%L)"
+                  , "links":
+                  [
+                    {
+                      "filename":"a.cl"
+                      , "line":"275"
+                    }
+                  ]
+                }
+              ]
+            }
+            , {
+              "type":"text"
+              , "text":"Maximum concurrent iterations: Capacity of loop"
+              , "details":
+              [
+                {
+                  "type":"text"
+                  , "text":"Use the %L viewer to estimate capacity"
+                  , "links":
+                  [
+                    {
+                      "view":"Fmax II Report"
+                    }
+                  ]
+                }
+              ]
+            }
+            , {
+              "type":"text"
+              , "text":"See %L for more information"
+              , "links":
+              [
+                {
+                  "guide":"Best Practices Guide : Loops in a Single Work-Item Kernel"
+                  , "link":"https://www.intel.com/content/www/us/en/programmable/documentation/mwh1391807516407.html#wfa1476380079940"
+                }
+              ]
+            }
+          ]
+          , "children":
+          [
+            {
+              "name":"Fully unrolled loop"
+              , "data":
+              ["n/a", "n/a", "n/a"]
+              , "debug":
+              [
+                [
+                  {
+                    "filename":"a.cl"
+                    , "line":162
+                  }
+                ]
+              ]
+              , "details":
+              [
+                {
+                  "type":"brief"
+                  , "text":"Unrolled by #pragma unroll"
+                }
+                , {
+                  "type":"text"
+                  , "text":"Unrolled by #pragma unroll"
+                }
+              ]
+              , "children":
+              [
+              ]
+            }
+          ]
+        }
+      ]
+    }
+    , {
+      "name":"Kernel: kernel_bFeeder"
+      , "data":
+      ["", "", ""]
+      , "debug":
+      [
+        [
+          {
+            "filename":"a.cl"
+            , "line":324
+          }
+        ]
+      ]
+      , "details":
+      [
+        {
+          "type":"brief"
+          , "text":"Single work-item execution"
+        }
+        , {
+          "type":"text"
+          , "text":"Single work-item execution"
+        }
+        , {
+          "type":"text"
+          , "text":"Fmax bottlenck block: None"
+        }
+        , {
+          "type":"text"
+          , "text":"See %L for more information"
+          , "links":
+          [
+            {
+              "guide":"Best Practices Guide : Kernels"
+              , "link":"https://www.intel.com/content/www/us/en/programmable/documentation/mwh1391807516407.html#ipp1476408832230"
+            }
+          ]
+        }
+      ]
+      , "children":
+      [
+        {
+          "name":"kernel_bFeeder.B2"
+          , "data":
+          ["Yes", "~1", "3"]
+          , "debug":
+          [
+            [
+              {
+                "filename":"a.cl"
+                , "line":352
+              }
+            ]
+          ]
+          , "details":
+          [
+            {
+              "type":"brief"
+              , "text":" "
+            }
+            , {
+              "type":"text"
+              , "text":"Hyper-Optimized loop structure: n/a"
+            }
+            , {
+              "type":"text"
+              , "text":"II is an approximation due to the following stallable instructions:"
+              , "details":
+              [
+                {
+                  "type":"text"
+                  , "text":"Channel Read Operation (%L)"
+                  , "links":
+                  [
+                    {
+                      "filename":"a.cl"
+                      , "line":"371"
+                    }
+                  ]
+                }
+                , {
+                  "type":"text"
+                  , "text":"Channel Write Operation (%L)"
+                  , "links":
+                  [
+                    {
+                      "filename":"a.cl"
+                      , "line":"487"
+                    }
+                  ]
+                }
+              ]
+            }
+            , {
+              "type":"text"
+              , "text":"Maximum concurrent iterations: Capacity of loop"
+              , "details":
+              [
+                {
+                  "type":"text"
+                  , "text":"Use the %L viewer to estimate capacity"
+                  , "links":
+                  [
+                    {
+                      "view":"Fmax II Report"
+                    }
+                  ]
+                }
+              ]
+            }
+            , {
+              "type":"text"
+              , "text":"See %L for more information"
+              , "links":
+              [
+                {
+                  "guide":"Best Practices Guide : Loops in a Single Work-Item Kernel"
+                  , "link":"https://www.intel.com/content/www/us/en/programmable/documentation/mwh1391807516407.html#wfa1476380079940"
+                }
+              ]
+            }
+          ]
+          , "children":
+          [
+            {
+              "name":"Fully unrolled loop"
+              , "data":
+              ["n/a", "n/a", "n/a"]
+              , "debug":
+              [
+                [
+                  {
+                    "filename":"a.cl"
+                    , "line":375
+                  }
+                ]
+              ]
+              , "details":
+              [
+                {
+                  "type":"brief"
+                  , "text":"Unrolled by #pragma unroll"
+                }
+                , {
+                  "type":"text"
+                  , "text":"Unrolled by #pragma unroll"
+                }
+              ]
+              , "children":
+              [
+              ]
+            }
+          ]
+        }
+      ]
+    }
+    , {
+      "name":"Kernel: kernel_Out"
+      , "data":
+      ["", "", ""]
+      , "debug":
+      [
+        [
+          {
+            "filename":"a.cl"
+            , "line":497
+          }
+        ]
+      ]
+      , "details":
+      [
+        {
+          "type":"brief"
+          , "text":"Single work-item execution"
+        }
+        , {
+          "type":"text"
+          , "text":"Single work-item execution"
+        }
+        , {
+          "type":"text"
+          , "text":"Fmax bottlenck block: None"
+        }
+        , {
+          "type":"text"
+          , "text":"See %L for more information"
+          , "links":
+          [
+            {
+              "guide":"Best Practices Guide : Kernels"
+              , "link":"https://www.intel.com/content/www/us/en/programmable/documentation/mwh1391807516407.html#ipp1476408832230"
+            }
+          ]
+        }
+      ]
+      , "children":
+      [
+        {
+          "name":"kernel_Out.B1"
+          , "data":
+          ["Yes", ">=1", "0"]
+          , "debug":
+          [
+            [
+              {
+                "filename":"a.cl"
+                , "line":523
+              }
+            ]
+          ]
+          , "details":
+          [
+            {
+              "type":"brief"
+              , "text":" "
+            }
+            , {
+              "type":"text"
+              , "text":"Hyper-Optimized loop structure: n/a"
+            }
+            , {
+              "type":"text"
+              , "text":"Stallable instruction: n/a"
+            }
+            , {
+              "type":"text"
+              , "text":"Maximum concurrent iterations: Capacity of loop"
+              , "details":
+              [
+                {
+                  "type":"text"
+                  , "text":"Use the %L viewer to estimate capacity"
+                  , "links":
+                  [
+                    {
+                      "view":"Fmax II Report"
+                    }
+                  ]
+                }
+              ]
+            }
+            , {
+              "type":"text"
+              , "text":"See %L for more information"
+              , "links":
+              [
+                {
+                  "guide":"Best Practices Guide : Nested Loops"
+                  , "link":"https://www.intel.com/content/www/us/en/programmable/documentation/mwh1391807516407.html#rfr1469543500580"
+                }
+              ]
+            }
+          ]
+          , "children":
+          [
+            {
+              "name":"kernel_Out.B3"
+              , "data":
+              ["Yes", "~1", "1"]
+              , "debug":
+              [
+                [
+                  {
+                    "filename":"a.cl"
+                    , "line":525
+                  }
+                ]
+              ]
+              , "details":
+              [
+                {
+                  "type":"brief"
+                  , "text":" "
+                }
+                , {
+                  "type":"text"
+                  , "text":"Hyper-Optimized loop structure: n/a"
+                }
+                , {
+                  "type":"text"
+                  , "text":"II is an approximation due to the following stallable instructions:"
+                  , "details":
+                  [
+                    {
+                      "type":"text"
+                      , "text":"Channel Read Operation (%L)"
+                      , "links":
+                      [
+                        {
+                          "filename":"a.cl"
+                          , "line":"557"
+                        }
+                      ]
+                    }
+                    , {
+                      "type":"text"
+                      , "text":"Channel Read Operation (%L)"
+                      , "links":
+                      [
+                        {
+                          "filename":"a.cl"
+                          , "line":"560"
+                        }
+                      ]
+                    }
+                    , {
+                      "type":"text"
+                      , "text":"Channel Write Operation (%L)"
+                      , "links":
+                      [
+                        {
+                          "filename":"a.cl"
+                          , "line":"711"
+                        }
+                      ]
+                    }
+                  ]
+                }
+                , {
+                  "type":"text"
+                  , "text":"Maximum concurrent iterations: Capacity of loop"
+                  , "details":
+                  [
+                    {
+                      "type":"text"
+                      , "text":"Use the %L viewer to estimate capacity"
+                      , "links":
+                      [
+                        {
+                          "view":"Fmax II Report"
+                        }
+                      ]
+                    }
+                  ]
+                }
+                , {
+                  "type":"text"
+                  , "text":"See %L for more information"
+                  , "links":
+                  [
+                    {
+                      "guide":"Best Practices Guide : Loops in a Single Work-Item Kernel"
+                      , "link":"https://www.intel.com/content/www/us/en/programmable/documentation/mwh1391807516407.html#wfa1476380079940"
+                    }
+                  ]
+                }
+              ]
+              , "children":
+              [
+                {
+                  "name":"Fully unrolled loop"
+                  , "data":
+                  ["n/a", "n/a", "n/a"]
+                  , "debug":
+                  [
+                    [
+                      {
+                        "filename":"a.cl"
+                        , "line":528
+                      }
+                    ]
+                  ]
+                  , "details":
+                  [
+                    {
+                      "type":"brief"
+                      , "text":"Unrolled by #pragma unroll"
+                    }
+                    , {
+                      "type":"text"
+                      , "text":"Unrolled by #pragma unroll"
+                    }
+                  ]
+                  , "children":
+                  [
+                    {
+                      "name":"Fully unrolled loop"
+                      , "data":
+                      ["n/a", "n/a", "n/a"]
+                      , "debug":
+                      [
+                        [
+                          {
+                            "filename":"a.cl"
+                            , "line":531
+                          }
+                        ]
+                      ]
+                      , "details":
+                      [
+                        {
+                          "type":"brief"
+                          , "text":"Unrolled by #pragma unroll"
+                        }
+                        , {
+                          "type":"text"
+                          , "text":"Unrolled by #pragma unroll"
+                        }
+                      ]
+                      , "children":
+                      [
+                        {
+                          "name":"Fully unrolled loop"
+                          , "data":
+                          ["n/a", "n/a", "n/a"]
+                          , "debug":
+                          [
+                            [
+                              {
+                                "filename":"a.cl"
+                                , "line":536
+                              }
+                            ]
+                          ]
+                          , "details":
+                          [
+                            {
+                              "type":"brief"
+                              , "text":"Unrolled by #pragma unroll"
+                            }
+                            , {
+                              "type":"text"
+                              , "text":"Unrolled by #pragma unroll"
+                            }
+                          ]
+                          , "children":
+                          [
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+                , {
+                  "name":"Fully unrolled loop"
+                  , "data":
+                  ["n/a", "n/a", "n/a"]
+                  , "debug":
+                  [
+                    [
+                      {
+                        "filename":"a.cl"
+                        , "line":565
+                      }
+                    ]
+                  ]
+                  , "details":
+                  [
+                    {
+                      "type":"brief"
+                      , "text":"Unrolled by #pragma unroll"
+                    }
+                    , {
+                      "type":"text"
+                      , "text":"Unrolled by #pragma unroll"
+                    }
+                  ]
+                  , "children":
+                  [
+                    {
+                      "name":"Fully unrolled loop"
+                      , "data":
+                      ["n/a", "n/a", "n/a"]
+                      , "debug":
+                      [
+                        [
+                          {
+                            "filename":"a.cl"
+                            , "line":568
+                          }
+                        ]
+                      ]
+                      , "details":
+                      [
+                        {
+                          "type":"brief"
+                          , "text":"Unrolled by #pragma unroll"
+                        }
+                        , {
+                          "type":"text"
+                          , "text":"Unrolled by #pragma unroll"
+                        }
+                      ]
+                      , "children":
+                      [
+                        {
+                          "name":"Fully unrolled loop"
+                          , "data":
+                          ["n/a", "n/a", "n/a"]
+                          , "debug":
+                          [
+                            [
+                              {
+                                "filename":"a.cl"
+                                , "line":629
+                              }
+                            ]
+                          ]
+                          , "details":
+                          [
+                            {
+                              "type":"brief"
+                              , "text":"Unrolled by #pragma unroll"
+                            }
+                            , {
+                              "type":"text"
+                              , "text":"Unrolled by #pragma unroll"
+                            }
+                          ]
+                          , "children":
+                          [
+                          ]
+                        }
+                        , {
+                          "name":"Fully unrolled loop"
+                          , "data":
+                          ["n/a", "n/a", "n/a"]
+                          , "debug":
+                          [
+                            [
+                              {
+                                "filename":"a.cl"
+                                , "line":650
+                              }
+                            ]
+                          ]
+                          , "details":
+                          [
+                            {
+                              "type":"brief"
+                              , "text":"Unrolled by #pragma unroll"
+                            }
+                            , {
+                              "type":"text"
+                              , "text":"Unrolled by #pragma unroll"
+                            }
+                          ]
+                          , "children":
+                          [
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+                , {
+                  "name":"Fully unrolled loop"
+                  , "data":
+                  ["n/a", "n/a", "n/a"]
+                  , "debug":
+                  [
+                    [
+                      {
+                        "filename":"a.cl"
+                        , "line":692
+                      }
+                    ]
+                  ]
+                  , "details":
+                  [
+                    {
+                      "type":"brief"
+                      , "text":"Unrolled by #pragma unroll"
+                    }
+                    , {
+                      "type":"text"
+                      , "text":"Unrolled by #pragma unroll"
+                    }
+                  ]
+                  , "children":
+                  [
+                    {
+                      "name":"Fully unrolled loop"
+                      , "data":
+                      ["n/a", "n/a", "n/a"]
+                      , "debug":
+                      [
+                        [
+                          {
+                            "filename":"a.cl"
+                            , "line":697
+                          }
+                        ]
+                      ]
+                      , "details":
+                      [
+                        {
+                          "type":"brief"
+                          , "text":"Unrolled by #pragma unroll"
+                        }
+                        , {
+                          "type":"text"
+                          , "text":"Unrolled by #pragma unroll"
+                        }
+                      ]
+                      , "children":
+                      [
+                      ]
+                    }
+                  ]
+                }
+                , {
+                  "name":"Fully unrolled loop"
+                  , "data":
+                  ["n/a", "n/a", "n/a"]
+                  , "debug":
+                  [
+                    [
+                      {
+                        "filename":"a.cl"
+                        , "line":715
+                      }
+                    ]
+                  ]
+                  , "details":
+                  [
+                    {
+                      "type":"brief"
+                      , "text":"Unrolled by #pragma unroll"
+                    }
+                    , {
+                      "type":"text"
+                      , "text":"Unrolled by #pragma unroll"
+                    }
+                  ]
+                  , "children":
+                  [
+                    {
+                      "name":"Fully unrolled loop"
+                      , "data":
+                      ["n/a", "n/a", "n/a"]
+                      , "debug":
+                      [
+                        [
+                          {
+                            "filename":"a.cl"
+                            , "line":718
+                          }
+                        ]
+                      ]
+                      , "details":
+                      [
+                        {
+                          "type":"brief"
+                          , "text":"Unrolled by #pragma unroll"
+                        }
+                        , {
+                          "type":"text"
+                          , "text":"Unrolled by #pragma unroll"
+                        }
+                      ]
+                      , "children":
+                      [
+                        {
+                          "name":"Fully unrolled loop"
+                          , "data":
+                          ["n/a", "n/a", "n/a"]
+                          , "debug":
+                          [
+                            [
+                              {
+                                "filename":"a.cl"
+                                , "line":721
+                              }
+                            ]
+                          ]
+                          , "details":
+                          [
+                            {
+                              "type":"brief"
+                              , "text":"Unrolled by #pragma unroll"
+                            }
+                            , {
+                              "type":"text"
+                              , "text":"Unrolled by #pragma unroll"
+                            }
+                          ]
+                          , "children":
+                          [
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+    , {
+      "name":"Kernel: kernel_aLoader"
+      , "data":
+      ["", "", ""]
+      , "debug":
+      [
+        [
+          {
+            "filename":"a.cl"
+            , "line":68
+          }
+        ]
+      ]
+      , "details":
+      [
+        {
+          "type":"brief"
+          , "text":"Single work-item execution"
+        }
+        , {
+          "type":"text"
+          , "text":"Single work-item execution"
+        }
+        , {
+          "type":"text"
+          , "text":"Fmax bottlenck block: None"
+        }
+        , {
+          "type":"text"
+          , "text":"See %L for more information"
+          , "links":
+          [
+            {
+              "guide":"Best Practices Guide : Kernels"
+              , "link":"https://www.intel.com/content/www/us/en/programmable/documentation/mwh1391807516407.html#ipp1476408832230"
+            }
+          ]
+        }
+      ]
+      , "children":
+      [
+        {
+          "name":"kernel_aLoader.B2"
+          , "data":
+          ["Yes", ">=1", "0"]
+          , "debug":
+          [
+            [
+              {
+                "filename":"a.cl"
+                , "line":77
+              }
+            ]
+          ]
+          , "details":
+          [
+            {
+              "type":"brief"
+              , "text":" "
+            }
+            , {
+              "type":"text"
+              , "text":"Hyper-Optimized loop structure: n/a"
+            }
+            , {
+              "type":"text"
+              , "text":"Stallable instruction: n/a"
+            }
+            , {
+              "type":"text"
+              , "text":"Maximum concurrent iterations: Capacity of loop"
+              , "details":
+              [
+                {
+                  "type":"text"
+                  , "text":"Use the %L viewer to estimate capacity"
+                  , "links":
+                  [
+                    {
+                      "view":"Fmax II Report"
+                    }
+                  ]
+                }
+              ]
+            }
+            , {
+              "type":"text"
+              , "text":"See %L for more information"
+              , "links":
+              [
+                {
+                  "guide":"Best Practices Guide : Nested Loops"
+                  , "link":"https://www.intel.com/content/www/us/en/programmable/documentation/mwh1391807516407.html#rfr1469543500580"
+                }
+              ]
+            }
+          ]
+          , "children":
+          [
+            {
+              "name":"kernel_aLoader.B4"
+              , "data":
+              ["Yes", ">=1", "0"]
+              , "debug":
+              [
+                [
+                  {
+                    "filename":"a.cl"
+                    , "line":80
+                  }
+                ]
+              ]
+              , "details":
+              [
+                {
+                  "type":"brief"
+                  , "text":" "
+                }
+                , {
+                  "type":"text"
+                  , "text":"Hyper-Optimized loop structure: n/a"
+                }
+                , {
+                  "type":"text"
+                  , "text":"Stallable instruction: n/a"
+                }
+                , {
+                  "type":"text"
+                  , "text":"Maximum concurrent iterations: Capacity of loop"
+                  , "details":
+                  [
+                    {
+                      "type":"text"
+                      , "text":"Use the %L viewer to estimate capacity"
+                      , "links":
+                      [
+                        {
+                          "view":"Fmax II Report"
+                        }
+                      ]
+                    }
+                  ]
+                }
+                , {
+                  "type":"text"
+                  , "text":"See %L for more information"
+                  , "links":
+                  [
+                    {
+                      "guide":"Best Practices Guide : Nested Loops"
+                      , "link":"https://www.intel.com/content/www/us/en/programmable/documentation/mwh1391807516407.html#rfr1469543500580"
+                    }
+                  ]
+                }
+              ]
+              , "children":
+              [
+                {
+                  "name":"kernel_aLoader.B5"
+                  , "data":
+                  ["Yes", ">=1", "0"]
+                  , "debug":
+                  [
+                    [
+                      {
+                        "filename":"a.cl"
+                        , "line":83
+                      }
+                    ]
+                  ]
+                  , "details":
+                  [
+                    {
+                      "type":"brief"
+                      , "text":" "
+                    }
+                    , {
+                      "type":"text"
+                      , "text":"Hyper-Optimized loop structure: n/a"
+                    }
+                    , {
+                      "type":"text"
+                      , "text":"Stallable instruction: n/a"
+                    }
+                    , {
+                      "type":"text"
+                      , "text":"Maximum concurrent iterations: Capacity of loop"
+                      , "details":
+                      [
+                        {
+                          "type":"text"
+                          , "text":"Use the %L viewer to estimate capacity"
+                          , "links":
+                          [
+                            {
+                              "view":"Fmax II Report"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                    , {
+                      "type":"text"
+                      , "text":"See %L for more information"
+                      , "links":
+                      [
+                        {
+                          "guide":"Best Practices Guide : Nested Loops"
+                          , "link":"https://www.intel.com/content/www/us/en/programmable/documentation/mwh1391807516407.html#rfr1469543500580"
+                        }
+                      ]
+                    }
+                  ]
+                  , "children":
+                  [
+                    {
+                      "name":"kernel_aLoader.B8"
+                      , "data":
+                      ["Yes", "~1", "1"]
+                      , "debug":
+                      [
+                        [
+                          {
+                            "filename":"a.cl"
+                            , "line":85
+                          }
+                        ]
+                      ]
+                      , "details":
+                      [
+                        {
+                          "type":"brief"
+                          , "text":" "
+                        }
+                        , {
+                          "type":"text"
+                          , "text":"Hyper-Optimized loop structure: n/a"
+                        }
+                        , {
+                          "type":"text"
+                          , "text":"II is an approximation due to the following stallable instructions:"
+                          , "details":
+                          [
+                            {
+                              "type":"text"
+                              , "text":"Load Operation (%L)"
+                              , "links":
+                              [
+                                {
+                                  "filename":"a.cl"
+                                  , "line":"99"
+                                }
+                              ]
+                            }
+                            , {
+                              "type":"text"
+                              , "text":"Channel Write Operation (%L)"
+                              , "links":
+                              [
+                                {
+                                  "filename":"a.cl"
+                                  , "line":"100"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                        , {
+                          "type":"text"
+                          , "text":"Maximum concurrent iterations: Capacity of loop"
+                          , "details":
+                          [
+                            {
+                              "type":"text"
+                              , "text":"Use the %L viewer to estimate capacity"
+                              , "links":
+                              [
+                                {
+                                  "view":"Fmax II Report"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                        , {
+                          "type":"text"
+                          , "text":"See %L for more information"
+                          , "links":
+                          [
+                            {
+                              "guide":"Best Practices Guide : Loops in a Single Work-Item Kernel"
+                              , "link":"https://www.intel.com/content/www/us/en/programmable/documentation/mwh1391807516407.html#wfa1476380079940"
+                            }
+                          ]
+                        }
+                      ]
+                      , "children":
+                      [
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+    , {
+      "name":"Kernel: kernel_bLoader"
+      , "data":
+      ["", "", ""]
+      , "debug":
+      [
+        [
+          {
+            "filename":"a.cl"
+            , "line":286
+          }
+        ]
+      ]
+      , "details":
+      [
+        {
+          "type":"brief"
+          , "text":"Single work-item execution"
+        }
+        , {
+          "type":"text"
+          , "text":"Single work-item execution"
+        }
+        , {
+          "type":"text"
+          , "text":"Fmax bottlenck block: None"
+        }
+        , {
+          "type":"text"
+          , "text":"See %L for more information"
+          , "links":
+          [
+            {
+              "guide":"Best Practices Guide : Kernels"
+              , "link":"https://www.intel.com/content/www/us/en/programmable/documentation/mwh1391807516407.html#ipp1476408832230"
+            }
+          ]
+        }
+      ]
+      , "children":
+      [
+        {
+          "name":"kernel_bLoader.B2"
+          , "data":
+          ["Yes", ">=1", "0"]
+          , "debug":
+          [
+            [
+              {
+                "filename":"a.cl"
+                , "line":295
+              }
+            ]
+          ]
+          , "details":
+          [
+            {
+              "type":"brief"
+              , "text":" "
+            }
+            , {
+              "type":"text"
+              , "text":"Hyper-Optimized loop structure: n/a"
+            }
+            , {
+              "type":"text"
+              , "text":"Stallable instruction: n/a"
+            }
+            , {
+              "type":"text"
+              , "text":"Maximum concurrent iterations: Capacity of loop"
+              , "details":
+              [
+                {
+                  "type":"text"
+                  , "text":"Use the %L viewer to estimate capacity"
+                  , "links":
+                  [
+                    {
+                      "view":"Fmax II Report"
+                    }
+                  ]
+                }
+              ]
+            }
+            , {
+              "type":"text"
+              , "text":"See %L for more information"
+              , "links":
+              [
+                {
+                  "guide":"Best Practices Guide : Nested Loops"
+                  , "link":"https://www.intel.com/content/www/us/en/programmable/documentation/mwh1391807516407.html#rfr1469543500580"
+                }
+              ]
+            }
+          ]
+          , "children":
+          [
+            {
+              "name":"kernel_bLoader.B4"
+              , "data":
+              ["Yes", ">=1", "0"]
+              , "debug":
+              [
+                [
+                  {
+                    "filename":"a.cl"
+                    , "line":298
+                  }
+                ]
+              ]
+              , "details":
+              [
+                {
+                  "type":"brief"
+                  , "text":" "
+                }
+                , {
+                  "type":"text"
+                  , "text":"Hyper-Optimized loop structure: n/a"
+                }
+                , {
+                  "type":"text"
+                  , "text":"Stallable instruction: n/a"
+                }
+                , {
+                  "type":"text"
+                  , "text":"Maximum concurrent iterations: Capacity of loop"
+                  , "details":
+                  [
+                    {
+                      "type":"text"
+                      , "text":"Use the %L viewer to estimate capacity"
+                      , "links":
+                      [
+                        {
+                          "view":"Fmax II Report"
+                        }
+                      ]
+                    }
+                  ]
+                }
+                , {
+                  "type":"text"
+                  , "text":"See %L for more information"
+                  , "links":
+                  [
+                    {
+                      "guide":"Best Practices Guide : Nested Loops"
+                      , "link":"https://www.intel.com/content/www/us/en/programmable/documentation/mwh1391807516407.html#rfr1469543500580"
+                    }
+                  ]
+                }
+              ]
+              , "children":
+              [
+                {
+                  "name":"kernel_bLoader.B5"
+                  , "data":
+                  ["Yes", ">=1", "0"]
+                  , "debug":
+                  [
+                    [
+                      {
+                        "filename":"a.cl"
+                        , "line":301
+                      }
+                    ]
+                  ]
+                  , "details":
+                  [
+                    {
+                      "type":"brief"
+                      , "text":" "
+                    }
+                    , {
+                      "type":"text"
+                      , "text":"Hyper-Optimized loop structure: n/a"
+                    }
+                    , {
+                      "type":"text"
+                      , "text":"Stallable instruction: n/a"
+                    }
+                    , {
+                      "type":"text"
+                      , "text":"Maximum concurrent iterations: Capacity of loop"
+                      , "details":
+                      [
+                        {
+                          "type":"text"
+                          , "text":"Use the %L viewer to estimate capacity"
+                          , "links":
+                          [
+                            {
+                              "view":"Fmax II Report"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                    , {
+                      "type":"text"
+                      , "text":"See %L for more information"
+                      , "links":
+                      [
+                        {
+                          "guide":"Best Practices Guide : Nested Loops"
+                          , "link":"https://www.intel.com/content/www/us/en/programmable/documentation/mwh1391807516407.html#rfr1469543500580"
+                        }
+                      ]
+                    }
+                  ]
+                  , "children":
+                  [
+                    {
+                      "name":"kernel_bLoader.B8"
+                      , "data":
+                      ["Yes", "~1", "1"]
+                      , "debug":
+                      [
+                        [
+                          {
+                            "filename":"a.cl"
+                            , "line":303
+                          }
+                        ]
+                      ]
+                      , "details":
+                      [
+                        {
+                          "type":"brief"
+                          , "text":" "
+                        }
+                        , {
+                          "type":"text"
+                          , "text":"Hyper-Optimized loop structure: n/a"
+                        }
+                        , {
+                          "type":"text"
+                          , "text":"II is an approximation due to the following stallable instructions:"
+                          , "details":
+                          [
+                            {
+                              "type":"text"
+                              , "text":"Load Operation (%L)"
+                              , "links":
+                              [
+                                {
+                                  "filename":"a.cl"
+                                  , "line":"312"
+                                }
+                              ]
+                            }
+                            , {
+                              "type":"text"
+                              , "text":"Channel Write Operation (%L)"
+                              , "links":
+                              [
+                                {
+                                  "filename":"a.cl"
+                                  , "line":"313"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                        , {
+                          "type":"text"
+                          , "text":"Maximum concurrent iterations: Capacity of loop"
+                          , "details":
+                          [
+                            {
+                              "type":"text"
+                              , "text":"Use the %L viewer to estimate capacity"
+                              , "links":
+                              [
+                                {
+                                  "view":"Fmax II Report"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                        , {
+                          "type":"text"
+                          , "text":"See %L for more information"
+                          , "links":
+                          [
+                            {
+                              "guide":"Best Practices Guide : Loops in a Single Work-Item Kernel"
+                              , "link":"https://www.intel.com/content/www/us/en/programmable/documentation/mwh1391807516407.html#wfa1476380079940"
+                            }
+                          ]
+                        }
+                      ]
+                      , "children":
+                      [
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+    , {
+      "name":"Kernel: kernel_unloader"
+      , "data":
+      ["", "", ""]
+      , "debug":
+      [
+        [
+          {
+            "filename":"a.cl"
+            , "line":747
+          }
+        ]
+      ]
+      , "details":
+      [
+        {
+          "type":"brief"
+          , "text":"Single work-item execution"
+        }
+        , {
+          "type":"text"
+          , "text":"Single work-item execution"
+        }
+        , {
+          "type":"text"
+          , "text":"Fmax bottlenck block: None"
+        }
+        , {
+          "type":"text"
+          , "text":"See %L for more information"
+          , "links":
+          [
+            {
+              "guide":"Best Practices Guide : Kernels"
+              , "link":"https://www.intel.com/content/www/us/en/programmable/documentation/mwh1391807516407.html#ipp1476408832230"
+            }
+          ]
+        }
+      ]
+      , "children":
+      [
+        {
+          "name":"kernel_unloader.B2"
+          , "data":
+          ["Yes", ">=1", "0"]
+          , "debug":
+          [
+            [
+              {
+                "filename":"a.cl"
+                , "line":755
+              }
+            ]
+          ]
+          , "details":
+          [
+            {
+              "type":"brief"
+              , "text":" "
+            }
+            , {
+              "type":"text"
+              , "text":"Hyper-Optimized loop structure: n/a"
+            }
+            , {
+              "type":"text"
+              , "text":"Stallable instruction: n/a"
+            }
+            , {
+              "type":"text"
+              , "text":"Maximum concurrent iterations: Capacity of loop"
+              , "details":
+              [
+                {
+                  "type":"text"
+                  , "text":"Use the %L viewer to estimate capacity"
+                  , "links":
+                  [
+                    {
+                      "view":"Fmax II Report"
+                    }
+                  ]
+                }
+              ]
+            }
+            , {
+              "type":"text"
+              , "text":"See %L for more information"
+              , "links":
+              [
+                {
+                  "guide":"Best Practices Guide : Nested Loops"
+                  , "link":"https://www.intel.com/content/www/us/en/programmable/documentation/mwh1391807516407.html#rfr1469543500580"
+                }
+              ]
+            }
+          ]
+          , "children":
+          [
+            {
+              "name":"kernel_unloader.B3"
+              , "data":
+              ["Yes", ">=1", "0"]
+              , "debug":
+              [
+                [
+                  {
+                    "filename":"a.cl"
+                    , "line":758
+                  }
+                ]
+              ]
+              , "details":
+              [
+                {
+                  "type":"brief"
+                  , "text":" "
+                }
+                , {
+                  "type":"text"
+                  , "text":"Hyper-Optimized loop structure: n/a"
+                }
+                , {
+                  "type":"text"
+                  , "text":"Stallable instruction: n/a"
+                }
+                , {
+                  "type":"text"
+                  , "text":"Maximum concurrent iterations: Capacity of loop"
+                  , "details":
+                  [
+                    {
+                      "type":"text"
+                      , "text":"Use the %L viewer to estimate capacity"
+                      , "links":
+                      [
+                        {
+                          "view":"Fmax II Report"
+                        }
+                      ]
+                    }
+                  ]
+                }
+                , {
+                  "type":"text"
+                  , "text":"See %L for more information"
+                  , "links":
+                  [
+                    {
+                      "guide":"Best Practices Guide : Nested Loops"
+                      , "link":"https://www.intel.com/content/www/us/en/programmable/documentation/mwh1391807516407.html#rfr1469543500580"
+                    }
+                  ]
+                }
+              ]
+              , "children":
+              [
+                {
+                  "name":"kernel_unloader.B6"
+                  , "data":
+                  ["Yes", "~1", "1"]
+                  , "debug":
+                  [
+                    [
+                      {
+                        "filename":"a.cl"
+                        , "line":760
+                      }
+                    ]
+                  ]
+                  , "details":
+                  [
+                    {
+                      "type":"brief"
+                      , "text":" "
+                    }
+                    , {
+                      "type":"text"
+                      , "text":"Hyper-Optimized loop structure: n/a"
+                    }
+                    , {
+                      "type":"text"
+                      , "text":"II is an approximation due to the following stallable instructions:"
+                      , "details":
+                      [
+                        {
+                          "type":"text"
+                          , "text":"Channel Read Operation (%L)"
+                          , "links":
+                          [
+                            {
+                              "filename":"a.cl"
+                              , "line":"762"
+                            }
+                          ]
+                        }
+                        , {
+                          "type":"text"
+                          , "text":"Store Operation (%L)"
+                          , "links":
+                          [
+                            {
+                              "filename":"a.cl"
+                              , "line":"765"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                    , {
+                      "type":"text"
+                      , "text":"Maximum concurrent iterations: Capacity of loop"
+                      , "details":
+                      [
+                        {
+                          "type":"text"
+                          , "text":"Use the %L viewer to estimate capacity"
+                          , "links":
+                          [
+                            {
+                              "view":"Fmax II Report"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                    , {
+                      "type":"text"
+                      , "text":"See %L for more information"
+                      , "links":
+                      [
+                        {
+                          "guide":"Best Practices Guide : Loops in a Single Work-Item Kernel"
+                          , "link":"https://www.intel.com/content/www/us/en/programmable/documentation/mwh1391807516407.html#wfa1476380079940"
+                        }
+                      ]
+                    }
+                  ]
+                  , "children":
+                  [
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

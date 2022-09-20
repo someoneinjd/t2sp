@@ -1,7 +1,7 @@
 #ifndef HALIDE_TYPE_H
 #define HALIDE_TYPE_H
 
-#include "Complex32.h"
+#include "Complex.h"
 #include "Error.h"
 #include "Float16.h"
 #include "Util.h"
@@ -166,6 +166,7 @@ HALIDE_DECLARE_EXTERN_SIMPLE_TYPE(int32_t);
 HALIDE_DECLARE_EXTERN_SIMPLE_TYPE(uint32_t);
 HALIDE_DECLARE_EXTERN_SIMPLE_TYPE(int64_t);
 HALIDE_DECLARE_EXTERN_SIMPLE_TYPE(uint64_t);
+HALIDE_DECLARE_EXTERN_SIMPLE_TYPE(__uint128_t);
 HALIDE_DECLARE_EXTERN_SIMPLE_TYPE(Halide::float16_t);
 HALIDE_DECLARE_EXTERN_SIMPLE_TYPE(Halide::bfloat16_t);
 HALIDE_DECLARE_EXTERN_SIMPLE_TYPE(float);
@@ -179,6 +180,7 @@ HALIDE_DECLARE_EXTERN_STRUCT_TYPE(halide_semaphore_t);
 HALIDE_DECLARE_EXTERN_STRUCT_TYPE(halide_parallel_task_t);
 
 HALIDE_DECLARE_EXTERN_STRUCT_TYPE(Halide::complex32_t);
+HALIDE_DECLARE_EXTERN_STRUCT_TYPE(Halide::complex64_t);
 
 // You can make arbitrary user-defined types be "Known" using the
 // macro above. This is useful for making Param<> arguments for
@@ -455,7 +457,7 @@ public:
     // @{
     bool can_represent(double x) const;
     bool can_represent(int64_t x) const;
-    bool can_represent(uint64_t x) const;
+    bool can_represent(__uint128_t x) const;
     // @}
 
     /** Check if an integer constant value is the maximum or minimum
@@ -519,6 +521,17 @@ inline Type Handle(int lanes = 1, const halide_handle_cplusplus_type *handle_typ
 template<typename T>
 inline Type type_of() {
     return Type(halide_type_of<T>(), halide_handle_traits<T>::type_info());
+}
+
+/** Construct Halide float or complex type */
+inline Type type_of_float(int size) {
+    user_assert(size == 32 || size == 64);
+    return (size == 32 ? Float(32) : Float(64));
+}
+
+inline Type type_of_complex(int size) {
+    user_assert(size == 32 || size == 64);
+    return (size == 32 ? Complex(32) : Complex(64));
 }
 
 /** Halide type to a C++ type */

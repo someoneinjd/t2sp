@@ -393,12 +393,19 @@ void IRPrinter::visit(const IntImm *op) {
 void IRPrinter::visit(const UIntImm *op) {
     stream << "(" << op->type << ")";
     if (op->type.is_complex()) {
-        float f32array[2];
-        uint64_t *p64 = (uint64_t *)&f32array[0];
-        *p64 = op->value;
-        stream << "(" << f32array[0] << ", " << f32array[1] << "i)";
+        if (op->type.bits() == 64) {
+            float f32array[2];
+            uint64_t *p64 = (uint64_t *)&f32array[0];
+            *p64 = op->value;
+            stream << "(" << f32array[0] << ", " << f32array[1] << "i)";
+        } else {
+            double f64array[2];
+            __uint128_t *p128 = (__uint128_t *)&f64array[0];
+            *p128 = op->value;
+            stream << "(" << f64array[0] << ", " << f64array[1] << "i)";
+        }
     } else {
-        stream << op->value;
+        stream << (uint64_t)op->value;
     }
 }
 

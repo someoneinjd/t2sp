@@ -55,16 +55,16 @@ Expr Simplify::visit(const Cast *op, ExprInfo *bounds) {
             // int -> float
             return FloatImm::make(op->type, safe_numeric_cast<double>(i));
         } else if (op->type.is_int() &&
-                   const_uint(value, &u)) {
+                   const_uint(value, (__uint128_t *)&u)) {
             // uint -> int
             // Recursively call mutate just to set the bounds
             return mutate(IntImm::make(op->type, safe_numeric_cast<int64_t>(u)), bounds);
         } else if (op->type.is_uint() &&
-                   const_uint(value, &u)) {
+                   const_uint(value, (__uint128_t *)&u)) {
             // uint -> uint
             return UIntImm::make(op->type, u);
         } else if (op->type.is_float() &&
-                   const_uint(value, &u)) {
+                   const_uint(value, (__uint128_t *)&u)) {
             // uint -> float
             return FloatImm::make(op->type, safe_numeric_cast<double>(u));
         } else if (cast &&

@@ -1,0 +1,438 @@
+{
+  "nodes":
+  [
+    {
+      "name":"DDR"
+      , "id":1326
+      , "details":
+      [
+        {
+          "type":"table"
+          , "Interleaving":"Yes"
+          , "Interleave Size":"4096 bytes"
+          , "Channels":"4 channels"
+          , "Maximum bandwidth the BSP can deliver":"76800.00 MB/s<br><small><i> Note: Realistic maximum bandwidth is about 90% of the above due to loss from interconnect and memory controller.</i></small>"
+          , "Channel DDR Width (bits)":"512, 512, 512, 512"
+        }
+      ]
+      , "type":"memsys"
+      , "children":
+      [
+        {
+          "name":"channel 0"
+          , "id":1328
+          , "type":"bb"
+        }
+        , {
+          "name":"channel 1"
+          , "id":1329
+          , "type":"bb"
+        }
+        , {
+          "name":"channel 2"
+          , "id":1330
+          , "type":"bb"
+        }
+        , {
+          "name":"channel 3"
+          , "id":1331
+          , "type":"bb"
+        }
+      ]
+    }
+    , {
+      "name":"Memory Controller"
+      , "id":1327
+      , "parent":"1326"
+      , "bw":"76800.00"
+      , "num_channels":"4"
+      , "interleave":"1"
+      , "details":
+      [
+        {
+          "type":"table"
+          , "Maximum bandwidth the BSP can deliver":"76800.00 MB/s<br><small><i> Note: Realistic maximum bandwidth is about 90% of the above due to loss from interconnect and memory controller.</i></small>"
+        }
+      ]
+      , "type":"bb"
+    }
+    , {
+      "name":"Global Memory Interconnect"
+      , "id":1332
+      , "parent":"1326"
+      , "type":"bb"
+      , "children":
+      [
+        {
+          "name":"SHARE"
+          , "id":1333
+          , "type":"arb"
+        }
+        , {
+          "name":"Write Interconnect"
+          , "id":1336
+          , "details":
+          [
+            {
+              "type":"table"
+              , "Name":"DDR"
+              , "Interconnect Style":"ring"
+              , "Writes":"2"
+              , "User specified force-single-store-ring flag":"False"
+              , "Store Rings":"4"
+            }
+          ]
+          , "type":"bb"
+        }
+        , {
+          "name":"Read Interconnect"
+          , "id":1334
+          , "details":
+          [
+            {
+              "type":"table"
+              , "Name":"DDR"
+              , "Interconnect Style":"ring"
+              , "Reads":"4"
+            }
+          ]
+          , "type":"bb"
+        }
+        , {
+          "name":"Read Interconnect Router"
+          , "id":1335
+          , "details":
+          [
+            {
+              "type":"table"
+              , "User specified num-reorder flag":"Unset"
+            }
+          ]
+          , "type":"memsys"
+          , "children":
+          [
+            {
+              "name":"Bus 0"
+              , "id":1345
+              , "type":"memsys"
+            }
+            , {
+              "name":"Bus 1"
+              , "id":1346
+              , "type":"memsys"
+            }
+            , {
+              "name":"Bus 2"
+              , "id":1347
+              , "type":"memsys"
+            }
+            , {
+              "name":"Bus 3"
+              , "id":1348
+              , "type":"memsys"
+            }
+          ]
+        }
+      ]
+    }
+    , {
+      "name":"Global Memory Loads"
+      , "id":1337
+      , "parent":"1326"
+      , "type":"bb"
+      , "children":
+      [
+        {
+          "name":"LD"
+          , "id":1338
+          , "kwidth":"32"
+          , "mwidth":"512"
+          , "details":
+          [
+            {
+              "type":"table"
+              , "Start Cycle":"10"
+              , "Latency":"790 cycles"
+              , "Width":"32 bits"
+              , "DDR Width":"512 bits"
+              , "Uses Caching":"Yes"
+              , "LSU Style":"BURST-COALESCED"
+              , "Kernel":"kernel_xLoader"
+            }
+          ]
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/ger_lab/s10_1/a.cl"
+                , "line":82
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"LD"
+          , "id":1339
+          , "kwidth":"32"
+          , "mwidth":"512"
+          , "details":
+          [
+            {
+              "type":"table"
+              , "Start Cycle":"10"
+              , "Latency":"790 cycles"
+              , "Width":"32 bits"
+              , "DDR Width":"512 bits"
+              , "Uses Caching":"Yes"
+              , "LSU Style":"BURST-COALESCED"
+              , "Kernel":"kernel_yLoader"
+            }
+          ]
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/ger_lab/s10_1/a.cl"
+                , "line":119
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"LD"
+          , "id":1340
+          , "kwidth":"512"
+          , "mwidth":"512"
+          , "details":
+          [
+            {
+              "type":"table"
+              , "Start Cycle":"10"
+              , "Latency":"806 cycles"
+              , "Width":"512 bits"
+              , "DDR Width":"512 bits"
+              , "Uses Caching":"No"
+              , "LSU Style":"BURST-COALESCED"
+              , "Kernel":"kernel_aLoader"
+            }
+          ]
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/ger_lab/s10_1/a.cl"
+                , "line":248
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"LD"
+          , "id":1341
+          , "kwidth":"512"
+          , "mwidth":"512"
+          , "details":
+          [
+            {
+              "type":"table"
+              , "Start Cycle":"10"
+              , "Latency":"806 cycles"
+              , "Width":"512 bits"
+              , "DDR Width":"512 bits"
+              , "Uses Caching":"No"
+              , "LSU Style":"BURST-COALESCED"
+              , "Kernel":"kernel_aLoader"
+            }
+          ]
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/ger_lab/s10_1/a.cl"
+                , "line":249
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+      ]
+    }
+    , {
+      "name":"Global Memory Stores"
+      , "id":1342
+      , "parent":"1326"
+      , "type":"bb"
+      , "children":
+      [
+        {
+          "name":"ST"
+          , "id":1343
+          , "kwidth":"512"
+          , "mwidth":"512"
+          , "details":
+          [
+            {
+              "type":"table"
+              , "Start Cycle":"17"
+              , "Latency":"2 cycles"
+              , "Width":"512 bits"
+              , "DDR Width":"512 bits"
+              , "Uses Write Ack":"No"
+              , "LSU Style":"BURST-COALESCED"
+              , "Kernel":"kernel_unloader"
+            }
+          ]
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/ger_lab/s10_1/a.cl"
+                , "line":349
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"ST"
+          , "id":1344
+          , "kwidth":"512"
+          , "mwidth":"512"
+          , "details":
+          [
+            {
+              "type":"table"
+              , "Start Cycle":"17"
+              , "Latency":"2 cycles"
+              , "Width":"512 bits"
+              , "DDR Width":"512 bits"
+              , "Uses Write Ack":"No"
+              , "LSU Style":"BURST-COALESCED"
+              , "Kernel":"kernel_unloader"
+            }
+          ]
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/ger_lab/s10_1/a.cl"
+                , "line":350
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+      ]
+    }
+  ]
+  , "links":
+  [
+    {
+      "from":1328
+      , "to":1327
+    }
+    , {
+      "from":1327
+      , "to":1328
+    }
+    , {
+      "from":1329
+      , "to":1327
+    }
+    , {
+      "from":1327
+      , "to":1329
+    }
+    , {
+      "from":1330
+      , "to":1327
+    }
+    , {
+      "from":1327
+      , "to":1330
+    }
+    , {
+      "from":1331
+      , "to":1327
+    }
+    , {
+      "from":1327
+      , "to":1331
+    }
+    , {
+      "from":1334
+      , "to":1333
+    }
+    , {
+      "from":1336
+      , "to":1333
+    }
+    , {
+      "from":1333
+      , "to":1327
+    }
+    , {
+      "from":1338
+      , "to":1334
+    }
+    , {
+      "from":1339
+      , "to":1334
+    }
+    , {
+      "from":1340
+      , "to":1334
+    }
+    , {
+      "from":1341
+      , "to":1334
+    }
+    , {
+      "from":1343
+      , "to":1336
+    }
+    , {
+      "from":1344
+      , "to":1336
+    }
+    , {
+      "from":1327
+      , "to":1345
+    }
+    , {
+      "from":1327
+      , "to":1346
+    }
+    , {
+      "from":1327
+      , "to":1347
+    }
+    , {
+      "from":1327
+      , "to":1348
+    }
+    , {
+      "from":1345
+      , "to":1338
+      , "reverse":1
+    }
+    , {
+      "from":1346
+      , "to":1339
+      , "reverse":1
+    }
+    , {
+      "from":1347
+      , "to":1340
+      , "reverse":1
+    }
+    , {
+      "from":1348
+      , "to":1341
+      , "reverse":1
+    }
+  ]
+}
