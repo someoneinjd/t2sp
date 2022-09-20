@@ -501,7 +501,6 @@ SOURCE_FILES = \
   CodeGen_RISCV.cpp \
   CodeGen_WebAssembly.cpp \
   CodeGen_X86.cpp \
-  Complex32.cpp \
   CPlusPlusMangle.cpp \
   CSE.cpp \
   Debug.cpp \
