@@ -1,0 +1,3 @@
+g++ gemm.cpp  -I $MKLROOT/include   -I $T2S_PATH/Halide/include -I $T2S_PATH/Halide/include -L $T2S_PATH/Halide/bin -lHalide -lz -lpthread -ldl  -std=c++11   -c  -fPIC -o gemm.o
+gcc -shared -o libary.so gemm.o
+
