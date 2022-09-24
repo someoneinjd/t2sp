@@ -82,7 +82,7 @@ int main()
         >> DC >> C(total_j, total_i);
 
     // Compile the kernel to an FPGA bitstream, and expose a C interface for the host to invoke
-    C.compile_to_host("C-interface-for-kernel", { A, B }, "gemm", IntelFPGA);
+    C.compile_to_host("kernel-interface", { A, B }, "gemm", IntelFPGA);
 
     return 0;
 }

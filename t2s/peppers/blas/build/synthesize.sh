@@ -1,10 +1,10 @@
 #set -x
 
 # BASH_SOURCE is this script
-#if [ $0 != $BASH_SOURCE ]; then
-#    echo "Error: The script should be directly run, not sourced"
-#    return
-#fi
+if [ $0 != $BASH_SOURCE ]; then
+    echo "Error: The script should be directly run, not sourced"
+    return
+fi
 
 # Path to this script
 PATH_TO_SCRIPT="$( cd "$(dirname "$BASH_SOURCE" )" >/dev/null 2>&1 ; pwd -P )" # The path to this script
@@ -27,13 +27,15 @@ cp -rf ../src/${level}/${workload:1}/* ${level}/${workload}
 cd ${level}/${workload}
 
 echo ------------------- Synthesizing $@
+source $T2S_PATH/setenv.sh $location fpga
 synthesize_fpga_kernel
 
-echo ------------------- Copying binaries to bin directory
-cd $PATH_TO_SCRIPT
-mkdir -p ../bin/${level}/${workload}
-cp -f ${level}/${workload}/${workload}.aocx ../bin/${level}/${workload}
-cp -f ${level}/${workload}/${workload}.o ../bin/${level}/${workload}
+mkdir -p $PATH_TO_SCRIPT/../bin/${level}/${workload}
+cp -f $PATH_TO_SCRIPT/${level}/${workload}/kernel.aocx $PATH_TO_SCRIPT/../bin/${level}/${workload}
+cp -f $PATH_TO_SCRIPT/${level}/${workload}/kernel-interface.o $PATH_TO_SCRIPT/../bin/${level}/${workload}
+
+echo ------------------- Updating BLAS library with the synthesized kernel
+update_blas_library_with_kernel
 
 cd $cur_dir
 
