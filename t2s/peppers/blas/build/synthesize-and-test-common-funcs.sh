@@ -1,9 +1,5 @@
 #!/bin/bash
 
-function cleanup {
-    rm -rf a.* a/ ${workload}-interface.* *.out exec_time.txt *.png *.o *.isa ${workload}_genx.cpp signed* temp* profile.mon
-}
-
 function libhalide_to_link {
     if [ "$platform" == "emulator" ]; then
         lib="$EMULATOR_LIBHALIDE_TO_LINK"
@@ -22,13 +18,8 @@ function aoc_options {
     echo "$aoc_opt"
 }
 
-function setup_env {
-    source ../../../../../../setenv.sh $location fpga
-}
-
 function synthesize_fpga_kernel {
-    setup_env
-    cleanup
+    source $T2S_PATH/setenv.sh $location fpga
 
     # Compile the specification
     if [ "$prefixes" == "s" ]; then

@@ -21,14 +21,13 @@ fi
 
 # Copy kernel source to the build directory
 mkdir -p ${level}/${workload}
+rm -rf ${level}/${workload}/*
 cp -rf ../src/${level}/${workload:1}/* ${level}/${workload}
 
 cd ${level}/${workload}
 
 echo ------------------- Synthesizing $@
-set -x
 synthesize_fpga_kernel
-set +x
 
 echo ------------------- Copying binaries to bin directory
 cd $PATH_TO_SCRIPT
