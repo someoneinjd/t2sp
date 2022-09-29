@@ -29,7 +29,7 @@
     #define KK          4
 #else // FPGA
     #ifdef TINY // For verifying correctness only
-        #define KKK         2
+        #define KKK         4
         #define JJJ         2
         #define III         2
         #define JJ          2
@@ -43,12 +43,12 @@
         #define II          16
         #define KK          16
     #else   // For A10
-        #define KKK         8
+        #define KKK         32
         #define JJJ         8
-        #define III         8
-        #define JJ          8
-        #define II          8
-        #define KK          8
+        #define III         1
+        #define JJ          16
+        #define II          16
+        #define KK          16
     #endif
 #endif
 

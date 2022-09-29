@@ -30,26 +30,17 @@ int main()
     #define P                          kkk,       iii,       ii,      kk,      k,   i
     #define P_kkk_minus_1              kkk-1,     iii,       ii,      kk,      k,   i
     #define P_kkk_minus_1_iii_minus_1  kkk-1,     iii-1,     ii,      kk,      k,   i
-    #define P_kkk_minus_1_ii_minus_1   kkk-1,     iii+III-1, ii-1,    kk,      k,   i
-    #define P_kkk_minus_1_i_minus_1    kkk-1,     iii+III-1, ii+II-1, kk,      k,   i-1
     #define P_kk_minus_1               kkk+KKK-1, iii,       ii,      kk-1,    k,   i
     #define P_k_minus_1                kkk+KKK-1, iii,       ii,      kk+KK-1, k-1, i
-    #define P_iii_minus_1              kkk,       iii-1,     ii,      kk,      k,   i
-    #define P_ii_minus_1               kkk,       iii+III-1, ii-1,    kk,      k,   i
-    #define P_i_minus_1                kkk,       iii+III-1, ii+II-1, kk,      k,   i-1
     #define P_Out                                 iii,       ii,                    i
 
     // Linearized addresses
     #define total_i         (iii + III * ii + III * II * i)
     #define total_k         (kkk + KKK * kk + KKK * KK * k)
-    #define total_j         (total_i - total_k)
 
     // Outer loop bounds, which are determined by input sizes
-    #define I               ((A.dim(0).extent() + A.dim(1).extent() + III * II - 1) / (III * II))
-    #define TOTAL_J         A.dim(0).extent()
-    #define K               (A.dim(1).extent() / (KKK * KK))
-
-    #define oob             (total_j < 0 || total_j >= TOTAL_J || total_k > A.dim(1).extent())
+    #define I               (A.dim(1).extent() / (III * II))
+    #define K               ((A.dim(0).extent() + KKK * KK - 1) / (KKK * KK))
 
     // Type of the data to process in C and T2S
     #define CTYPE float
@@ -62,10 +53,8 @@ int main()
     // UREs
     Var kkk("kkk"), iii("iii"), kk("kk"), ii("ii"), k("k"), i("i");
     URE uA("uA", TTYPE, {P}), uX("uX", TTYPE, {P}), uY("uY", TTYPE, {P}), uZ("uZ", TTYPE, {P}), V("V"), Out("Out");
-    uA(P) = select(total_k > A.dim(1).extent(), 0, A(total_j, total_k));
-    uX(P) = select(kkk == 0 || iii == 0, 
-                    X(total_j),
-                    uX(P_kkk_minus_1_iii_minus_1));
+    uA(P) = A(total_k, total_i);
+    uX(P) = X(total_i + total_k);
     uZ(P) = select(total_k == 0, 0,
                                  select(kkk == 0, select(kk == 0, uZ(P_k_minus_1),
                                                                   uZ(P_kk_minus_1)), 
@@ -87,7 +76,8 @@ int main()
 
     // Create a systolic array
     uA.space_time_transform(iii);
-    // uA.vectorize(kkk);
+    uA.vectorize(kkk);
+    Out.vectorize(iii);
 
     // GPU can have many threads running in parallel.
 #ifdef GPU
@@ -95,83 +85,30 @@ int main()
 #endif
 
     // I/O network
-    // Stensor aLoader("aLoader", DRAM), aFeeder("aFeeder", SRAM);
-    // Stensor xLoader("xLoader", DRAM), xFeeder("xFeeder", SRAM);
-    // Stensor yLoader("yLoader", DRAM), yFeeder("yFeeder", SRAM);
-    // Stensor collector("collector", REG), unloader("unloader", DRAM), deserializer("deserializer");
-    // A >> aLoader.out(kkk)                >> FIFO(256)
-    //   >> aFeeder.scope(k)                >> FIFO(256);
-    // X >> xLoader.out(kkk)                >> FIFO(256)
-    //   >> xFeeder.scope(k)                >> FIFO(256);
-    // Y >> yLoader.out(kkk)                >> FIFO(256)
-    //   >> yFeeder.scope(k)                >> FIFO(256);
-    // Out >> collector.scope(iii)          >> FIFO(256)
-    //     >> unloader >> deserializer(total_i);
-    // deserializer.compile_to_host("gbmv2-interface", { Alpha, Beta, A, X, Y }, "gbmv", IntelFPGA);
-    Func aSerializer("aSerializer", Place::Host), aLoader("aLoader", Place::Device), aFeeder("aFeeder", Place::Device);
-    Func xSerializer("xSerializer", Place::Host), xLoader("xLoader", Place::Device), xFeeder("xFeeder", Place::Device);
-    Func ySerializer("ySerializer", Place::Host), yLoader("yLoader", Place::Device), yFeeder("yFeeder", Place::Device);
-    Func drainer("drainer", Place::Device), collector("collector", Place::Device), unloader("unloader", Place::Device);
+    Func aSerializer("aSerializer", Place::Host), aLoader("aLoader", Place::Device);
+    Func xSerializer("xSerializer", Place::Host), xLoader("xLoader", Place::Device);
+    Func ySerializer("ySerializer", Place::Host), yLoader("yLoader", Place::Device);
+    Func unloader("unloader", Place::Device);
     Func deserializer("deserializer", Place::Host);
 
-    uA.isolate_producer_chain(A, aSerializer, aLoader, aFeeder);
-    uA.isolate_producer_chain(X, xSerializer, xLoader, xFeeder);
-    Out.isolate_producer_chain(Y, ySerializer, yLoader, yFeeder);
+    uA.isolate_producer_chain(A, aSerializer, aLoader);
+    uA.isolate_producer_chain(X, xSerializer, xLoader);
+    Out.isolate_producer_chain(Y, ySerializer, yLoader);
 
-    Out.isolate_consumer_chain(drainer, collector, unloader, deserializer);
+    xLoader.vectorize(kkk);
+    aLoader.min_depth(1024);
+    xLoader.min_depth(1024);
+    V.min_depth(1024);
+    yLoader.min_depth(1024);
+    Out.min_depth(1024);
+    unloader.min_depth(1024);
+
+    Out.isolate_consumer_chain(unloader, deserializer);
     Target acc = get_host_target();
     acc.set_feature(Target::IntelFPGA);
     acc.set_feature(Target::EnableSynthesis);
-    deserializer.compile_to_host("gbmv-interface", { Alpha, Beta, A, X, Y }, "gbmv", acc);
+    deserializer.compile_to_host("gbmv3-interface", { Alpha, Beta, A, X, Y }, "gbmv3", acc);
     printf("Success\n");
 
     return 0;
 }
-    // uX(P) = select(total_k == 0, X(total_i),
-    //                              select(kkk == 0, select(kk == 0, uX(P_i_minus_1),
-    //                                                               uX(P_ii_minus_1)),
-    //                                               uX(P_iii_minus_1)));
-    // uX(P) = select(oob, 0,
-    //             select(total_k == 0, 
-    //                 X(total_i),
-    //                 select(total_j == 0, 
-    //                     select(total_k == 0,
-    //                         0,
-    //                         select(kkk == 0, 
-    //                             select(kk == 0,
-    //                                 uX(P_k_minus_1),
-    //                                 uX(P_kk_minus_1)), 
-    //                             uX(P_kkk_minus_1)
-    //                         )
-    //                     ),
-    //                     select(total_i == 0,
-    //                         0,
-    //                         select(iii == 0, 
-    //                             select(ii == 0,
-    //                                 uX(P_i_minus_1),
-    //                                 uX(P_ii_minus_1)), 
-    //                             uX(P_iii_minus_1)
-    //                         )
-    //                     )
-    //                 )
-    //             )
-    //         );
-    // uX(P) = select(total_k == 0,
-    //             X(total_i),
-    //             select(kkk == 0, 
-    //                 select(kk == 0, 
-    //                     select(iii == 0, 
-    //                         select(ii == 0,
-    //                             uX(P_k_minus_1_i_minus_1),
-    //                             uX(P_k_minus_1_ii_minus_1)),
-    //                         uX(P_k_minus_1_iii_minus_1)),
-    //                     select(iii == 0, 
-    //                         select(ii == 0, 
-    //                             uX(P_kk_minus_1_i_minus_1),
-    //                             uX(P_kk_minus_1_ii_minus_1)),
-    //                         uX(P_kk_minus_1_iii_minus_1))),
-    //                 select(iii == 0, 
-    //                     select(ii == 0, 
-    //                         uX(P_kkk_minus_1_i_minus_1),
-    //                         uX(P_kkk_minus_1_ii_minus_1)),
-    //                     uX(P_kkk_minus_1_iii_minus_1))));
