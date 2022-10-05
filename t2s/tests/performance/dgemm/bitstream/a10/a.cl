@@ -1,6 +1,5 @@
 /*OpenCL C x86-64-linux-avx-avx2-avx512-avx512_skylake-cm-enable_synthesis-f16c-fma-intel_fpga-opencl-sse41*/
 #pragma OPENCL FP_CONTRACT ON
-#pragma OPENCL EXTENSION cl_khr_fp64 : enable
 #define float_from_bits(x) as_float(x)
 inline float nan_f32() { return NAN; }
 inline float neg_inf_f32() { return -INFINITY; }
@@ -31,7 +30,11 @@ inline bool is_finite_f32(float x) {return isfinite(x); }
 #define tanh_f32 tanh 
 #define atanh_f32 atanh 
 #define fast_inverse_f32 native_recip 
-#define fast_inverse_sqrt_f32 native_rsqrt
+#define fast_inverse_sqrt_f32 native_rsqrt 
+inline float2 conjugate(float2 x) {return (float2)(x.s0, -x.s1); }
+inline float2 sqrt_c32(float2 x) {return (float2)(sqrt_f32(x.s0), 0.0f); }
+inline float2 fast_inverse_c32(float2 x) {return (float2)(fast_inverse_f32(x.s0), 0.0f); }
+inline float2 fast_inverse_sqrt_c32(float2 x) {return (float2)(fast_inverse_sqrt_f32(x.s0), 0.0f); }
 #define __address_space___shared __local
 
 
@@ -57,7 +60,7 @@ bool __attribute__ ((aligned(4))) s[4];
 struct {bool s0,  s1,  s2,  s3;};
 } bool4;
 channel double8 _aLoader_channel __attribute__((depth(256))) ;
-typedef struct { double8 s[8]; } _aFeeder_channel_array_t;
+typedef struct { double8 s[9]; } _aFeeder_channel_array_t;
 channel _aFeeder_channel_array_t _aFeeder_channel __attribute__((depth(256))) ;
 channel double8 _bLoader_channel __attribute__((depth(256))) ;
 typedef struct { double8 s[4]; } _bFeeder_channel_array_t;
@@ -73,7 +76,7 @@ __kernel void kernel_aLoader(
 {
  int _addr_temp;
  _addr_temp = 0;
- int _0 = _A_extent_1 >> 8;
+ int _0 = _A_extent_1 / 288;
  for (int _aLoader_s0_i = 0; _aLoader_s0_i < 0 + _0; _aLoader_s0_i++)
  {
   int _1 = _B_extent_0 >> 7;
@@ -82,17 +85,17 @@ __kernel void kernel_aLoader(
    int _2 = _A_extent_0 >> 8;
    for (int _aLoader_s0_k = 0; _aLoader_s0_k < 0 + _2; _aLoader_s0_k++)
    {
-    for (int _aLoader_s0_kk_ii_iii = 0; _aLoader_s0_kk_ii_iii < 0 + 8192; _aLoader_s0_kk_ii_iii++)
+    for (int _aLoader_s0_kk_ii_iii = 0; _aLoader_s0_kk_ii_iii < 0 + 9216; _aLoader_s0_kk_ii_iii++)
     {
      int _3 = _addr_temp;
      int _4 = _B_extent_0 >> 7;
      int _5 = _A_extent_0 >> 8;
      int _6 = _4 * _5;
-     int _7 = _6 * 8192;
+     int _7 = _6 * 9216;
      int _8 = _3 / _7;
      int _9 = _8 * _5;
-     int _10 = _9 * 8192;
-     int _11 = _5 * 8192;
+     int _10 = _9 * 9216;
+     int _11 = _5 * 9216;
      int _12 = _3 % _11;
      int _13 = _10 + _12;
      int _14 = _13 * 8;
@@ -118,19 +121,19 @@ __kernel void kernel_aFeeder(
  uint _aFeeder_time_stamp_shreg;
  double8 _aFeeder_in_v_temp;
  uint _aFeeder_cycle_temp;
- double8 __attribute__((memory, numbanks(8), singlepump, numwriteports(1), numreadports(1))) _aFeeder_DB_0_ibuffer[2][32][32][8];
+ double8 __attribute__((memory, numbanks(16), singlepump, numwriteports(1), numreadports(1))) _aFeeder_DB_0_ibuffer[2][32][32][16];
  #pragma unroll
  for (int _aFeeder_s0_jjj_init = 0; _aFeeder_s0_jjj_init < 0 + 4; _aFeeder_s0_jjj_init++)
  {
   bool _17 = _aFeeder_s0_jjj_init == 0;
   if (_17)
   {
-   uint _18 = (uint)(ADD_UINT64_T_SUFFIX(24576));
+   uint _18 = (uint)(ADD_UINT64_T_SUFFIX(23552));
    _aFeeder_cycle_temp = _18;
   } // if _17
  } // for _aFeeder_s0_jjj_init
  int _19 = _A_extent_0 >> 8;
- int _20 = _A_extent_1 >> 8;
+ int _20 = _A_extent_1 / 288;
  int _21 = _B_extent_0 >> 7;
  int _22 = _20 * _21;
  int _23 = _19 * _22;
@@ -138,7 +141,7 @@ __kernel void kernel_aFeeder(
  int _25 = _24 + 32768;
  for (int _aFeeder_s0_outermost_loop = 0; _aFeeder_s0_outermost_loop < 0 + _25; _aFeeder_s0_outermost_loop++)
  {
-  uint _26 = (uint)(ADD_UINT64_T_SUFFIX(24576));
+  uint _26 = (uint)(ADD_UINT64_T_SUFFIX(23552));
   uint _27 = _aFeeder_cycle_temp;
   uint _28 = (uint)(ADD_UINT64_T_SUFFIX(32767));
   uint _29 = _27 & _28;
@@ -147,7 +150,7 @@ __kernel void kernel_aFeeder(
   uint _32 = _27 >> _31;
   int _33 = (int)(_32);
   int _34 = _A_extent_0 >> 8;
-  int _35 = _A_extent_1 >> 8;
+  int _35 = _A_extent_1 / 288;
   int _36 = _B_extent_0 >> 7;
   int _37 = _35 * _36;
   int _38 = _34 * _37;
@@ -159,7 +162,7 @@ __kernel void kernel_aFeeder(
    _aFeeder_in_v_temp = __41;
   } // if _40
   #pragma unroll
-  for (int _aFeeder_s0_buf = 0; _aFeeder_s0_buf < 0 + 8; _aFeeder_s0_buf++)
+  for (int _aFeeder_s0_buf = 0; _aFeeder_s0_buf < 0 + 9; _aFeeder_s0_buf++)
   {
    bool _42 = _aFeeder_s0_buf == 0;
    if (_42)
@@ -188,7 +191,7 @@ __kernel void kernel_aFeeder(
    uint _54 = __fpga_reg(__fpga_reg(_53));
    _aFeeder_time_stamp_shreg = _54;
    (void)_54;
-   uint _55 = (uint)(ADD_UINT64_T_SUFFIX(24576));
+   uint _55 = (uint)(ADD_UINT64_T_SUFFIX(23552));
    uint _57 = _aFeeder_time_stamp_shreg;
    uint _58 = (uint)(ADD_UINT64_T_SUFFIX(32767));
    uint _59 = _57 & _58;
@@ -198,10 +201,10 @@ __kernel void kernel_aFeeder(
     uint _62 = _aFeeder_time_stamp_shreg;
     uint _63 = (uint)(ADD_UINT64_T_SUFFIX(32767));
     uint _64 = _62 & _63;
-    uint _65 = (uint)(ADD_UINT64_T_SUFFIX(24576));
+    uint _65 = (uint)(ADD_UINT64_T_SUFFIX(23552));
     uint _66 = _64 - _65;
-    uint _67 = (uint)(ADD_UINT64_T_SUFFIX(7));
-    uint _68 = _66 & _67;
+    uint _67 = (uint)(ADD_UINT64_T_SUFFIX(9));
+    uint _68 = _66 % _67;
     int _69 = (int)(_68);
     bool _70 = _aFeeder_s0_buf == _69;
     if (_70)
@@ -215,11 +218,11 @@ __kernel void kernel_aFeeder(
      bool _79 = (bool)(_78);
      uint _81 = (uint)(ADD_UINT64_T_SUFFIX(32767));
      uint _82 = _74 & _81;
-     uint _83 = (uint)(ADD_UINT64_T_SUFFIX(24576));
+     uint _83 = (uint)(ADD_UINT64_T_SUFFIX(23552));
      uint _84 = _82 - _83;
      int _85 = (int)(_84);
-     int _86 = _85 >> 8;
-     int _88 = _85 >> 3;
+     int _86 = _85 / 288;
+     int _88 = _85 / 9;
      int _89 = _88 & 31;
      _aFeeder_DB_0_ibuffer[_79][_86][_89][_aFeeder_s0_buf] = _72;
     } // if _70
@@ -229,7 +232,7 @@ __kernel void kernel_aFeeder(
    uint _93 = _91 >> _92;
    int _94 = (int)(_93);
    int _95 = _A_extent_0 >> 8;
-   int _96 = _A_extent_1 >> 8;
+   int _96 = _A_extent_1 / 288;
    int _97 = _B_extent_0 >> 7;
    int _98 = _96 * _97;
    int _99 = _95 * _98;
@@ -262,7 +265,7 @@ __kernel void kernel_aFeeder(
   uint _125 = _123 >> _124;
   int _126 = (int)(_125);
   int _127 = _A_extent_0 >> 8;
-  int _128 = _A_extent_1 >> 8;
+  int _128 = _A_extent_1 / 288;
   int _129 = _B_extent_0 >> 7;
   int _130 = _128 * _129;
   int _131 = _127 * _130;
@@ -291,7 +294,7 @@ __kernel void kernel_bLoader(
 {
  int _addr_temp;
  _addr_temp = 0;
- int _140 = _A_extent_1 >> 8;
+ int _140 = _A_extent_1 / 288;
  for (int _bLoader_s0_i = 0; _bLoader_s0_i < 0 + _140; _bLoader_s0_i++)
  {
   int _141 = _B_extent_0 >> 7;
@@ -333,7 +336,7 @@ __kernel void kernel_bFeeder(
  uint _bFeeder_cycle_temp;
  double8 __attribute__((memory, numbanks(4), singlepump, numwriteports(1), numreadports(1))) _bFeeder_DB_0_ibuffer[2][32][32][4];
  #pragma unroll
- for (int _bFeeder_s0_iii_init = 0; _bFeeder_s0_iii_init < 0 + 8; _bFeeder_s0_iii_init++)
+ for (int _bFeeder_s0_iii_init = 0; _bFeeder_s0_iii_init < 0 + 9; _bFeeder_s0_iii_init++)
  {
   bool _152 = _bFeeder_s0_iii_init == 0;
   if (_152)
@@ -343,7 +346,7 @@ __kernel void kernel_bFeeder(
   } // if _152
  } // for _bFeeder_s0_iii_init
  int _154 = _A_extent_0 >> 8;
- int _155 = _A_extent_1 >> 8;
+ int _155 = _A_extent_1 / 288;
  int _156 = _B_extent_0 >> 7;
  int _157 = _155 * _156;
  int _158 = _154 * _157;
@@ -360,7 +363,7 @@ __kernel void kernel_bFeeder(
   uint _167 = _162 >> _166;
   int _168 = (int)(_167);
   int _169 = _A_extent_0 >> 8;
-  int _170 = _A_extent_1 >> 8;
+  int _170 = _A_extent_1 / 288;
   int _171 = _B_extent_0 >> 7;
   int _172 = _170 * _171;
   int _173 = _169 * _172;
@@ -442,7 +445,7 @@ __kernel void kernel_bFeeder(
    uint _228 = _226 >> _227;
    int _229 = (int)(_228);
    int _230 = _A_extent_0 >> 8;
-   int _231 = _A_extent_1 >> 8;
+   int _231 = _A_extent_1 / 288;
    int _232 = _B_extent_0 >> 7;
    int _233 = _231 * _232;
    int _234 = _230 * _233;
@@ -474,7 +477,7 @@ __kernel void kernel_bFeeder(
   uint _259 = _257 >> _258;
   int _260 = (int)(_259);
   int _261 = _A_extent_0 >> 8;
-  int _262 = _A_extent_1 >> 8;
+  int _262 = _A_extent_1 / 288;
   int _263 = _B_extent_0 >> 7;
   int _264 = _262 * _263;
   int _265 = _261 * _264;
@@ -502,20 +505,20 @@ __kernel void kernel_Out(
  _bFeeder_channel_array_t _bFeeder_channel_array;
  _aFeeder_channel_array_t _aFeeder_channel_array;
  // produce Z
- double _Z_shreg[1024][4][8];
- double _Z_pipe_shreg[4][7169];
+ double _Z_shreg[1024][4][9];
+ double _Z_pipe_shreg[4][8193];
  // produce Y
  double8 _Y_shreg[4];
- double _Z_temp[4][8];
+ double _Z_temp[4][9];
  // produce X
- double8 _X_shreg[8];
+ double8 _X_shreg[9];
  double _Z_shreg_temp;
  int _Z_pipe_iter_temp;
  int _Z_pipe_base_temp;
- _Z_pipe_iter_temp = 8192;
+ _Z_pipe_iter_temp = 9216;
  _Z_pipe_base_temp = 0;
  int _274 = _A_extent_0 >> 8;
- int _275 = _A_extent_1 >> 8;
+ int _275 = _A_extent_1 / 288;
  int _276 = _B_extent_0 >> 7;
  int _277 = _275 * _276;
  int _278 = _274 * _277;
@@ -525,7 +528,7 @@ __kernel void kernel_Out(
   for (int _X_s0_kk_ii_jj = 0; _X_s0_kk_ii_jj < 0 + 32768; _X_s0_kk_ii_jj++)
   {
    #pragma unroll
-   for (int _dummy__1_s0_iii = 0; _dummy__1_s0_iii < 0 + 8; _dummy__1_s0_iii++)
+   for (int _dummy__1_s0_iii = 0; _dummy__1_s0_iii < 0 + 9; _dummy__1_s0_iii++)
    {
     #pragma unroll
     for (int _dummy_s0_jjj = 0; _dummy_s0_jjj < 0 + 4; _dummy_s0_jjj++)
@@ -547,7 +550,7 @@ __kernel void kernel_Out(
     } // for _dummy_s0_jjj
    } // for _dummy__1_s0_iii
    int _287 = _A_extent_0 >> 8;
-   int _288 = _A_extent_1 >> 8;
+   int _288 = _A_extent_1 / 288;
    int _289 = _B_extent_0 >> 7;
    int _290 = _288 * _289;
    int _291 = _287 * _290;
@@ -562,7 +565,7 @@ __kernel void kernel_Out(
     (void)__294;
    } // if _292
    #pragma unroll
-   for (int _X_s0_iii = 0; _X_s0_iii < 0 + 8; _X_s0_iii++)
+   for (int _X_s0_iii = 0; _X_s0_iii < 0 + 9; _X_s0_iii++)
    {
     #pragma unroll
     for (int _X_s0_jjj = 0; _X_s0_jjj < 0 + 4; _X_s0_jjj++)
@@ -614,7 +617,7 @@ __kernel void kernel_Out(
      bool _319 = _316 && _318;
      if (_319)
      {
-      double _320 = (double) 0.0;
+      double _320 = (double) float_from_bits(0 /* 0 */);
       _313 = _320;
      } // if _319
      else
@@ -703,7 +706,7 @@ __kernel void kernel_Out(
    } // for _Z_pipe_b__14
    int _368 = _Z_pipe_iter_temp;
    int _369 = _Z_pipe_base_temp;
-   int _370 = _369 + 8192;
+   int _370 = _369 + 9216;
    bool _371 = _368 < _370;
    if (_371)
    {
@@ -715,7 +718,7 @@ __kernel void kernel_Out(
    for (int _Z_pipe_b__15 = 0; _Z_pipe_b__15 < 0 + 4; _Z_pipe_b__15++)
    {
     #pragma unroll
-    for (int _Z_pipe_p__7 = 0; _Z_pipe_p__7 < 0 + 7; _Z_pipe_p__7++)
+    for (int _Z_pipe_p__7 = 0; _Z_pipe_p__7 < 0 + 8; _Z_pipe_p__7++)
     {
      #pragma unroll
      for (int _Z_pipe_l__7 = 0; _Z_pipe_l__7 < 0 + 1023; _Z_pipe_l__7++)
@@ -751,13 +754,13 @@ __kernel void kernel_unloader(
 {
  int _addr_temp;
  _addr_temp = 0;
- int _386 = _A_extent_1 >> 8;
+ int _386 = _A_extent_1 / 288;
  for (int _unloader_s0_i = 0; _unloader_s0_i < 0 + _386; _unloader_s0_i++)
  {
   int _387 = _B_extent_0 >> 7;
   for (int _unloader_s0_j = 0; _unloader_s0_j < 0 + _387; _unloader_s0_j++)
   {
-   for (int _unloader_s0_iii_ii_jj = 0; _unloader_s0_iii_ii_jj < 0 + 8192; _unloader_s0_iii_ii_jj++)
+   for (int _unloader_s0_iii_ii_jj = 0; _unloader_s0_iii_ii_jj < 0 + 9216; _unloader_s0_iii_ii_jj++)
    {
     double4 __388 = read_channel_intel(_Out_channel);
     int _389 = _addr_temp;
