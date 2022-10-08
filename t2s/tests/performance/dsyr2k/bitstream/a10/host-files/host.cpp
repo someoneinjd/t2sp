@@ -56,9 +56,9 @@
 #define OUTERMOST_J     2
 #define OUTERMOST_K     2
 #else
-#define OUTERMOST_I     32
-#define OUTERMOST_J     32
-#define OUTERMOST_K     32
+#define OUTERMOST_I     80
+#define OUTERMOST_J     80
+#define OUTERMOST_K     80
 #endif
 
 using namespace aocl_utils;
