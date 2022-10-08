@@ -1,0 +1,5722 @@
+{
+  "2799488912":
+  {
+    "nodes":
+    [
+      {
+        "name":"Cluster 3"
+        , "id":2818909152
+        , "start":"1"
+        , "end":"5"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Cluster Name":"i_sfc_s_c0_in_for_body_kernel_vs_c0_enter9_kernel_v1"
+            , "Cluster Type":"Stall-Free"
+            , "Cluster Start Cycle":"1"
+            , "Cluster Latency":"4"
+          }
+        ]
+        , "type":"bb"
+        , "children":
+        [
+          {
+            "name":"Logic"
+            , "id":2832198448
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Cluster Logic Start Cycle":"1"
+                , "Cluster Logic Latency":"1"
+              }
+            ]
+            , "type":"inst"
+          }
+          , {
+            "name":"Exit"
+            , "id":2832387616
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Exit Start Cycle":"2"
+                , "Exit Latency":"3"
+                , "Exit FIFO Depth":"8"
+                , "Exit FIFO Width":"48"
+                , "Details":"Exit FIFO depth is sized to accommodate all data that may be in-flight in the stall-free cluster; this depth will be equal to or greater than the latency of the cluster.  The width of the FIFO depends on the amount of data that needs to pass from the stall-free logic cluster to the stall-able logic below it."
+              }
+            ]
+            , "type":"bb"
+          }
+        ]
+      }
+      , {
+        "name":"Loop Input"
+        , "id":2890950944
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Loop Input"
+            , "Preceding Blocks":"kernel_V.B4, kernel_V.B0"
+          }
+        ]
+        , "type":"inst"
+      }
+    ]
+    , "links":
+    [
+      {
+        "from":2832198448
+        , "to":2832387616
+      }
+      , {
+        "from":2890950944
+        , "to":2832198448
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2890950944
+        , "to":2832198448
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+    ]
+  }
+  , "2799559008":
+  {
+    "nodes":
+    [
+      {
+        "name":"Cluster 0"
+        , "id":2807718176
+        , "start":"1"
+        , "end":"11"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Cluster Name":"i_sfc_s_c0_in_entry_kernel_xfeeders_c0_enter_kernel_xfeeder1"
+            , "Cluster Type":"Stall-Free"
+            , "Cluster Start Cycle":"1"
+            , "Cluster Latency":"10"
+          }
+        ]
+        , "type":"bb"
+        , "children":
+        [
+          {
+            "name":"Logic"
+            , "id":2807724928
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Cluster Logic Start Cycle":"1"
+                , "Cluster Logic Latency":"7"
+              }
+            ]
+            , "type":"inst"
+          }
+          , {
+            "name":"Exit"
+            , "id":2803129520
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Exit Start Cycle":"8"
+                , "Exit Latency":"3"
+                , "Exit FIFO Depth":"16"
+                , "Exit FIFO Width":"8"
+                , "Details":"Exit FIFO depth is sized to accommodate all data that may be in-flight in the stall-free cluster; this depth will be equal to or greater than the latency of the cluster.  The width of the FIFO depends on the amount of data that needs to pass from the stall-free logic cluster to the stall-able logic below it."
+              }
+            ]
+            , "type":"bb"
+          }
+        ]
+      }
+    ]
+    , "links":
+    [
+      {
+        "from":2807724928
+        , "to":2803129520
+      }
+    ]
+  }
+  , "2799576000":
+  {
+    "nodes":
+    [
+    ]
+    , "links":
+    [
+    ]
+  }
+  , "2799576080":
+  {
+    "nodes":
+    [
+      {
+        "name":"Cluster 1"
+        , "id":2808000688
+        , "start":"1"
+        , "end":"6"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Cluster Name":"i_sfc_s_c0_in_for_body_kernel_xfeeders_c0_enter111_kernel_xfeeder1"
+            , "Cluster Type":"Stall-Free"
+            , "Cluster Start Cycle":"1"
+            , "Cluster Latency":"5"
+          }
+        ]
+        , "type":"bb"
+        , "children":
+        [
+          {
+            "name":"Logic"
+            , "id":2808007824
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Cluster Logic Start Cycle":"1"
+                , "Cluster Logic Latency":"2"
+              }
+            ]
+            , "type":"inst"
+          }
+          , {
+            "name":"Exit"
+            , "id":2808413216
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Exit Start Cycle":"3"
+                , "Exit Latency":"3"
+                , "Exit FIFO Depth":"8"
+                , "Exit FIFO Width":"128"
+                , "Details":"Exit FIFO depth is sized to accommodate all data that may be in-flight in the stall-free cluster; this depth will be equal to or greater than the latency of the cluster.  The width of the FIFO depends on the amount of data that needs to pass from the stall-free logic cluster to the stall-able logic below it."
+              }
+            ]
+            , "type":"bb"
+          }
+        ]
+      }
+      , {
+        "name":"Cluster 2"
+        , "id":2808496864
+        , "start":"6"
+        , "end":"15"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Cluster Name":"i_sfc_s_c1_in_for_body_kernel_xfeeders_c1_enter_kernel_xfeeder5"
+            , "Cluster Type":"Stall-Free"
+            , "Cluster Start Cycle":"6"
+            , "Cluster Latency":"9"
+          }
+        ]
+        , "type":"bb"
+        , "children":
+        [
+          {
+            "name":"Logic"
+            , "id":2808503600
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Cluster Logic Start Cycle":"6"
+                , "Cluster Logic Latency":"6"
+              }
+            ]
+            , "type":"inst"
+          }
+          , {
+            "name":"Exit"
+            , "id":2809005088
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Exit Start Cycle":"12"
+                , "Exit Latency":"3"
+                , "Exit FIFO Depth":"16"
+                , "Exit FIFO Width":"128"
+                , "Details":"Exit FIFO depth is sized to accommodate all data that may be in-flight in the stall-free cluster; this depth will be equal to or greater than the latency of the cluster.  The width of the FIFO depends on the amount of data that needs to pass from the stall-free logic cluster to the stall-able logic below it."
+              }
+            ]
+            , "type":"bb"
+          }
+        ]
+      }
+      , {
+        "name":"Loop Orch"
+        , "id":2810380256
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Loop Orchestration Logic"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":142
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"WR"
+        , "id":2899589024
+        , "start":"15"
+        , "end":"15"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Channel Write"
+            , "Width":"64 bits"
+            , "Depth":"256"
+            , "Channel Name":"_xFeeder_channel"
+            , "Stall-free":"No"
+            , "Start Cycle":"15"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":176
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"RD"
+        , "id":2900298848
+        , "start":"6"
+        , "end":"6"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Channel Read"
+            , "Width":"64 bits"
+            , "Depth":"256"
+            , "Channel Name":"_xLoader_channel"
+            , "Stall-free":"No"
+            , "Start Cycle":"6"
+            , "Latency":"0"
+            , "Subnormal Support":"On"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":152
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+    ]
+    , "links":
+    [
+      {
+        "from":2808007824
+        , "to":2808413216
+      }
+      , {
+        "from":2808503600
+        , "to":2809005088
+      }
+      , {
+        "from":2810380256
+        , "to":2808007824
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2809005088
+        , "to":2899589024
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"128"
+          }
+        ]
+      }
+      , {
+        "from":2900298848
+        , "to":2808503600
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"64"
+          }
+        ]
+      }
+      , {
+        "from":2808413216
+        , "to":2900298848
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"128"
+          }
+        ]
+      }
+    ]
+  }
+  , "2799643536":
+  {
+    "nodes":
+    [
+      {
+        "name":"FFwd Src"
+        , "id":2897670416
+        , "start":"2"
+        , "end":"2"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"FFwd Source"
+            , "Start Cycle":"2"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":199
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"FFwd Src"
+        , "id":2897672896
+        , "start":"2"
+        , "end":"2"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"FFwd Source"
+            , "Start Cycle":"2"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":199
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"FFwd Src"
+        , "id":2897675808
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"FFwd Source"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":278
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"FFwd Src"
+        , "id":2897678288
+        , "start":"2"
+        , "end":"2"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"FFwd Source"
+            , "Start Cycle":"2"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":202
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"FFwd Src"
+        , "id":2898133280
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"FFwd Source"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":199
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"+"
+        , "id":2898220352
+        , "start":"2"
+        , "end":"2"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"33-bit Integer Add"
+            , "Constant Operand":"-1 (0x1FFFFFFFF)"
+            , "Start Cycle":"2"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":199
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"Select"
+        , "id":2898272576
+        , "start":"1"
+        , "end":"2"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"32-bit Select"
+            , "Start Cycle":"1"
+            , "Latency":"1"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":199
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"+"
+        , "id":2898275056
+        , "start":"2"
+        , "end":"2"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"32-bit Integer Add"
+            , "Constant Operand":"-1 (0xFFFFFFFF)"
+            , "Start Cycle":"2"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":199
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"+"
+        , "id":2898411472
+        , "start":"2"
+        , "end":"2"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"33-bit Integer Add"
+            , "Constant Operand":"-1 (0x1FFFFFFFF)"
+            , "Start Cycle":"2"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":199
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"Compare"
+        , "id":2898413952
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"32-bit Integer Compare"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":199
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"+"
+        , "id":2898573408
+        , "start":"2"
+        , "end":"2"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"32-bit Integer Add"
+            , "Constant Operand":"-1 (0xFFFFFFFF)"
+            , "Start Cycle":"2"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":199
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"Compare"
+        , "id":2898678992
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"32-bit Integer Compare"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":199
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"Select"
+        , "id":2898681472
+        , "start":"1"
+        , "end":"2"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"32-bit Select"
+            , "Start Cycle":"1"
+            , "Latency":"1"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":199
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"And"
+        , "id":2898683552
+        , "start":"1"
+        , "end":"2"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"1-bit And"
+            , "Start Cycle":"1"
+            , "Latency":"1"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":202
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"Xor"
+        , "id":2898686032
+        , "start":"2"
+        , "end":"2"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"1-bit Xor"
+            , "Constant Operand":"1 (0x1)"
+            , "Start Cycle":"2"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":202
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"Compare"
+        , "id":2898688944
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"32-bit Integer Compare"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":202
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"+"
+        , "id":2898691424
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"32-bit Integer Add"
+            , "Constant Operand":"-1 (0xFFFFFFFF)"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":278
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"_A_extent_0"
+        , "id":2899146416
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Input Synchronization for '_A_extent_0'"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"_A_extent_0"
+        , "id":2899231008
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Input Synchronization for '_A_extent_0'"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":">>"
+        , "id":2899233488
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"32-bit Arithmetic Right Shift"
+            , "Constant Operand":"5 (0x5)"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":201
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"_A_extent_1"
+        , "id":2899285712
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Input Synchronization for '_A_extent_1'"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"Compare"
+        , "id":2899288192
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"32-bit Integer Compare"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":199
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"_A_extent_1"
+        , "id":2899424608
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Input Synchronization for '_A_extent_1'"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":">>"
+        , "id":2899427088
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"32-bit Arithmetic Right Shift"
+            , "Constant Operand":"10 (0xA)"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":198
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+    ]
+    , "links":
+    [
+      {
+        "from":2898220352
+        , "to":2897672896
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"33"
+          }
+        ]
+      }
+      , {
+        "from":2898272576
+        , "to":2898275056
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2898275056
+        , "to":2898220352
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2898411472
+        , "to":2897670416
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"33"
+          }
+        ]
+      }
+      , {
+        "from":2898413952
+        , "to":2898272576
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2898573408
+        , "to":2898411472
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2898678992
+        , "to":2898681472
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2898681472
+        , "to":2898573408
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2898683552
+        , "to":2897678288
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2898683552
+        , "to":2898686032
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2898688944
+        , "to":2898683552
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2898691424
+        , "to":2897675808
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2899146416
+        , "to":2898688944
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2899231008
+        , "to":2899233488
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2899233488
+        , "to":2898678992
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2899233488
+        , "to":2898681472
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2899233488
+        , "to":2898691424
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2899285712
+        , "to":2899288192
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2899288192
+        , "to":2898133280
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2899288192
+        , "to":2898683552
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2899424608
+        , "to":2899427088
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2899427088
+        , "to":2898272576
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2899427088
+        , "to":2898413952
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+    ]
+  }
+  , "2799662112":
+  {
+    "nodes":
+    [
+    ]
+    , "links":
+    [
+    ]
+  }
+  , "2799680976":
+  {
+    "nodes":
+    [
+      {
+        "name":"Cluster 4"
+        , "id":2832525568
+        , "start":"1"
+        , "end":"5"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Cluster Name":"i_sfc_s_c0_in_for_cond7_preheader_kernel_vs_c0_enter62210_kernel_v1"
+            , "Cluster Type":"Stall-Free"
+            , "Cluster Start Cycle":"1"
+            , "Cluster Latency":"4"
+          }
+        ]
+        , "type":"bb"
+        , "children":
+        [
+          {
+            "name":"Logic"
+            , "id":2832532416
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Cluster Logic Start Cycle":"1"
+                , "Cluster Logic Latency":"1"
+              }
+            ]
+            , "type":"inst"
+          }
+          , {
+            "name":"Exit"
+            , "id":2832930464
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Exit Start Cycle":"2"
+                , "Exit Latency":"3"
+                , "Exit FIFO Depth":"8"
+                , "Exit FIFO Width":"192"
+                , "Details":"Exit FIFO depth is sized to accommodate all data that may be in-flight in the stall-free cluster; this depth will be equal to or greater than the latency of the cluster.  The width of the FIFO depends on the amount of data that needs to pass from the stall-free logic cluster to the stall-able logic below it."
+              }
+            ]
+            , "type":"bb"
+          }
+        ]
+      }
+      , {
+        "name":"Loop Input"
+        , "id":2843766304
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Loop Input"
+            , "Preceding Blocks":"kernel_V.B6, kernel_V.B2"
+          }
+        ]
+        , "type":"inst"
+      }
+    ]
+    , "links":
+    [
+      {
+        "from":2832532416
+        , "to":2832930464
+      }
+      , {
+        "from":2843766304
+        , "to":2832532416
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2843766304
+        , "to":2832532416
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2843766304
+        , "to":2832532416
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2843766304
+        , "to":2832532416
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2843766304
+        , "to":2832532416
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2843766304
+        , "to":2832532416
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+    ]
+  }
+  , "2799681056":
+  {
+    "nodes":
+    [
+      {
+        "name":"Input"
+        , "id":2847951520
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Input"
+            , "Preceding Blocks":"kernel_V.B6"
+          }
+        ]
+        , "type":"inst"
+      }
+    ]
+    , "links":
+    [
+    ]
+  }
+  , "2799681136":
+  {
+    "nodes":
+    [
+      {
+        "name":"Cluster 6"
+        , "id":2833205424
+        , "start":"6"
+        , "end":"88"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Cluster Name":"i_sfc_s_c1_in_for_cond11_preheader_kernel_vs_c1_enter_kernel_v8"
+            , "Cluster Type":"Stall-Free"
+            , "Cluster Start Cycle":"6"
+            , "Cluster Latency":"82"
+          }
+        ]
+        , "type":"bb"
+        , "children":
+        [
+          {
+            "name":"Logic"
+            , "id":2835157024
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Cluster Logic Start Cycle":"6"
+                , "Cluster Logic Latency":"79"
+              }
+            ]
+            , "type":"inst"
+          }
+          , {
+            "name":"Exit"
+            , "id":2861171328
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Exit Start Cycle":"85"
+                , "Exit Latency":"3"
+                , "Exit FIFO Depth":"128"
+                , "Exit FIFO Width":"2176"
+                , "Details":"Exit FIFO depth is sized to accommodate all data that may be in-flight in the stall-free cluster; this depth will be equal to or greater than the latency of the cluster.  The width of the FIFO depends on the amount of data that needs to pass from the stall-free logic cluster to the stall-able logic below it."
+              }
+            ]
+            , "type":"bb"
+          }
+        ]
+      }
+      , {
+        "name":"Cluster 5"
+        , "id":2833207488
+        , "start":"1"
+        , "end":"5"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Cluster Name":"i_sfc_s_c0_in_for_cond11_preheader_kernel_vs_c0_enter64211_kernel_v1"
+            , "Cluster Type":"Stall-Free"
+            , "Cluster Start Cycle":"1"
+            , "Cluster Latency":"4"
+          }
+        ]
+        , "type":"bb"
+        , "children":
+        [
+          {
+            "name":"Logic"
+            , "id":2833214224
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Cluster Logic Start Cycle":"1"
+                , "Cluster Logic Latency":"1"
+              }
+            ]
+            , "type":"inst"
+          }
+          , {
+            "name":"Exit"
+            , "id":2834785200
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Exit Start Cycle":"2"
+                , "Exit Latency":"3"
+                , "Exit FIFO Depth":"8"
+                , "Exit FIFO Width":"224"
+                , "Details":"Exit FIFO depth is sized to accommodate all data that may be in-flight in the stall-free cluster; this depth will be equal to or greater than the latency of the cluster.  The width of the FIFO depends on the amount of data that needs to pass from the stall-free logic cluster to the stall-able logic below it."
+              }
+            ]
+            , "type":"bb"
+          }
+        ]
+      }
+      , {
+        "name":"Loop Input"
+        , "id":2835702192
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Loop Input"
+            , "Preceding Blocks":"kernel_V.B5, kernel_V.B3"
+          }
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"WR"
+        , "id":2893345792
+        , "start":"88"
+        , "end":"88"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Channel Write"
+            , "Width":"2048 bits"
+            , "Depth":"256"
+            , "Channel Name":"_V_channel"
+            , "Stall-free":"No"
+            , "Start Cycle":"88"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":292
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"RD"
+        , "id":2894220032
+        , "start":"6"
+        , "end":"6"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Channel Read"
+            , "Width":"64 bits"
+            , "Depth":"256"
+            , "Channel Name":"_xFeeder_channel"
+            , "Stall-free":"No"
+            , "Start Cycle":"6"
+            , "Latency":"0"
+            , "Subnormal Support":"On"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":227
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"RD"
+        , "id":2894361408
+        , "start":"6"
+        , "end":"6"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Channel Read"
+            , "Width":"2048 bits"
+            , "Depth":"256"
+            , "Channel Name":"_aLoader_channel"
+            , "Stall-free":"No"
+            , "Start Cycle":"6"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":226
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+    ]
+    , "links":
+    [
+      {
+        "from":2835157024
+        , "to":2861171328
+      }
+      , {
+        "from":2833214224
+        , "to":2834785200
+      }
+      , {
+        "from":2835702192
+        , "to":2833214224
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2835702192
+        , "to":2833214224
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2835702192
+        , "to":2833214224
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2835702192
+        , "to":2833214224
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2835702192
+        , "to":2833214224
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2835702192
+        , "to":2833214224
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2835702192
+        , "to":2833214224
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2861171328
+        , "to":2893345792
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"2176"
+          }
+        ]
+      }
+      , {
+        "from":2894220032
+        , "to":2835157024
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"64"
+          }
+        ]
+      }
+      , {
+        "from":2834785200
+        , "to":2894220032
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"224"
+          }
+        ]
+      }
+      , {
+        "from":2894361408
+        , "to":2835157024
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"2048"
+          }
+        ]
+      }
+      , {
+        "from":2834785200
+        , "to":2894361408
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"224"
+          }
+        ]
+      }
+      , {
+        "from":2835702192
+        , "to":2833214224
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2835702192
+        , "to":2833214224
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2835702192
+        , "to":2833214224
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2835702192
+        , "to":2833214224
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2835702192
+        , "to":2833214224
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2835702192
+        , "to":2833214224
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2835702192
+        , "to":2833214224
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2835702192
+        , "to":2833214224
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+    ]
+  }
+  , "2799681216":
+  {
+    "nodes":
+    [
+      {
+        "name":"Input"
+        , "id":2871286080
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Input"
+            , "Preceding Blocks":"kernel_V.B5"
+          }
+        ]
+        , "type":"inst"
+      }
+    ]
+    , "links":
+    [
+    ]
+  }
+  , "2801929840":
+  {
+    "nodes":
+    [
+      {
+        "name":"FFwd Src"
+        , "id":2871610432
+        , "start":"2"
+        , "end":"2"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"FFwd Source"
+            , "Start Cycle":"2"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":80
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"+"
+        , "id":2871667440
+        , "start":"2"
+        , "end":"2"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"33-bit Integer Add"
+            , "Constant Operand":"-1 (0x1FFFFFFFF)"
+            , "Start Cycle":"2"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":80
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"FFwd Src"
+        , "id":2892139056
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"FFwd Source"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":83
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"FFwd Src"
+        , "id":2892141536
+        , "start":"2"
+        , "end":"2"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"FFwd Source"
+            , "Start Cycle":"2"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":80
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"+"
+        , "id":2892193760
+        , "start":"2"
+        , "end":"2"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"33-bit Integer Add"
+            , "Constant Operand":"-1 (0x1FFFFFFFF)"
+            , "Start Cycle":"2"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":80
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"FFwd Src"
+        , "id":2892196240
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"FFwd Source"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":80
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"+"
+        , "id":2892332656
+        , "start":"2"
+        , "end":"2"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"32-bit Integer Add"
+            , "Constant Operand":"-1 (0xFFFFFFFF)"
+            , "Start Cycle":"2"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":80
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"Compare"
+        , "id":2892494592
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"32-bit Integer Compare"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":80
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"Select"
+        , "id":2892497072
+        , "start":"1"
+        , "end":"2"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"32-bit Select"
+            , "Start Cycle":"1"
+            , "Latency":"1"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":80
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"Select"
+        , "id":2892600176
+        , "start":"1"
+        , "end":"2"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"32-bit Select"
+            , "Start Cycle":"1"
+            , "Latency":"1"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":80
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"+"
+        , "id":2892602656
+        , "start":"2"
+        , "end":"2"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"32-bit Integer Add"
+            , "Constant Operand":"-1 (0xFFFFFFFF)"
+            , "Start Cycle":"2"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":80
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"And"
+        , "id":2892604736
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"1-bit And"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":83
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"Compare"
+        , "id":2892607216
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"32-bit Integer Compare"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":80
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"_A_extent_0"
+        , "id":2892610128
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Input Synchronization for '_A_extent_0'"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"Compare"
+        , "id":2892612608
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"32-bit Integer Compare"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":83
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":">>"
+        , "id":2893067600
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"32-bit Arithmetic Right Shift"
+            , "Constant Operand":"5 (0x5)"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":82
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"Compare"
+        , "id":2893152192
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"32-bit Integer Compare"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":80
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"_A_extent_0"
+        , "id":2893154672
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Input Synchronization for '_A_extent_0'"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":">>"
+        , "id":2893206896
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"32-bit Arithmetic Right Shift"
+            , "Constant Operand":"10 (0xA)"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":79
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"_A_extent_1"
+        , "id":2893209376
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Input Synchronization for '_A_extent_1'"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"_A_extent_1"
+        , "id":2893348272
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Input Synchronization for '_A_extent_1'"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "type":"inst"
+      }
+    ]
+    , "links":
+    [
+      {
+        "from":2871667440
+        , "to":2892141536
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"33"
+          }
+        ]
+      }
+      , {
+        "from":2892193760
+        , "to":2871610432
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"33"
+          }
+        ]
+      }
+      , {
+        "from":2892332656
+        , "to":2892193760
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2892494592
+        , "to":2892497072
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2892497072
+        , "to":2892332656
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2892600176
+        , "to":2892602656
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2892602656
+        , "to":2871667440
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2892604736
+        , "to":2892139056
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2892607216
+        , "to":2892600176
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2892610128
+        , "to":2892612608
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2892612608
+        , "to":2892604736
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2893067600
+        , "to":2892600176
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2893067600
+        , "to":2892607216
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2893152192
+        , "to":2892196240
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2893152192
+        , "to":2892604736
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2893154672
+        , "to":2893067600
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2893206896
+        , "to":2892494592
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2893206896
+        , "to":2892497072
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2893209376
+        , "to":2893152192
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2893348272
+        , "to":2893206896
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+    ]
+  }
+  , "2802317824":
+  {
+    "nodes":
+    [
+    ]
+    , "links":
+    [
+    ]
+  }
+  , "2802318320":
+  {
+    "nodes":
+    [
+      {
+        "name":"Cluster 7"
+        , "id":3094705232
+        , "start":"1"
+        , "end":"4"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Cluster Name":"i_sfc_s_c0_in_for_body_kernel_aloaders_c0_enter4_kernel_aloader1"
+            , "Cluster Type":"Stall-Free"
+            , "Cluster Start Cycle":"1"
+            , "Cluster Latency":"3"
+          }
+        ]
+        , "type":"bb"
+        , "children":
+        [
+          {
+            "name":"Logic"
+            , "id":3242382688
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Cluster Logic Start Cycle":"1"
+                , "Cluster Logic Latency":"0"
+              }
+            ]
+            , "type":"inst"
+          }
+          , {
+            "name":"Exit"
+            , "id":3059269488
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Exit Start Cycle":"1"
+                , "Exit Latency":"3"
+                , "Exit FIFO Depth":"4"
+                , "Exit FIFO Width":"32"
+                , "Details":"Exit FIFO depth is sized to accommodate all data that may be in-flight in the stall-free cluster; this depth will be equal to or greater than the latency of the cluster.  The width of the FIFO depends on the amount of data that needs to pass from the stall-free logic cluster to the stall-able logic below it."
+              }
+            ]
+            , "type":"bb"
+          }
+        ]
+      }
+      , {
+        "name":"Loop Orch"
+        , "id":2871288592
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Loop Orchestration Logic"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":80
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+    ]
+    , "links":
+    [
+      {
+        "from":3242382688
+        , "to":3059269488
+      }
+      , {
+        "from":2871288592
+        , "to":3242382688
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+    ]
+  }
+  , "2802318400":
+  {
+    "nodes":
+    [
+      {
+        "name":"Cluster 8"
+        , "id":3090187328
+        , "start":"1"
+        , "end":"5"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Cluster Name":"i_sfc_s_c0_in_for_cond7_preheader_kernel_aloaders_c0_enter365_kernel_aloader1"
+            , "Cluster Type":"Stall-Free"
+            , "Cluster Start Cycle":"1"
+            , "Cluster Latency":"4"
+          }
+        ]
+        , "type":"bb"
+        , "children":
+        [
+          {
+            "name":"Logic"
+            , "id":3228426304
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Cluster Logic Start Cycle":"1"
+                , "Cluster Logic Latency":"1"
+              }
+            ]
+            , "type":"inst"
+          }
+          , {
+            "name":"Exit"
+            , "id":3059488176
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Exit Start Cycle":"2"
+                , "Exit Latency":"3"
+                , "Exit FIFO Depth":"8"
+                , "Exit FIFO Width":"160"
+                , "Details":"Exit FIFO depth is sized to accommodate all data that may be in-flight in the stall-free cluster; this depth will be equal to or greater than the latency of the cluster.  The width of the FIFO depends on the amount of data that needs to pass from the stall-free logic cluster to the stall-able logic below it."
+              }
+            ]
+            , "type":"bb"
+          }
+        ]
+      }
+      , {
+        "name":"Loop Input"
+        , "id":2874324256
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Loop Input"
+            , "Preceding Blocks":"kernel_aLoader.B5, kernel_aLoader.B2"
+          }
+        ]
+        , "type":"inst"
+      }
+    ]
+    , "links":
+    [
+      {
+        "from":3228426304
+        , "to":3059488176
+      }
+      , {
+        "from":2874324256
+        , "to":3228426304
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2874324256
+        , "to":3228426304
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2874324256
+        , "to":3228426304
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2874324256
+        , "to":3228426304
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+    ]
+  }
+  , "2802318480":
+  {
+    "nodes":
+    [
+      {
+        "name":"Input"
+        , "id":2875337472
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Input"
+            , "Preceding Blocks":"kernel_aLoader.B5"
+          }
+        ]
+        , "type":"inst"
+      }
+    ]
+    , "links":
+    [
+    ]
+  }
+  , "2802318560":
+  {
+    "nodes":
+    [
+      {
+        "name":"Input"
+        , "id":2875339984
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Input"
+            , "Preceding Blocks":"kernel_aLoader.B6"
+          }
+        ]
+        , "type":"inst"
+      }
+    ]
+    , "links":
+    [
+    ]
+  }
+  , "2802318640":
+  {
+    "nodes":
+    [
+      {
+        "name":"Cluster 9"
+        , "id":3171761360
+        , "start":"1"
+        , "end":"6"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Cluster Name":"i_sfc_s_c0_in_for_body10_kernel_aloaders_c0_enter496_kernel_aloader1"
+            , "Cluster Type":"Stall-Free"
+            , "Cluster Start Cycle":"1"
+            , "Cluster Latency":"5"
+          }
+        ]
+        , "type":"bb"
+        , "children":
+        [
+          {
+            "name":"Logic"
+            , "id":3066155216
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Cluster Logic Start Cycle":"1"
+                , "Cluster Logic Latency":"2"
+              }
+            ]
+            , "type":"inst"
+          }
+          , {
+            "name":"Exit"
+            , "id":3059320944
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Exit Start Cycle":"3"
+                , "Exit Latency":"3"
+                , "Exit FIFO Depth":"8"
+                , "Exit FIFO Width":"320"
+                , "Details":"Exit FIFO depth is sized to accommodate all data that may be in-flight in the stall-free cluster; this depth will be equal to or greater than the latency of the cluster.  The width of the FIFO depends on the amount of data that needs to pass from the stall-free logic cluster to the stall-able logic below it."
+              }
+            ]
+            , "type":"bb"
+          }
+        ]
+      }
+      , {
+        "name":"Loop Input"
+        , "id":2855034656
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Loop Input"
+            , "Preceding Blocks":"kernel_aLoader.B6, kernel_aLoader.B3"
+          }
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"WR"
+        , "id":2889293184
+        , "start":"1.8e+02"
+        , "end":"1.8e+02"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Channel Write"
+            , "Width":"2048 bits"
+            , "Depth":"256"
+            , "Channel Name":"_aLoader_channel"
+            , "Stall-free":"No"
+            , "Start Cycle":"183"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":92
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"LD"
+        , "id":2889560736
+        , "start":"7"
+        , "end":"1.8e+02"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Load"
+            , "Width":"1024 bits"
+            , "LSU Style":"Burst-coalesced"
+            , "Stall-free":"No"
+            , "Global Memory":"Yes"
+            , "Start Cycle":"7"
+            , "Latency":"176"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":90
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"LD"
+        , "id":2889563216
+        , "start":"7"
+        , "end":"1.8e+02"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Load"
+            , "Width":"1024 bits"
+            , "LSU Style":"Burst-coalesced"
+            , "Stall-free":"No"
+            , "Global Memory":"Yes"
+            , "Start Cycle":"7"
+            , "Latency":"176"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":91
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+    ]
+    , "links":
+    [
+      {
+        "from":3066155216
+        , "to":3059320944
+      }
+      , {
+        "from":2855034656
+        , "to":3066155216
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2855034656
+        , "to":3066155216
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2855034656
+        , "to":3066155216
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2855034656
+        , "to":3066155216
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2855034656
+        , "to":3066155216
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2855034656
+        , "to":3066155216
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2855034656
+        , "to":3066155216
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2855034656
+        , "to":3066155216
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":3059320944
+        , "to":2889293184
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"320"
+          }
+        ]
+      }
+      , {
+        "from":2889560736
+        , "to":2889293184
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1024"
+          }
+        ]
+      }
+      , {
+        "from":3059320944
+        , "to":2889560736
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"320"
+          }
+        ]
+      }
+      , {
+        "from":2889563216
+        , "to":2889293184
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1024"
+          }
+        ]
+      }
+      , {
+        "from":3059320944
+        , "to":2889563216
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"320"
+          }
+        ]
+      }
+      , {
+        "from":2855034656
+        , "to":3066155216
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2855034656
+        , "to":3066155216
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+    ]
+  }
+  , "2802388288":
+  {
+    "nodes":
+    [
+      {
+        "name":"FFwd Src"
+        , "id":2887534432
+        , "start":"2"
+        , "end":"2"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"FFwd Source"
+            , "Start Cycle":"2"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":109
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"FFwd Src"
+        , "id":2887536912
+        , "start":"2"
+        , "end":"2"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"FFwd Source"
+            , "Start Cycle":"2"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":109
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"FFwd Src"
+        , "id":2887538992
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"FFwd Source"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":118
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"FFwd Src"
+        , "id":2887541472
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"FFwd Source"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":112
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"+"
+        , "id":2887544384
+        , "start":"2"
+        , "end":"2"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"33-bit Integer Add"
+            , "Constant Operand":"-1 (0x1FFFFFFFF)"
+            , "Start Cycle":"2"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":109
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"FFwd Src"
+        , "id":2887546864
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"FFwd Source"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":109
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"Select"
+        , "id":2888086448
+        , "start":"1"
+        , "end":"2"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"32-bit Select"
+            , "Start Cycle":"1"
+            , "Latency":"1"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":109
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"+"
+        , "id":2888088928
+        , "start":"2"
+        , "end":"2"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"32-bit Integer Add"
+            , "Constant Operand":"-1 (0xFFFFFFFF)"
+            , "Start Cycle":"2"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":109
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"+"
+        , "id":2888141152
+        , "start":"2"
+        , "end":"2"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"33-bit Integer Add"
+            , "Constant Operand":"-1 (0x1FFFFFFFF)"
+            , "Start Cycle":"2"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":109
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"Compare"
+        , "id":2888143632
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"32-bit Integer Compare"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":109
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"+"
+        , "id":2888280048
+        , "start":"2"
+        , "end":"2"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"32-bit Integer Add"
+            , "Constant Operand":"-1 (0xFFFFFFFF)"
+            , "Start Cycle":"2"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":109
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"Compare"
+        , "id":2888441984
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"32-bit Integer Compare"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":109
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"Select"
+        , "id":2888444464
+        , "start":"1"
+        , "end":"2"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"32-bit Select"
+            , "Start Cycle":"1"
+            , "Latency":"1"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":109
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"And"
+        , "id":2888547568
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"32-bit And"
+            , "Constant Operand":"-32 (0xFFFFFFE0)"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":118
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"And"
+        , "id":2888550048
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"1-bit And"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":112
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"Compare"
+        , "id":2888552128
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"32-bit Integer Compare"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":112
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"_A_extent_0"
+        , "id":2888554608
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Input Synchronization for '_A_extent_0'"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":">>"
+        , "id":2888557520
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"32-bit Arithmetic Right Shift"
+            , "Constant Operand":"5 (0x5)"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":111
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"_A_extent_0"
+        , "id":2888560000
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Input Synchronization for '_A_extent_0'"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"_A_extent_0"
+        , "id":2889014992
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Input Synchronization for '_A_extent_0'"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"_A_extent_1"
+        , "id":2889099584
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Input Synchronization for '_A_extent_1'"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"Compare"
+        , "id":2889102064
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"32-bit Integer Compare"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":109
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"_A_extent_1"
+        , "id":2889154288
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Input Synchronization for '_A_extent_1'"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":">>"
+        , "id":2889156768
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"32-bit Arithmetic Right Shift"
+            , "Constant Operand":"10 (0xA)"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":108
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+    ]
+    , "links":
+    [
+      {
+        "from":2887544384
+        , "to":2887536912
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"33"
+          }
+        ]
+      }
+      , {
+        "from":2888086448
+        , "to":2888088928
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2888088928
+        , "to":2887544384
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2888141152
+        , "to":2887534432
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"33"
+          }
+        ]
+      }
+      , {
+        "from":2888143632
+        , "to":2888086448
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2888280048
+        , "to":2888141152
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2888441984
+        , "to":2888444464
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2888444464
+        , "to":2888280048
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2888547568
+        , "to":2887538992
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2888550048
+        , "to":2887541472
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2888552128
+        , "to":2888550048
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2888554608
+        , "to":2888547568
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2888557520
+        , "to":2888441984
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2888557520
+        , "to":2888444464
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2888560000
+        , "to":2888552128
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2889014992
+        , "to":2888557520
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2889099584
+        , "to":2889102064
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2889102064
+        , "to":2887546864
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2889102064
+        , "to":2888550048
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2889154288
+        , "to":2889156768
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2889156768
+        , "to":2888086448
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2889156768
+        , "to":2888143632
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+    ]
+  }
+  , "2802400288":
+  {
+    "nodes":
+    [
+    ]
+    , "links":
+    [
+    ]
+  }
+  , "2802400784":
+  {
+    "nodes":
+    [
+      {
+        "name":"Cluster 10"
+        , "id":3064743648
+        , "start":"1"
+        , "end":"4"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Cluster Name":"i_sfc_s_c0_in_for_body_kernel_xloaders_c0_enter4_kernel_xloader1"
+            , "Cluster Type":"Stall-Free"
+            , "Cluster Start Cycle":"1"
+            , "Cluster Latency":"3"
+          }
+        ]
+        , "type":"bb"
+        , "children":
+        [
+          {
+            "name":"Logic"
+            , "id":3014871744
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Cluster Logic Start Cycle":"1"
+                , "Cluster Logic Latency":"0"
+              }
+            ]
+            , "type":"inst"
+          }
+          , {
+            "name":"Exit"
+            , "id":3138713360
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Exit Start Cycle":"1"
+                , "Exit Latency":"3"
+                , "Exit FIFO Depth":"4"
+                , "Exit FIFO Width":"32"
+                , "Details":"Exit FIFO depth is sized to accommodate all data that may be in-flight in the stall-free cluster; this depth will be equal to or greater than the latency of the cluster.  The width of the FIFO depends on the amount of data that needs to pass from the stall-free logic cluster to the stall-able logic below it."
+              }
+            ]
+            , "type":"bb"
+          }
+        ]
+      }
+      , {
+        "name":"Loop Orch"
+        , "id":2880670944
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Loop Orchestration Logic"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":109
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+    ]
+    , "links":
+    [
+      {
+        "from":3014871744
+        , "to":3138713360
+      }
+      , {
+        "from":2880670944
+        , "to":3014871744
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+    ]
+  }
+  , "2802400864":
+  {
+    "nodes":
+    [
+      {
+        "name":"Cluster 11"
+        , "id":3151809504
+        , "start":"1"
+        , "end":"5"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Cluster Name":"i_sfc_s_c0_in_for_cond7_preheader_kernel_xloaders_c0_enter375_kernel_xloader1"
+            , "Cluster Type":"Stall-Free"
+            , "Cluster Start Cycle":"1"
+            , "Cluster Latency":"4"
+          }
+        ]
+        , "type":"bb"
+        , "children":
+        [
+          {
+            "name":"Logic"
+            , "id":3228977744
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Cluster Logic Start Cycle":"1"
+                , "Cluster Logic Latency":"1"
+              }
+            ]
+            , "type":"inst"
+          }
+          , {
+            "name":"Exit"
+            , "id":3137528944
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Exit Start Cycle":"2"
+                , "Exit Latency":"3"
+                , "Exit FIFO Depth":"8"
+                , "Exit FIFO Width":"160"
+                , "Details":"Exit FIFO depth is sized to accommodate all data that may be in-flight in the stall-free cluster; this depth will be equal to or greater than the latency of the cluster.  The width of the FIFO depends on the amount of data that needs to pass from the stall-free logic cluster to the stall-able logic below it."
+              }
+            ]
+            , "type":"bb"
+          }
+        ]
+      }
+      , {
+        "name":"Loop Input"
+        , "id":2873311040
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Loop Input"
+            , "Preceding Blocks":"kernel_xLoader.B5, kernel_xLoader.B2"
+          }
+        ]
+        , "type":"inst"
+      }
+    ]
+    , "links":
+    [
+      {
+        "from":3228977744
+        , "to":3137528944
+      }
+      , {
+        "from":2873311040
+        , "to":3228977744
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2873311040
+        , "to":3228977744
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2873311040
+        , "to":3228977744
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2873311040
+        , "to":3228977744
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+    ]
+  }
+  , "2802400944":
+  {
+    "nodes":
+    [
+      {
+        "name":"Input"
+        , "id":2882696016
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Input"
+            , "Preceding Blocks":"kernel_xLoader.B5"
+          }
+        ]
+        , "type":"inst"
+      }
+    ]
+    , "links":
+    [
+    ]
+  }
+  , "2802401024":
+  {
+    "nodes":
+    [
+      {
+        "name":"Input"
+        , "id":2872815600
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Input"
+            , "Preceding Blocks":"kernel_xLoader.B6"
+          }
+        ]
+        , "type":"inst"
+      }
+    ]
+    , "links":
+    [
+    ]
+  }
+  , "2802401104":
+  {
+    "nodes":
+    [
+      {
+        "name":"Cluster 12"
+        , "id":3273254704
+        , "start":"1"
+        , "end":"55"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Cluster Name":"i_sfc_s_c0_in_for_body10_kernel_xloaders_c0_enter506_kernel_xloader1"
+            , "Cluster Type":"Stall-Free"
+            , "Cluster Start Cycle":"1"
+            , "Cluster Latency":"54"
+          }
+        ]
+        , "type":"bb"
+        , "children":
+        [
+          {
+            "name":"Logic"
+            , "id":2964975040
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Cluster Logic Start Cycle":"1"
+                , "Cluster Logic Latency":"51"
+              }
+            ]
+            , "type":"inst"
+          }
+          , {
+            "name":"Exit"
+            , "id":3133251296
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Exit Start Cycle":"52"
+                , "Exit Latency":"3"
+                , "Exit FIFO Depth":"64"
+                , "Exit FIFO Width":"192"
+                , "Details":"Exit FIFO depth is sized to accommodate all data that may be in-flight in the stall-free cluster; this depth will be equal to or greater than the latency of the cluster.  The width of the FIFO depends on the amount of data that needs to pass from the stall-free logic cluster to the stall-able logic below it."
+              }
+            ]
+            , "type":"bb"
+          }
+        ]
+      }
+      , {
+        "name":"Loop Input"
+        , "id":2872676784
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Loop Input"
+            , "Preceding Blocks":"kernel_xLoader.B6, kernel_xLoader.B3"
+          }
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"WR"
+        , "id":2885508160
+        , "start":"1.8e+02"
+        , "end":"1.8e+02"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Channel Write"
+            , "Width":"64 bits"
+            , "Depth":"256"
+            , "Channel Name":"_xLoader_channel"
+            , "Stall-free":"No"
+            , "Start Cycle":"183"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":121
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"LD"
+        , "id":2885515200
+        , "start":"55"
+        , "end":"1.8e+02"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Load"
+            , "Width":"64 bits"
+            , "LSU Style":"Burst-coalesced"
+            , "Stall-free":"No"
+            , "Global Memory":"Yes"
+            , "Start Cycle":"55"
+            , "Latency":"128"
+            , "Subnormal Support":"On"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":120
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+    ]
+    , "links":
+    [
+      {
+        "from":2964975040
+        , "to":3133251296
+      }
+      , {
+        "from":2872676784
+        , "to":2964975040
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2872676784
+        , "to":2964975040
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2872676784
+        , "to":2964975040
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":3133251296
+        , "to":2885508160
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"192"
+          }
+        ]
+      }
+      , {
+        "from":2885515200
+        , "to":2885508160
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"64"
+          }
+        ]
+      }
+      , {
+        "from":3133251296
+        , "to":2885515200
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"192"
+          }
+        ]
+      }
+      , {
+        "from":2872676784
+        , "to":2964975040
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2872676784
+        , "to":2964975040
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2872676784
+        , "to":2964975040
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2872676784
+        , "to":2964975040
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2872676784
+        , "to":2964975040
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2872676784
+        , "to":2964975040
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2872676784
+        , "to":2964975040
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+    ]
+  }
+  , "2802635776":
+  {
+    "nodes":
+    [
+      {
+        "name":"ST"
+        , "id":2884227504
+        , "start":"0"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Store"
+            , "Width":"64 bits"
+            , "LSU Style":"Pipelined never-stall"
+            , "Stall-free":"Yes"
+            , "Global Memory":"No"
+            , "Start Cycle":"0"
+            , "Latency":"1"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":314
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"FFwd Dest"
+        , "id":2884389440
+        , "start":"0"
+        , "end":"1.2e-38"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"FFwd Destination"
+            , "Start Cycle":"0"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":309
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"FFwd Dest"
+        , "id":2884391920
+        , "start":"0"
+        , "end":"1.2e-38"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"FFwd Destination"
+            , "Start Cycle":"0"
+            , "Latency":"0"
+            , "Subnormal Support":"On"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":313
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+    ]
+    , "links":
+    [
+      {
+        "from":2884389440
+        , "to":2884227504
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2884391920
+        , "to":2884227504
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"64"
+          }
+        ]
+      }
+    ]
+  }
+  , "2802635856":
+  {
+    "nodes":
+    [
+      {
+        "name":"Input"
+        , "id":2902623392
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Input"
+            , "Preceding Blocks":"kernel_unloader.B6"
+          }
+        ]
+        , "type":"inst"
+      }
+    ]
+    , "links":
+    [
+    ]
+  }
+  , "2802635936":
+  {
+    "nodes":
+    [
+      {
+        "name":"Cluster 14"
+        , "id":3271478096
+        , "start":"1"
+        , "end":"5"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Cluster Name":"i_sfc_s_c0_in_for_body4_kernel_unloaders_c0_enter5110_kernel_unloader1"
+            , "Cluster Type":"Stall-Free"
+            , "Cluster Start Cycle":"1"
+            , "Cluster Latency":"4"
+          }
+        ]
+        , "type":"bb"
+        , "children":
+        [
+          {
+            "name":"Logic"
+            , "id":3085868320
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Cluster Logic Start Cycle":"1"
+                , "Cluster Logic Latency":"1"
+              }
+            ]
+            , "type":"inst"
+          }
+          , {
+            "name":"Exit"
+            , "id":3129909440
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Exit Start Cycle":"2"
+                , "Exit Latency":"3"
+                , "Exit FIFO Depth":"8"
+                , "Exit FIFO Width":"224"
+                , "Details":"Exit FIFO depth is sized to accommodate all data that may be in-flight in the stall-free cluster; this depth will be equal to or greater than the latency of the cluster.  The width of the FIFO depends on the amount of data that needs to pass from the stall-free logic cluster to the stall-able logic below it."
+              }
+            ]
+            , "type":"bb"
+          }
+        ]
+      }
+      , {
+        "name":"Cluster 15"
+        , "id":2957422432
+        , "start":"6"
+        , "end":"11"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Cluster Name":"i_sfc_s_c1_in_for_body4_kernel_unloaders_c1_enter_kernel_unloader8"
+            , "Cluster Type":"Stall-Free"
+            , "Cluster Start Cycle":"6"
+            , "Cluster Latency":"5"
+          }
+        ]
+        , "type":"bb"
+        , "children":
+        [
+          {
+            "name":"Logic"
+            , "id":3151493472
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Cluster Logic Start Cycle":"6"
+                , "Cluster Logic Latency":"2"
+              }
+            ]
+            , "type":"inst"
+          }
+          , {
+            "name":"Exit"
+            , "id":3233611168
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Exit Start Cycle":"8"
+                , "Exit Latency":"3"
+                , "Exit FIFO Depth":"8"
+                , "Exit FIFO Width":"8"
+                , "Details":"Exit FIFO depth is sized to accommodate all data that may be in-flight in the stall-free cluster; this depth will be equal to or greater than the latency of the cluster.  The width of the FIFO depends on the amount of data that needs to pass from the stall-free logic cluster to the stall-able logic below it."
+              }
+            ]
+            , "type":"bb"
+          }
+        ]
+      }
+      , {
+        "name":"Loop Input"
+        , "id":2872622256
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Loop Input"
+            , "Preceding Blocks":"kernel_unloader.B6, kernel_unloader.B1"
+          }
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"FFwd Src"
+        , "id":2882468144
+        , "start":"11"
+        , "end":"11"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"FFwd Source"
+            , "Start Cycle":"11"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":313
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"?"
+        , "id":2883020640
+        , "start":"5"
+        , "end":"6"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Feedback Read"
+            , "Variable":"Unknown variable"
+            , "Start Cycle":"5"
+            , "Latency":"1"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":318
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"RD"
+        , "id":2883023120
+        , "start":"6"
+        , "end":"6"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Channel Read"
+            , "Width":"2048 bits"
+            , "Depth":"256"
+            , "Channel Name":"_V_channel"
+            , "Stall-free":"No"
+            , "Start Cycle":"6"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":313
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+    ]
+    , "links":
+    [
+      {
+        "from":3085868320
+        , "to":3129909440
+      }
+      , {
+        "from":3151493472
+        , "to":3233611168
+      }
+      , {
+        "from":2872622256
+        , "to":3085868320
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2883020640
+        , "to":3151493472
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":3129909440
+        , "to":2883020640
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"224"
+          }
+        ]
+      }
+      , {
+        "from":2883023120
+        , "to":2882468144
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"2048"
+          }
+        ]
+      }
+      , {
+        "from":2883023120
+        , "to":3151493472
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"2048"
+          }
+        ]
+      }
+      , {
+        "from":3129909440
+        , "to":2883023120
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"224"
+          }
+        ]
+      }
+      , {
+        "from":2872622256
+        , "to":3085868320
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2872622256
+        , "to":3085868320
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2872622256
+        , "to":3085868320
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2872622256
+        , "to":3085868320
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+    ]
+  }
+  , "2802636016":
+  {
+    "nodes":
+    [
+      {
+        "name":"Cluster 16"
+        , "id":3049828096
+        , "start":"1"
+        , "end":"11"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Cluster Name":"i_sfc_s_c0_in_for_body8_kernel_unloaders_c0_enter6711_kernel_unloader1"
+            , "Cluster Type":"Stall-Free"
+            , "Cluster Start Cycle":"1"
+            , "Cluster Latency":"10"
+          }
+        ]
+        , "type":"bb"
+        , "children":
+        [
+          {
+            "name":"Logic"
+            , "id":3227712144
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Cluster Logic Start Cycle":"1"
+                , "Cluster Logic Latency":"7"
+              }
+            ]
+            , "type":"inst"
+          }
+          , {
+            "name":"Exit"
+            , "id":3220648992
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Exit Start Cycle":"8"
+                , "Exit Latency":"3"
+                , "Exit FIFO Depth":"16"
+                , "Exit FIFO Width":"384"
+                , "Details":"Exit FIFO depth is sized to accommodate all data that may be in-flight in the stall-free cluster; this depth will be equal to or greater than the latency of the cluster.  The width of the FIFO depends on the amount of data that needs to pass from the stall-free logic cluster to the stall-able logic below it."
+              }
+            ]
+            , "type":"bb"
+          }
+        ]
+      }
+      , {
+        "name":"Loop Orch"
+        , "id":2872624736
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Loop Orchestration Logic"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":316
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"ST"
+        , "id":2881189264
+        , "start":"11"
+        , "end":"13"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Store"
+            , "Width":"64 bits"
+            , "LSU Style":"Burst-coalesced"
+            , "Stall-free":"No"
+            , "Global Memory":"Yes"
+            , "Start Cycle":"11"
+            , "Latency":"2"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":320
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+    ]
+    , "links":
+    [
+      {
+        "from":3227712144
+        , "to":3220648992
+      }
+      , {
+        "from":2872624736
+        , "to":3227712144
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":3220648992
+        , "to":2881189264
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"384"
+          }
+        ]
+      }
+      , {
+        "from":2872624736
+        , "to":3227712144
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2872624736
+        , "to":3227712144
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2872624736
+        , "to":3227712144
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2872624736
+        , "to":3227712144
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2872624736
+        , "to":3227712144
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2872624736
+        , "to":3227712144
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"64"
+          }
+        ]
+      }
+      , {
+        "from":2872624736
+        , "to":3227712144
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2872624736
+        , "to":3227712144
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2872624736
+        , "to":3227712144
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2872624736
+        , "to":3227712144
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2872624736
+        , "to":3227712144
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2872624736
+        , "to":3227712144
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+    ]
+  }
+  , "2802636096":
+  {
+    "nodes":
+    [
+      {
+        "name":"Input"
+        , "id":2901256512
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Input"
+            , "Preceding Blocks":"kernel_unloader.B5"
+          }
+        ]
+        , "type":"inst"
+      }
+    ]
+    , "links":
+    [
+    ]
+  }
+  , "2802751200":
+  {
+    "nodes":
+    [
+      {
+        "name":"+"
+        , "id":2870952672
+        , "start":"2"
+        , "end":"2"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"32-bit Integer Add"
+            , "Constant Operand":"-1 (0xFFFFFFFF)"
+            , "Start Cycle":"2"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":309
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"FFwd Src"
+        , "id":2884962448
+        , "start":"2"
+        , "end":"2"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"FFwd Source"
+            , "Start Cycle":"2"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":309
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"+"
+        , "id":2885047040
+        , "start":"2"
+        , "end":"2"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"33-bit Integer Add"
+            , "Constant Operand":"-1 (0x1FFFFFFFF)"
+            , "Start Cycle":"2"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":309
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"FFwd Src"
+        , "id":2885049520
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"FFwd Source"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":309
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"Compare"
+        , "id":2885101744
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"32-bit Integer Compare"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":309
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"Select"
+        , "id":2885104224
+        , "start":"1"
+        , "end":"2"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"32-bit Select"
+            , "Start Cycle":"1"
+            , "Latency":"1"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":309
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"_A_extent_1"
+        , "id":2885240640
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Input Synchronization for '_A_extent_1'"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"Compare"
+        , "id":2885243120
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"32-bit Integer Compare"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":309
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":"_A_extent_1"
+        , "id":2885402576
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Input Synchronization for '_A_extent_1'"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "type":"inst"
+      }
+      , {
+        "name":">>"
+        , "id":2885405056
+        , "start":"1"
+        , "end":"1"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"32-bit Arithmetic Right Shift"
+            , "Constant Operand":"10 (0xA)"
+            , "Start Cycle":"1"
+            , "Latency":"0"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":308
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+    ]
+    , "links":
+    [
+      {
+        "from":2870952672
+        , "to":2885047040
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2885047040
+        , "to":2884962448
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"33"
+          }
+        ]
+      }
+      , {
+        "from":2885101744
+        , "to":2885104224
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2885104224
+        , "to":2870952672
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2885240640
+        , "to":2885243120
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2885243120
+        , "to":2885049520
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+      , {
+        "from":2885402576
+        , "to":2885405056
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2885405056
+        , "to":2885101744
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+      , {
+        "from":2885405056
+        , "to":2885104224
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"32"
+          }
+        ]
+      }
+    ]
+  }
+  , "2802774864":
+  {
+    "nodes":
+    [
+      {
+        "name":"Cluster 13"
+        , "id":3239262512
+        , "start":"1"
+        , "end":"5"
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Cluster Name":"i_sfc_s_c0_in_for_cond1_preheader_kernel_unloaders_c0_enter9_kernel_unloader1"
+            , "Cluster Type":"Stall-Free"
+            , "Cluster Start Cycle":"1"
+            , "Cluster Latency":"4"
+          }
+        ]
+        , "type":"bb"
+        , "children":
+        [
+          {
+            "name":"Logic"
+            , "id":3189950384
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Cluster Logic Start Cycle":"1"
+                , "Cluster Logic Latency":"1"
+              }
+            ]
+            , "type":"inst"
+          }
+          , {
+            "name":"Exit"
+            , "id":3138823440
+            , "details":
+            [
+              {
+                "type":"table"
+                , "Exit Start Cycle":"2"
+                , "Exit Latency":"3"
+                , "Exit FIFO Depth":"8"
+                , "Exit FIFO Width":"96"
+                , "Details":"Exit FIFO depth is sized to accommodate all data that may be in-flight in the stall-free cluster; this depth will be equal to or greater than the latency of the cluster.  The width of the FIFO depends on the amount of data that needs to pass from the stall-free logic cluster to the stall-able logic below it."
+              }
+            ]
+            , "type":"bb"
+          }
+        ]
+      }
+      , {
+        "name":"Loop Orch"
+        , "id":2902620912
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Instruction":"Loop Orchestration Logic"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":309
+            }
+          ]
+        ]
+        , "type":"inst"
+      }
+    ]
+    , "links":
+    [
+      {
+        "from":3189950384
+        , "to":3138823440
+      }
+      , {
+        "from":2902620912
+        , "to":3189950384
+        , "details":
+        [
+          {
+            "type":"table"
+            , "Width":"1"
+          }
+        ]
+      }
+    ]
+  }
+}

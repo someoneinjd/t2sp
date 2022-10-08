@@ -1,0 +1,426 @@
+{
+  "performanceSummary":
+  {
+    "name":"Kernel Summary"
+    , "columns":
+    ["Kernel Name", "Kernel Type", "Autorun", "Workgroup Size", "# Compute Units"]
+    , "children":
+    [
+      {
+        "name":"Intel_Internal_Collect_Autorun_Profiling"
+        , "data":
+        [
+          "NDRange"
+          , "No"
+          , "n/a"
+          , 1
+        ]
+        , "details":
+        [
+          {
+            "type":"text"
+            , "text":"Kernel type: NDRange"
+          }
+          , {
+            "type":"text"
+            , "text":"The kernel does not use any work-group information (such as get_local_id() or get_group_id()).Local work-group size will be automatically modified to match global work-group size on launch.This is a hardware optimization."
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":""
+              , "line":0
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_AFeeder"
+        , "data":
+        [
+          "Single work-item"
+          , "Yes"
+          , [1, 1, 1]
+          , 1
+        ]
+        , "details":
+        [
+          {
+            "type":"text"
+            , "text":"Kernel type: Single work-item"
+          }
+          , {
+            "type":"text"
+            , "text":"Autorun Kernel: This kernel will start running before any other kernel is explicitly launched by the host.  The kernel will be automatically restarted as soon as it finishes."
+          }
+          , {
+            "type":"text"
+            , "text":"Max global work dimension: 0"
+          }
+          , {
+            "type":"text"
+            , "text":"Required workgroup size: (1, 1, 1)"
+          }
+          , {
+            "type":"text"
+            , "text":"Maximum workgroup size: 1"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":148
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_ALoader"
+        , "data":
+        [
+          "Single work-item"
+          , "No"
+          , [1, 1, 1]
+          , 1
+        ]
+        , "details":
+        [
+          {
+            "type":"text"
+            , "text":"Kernel type: Single work-item"
+          }
+          , {
+            "type":"text"
+            , "text":"Required workgroup size: (1, 1, 1)"
+          }
+          , {
+            "type":"text"
+            , "text":"Maximum workgroup size: 1"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":84
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_BFeeder"
+        , "data":
+        [
+          "Single work-item"
+          , "Yes"
+          , [1, 1, 1]
+          , 1
+        ]
+        , "details":
+        [
+          {
+            "type":"text"
+            , "text":"Kernel type: Single work-item"
+          }
+          , {
+            "type":"text"
+            , "text":"Autorun Kernel: This kernel will start running before any other kernel is explicitly launched by the host.  The kernel will be automatically restarted as soon as it finishes."
+          }
+          , {
+            "type":"text"
+            , "text":"Max global work dimension: 0"
+          }
+          , {
+            "type":"text"
+            , "text":"Required workgroup size: (1, 1, 1)"
+          }
+          , {
+            "type":"text"
+            , "text":"Maximum workgroup size: 1"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":352
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_BLoader"
+        , "data":
+        [
+          "Single work-item"
+          , "No"
+          , [1, 1, 1]
+          , 1
+        ]
+        , "details":
+        [
+          {
+            "type":"text"
+            , "text":"Kernel type: Single work-item"
+          }
+          , {
+            "type":"text"
+            , "text":"Required workgroup size: (1, 1, 1)"
+          }
+          , {
+            "type":"text"
+            , "text":"Maximum workgroup size: 1"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":288
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_Out"
+        , "data":
+        [
+          "Single work-item"
+          , "No"
+          , [1, 1, 1]
+          , 1
+        ]
+        , "details":
+        [
+          {
+            "type":"text"
+            , "text":"Kernel type: Single work-item"
+          }
+          , {
+            "type":"text"
+            , "text":"Required workgroup size: (1, 1, 1)"
+          }
+          , {
+            "type":"text"
+            , "text":"Maximum workgroup size: 1"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":490
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_unloader"
+        , "data":
+        [
+          "Single work-item"
+          , "No"
+          , [1, 1, 1]
+          , 1
+        ]
+        , "details":
+        [
+          {
+            "type":"text"
+            , "text":"Kernel type: Single work-item"
+          }
+          , {
+            "type":"text"
+            , "text":"Required workgroup size: (1, 1, 1)"
+          }
+          , {
+            "type":"text"
+            , "text":"Maximum workgroup size: 1"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":741
+            }
+          ]
+        ]
+      }
+    ]
+  }
+  , "estimatedResources":
+  {
+    "name":"Estimated Resource Usage"
+    , "columns":
+    ["Kernel Name", "ALUTs ", "FFs  ", "RAMs ", "DSPs ", "MLABs"]
+    , "children":
+    [
+      {
+        "name":"Intel_Internal_Collect_Autorun_Profiling"
+        , "data":
+        [1338, 2411, 0, 0, 10]
+        , "debug":
+        [
+          [
+            {
+              "filename":""
+              , "line":0
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_AFeeder"
+        , "data":
+        [11422, 29008, 104, 0, 400]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":148
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_ALoader"
+        , "data":
+        [4239, 6916, 17, 1.5, 71]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":84
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_BFeeder"
+        , "data":
+        [5493, 14138, 52, 0, 158]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":352
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_BLoader"
+        , "data":
+        [4339, 7192, 17, 1.5, 87]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":288
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_Out"
+        , "data":
+        [449053, 380376, 128, 1024, 579]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":490
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_unloader"
+        , "data":
+        [2700, 5528, 0, 0, 53]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":741
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"Kernel Subtotal"
+        , "classes":
+        ["summary-highlight", "nohover"]
+        , "data":
+        [478583, 445569, 318, 1027, 1358]
+      }
+      , {
+        "name":"Global Interconnect"
+        , "classes":
+        ["summary-highlight", "nohover"]
+        , "data":
+        [6577, 8915, 0, 0, 0]
+      }
+      , {
+        "name":"Board Interface"
+        , "classes":
+        ["summary-highlight", "nohover"]
+        , "data":
+        [134500, 172452, 397, 0, 0]
+      }
+      , {
+        "name":"System description ROM"
+        , "classes":
+        ["summary-highlight", "nohover"]
+        , "data":
+        [0, 67, 2, 0, 0]
+      }
+      , {
+        "name":"Pipe and channel resources"
+        , "classes":
+        ["summary-highlight", "nohover"]
+        , "data":
+        [55, 22302, 188, 0, 0]
+      }
+      , {
+        "name":"Total"
+        , "classes":
+        ["summary-highlight", "nohover"]
+        , "data":
+        [619716, 649305, 905, 1027, 1358]
+        , "data_percent":
+        [72.5323, 37.9977, 33.3579, 67.6548]
+      }
+      , {
+        "name":"Available"
+        , "classes":
+        ["summary-highlight", "nohover"]
+        , "data":
+        [854400, 1708800, 2713, 1518, 0]
+      }
+    ]
+  }
+  , "compileWarnings":
+  {
+    "name":"Compile Warnings"
+    , "children":
+    [
+    ]
+  }
+}

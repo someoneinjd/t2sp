@@ -1,0 +1,35 @@
+{
+"quartusFitClockSummary":
+{
+  "name":"Quartus Fit Clock Summary"
+  ,"columns":["", "Kernel fmax", "2x clock fmax"]  ,"children":[
+  {
+    "name":"Frequency (MHz)","data":["Kernel fmax": 246.00 ,"2x clock fmax": 492.00]
+    ,"details":[
+    {
+      "type":"text","text":"1x clock fmax is limited 2x clock. Higher 1x clock fmax could be achieved without the 2x clock." 
+    }]
+  }
+]}
+,"quartusFitResourceUsageSummary":
+{
+  "name":"Quartus Fit Resource Utilization Summary"
+  ,"columns":["", "ALMs", "FFs", "RAMs", "DSPs", "MLABs"]  ,"children":[
+  {"name":"Full design (all kernels)","data":["ALMs": 52541.1 ,"FFs": 106246 ,"RAMs": 207 ,"DSPs": 130 ,"MLABs": 610  ]
+  }
+,
+  {"name":"kernel_V","data":["ALMs": 35683.0 ,"FFs": 67493 ,"RAMs": 71 ,"DSPs": 128 ,"MLABs": 469]
+  }
+,
+  {"name":"kernel_aLoader","data":["ALMs": 2692.3 ,"FFs": 7857 ,"RAMs": 56 ,"DSPs": 0 ,"MLABs": 22]
+  }
+,
+  {"name":"kernel_unloader","data":["ALMs": 8066.9 ,"FFs": 18473 ,"RAMs": 0 ,"DSPs": 0 ,"MLABs": 102]
+  }
+,
+  {"name":"kernel_xFeeder","data":["ALMs": 2282.1 ,"FFs": 4460 ,"RAMs": 64 ,"DSPs": 2 ,"MLABs": 6]
+  }
+,
+  {"name":"kernel_xLoader","data":["ALMs": 3816.8 ,"FFs": 7963 ,"RAMs": 16 ,"DSPs": 0 ,"MLABs": 11]
+  }
+]}}

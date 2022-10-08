@@ -8,7 +8,7 @@
       , "target_ii":"Not specified"
       , "achieved_fmax":"240.0"
       , "achieved_ii":1
-      , "latency":14
+      , "latency":17
       , "max_interleaving":1
       , "is_fmax_bottleneck":"No"
       , "is_loop_header":"No"
@@ -42,7 +42,7 @@
       , "target_ii":"Not specified"
       , "achieved_fmax":"240.0"
       , "achieved_ii":1
-      , "latency":31
+      , "latency":36
       , "max_interleaving":1
       , "is_fmax_bottleneck":"No"
       , "is_loop_header":"Yes"
@@ -59,7 +59,7 @@
             [
               {
                 "filename":"a.cl"
-                , "line":"139"
+                , "line":"142"
               }
             ]
           }
@@ -73,7 +73,7 @@
       , "target_ii":"Not specified"
       , "achieved_fmax":"240.0"
       , "achieved_ii":1
-      , "latency":14
+      , "latency":17
       , "max_interleaving":1
       , "is_fmax_bottleneck":"No"
       , "is_loop_header":"No"
@@ -124,7 +124,7 @@
             [
               {
                 "filename":"a.cl"
-                , "line":"352"
+                , "line":"355"
               }
             ]
           }
@@ -138,7 +138,7 @@
       , "target_ii":"Not specified"
       , "achieved_fmax":"240.0"
       , "achieved_ii":1
-      , "latency":13
+      , "latency":16
       , "max_interleaving":1
       , "is_fmax_bottleneck":"No"
       , "is_loop_header":"No"
@@ -172,7 +172,7 @@
             [
               {
                 "filename":"a.cl"
-                , "line":"523"
+                , "line":"526"
               }
             ]
           }
@@ -220,7 +220,7 @@
             [
               {
                 "filename":"a.cl"
-                , "line":"525"
+                , "line":"528"
               }
             ]
           }
@@ -251,7 +251,7 @@
       , "target_ii":"Not specified"
       , "achieved_fmax":"240.0"
       , "achieved_ii":1
-      , "latency":2
+      , "latency":10
       , "max_interleaving":1
       , "is_fmax_bottleneck":"No"
       , "is_loop_header":"No"
@@ -302,7 +302,7 @@
             [
               {
                 "filename":"a.cl"
-                , "line":"77"
+                , "line":"80"
               }
             ]
           }
@@ -350,7 +350,7 @@
             [
               {
                 "filename":"a.cl"
-                , "line":"80"
+                , "line":"83"
               }
             ]
           }
@@ -381,7 +381,7 @@
             [
               {
                 "filename":"a.cl"
-                , "line":"83"
+                , "line":"86"
               }
             ]
           }
@@ -446,7 +446,7 @@
             [
               {
                 "filename":"a.cl"
-                , "line":"85"
+                , "line":"88"
               }
             ]
           }
@@ -460,7 +460,7 @@
       , "target_ii":"Not specified"
       , "achieved_fmax":"240.0"
       , "achieved_ii":1
-      , "latency":8
+      , "latency":10
       , "max_interleaving":1
       , "is_fmax_bottleneck":"No"
       , "is_loop_header":"No"
@@ -511,7 +511,7 @@
             [
               {
                 "filename":"a.cl"
-                , "line":"295"
+                , "line":"298"
               }
             ]
           }
@@ -559,7 +559,7 @@
             [
               {
                 "filename":"a.cl"
-                , "line":"298"
+                , "line":"301"
               }
             ]
           }
@@ -590,7 +590,7 @@
             [
               {
                 "filename":"a.cl"
-                , "line":"301"
+                , "line":"304"
               }
             ]
           }
@@ -655,7 +655,7 @@
             [
               {
                 "filename":"a.cl"
-                , "line":"303"
+                , "line":"306"
               }
             ]
           }
@@ -669,7 +669,7 @@
       , "target_ii":"Not specified"
       , "achieved_fmax":"240.0"
       , "achieved_ii":1
-      , "latency":2
+      , "latency":10
       , "max_interleaving":1
       , "is_fmax_bottleneck":"No"
       , "is_loop_header":"No"
@@ -720,7 +720,7 @@
             [
               {
                 "filename":"a.cl"
-                , "line":"755"
+                , "line":"758"
               }
             ]
           }
@@ -751,7 +751,7 @@
             [
               {
                 "filename":"a.cl"
-                , "line":"758"
+                , "line":"761"
               }
             ]
           }
@@ -816,7 +816,7 @@
             [
               {
                 "filename":"a.cl"
-                , "line":"760"
+                , "line":"763"
               }
             ]
           }
@@ -832,7 +832,7 @@
       [
         {
           "filename":"a.cl"
-          , "line":111
+          , "line":114
         }
       ]
       , "loop_hierachy":
@@ -854,7 +854,7 @@
       [
         {
           "filename":"a.cl"
-          , "line":324
+          , "line":327
         }
       ]
       , "loop_hierachy":
@@ -876,7 +876,7 @@
       [
         {
           "filename":"a.cl"
-          , "line":497
+          , "line":500
         }
       ]
       , "loop_hierachy":
@@ -904,7 +904,7 @@
       [
         {
           "filename":"a.cl"
-          , "line":68
+          , "line":71
         }
       ]
       , "loop_hierachy":
@@ -944,7 +944,7 @@
       [
         {
           "filename":"a.cl"
-          , "line":286
+          , "line":289
         }
       ]
       , "loop_hierachy":
@@ -984,7 +984,7 @@
       [
         {
           "filename":"a.cl"
-          , "line":747
+          , "line":750
         }
       ]
       , "loop_hierachy":
