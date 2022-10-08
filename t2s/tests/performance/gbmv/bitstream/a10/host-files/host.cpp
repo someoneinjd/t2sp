@@ -42,9 +42,9 @@
 #include "AOCLUtils/aocl_utils.h"
 
 #include "const-parameters.h"
-#define I           64
-#define Ku          1023
-#define Kl          1023
+#define K           4
+#define Ku          2047
+#define Kl          2047
 
 #define max(a, b)   ((a > b) ? a : b)
 #define min(a, b)   ((a < b) ? a : b)
@@ -60,8 +60,8 @@ using namespace aocl_utils;
     printf(__VA_ARGS__); \
     fflush(stdout);
 
-#define NUM_QUEUES_TO_CREATE    7
-#define NUM_KERNELS_TO_CREATE   7
+#define NUM_QUEUES_TO_CREATE    5
+#define NUM_KERNELS_TO_CREATE   5
 
 #define CHECK(status)                                       \
     if (status != CL_SUCCESS) {                             \
@@ -79,11 +79,9 @@ void *acl_aligned_malloc(size_t size) {
 const char *kernel_name[] = {
     "kernel_aLoader",
     "kernel_xLoader",
-    "kernel_xFeeder",
-    "kernel_V",
-    "kernel_yLoader",
-    "kernel_Out",
-    "kernel_unloader"
+    "kernel_V_1",
+    "kernel_unloader_1",
+    "kernel_unloader_2"
 };
 
 double compute_kernel_execution_time(cl_event &event, double &start_d, double &end_d) {
@@ -99,56 +97,44 @@ double compute_kernel_execution_time(cl_event &event, double &start_d, double &e
 }
 
 int main(int argc, char **argv) {
-    float *A, *X, *Y;
-    const long TOTAL_I = III * II * I;
-    const long TOTAL_J = TOTAL_I / 4;
+    float *A, *X;
+    int TOTAL_K = KK * K;
 
-    float alpha = 1;//random();
-    float beta = 1;//random();
-
-    if ((A = (float *)acl_aligned_malloc(TOTAL_I*TOTAL_J * sizeof(float))) == NULL) {
+    if ((A = (float *)acl_aligned_malloc(TOTAL_K * TOTAL_K * sizeof(float))) == NULL) {
         perror("Failed malloc of matrix A");
     }
-    memset(A, 0, TOTAL_I*TOTAL_J * sizeof(float));
-    if ((X = (float *)acl_aligned_malloc((TOTAL_J + TOTAL_I) * sizeof(float))) == NULL) {
+    memset(A, 0, TOTAL_K*TOTAL_K * sizeof(float));
+    if ((X = (float *)acl_aligned_malloc(TOTAL_K * sizeof(float))) == NULL) {
         perror("Failed malloc of matrix A");
     }
-    memset(X, 0, (TOTAL_J + TOTAL_I) * sizeof(float));
-    if ((Y = (float *)acl_aligned_malloc(TOTAL_I * sizeof(float))) == NULL) {
-        perror("Failed malloc of matrix A");
-    }
-    memset(Y, 0, TOTAL_I * sizeof(float));
+    memset(X, 0, TOTAL_K* sizeof(float));
 
-    for (size_t i = 0; i < TOTAL_I; i++) {
-        for (size_t j = 0; j < TOTAL_J; j++) {
-            if (((j - i) > Ku) || ((i - j) > Kl)) continue;
-            A[j + i*TOTAL_J] = i * TOTAL_J + j;//random();
+    for (int i = 0; i < TOTAL_K; i++) {
+        for (int k = 0; k < TOTAL_K; k++) {
+            if (k - i > Ku || i - k > Kl) continue;
+            A[k + i*TOTAL_K] = i * TOTAL_K + k;//random();
         }
     }
 
-    for (int j = 0; j < TOTAL_J; j++) {
-        X[j + Ku] = j;//random();
+    for (int k = 0; k < TOTAL_K; k++) {
+        X[k] = k;//random();
     }
 
-    for (int i = 0; i < TOTAL_I; i++) {
-        Y[i] = i;//random();
-    }
-
-    int TOTAL_K = ((Ku + 1 + Kl + (KKK * KK - 1)) / (KKK * KK)) * (KKK * KK);
-    int K = TOTAL_K / (KKK * KK);
     float *banded_A;
+    int TOTAL_I = ((Ku + Kl + 1 + (III * II - 1)) / (III * II)) * (III * II);
+    int I = TOTAL_I / (III * II);
     if ((banded_A = (float *)acl_aligned_malloc(TOTAL_I*TOTAL_K * sizeof(float))) == NULL) {
         perror("Failed malloc of matrix A");
     }
     memset(banded_A, 0, TOTAL_I*TOTAL_K * sizeof(float));
-    for (int i = 0; i < TOTAL_I; i++) {
-        int k = Kl - i;
-        for (int j = max(0, i-Kl); j < min(TOTAL_J, i+Ku+1); j++) {
-            banded_A[(k+j) + TOTAL_K*i] = A[j + i*TOTAL_J];
+    for (int k = 0; k < TOTAL_K; k++) {
+        int j = Ku - k;
+        for (int i = max(0, k-Ku); i < min(TOTAL_K, k+Kl+1); i++) {
+            banded_A[k + (i+j)*TOTAL_K] = A[k + i*TOTAL_K];
         }
     }
 
-    float *serialized_A_1, *serialized_A_2, *serialized_X, *serialized_Y;
+    float *serialized_A_1, *serialized_A_2, *serialized_X;
     if ((serialized_A_1 = (float *)acl_aligned_malloc(TOTAL_I*TOTAL_K/2 * sizeof(float))) == NULL) {
         perror("Failed malloc of matrix serialized_A");
     }
@@ -156,9 +142,6 @@ int main(int argc, char **argv) {
         perror("Failed malloc of matrix serialized_A");
     }
     if ((serialized_X = (float *)acl_aligned_malloc(TOTAL_I*TOTAL_K * sizeof(float))) == NULL) {
-        perror("Failed malloc of matrix serialized_A");
-    }
-    if ((serialized_Y = (float *)acl_aligned_malloc(TOTAL_I * sizeof(float))) == NULL) {
         perror("Failed malloc of matrix serialized_A");
     }
 
@@ -178,22 +161,11 @@ int main(int argc, char **argv) {
     }
     // Serialize X
     addr = 0;
-    int _linear_bnd = (KKK-1) + (III+II*III-1) + 1;
     for (int i = 0; i < I; i++)
     for (int k = 0; k < K; k++)
-    for (int kk_ii_iii = 0; kk_ii_iii < _linear_bnd; kk_ii_iii++) {
-        int _base = i * III*II + k * KKK*KK;
-        serialized_X[addr] = X[_base + kk_ii_iii];
-        // serialized_X[addr] = _base + kk_ii_iii;
+    for (int kk = 0; kk < KK; kk++) {
+        serialized_X[addr] = X[kk + KK*k];
         addr++;
-    }
-    // Serialize Y
-    addr = 0;
-    for (int i = 0; i < I; i++)
-    for (int ii = 0; ii < II; ii++)
-    for (int iii = 0; iii < III; iii++) {
-        int total_i = iii + III*ii + III*II*i;
-        serialized_Y[addr++] = Y[total_i];
     }
 
     DPRINTF("\n===== Host-CPU setting up the OpenCL platform and device ======\n\n");
@@ -286,7 +258,7 @@ int main(int argc, char **argv) {
 
     cl_mem input_A_buf_1, input_A_buf_2;
     cl_mem input_X_buf, input_Y_buf;
-    cl_mem output_C_buf;
+    cl_mem output_Y_buf_1, output_Y_buf_2;
 
     DPRINTF("\n===== Host-CPU transferring W and X to the FPGA device global memory (DDR4) via PCIe ======\n\n");
     input_A_buf_1 = clCreateBuffer(
@@ -313,18 +285,18 @@ int main(int argc, char **argv) {
         &status);
     CHECK(status);
 
-    input_Y_buf = clCreateBuffer(
+    output_Y_buf_1 = clCreateBuffer(
         context,
-        CL_MEM_READ_ONLY | CL_CHANNEL_AUTO_INTELFPGA,
-        TOTAL_I * sizeof(cl_float),
+        CL_MEM_WRITE_ONLY | CL_CHANNEL_AUTO_INTELFPGA,
+        I * TOTAL_K * sizeof(cl_float),
         NULL,
         &status);
     CHECK(status);
 
-    output_C_buf = clCreateBuffer(
+    output_Y_buf_2 = clCreateBuffer(
         context,
         CL_MEM_WRITE_ONLY | CL_CHANNEL_AUTO_INTELFPGA,
-        TOTAL_I * sizeof(cl_float),
+        K * TOTAL_I * sizeof(cl_float),
         NULL,
         &status);
     CHECK(status);
@@ -365,18 +337,6 @@ int main(int argc, char **argv) {
         0,
         TOTAL_K * TOTAL_I * sizeof(cl_float),
         serialized_X,
-        0,
-        NULL,
-        NULL);
-    CHECK(status);
-
-    status = clEnqueueWriteBuffer(
-        cmdQueue[1],
-        input_Y_buf,
-        CL_TRUE,
-        0,
-        TOTAL_I * sizeof(cl_float),
-        serialized_Y,
         0,
         NULL,
         NULL);
@@ -454,21 +414,21 @@ int main(int argc, char **argv) {
         sizeof(cl_mem),
         (void *)&input_X_buf);
     CHECK(status);
-    // X_feeder
-    status = clSetKernelArg(
-        kernel[2],
-        0,
-        sizeof(int),
-        (void *)&TOTAL_K);
-    CHECK(status);
-    status = clSetKernelArg(
-        kernel[2],
-        1,
-        sizeof(int),
-        (void *)&TOTAL_I);
-    CHECK(status);
     // kernel_V
     status = clSetKernelArg(
+        kernel[2],
+        0,
+        sizeof(int),
+        (void *)&TOTAL_K);
+    CHECK(status);
+    status = clSetKernelArg(
+        kernel[2],
+        1,
+        sizeof(int),
+        (void *)&TOTAL_I);
+    CHECK(status);
+    // unloader_1
+    status = clSetKernelArg(
         kernel[3],
         0,
         sizeof(int),
@@ -480,50 +440,30 @@ int main(int argc, char **argv) {
         sizeof(int),
         (void *)&TOTAL_I);
     CHECK(status);
-    // kernel_yLoader
     status = clSetKernelArg(
-        kernel[4],
-        0,
-        sizeof(int),
-        (void *)&TOTAL_I);
-    CHECK(status);
-    status = clSetKernelArg(
-        kernel[4],
-        1,
-        sizeof(cl_mem),
-        (void *)&input_Y_buf);
-    CHECK(status);
-    // kernel_Out
-    status = clSetKernelArg(
-        kernel[5],
-        0,
-        sizeof(int),
-        (void *)&TOTAL_I);
-    CHECK(status);
-    status = clSetKernelArg(
-        kernel[5],
-        1,
-        sizeof(int),
-        (void *)&alpha);
-    CHECK(status);
-    status = clSetKernelArg(
-        kernel[5],
+        kernel[3],
         2,
-        sizeof(int),
-        (void *)&beta);
+        sizeof(cl_mem),
+        (void *)&output_Y_buf_1);
     CHECK(status);
-    // unloader
+    // unloader_2
     status = clSetKernelArg(
-        kernel[6],
+        kernel[4],
         0,
+        sizeof(int),
+        (void *)&TOTAL_K);
+    CHECK(status);
+    status = clSetKernelArg(
+        kernel[4],
+        1,
         sizeof(int),
         (void *)&TOTAL_I);
     CHECK(status);
     status = clSetKernelArg(
-        kernel[6],
-        1,
+        kernel[4],
+        2,
         sizeof(cl_mem),
-        (void *)&output_C_buf);
+        (void *)&output_Y_buf_2);
     CHECK(status);
 
     //----------------------------------------------
@@ -609,7 +549,7 @@ int main(int argc, char **argv) {
     // multiplied by 1.0e-9 to get G-FLOPs
     printf("\n");
 
-    double num_operations = (double)2.0 * (TOTAL_J) * (double)(TOTAL_I);
+    double num_operations = (double)2.0 * (TOTAL_K) * (double)(TOTAL_K);
 
     printf("  # operations = %.0f\n", num_operations );
     printf("  Throughput: %.5f GFLOPS\n", (double)1.0e-9 * num_operations / k_overall_exec_time);
@@ -617,44 +557,79 @@ int main(int argc, char **argv) {
     DPRINTF("\n===== Host-CPU transferring result matrix C from the FPGA device global memory (DDR4) via PCIe ======\n\n");
 
     // Read the results back from the device, blocking read
-    float *C;
-    if ((C = (float *)acl_aligned_malloc(TOTAL_I * sizeof(float))) == NULL) {
+    float *Y_1, *Y_2;
+    if ((Y_1 = (float *)acl_aligned_malloc(TOTAL_K*I * sizeof(float))) == NULL) {
+        perror("Failed malloc of matrix C");
+    }
+    if ((Y_2 = (float *)acl_aligned_malloc(TOTAL_I*K * sizeof(float))) == NULL) {
         perror("Failed malloc of matrix C");
     }
 
     clEnqueueReadBuffer(
         //cmdQueue[KID_DRAIN_MAT_C],
         cmdQueue[NUM_KERNELS_TO_CREATE], // using a special queue for reading buffer C
-        output_C_buf,
+        output_Y_buf_1,
         CL_TRUE,
         0,
-        TOTAL_I * sizeof(cl_float),
-        C,
+        I * TOTAL_K * sizeof(cl_float),
+        Y_1,
         0,
         NULL,
         NULL);
     CHECK(status);
 
-    bool passed = 1;
-    // Validate the results
+    clEnqueueReadBuffer(
+        //cmdQueue[KID_DRAIN_MAT_C],
+        cmdQueue[NUM_KERNELS_TO_CREATE], // using a special queue for reading buffer C
+        output_Y_buf_2,
+        CL_TRUE,
+        0,
+        K * TOTAL_I * sizeof(cl_float),
+        Y_2,
+        0,
+        NULL,
+        NULL);
+    CHECK(status);
+
+    float *result;
+    if ((result = (float *)acl_aligned_malloc((TOTAL_K + TOTAL_I) * sizeof(float))) == NULL) {
+        perror("Failed malloc of matrix result");
+    }
+    memset(result, 0, (TOTAL_K + TOTAL_I) * sizeof(float));
+    addr = 0;
     for (int i = 0; i < I; i++)
+    for (int k = 0; k < K; k++)
+    for (int kk = 0; kk < KK; kk++) {
+        int linear_i = i*III*II;
+        int linear_k = kk + KK*k;
+        result[linear_i + linear_k] += Y_1[addr];
+        addr += 1;
+    }
+    addr = 0;
+    for (int i = 0; i < I; i++)
+    for (int k = 0; k < K; k++)
     for (int ii = 0; ii < II; ii++)
     for (int iii = 0; iii < III; iii++) {
-        // printf("verify %d %f\n", i * 2 + iii, o(0, iii, ii, i));
-        int total_i = iii + III * ii + III * II * i;
-        if (total_i < 0 || total_i >= TOTAL_I) continue;
-
-        float golden = 0;
-        // cout << "y beta " << y(total_i + Ku) << " " << beta << " " << golden << endl;
-        for (int j = 0; j < TOTAL_J; j++) {
-            if (j - total_i > Ku || total_i - j > Kl) continue;
-            golden += A[j + TOTAL_J*total_i] * X[j+Ku];
+        int linear_i = iii + ii*III + i*II*III;
+        int linear_k = KK*k + KK-1;
+        if (iii + ii*III != 0) {
+            result[linear_i + linear_k] += Y_2[addr];
         }
-        golden = golden * alpha + Y[total_i] * beta;
+        addr += 1;
+    }
 
-        // std::cout << "(" << i << "," << ii << "," << iii << ") " << golden << " " << C[total_i] << std::endl;
-        passed &= fabs(golden - C[total_i]) <= 0.005*fabs(golden);
-        assert(fabs(golden - C[total_i]) <= 0.005*fabs(golden));
+    bool passed = 1;
+    // Validate the results
+    for (int i = 0; i < TOTAL_K; i++) {
+        float golden = 0;
+        for (int k = 0; k < TOTAL_K; k++) {
+            golden += A[k + TOTAL_K*i] * X[k];
+        }
+        passed &= fabs(golden - result[i + Ku]) <= 0.005*fabs(golden);
+        if (fabs(golden - result[i + Ku]) > 0.005*fabs(golden)) {
+            printf("%d: %.0lf, %.0lf, %.0lf\n", i, golden, result[i + Ku], Y_1[i + Ku]);
+        }
+        assert(fabs(golden - result[i + Ku]) <= 0.005*fabs(golden));
     }
 
     if (passed) {

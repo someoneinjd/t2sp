@@ -1,0 +1,4 @@
+{"nodes":[
+{"debug":[[{"filename":"/home/u146242/gbmv_lab/s10_3/a.cl","line":"154"}]],"details":[{"text":"/home/u146242/gbmv_lab/s10_3/a.cl:154:56: warning: unknown attribute 'numwriteports' ignored [-Wunknown-attributes]"}],"name":"unknown attribute 'numwriteports' ignored [-Wunknown-attributes]"},
+{"debug":[[{"filename":"a.cl","line":"213"}]],"details":[{"text":"a.cl:213: Compiler Warning: Loop Coalescing requested but cannot be done in kernel 'kernel_V_1':"}],"name":"Loop Coalescing requested but cannot be done in kernel 'kernel_V_1':"}
+]}

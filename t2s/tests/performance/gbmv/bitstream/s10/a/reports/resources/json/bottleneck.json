@@ -1,0 +1,2273 @@
+{
+  "bottlenecks":
+  [
+    {
+      "name":"'_aLoader_s0_i'"
+      , "id":1986
+      , "src":"267"
+      , "dst":"284"
+      , "type":"fMAX/II"
+      , "brief":"Data dependency"
+      , "loop":"kernel_aLoader.B2"
+      , "details":
+      [
+        {
+          "type":"table"
+          , "Variable on critical loop carried feedback path: ":"'_aLoader_s0_i'"
+          , "Declared at: ":
+          [
+            {
+              "type":"text"
+              , "text":"%L"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                  , "line":"74"
+                }
+              ]
+            }
+          ]
+          , "Dependency: ":"Data dependency"
+          , "Estimated fmax reduced to: ":"480.0"
+          , "Loop feedback path that raised II and/or lowered fMAX: ":
+          [
+            {
+              "type":"text"
+              , "text":"+(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                  , "line":"74"
+                }
+              ]
+            }
+            , {
+              "type":"text"
+              , "text":"Select(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                  , "line":"71"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+      , "nodes":
+      [
+        {
+          "name":"'_aLoader_s0_i'"
+          , "id":267
+          , "start":"4.00"
+          , "parent":"kernel_aLoader.B2"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":71
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"Select"
+          , "id":268
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":71
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"+"
+          , "id":283
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":74
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"Feedback"
+          , "id":284
+          , "end":"4.00"
+          , "parent":"kernel_aLoader.B2"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":74
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+      ]
+      , "links":
+      [
+        {
+          "from":267
+          , "to":268
+        }
+        , {
+          "from":268
+          , "to":283
+        }
+        , {
+          "from":283
+          , "to":284
+        }
+        , {
+          "from":267
+          , "to":284
+          , "reverse":1
+        }
+      ]
+    }
+    , {
+      "name":"'_aLoader_s0_k'"
+      , "id":1987
+      , "src":"291"
+      , "dst":"297"
+      , "type":"fMAX/II"
+      , "brief":"Data dependency"
+      , "loop":"kernel_aLoader.B3"
+      , "details":
+      [
+        {
+          "type":"table"
+          , "Variable on critical loop carried feedback path: ":"'_aLoader_s0_k'"
+          , "Declared at: ":
+          [
+            {
+              "type":"text"
+              , "text":"%L"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                  , "line":"77"
+                }
+              ]
+            }
+          ]
+          , "Dependency: ":"Data dependency"
+          , "Estimated fmax reduced to: ":"480.0"
+          , "Loop feedback path that raised II and/or lowered fMAX: ":
+          [
+            {
+              "type":"text"
+              , "text":"+(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                  , "line":"77"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+      , "nodes":
+      [
+        {
+          "name":"'_aLoader_s0_k'"
+          , "id":291
+          , "start":"4.00"
+          , "parent":"kernel_aLoader.B3"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":71
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"+"
+          , "id":296
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":77
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"Feedback"
+          , "id":297
+          , "end":"4.00"
+          , "parent":"kernel_aLoader.B3"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":77
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+      ]
+      , "links":
+      [
+        {
+          "from":291
+          , "to":296
+        }
+        , {
+          "from":296
+          , "to":297
+        }
+        , {
+          "from":291
+          , "to":297
+          , "reverse":1
+        }
+      ]
+    }
+    , {
+      "name":"'_aLoader_s0_kk'"
+      , "id":1988
+      , "src":"304"
+      , "dst":"310"
+      , "type":"fMAX/II"
+      , "brief":"Data dependency"
+      , "loop":"kernel_aLoader.B5"
+      , "details":
+      [
+        {
+          "type":"table"
+          , "Variable on critical loop carried feedback path: ":"'_aLoader_s0_kk'"
+          , "Declared at: ":
+          [
+            {
+              "type":"text"
+              , "text":"%L"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                  , "line":"79"
+                }
+              ]
+            }
+          ]
+          , "Dependency: ":"Data dependency"
+          , "Estimated fmax reduced to: ":"480.0"
+          , "Loop feedback path that raised II and/or lowered fMAX: ":
+          [
+            {
+              "type":"text"
+              , "text":"+(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                  , "line":"79"
+                }
+              ]
+            }
+            , {
+              "type":"text"
+              , "text":"+(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                  , "line":"81"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+      , "nodes":
+      [
+        {
+          "name":"'_aLoader_s0_kk'"
+          , "id":304
+          , "start":"4.00"
+          , "parent":"kernel_aLoader.B5"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":71
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"+"
+          , "id":309
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":79
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"+"
+          , "id":312
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":81
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"Feedback"
+          , "id":310
+          , "end":"4.00"
+          , "parent":"kernel_aLoader.B5"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":79
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+      ]
+      , "links":
+      [
+        {
+          "from":304
+          , "to":309
+        }
+        , {
+          "from":309
+          , "to":310
+        }
+        , {
+          "from":304
+          , "to":310
+          , "reverse":1
+        }
+      ]
+    }
+    , {
+      "name":"Global variable"
+      , "id":1989
+      , "src":"321"
+      , "dst":"334"
+      , "type":"fMAX/II"
+      , "brief":"Data dependency"
+      , "loop":"kernel_aLoader.B8"
+      , "details":
+      [
+        {
+          "type":"table"
+          , "Variable on critical loop carried feedback path: ":"Global variable"
+          , "Declared at: ":
+          [
+            {
+              "type":"text"
+              , "text":"%L"
+              , "links":
+              [
+                {
+                  "filename":"Unknown location"
+                  , "line":"0"
+                }
+              ]
+            }
+          ]
+          , "Dependency: ":"Data dependency"
+          , "Estimated fmax reduced to: ":"480.0"
+          , "Loop feedback path that raised II and/or lowered fMAX: ":
+          [
+            {
+              "type":"text"
+              , "text":"+(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                  , "line":"90"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+      , "nodes":
+      [
+        {
+          "name":"Global variable"
+          , "id":321
+          , "start":"4.00"
+          , "parent":"kernel_aLoader.B8"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":90
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"+"
+          , "id":331
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":90
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"Feedback"
+          , "id":334
+          , "end":"4.00"
+          , "parent":"kernel_aLoader.B8"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":90
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+      ]
+      , "links":
+      [
+        {
+          "from":321
+          , "to":331
+        }
+        , {
+          "from":331
+          , "to":334
+        }
+        , {
+          "from":321
+          , "to":334
+          , "reverse":1
+        }
+      ]
+    }
+    , {
+      "name":"Global variable"
+      , "id":1990
+      , "src":"372"
+      , "dst":"384"
+      , "type":"fMAX/II"
+      , "brief":"Data dependency"
+      , "loop":"kernel_xLoader.B2"
+      , "details":
+      [
+        {
+          "type":"table"
+          , "Variable on critical loop carried feedback path: ":"Global variable"
+          , "Declared at: ":
+          [
+            {
+              "type":"text"
+              , "text":"%L"
+              , "links":
+              [
+                {
+                  "filename":"Unknown location"
+                  , "line":"0"
+                }
+              ]
+            }
+          ]
+          , "Dependency: ":"Data dependency"
+          , "Estimated fmax reduced to: ":"480.0"
+          , "Loop feedback path that raised II and/or lowered fMAX: ":
+          [
+            {
+              "type":"text"
+              , "text":"+(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                  , "line":"108"
+                }
+              ]
+            }
+            , {
+              "type":"text"
+              , "text":"Select(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                  , "line":"108"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+      , "nodes":
+      [
+        {
+          "name":"Global variable"
+          , "id":372
+          , "start":"4.00"
+          , "parent":"kernel_xLoader.B2"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":108
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"Select"
+          , "id":373
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":108
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"+"
+          , "id":383
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":108
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"Feedback"
+          , "id":384
+          , "end":"4.00"
+          , "parent":"kernel_xLoader.B2"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":108
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+      ]
+      , "links":
+      [
+        {
+          "from":372
+          , "to":373
+        }
+        , {
+          "from":373
+          , "to":383
+        }
+        , {
+          "from":383
+          , "to":384
+        }
+        , {
+          "from":372
+          , "to":384
+          , "reverse":1
+        }
+      ]
+    }
+    , {
+      "name":"'_xLoader_s0_k'"
+      , "id":1991
+      , "src":"391"
+      , "dst":"407"
+      , "type":"fMAX/II"
+      , "brief":"Data dependency"
+      , "loop":"kernel_xLoader.B3"
+      , "details":
+      [
+        {
+          "type":"table"
+          , "Variable on critical loop carried feedback path: ":"'_xLoader_s0_k'"
+          , "Declared at: ":
+          [
+            {
+              "type":"text"
+              , "text":"%L"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                  , "line":"111"
+                }
+              ]
+            }
+          ]
+          , "Dependency: ":"Data dependency"
+          , "Estimated fmax reduced to: ":"480.0"
+          , "Loop feedback path that raised II and/or lowered fMAX: ":
+          [
+            {
+              "type":"text"
+              , "text":"+(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                  , "line":"111"
+                }
+              ]
+            }
+            , {
+              "type":"text"
+              , "text":"Select(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                  , "line":"111"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+      , "nodes":
+      [
+        {
+          "name":"'_xLoader_s0_k'"
+          , "id":391
+          , "start":"4.00"
+          , "parent":"kernel_xLoader.B3"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":111
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"+"
+          , "id":406
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":111
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"Select"
+          , "id":392
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":111
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"Feedback"
+          , "id":407
+          , "end":"4.00"
+          , "parent":"kernel_xLoader.B3"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":111
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+      ]
+      , "links":
+      [
+        {
+          "from":391
+          , "to":392
+        }
+        , {
+          "from":406
+          , "to":407
+        }
+        , {
+          "from":391
+          , "to":407
+          , "reverse":1
+        }
+      ]
+    }
+    , {
+      "name":"Global variable"
+      , "id":1992
+      , "src":"417"
+      , "dst":"430"
+      , "type":"fMAX/II"
+      , "brief":"Data dependency"
+      , "loop":"kernel_xLoader.B6"
+      , "details":
+      [
+        {
+          "type":"table"
+          , "Variable on critical loop carried feedback path: ":"Global variable"
+          , "Declared at: ":
+          [
+            {
+              "type":"text"
+              , "text":"%L"
+              , "links":
+              [
+                {
+                  "filename":"Unknown location"
+                  , "line":"0"
+                }
+              ]
+            }
+          ]
+          , "Dependency: ":"Data dependency"
+          , "Estimated fmax reduced to: ":"480.0"
+          , "Loop feedback path that raised II and/or lowered fMAX: ":
+          [
+            {
+              "type":"text"
+              , "text":"+(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                  , "line":"113"
+                }
+              ]
+            }
+            , {
+              "type":"text"
+              , "text":"+(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                  , "line":"113"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+      , "nodes":
+      [
+        {
+          "name":"Global variable"
+          , "id":417
+          , "start":"5.00"
+          , "parent":"kernel_xLoader.B6"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":113
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"+"
+          , "id":423
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":113
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"+"
+          , "id":424
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":113
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"Feedback"
+          , "id":430
+          , "end":"5.00"
+          , "parent":"kernel_xLoader.B6"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":113
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+      ]
+      , "links":
+      [
+        {
+          "from":417
+          , "to":423
+        }
+        , {
+          "from":424
+          , "to":424
+        }
+        , {
+          "from":423
+          , "to":430
+        }
+        , {
+          "from":417
+          , "to":430
+          , "reverse":1
+        }
+      ]
+    }
+    , {
+      "name":"'_55,_xFeeder_cycle_temp'"
+      , "id":1993
+      , "src":"442"
+      , "dst":"449"
+      , "type":"fMAX/II"
+      , "brief":"Data dependency"
+      , "loop":"kernel_xFeeder.B1"
+      , "details":
+      [
+        {
+          "type":"table"
+          , "Variable on critical loop carried feedback path: ":"'_55,_xFeeder_cycle_temp'"
+          , "Declared at: ":
+          [
+            {
+              "type":"text"
+              , "text":"%L"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                  , "line":"188"
+                }
+              ]
+            }
+          ]
+          , "Dependency: ":"Data dependency"
+          , "Estimated fmax reduced to: ":"480.0"
+          , "Loop feedback path that raised II and/or lowered fMAX: ":
+          [
+            {
+              "type":"text"
+              , "text":"+(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                  , "line":"188"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+      , "nodes":
+      [
+        {
+          "name":"'_55,_xFeeder_cycle_temp'"
+          , "id":442
+          , "start":"12.00"
+          , "parent":"kernel_xFeeder.B1"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":153
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"+"
+          , "id":448
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":188
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"Feedback"
+          , "id":449
+          , "end":"12.00"
+          , "parent":"kernel_xFeeder.B1"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":188
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+      ]
+      , "links":
+      [
+        {
+          "from":442
+          , "to":448
+        }
+        , {
+          "from":448
+          , "to":449
+        }
+        , {
+          "from":442
+          , "to":449
+          , "reverse":1
+        }
+      ]
+    }
+    , {
+      "name":"'_uA_s0_i'"
+      , "id":1994
+      , "src":"485"
+      , "dst":"491"
+      , "type":"fMAX/II"
+      , "brief":"Data dependency"
+      , "loop":"kernel_V_1.B2"
+      , "details":
+      [
+        {
+          "type":"table"
+          , "Variable on critical loop carried feedback path: ":"'_uA_s0_i'"
+          , "Declared at: ":
+          [
+            {
+              "type":"text"
+              , "text":"%L"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                  , "line":"207"
+                }
+              ]
+            }
+          ]
+          , "Dependency: ":"Data dependency"
+          , "Estimated fmax reduced to: ":"388.8"
+          , "Loop feedback path that raised II and/or lowered fMAX: ":
+          [
+            {
+              "type":"text"
+              , "text":"+(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                  , "line":"207"
+                }
+              ]
+            }
+            , {
+              "type":"text"
+              , "text":"Select(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                  , "line":"291"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+      , "nodes":
+      [
+        {
+          "name":"'_uA_s0_i'"
+          , "id":485
+          , "start":"1.00"
+          , "parent":"kernel_V_1.B2"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":291
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"Select"
+          , "id":486
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":291
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"+"
+          , "id":490
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":207
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"Feedback"
+          , "id":491
+          , "end":"1.00"
+          , "parent":"kernel_V_1.B2"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":207
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+      ]
+      , "links":
+      [
+        {
+          "from":485
+          , "to":486
+        }
+        , {
+          "from":486
+          , "to":490
+        }
+        , {
+          "from":490
+          , "to":491
+        }
+        , {
+          "from":485
+          , "to":491
+          , "reverse":1
+        }
+      ]
+    }
+    , {
+      "name":"'_uA_s0_k'"
+      , "id":1995
+      , "src":"497"
+      , "dst":"503"
+      , "type":"fMAX/II"
+      , "brief":"Data dependency"
+      , "loop":"kernel_V_1.B3"
+      , "details":
+      [
+        {
+          "type":"table"
+          , "Variable on critical loop carried feedback path: ":"'_uA_s0_k'"
+          , "Declared at: ":
+          [
+            {
+              "type":"text"
+              , "text":"%L"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                  , "line":"210"
+                }
+              ]
+            }
+          ]
+          , "Dependency: ":"Data dependency"
+          , "Estimated fmax reduced to: ":"388.8"
+          , "Loop feedback path that raised II and/or lowered fMAX: ":
+          [
+            {
+              "type":"text"
+              , "text":"+(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                  , "line":"210"
+                }
+              ]
+            }
+            , {
+              "type":"text"
+              , "text":"Select(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                  , "line":"291"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+      , "nodes":
+      [
+        {
+          "name":"'_uA_s0_k'"
+          , "id":497
+          , "start":"1.00"
+          , "parent":"kernel_V_1.B3"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":291
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"Select"
+          , "id":498
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":291
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"+"
+          , "id":502
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":210
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"Feedback"
+          , "id":503
+          , "end":"1.00"
+          , "parent":"kernel_V_1.B3"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":210
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+      ]
+      , "links":
+      [
+        {
+          "from":497
+          , "to":498
+        }
+        , {
+          "from":498
+          , "to":502
+        }
+        , {
+          "from":502
+          , "to":503
+        }
+        , {
+          "from":497
+          , "to":503
+          , "reverse":1
+        }
+      ]
+    }
+    , {
+      "name":"'_uA_s0_kk'"
+      , "id":1996
+      , "src":"515"
+      , "dst":"517"
+      , "type":"fMAX/II"
+      , "brief":"Data dependency"
+      , "loop":"kernel_V_1.B5"
+      , "details":
+      [
+        {
+          "type":"table"
+          , "Variable on critical loop carried feedback path: ":"'_uA_s0_kk'"
+          , "Declared at: ":
+          [
+            {
+              "type":"text"
+              , "text":"%L"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                  , "line":"213"
+                }
+              ]
+            }
+          ]
+          , "Dependency: ":"Data dependency"
+          , "Estimated fmax reduced to: ":"432.0"
+          , "Loop feedback path that raised II and/or lowered fMAX: ":
+          [
+            {
+              "type":"text"
+              , "text":"+(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                  , "line":"213"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+      , "nodes":
+      [
+        {
+          "name":"'_uA_s0_kk'"
+          , "id":515
+          , "start":"2.00"
+          , "parent":"kernel_V_1.B5"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":213
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"+"
+          , "id":516
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":213
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"Feedback"
+          , "id":517
+          , "end":"2.00"
+          , "parent":"kernel_V_1.B5"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":213
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+      ]
+      , "links":
+      [
+        {
+          "from":515
+          , "to":516
+        }
+        , {
+          "from":516
+          , "to":517
+        }
+        , {
+          "from":515
+          , "to":517
+          , "reverse":1
+        }
+      ]
+    }
+    , {
+      "name":"'_uA_s0_ii'"
+      , "id":1997
+      , "src":"1135"
+      , "dst":"1592"
+      , "type":"fMAX/II"
+      , "brief":"Data dependency"
+      , "loop":"kernel_V_1.B7"
+      , "details":
+      [
+        {
+          "type":"table"
+          , "Variable on critical loop carried feedback path: ":"'_uA_s0_ii'"
+          , "Declared at: ":
+          [
+            {
+              "type":"text"
+              , "text":"%L"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                  , "line":"215"
+                }
+              ]
+            }
+          ]
+          , "Dependency: ":"Data dependency"
+          , "Estimated fmax reduced to: ":"432.0"
+          , "Loop feedback path that raised II and/or lowered fMAX: ":
+          [
+            {
+              "type":"text"
+              , "text":"+(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                  , "line":"215"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+      , "nodes":
+      [
+        {
+          "name":"'_uA_s0_ii'"
+          , "id":1135
+          , "start":"28.00"
+          , "parent":"kernel_V_1.B7"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":215
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"+"
+          , "id":1589
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":215
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"Feedback"
+          , "id":1592
+          , "end":"28.00"
+          , "parent":"kernel_V_1.B7"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":215
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+      ]
+      , "links":
+      [
+        {
+          "from":1135
+          , "to":1589
+        }
+        , {
+          "from":1589
+          , "to":1592
+        }
+        , {
+          "from":1135
+          , "to":1592
+          , "reverse":1
+        }
+      ]
+    }
+    , {
+      "name":"Global variable"
+      , "id":1998
+      , "src":"1746"
+      , "dst":"1763"
+      , "type":"fMAX/II"
+      , "brief":"Data dependency"
+      , "loop":"kernel_unloader_1.B2"
+      , "details":
+      [
+        {
+          "type":"table"
+          , "Variable on critical loop carried feedback path: ":"Global variable"
+          , "Declared at: ":
+          [
+            {
+              "type":"text"
+              , "text":"%L"
+              , "links":
+              [
+                {
+                  "filename":"Unknown location"
+                  , "line":"0"
+                }
+              ]
+            }
+          ]
+          , "Dependency: ":"Data dependency"
+          , "Estimated fmax reduced to: ":"480.0"
+          , "Loop feedback path that raised II and/or lowered fMAX: ":
+          [
+            {
+              "type":"text"
+              , "text":"+(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                  , "line":"332"
+                }
+              ]
+            }
+            , {
+              "type":"text"
+              , "text":"Select(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                  , "line":"329"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+      , "nodes":
+      [
+        {
+          "name":"Global variable"
+          , "id":1746
+          , "start":"4.00"
+          , "parent":"kernel_unloader_1.B2"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":329
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"+"
+          , "id":1762
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":332
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"Select"
+          , "id":1747
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":329
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"Feedback"
+          , "id":1763
+          , "end":"4.00"
+          , "parent":"kernel_unloader_1.B2"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":332
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+      ]
+      , "links":
+      [
+        {
+          "from":1746
+          , "to":1747
+        }
+        , {
+          "from":1762
+          , "to":1763
+        }
+        , {
+          "from":1746
+          , "to":1763
+          , "reverse":1
+        }
+      ]
+    }
+    , {
+      "name":"Global variable"
+      , "id":1999
+      , "src":"1770"
+      , "dst":"1776"
+      , "type":"fMAX/II"
+      , "brief":"Data dependency"
+      , "loop":"kernel_unloader_1.B3"
+      , "details":
+      [
+        {
+          "type":"table"
+          , "Variable on critical loop carried feedback path: ":"Global variable"
+          , "Declared at: ":
+          [
+            {
+              "type":"text"
+              , "text":"%L"
+              , "links":
+              [
+                {
+                  "filename":"Unknown location"
+                  , "line":"0"
+                }
+              ]
+            }
+          ]
+          , "Dependency: ":"Data dependency"
+          , "Estimated fmax reduced to: ":"480.0"
+          , "Loop feedback path that raised II and/or lowered fMAX: ":
+          [
+            {
+              "type":"text"
+              , "text":"+(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                  , "line":"335"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+      , "nodes":
+      [
+        {
+          "name":"Global variable"
+          , "id":1770
+          , "start":"4.00"
+          , "parent":"kernel_unloader_1.B3"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":329
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"+"
+          , "id":1775
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":335
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"Feedback"
+          , "id":1776
+          , "end":"4.00"
+          , "parent":"kernel_unloader_1.B3"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":335
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+      ]
+      , "links":
+      [
+        {
+          "from":1770
+          , "to":1775
+        }
+        , {
+          "from":1775
+          , "to":1776
+        }
+        , {
+          "from":1770
+          , "to":1776
+          , "reverse":1
+        }
+      ]
+    }
+    , {
+      "name":"Global variable"
+      , "id":2000
+      , "src":"1785"
+      , "dst":"1789"
+      , "type":"fMAX/II"
+      , "brief":"Data dependency"
+      , "loop":"kernel_unloader_1.B6"
+      , "details":
+      [
+        {
+          "type":"table"
+          , "Variable on critical loop carried feedback path: ":"Global variable"
+          , "Declared at: ":
+          [
+            {
+              "type":"text"
+              , "text":"%L"
+              , "links":
+              [
+                {
+                  "filename":"Unknown location"
+                  , "line":"0"
+                }
+              ]
+            }
+          ]
+          , "Dependency: ":"Data dependency"
+          , "Estimated fmax reduced to: ":"480.0"
+          , "Loop feedback path that raised II and/or lowered fMAX: ":
+          [
+            {
+              "type":"text"
+              , "text":"+(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                  , "line":"337"
+                }
+              ]
+            }
+            , {
+              "type":"text"
+              , "text":"+(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                  , "line":"345"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+      , "nodes":
+      [
+        {
+          "name":"Global variable"
+          , "id":1785
+          , "start":"4.00"
+          , "parent":"kernel_unloader_1.B6"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":329
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"+"
+          , "id":1786
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":337
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"+"
+          , "id":1798
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":345
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"Feedback"
+          , "id":1789
+          , "end":"4.00"
+          , "parent":"kernel_unloader_1.B6"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":337
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+      ]
+      , "links":
+      [
+        {
+          "from":1785
+          , "to":1786
+        }
+        , {
+          "from":1786
+          , "to":1789
+        }
+        , {
+          "from":1785
+          , "to":1789
+          , "reverse":1
+        }
+      ]
+    }
+    , {
+      "name":"Global variable"
+      , "id":2001
+      , "src":"1823"
+      , "dst":"1840"
+      , "type":"fMAX/II"
+      , "brief":"Data dependency"
+      , "loop":"kernel_unloader_2.B2"
+      , "details":
+      [
+        {
+          "type":"table"
+          , "Variable on critical loop carried feedback path: ":"Global variable"
+          , "Declared at: ":
+          [
+            {
+              "type":"text"
+              , "text":"%L"
+              , "links":
+              [
+                {
+                  "filename":"Unknown location"
+                  , "line":"0"
+                }
+              ]
+            }
+          ]
+          , "Dependency: ":"Data dependency"
+          , "Estimated fmax reduced to: ":"480.0"
+          , "Loop feedback path that raised II and/or lowered fMAX: ":
+          [
+            {
+              "type":"text"
+              , "text":"+(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                  , "line":"363"
+                }
+              ]
+            }
+            , {
+              "type":"text"
+              , "text":"Select(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                  , "line":"360"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+      , "nodes":
+      [
+        {
+          "name":"Global variable"
+          , "id":1823
+          , "start":"4.00"
+          , "parent":"kernel_unloader_2.B2"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":360
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"+"
+          , "id":1839
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":363
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"Select"
+          , "id":1824
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":360
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"Feedback"
+          , "id":1840
+          , "end":"4.00"
+          , "parent":"kernel_unloader_2.B2"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":363
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+      ]
+      , "links":
+      [
+        {
+          "from":1823
+          , "to":1824
+        }
+        , {
+          "from":1839
+          , "to":1840
+        }
+        , {
+          "from":1823
+          , "to":1840
+          , "reverse":1
+        }
+      ]
+    }
+    , {
+      "name":"'_unloader_1_s0_k'"
+      , "id":2002
+      , "src":"1847"
+      , "dst":"1853"
+      , "type":"fMAX/II"
+      , "brief":"Data dependency"
+      , "loop":"kernel_unloader_2.B3"
+      , "details":
+      [
+        {
+          "type":"table"
+          , "Variable on critical loop carried feedback path: ":"'_unloader_1_s0_k'"
+          , "Declared at: ":
+          [
+            {
+              "type":"text"
+              , "text":"%L"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                  , "line":"366"
+                }
+              ]
+            }
+          ]
+          , "Dependency: ":"Data dependency"
+          , "Estimated fmax reduced to: ":"480.0"
+          , "Loop feedback path that raised II and/or lowered fMAX: ":
+          [
+            {
+              "type":"text"
+              , "text":"+(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                  , "line":"366"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+      , "nodes":
+      [
+        {
+          "name":"'_unloader_1_s0_k'"
+          , "id":1847
+          , "start":"4.00"
+          , "parent":"kernel_unloader_2.B3"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":360
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"+"
+          , "id":1852
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":366
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"Feedback"
+          , "id":1853
+          , "end":"4.00"
+          , "parent":"kernel_unloader_2.B3"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":366
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+      ]
+      , "links":
+      [
+        {
+          "from":1847
+          , "to":1852
+        }
+        , {
+          "from":1852
+          , "to":1853
+        }
+        , {
+          "from":1847
+          , "to":1853
+          , "reverse":1
+        }
+      ]
+    }
+    , {
+      "name":"Global variable"
+      , "id":2003
+      , "src":"1869"
+      , "dst":"1873"
+      , "type":"fMAX/II"
+      , "brief":"Data dependency"
+      , "loop":"kernel_unloader_2.B6"
+      , "details":
+      [
+        {
+          "type":"table"
+          , "Variable on critical loop carried feedback path: ":"Global variable"
+          , "Declared at: ":
+          [
+            {
+              "type":"text"
+              , "text":"%L"
+              , "links":
+              [
+                {
+                  "filename":"Unknown location"
+                  , "line":"0"
+                }
+              ]
+            }
+          ]
+          , "Dependency: ":"Data dependency"
+          , "Estimated fmax reduced to: ":"480.0"
+          , "Loop feedback path that raised II and/or lowered fMAX: ":
+          [
+            {
+              "type":"text"
+              , "text":"+(%L)"
+              , "links":
+              [
+                {
+                  "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                  , "line":"373"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+      , "nodes":
+      [
+        {
+          "name":"Global variable"
+          , "id":1869
+          , "start":"12.00"
+          , "parent":"kernel_unloader_2.B6"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":360
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"+"
+          , "id":1872
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":373
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+        , {
+          "name":"Feedback"
+          , "id":1873
+          , "end":"12.00"
+          , "parent":"kernel_unloader_2.B6"
+          , "debug":
+          [
+            [
+              {
+                "filename":"/home/u146242/gbmv_lab/s10_3/a.cl"
+                , "line":373
+              }
+            ]
+          ]
+          , "type":"inst"
+        }
+      ]
+      , "links":
+      [
+        {
+          "from":1869
+          , "to":1872
+        }
+        , {
+          "from":1872
+          , "to":1873
+        }
+        , {
+          "from":1869
+          , "to":1873
+          , "reverse":1
+        }
+      ]
+    }
+  ]
+}
