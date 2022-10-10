@@ -3108,6 +3108,7 @@ void CodeGen_LLVM::visit(const Call *op) {
             llvm::Function *append_double = module->getFunction("halide_double_to_string");
             llvm::Function *append_pointer = module->getFunction("halide_pointer_to_string");
             llvm::Function *append_buffer = module->getFunction("halide_buffer_to_string");
+            // llvm::Function *append_complex = module->getFunction("halide_complex_to_string");
 
             internal_assert(append_string);
             internal_assert(append_int64);

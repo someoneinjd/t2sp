@@ -1,0 +1,2094 @@
+{
+  "basicblocks":
+  {
+    "kernel_AFeeder_1.B0":
+    {
+      "name":"kernel_AFeeder_1.B0"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":2
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":0
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_AFeeder_1.B1":
+    {
+      "name":"kernel_AFeeder_1.B1"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":26
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"Yes"
+      , "loop_layer":1
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"a.cl"
+                , "line":"177"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_BFeeder_1.B0":
+    {
+      "name":"kernel_BFeeder_1.B0"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":2
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":0
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_BFeeder_1.B1":
+    {
+      "name":"kernel_BFeeder_1.B1"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":26
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"Yes"
+      , "loop_layer":1
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"a.cl"
+                , "line":"380"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_Out_1.B0":
+    {
+      "name":"kernel_Out_1.B0"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":10
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":0
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_Out_1.B1":
+    {
+      "name":"kernel_Out_1.B1"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":0
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_Out_1.B2":
+    {
+      "name":"kernel_Out_1.B2"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":5
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"No"
+      , "loop_layer":1
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"a.cl"
+                , "line":"523"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_Out_1.B3":
+    {
+      "name":"kernel_Out_1.B3"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":5
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"No"
+      , "loop_layer":2
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"a.cl"
+                , "line":"526"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_Out_1.B4":
+    {
+      "name":"kernel_Out_1.B4"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":1
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_Out_1.B5":
+    {
+      "name":"kernel_Out_1.B5"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":48
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"Yes"
+      , "loop_layer":3
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"a.cl"
+                , "line":"528"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_Out_1.B6":
+    {
+      "name":"kernel_Out_1.B6"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":2
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_AFeeder_T_1.B0":
+    {
+      "name":"kernel_AFeeder_T_1.B0"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":2
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":0
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_AFeeder_T_1.B1":
+    {
+      "name":"kernel_AFeeder_T_1.B1"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":26
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"Yes"
+      , "loop_layer":1
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"a.cl"
+                , "line":"826"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_BFeeder_T_1.B0":
+    {
+      "name":"kernel_BFeeder_T_1.B0"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":2
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":0
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_BFeeder_T_1.B1":
+    {
+      "name":"kernel_BFeeder_T_1.B1"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":26
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"Yes"
+      , "loop_layer":1
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"a.cl"
+                , "line":"1028"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_Out_T_1.B0":
+    {
+      "name":"kernel_Out_T_1.B0"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":10
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":0
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_Out_T_1.B1":
+    {
+      "name":"kernel_Out_T_1.B1"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":0
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_Out_T_1.B2":
+    {
+      "name":"kernel_Out_T_1.B2"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":5
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"No"
+      , "loop_layer":1
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"a.cl"
+                , "line":"1173"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_Out_T_1.B3":
+    {
+      "name":"kernel_Out_T_1.B3"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":5
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"No"
+      , "loop_layer":2
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"a.cl"
+                , "line":"1176"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_Out_T_1.B4":
+    {
+      "name":"kernel_Out_T_1.B4"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":1
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_Out_T_1.B5":
+    {
+      "name":"kernel_Out_T_1.B5"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":48
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"Yes"
+      , "loop_layer":3
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"a.cl"
+                , "line":"1178"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_Out_T_1.B6":
+    {
+      "name":"kernel_Out_T_1.B6"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":2
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_E_1.B0":
+    {
+      "name":"kernel_E_1.B0"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":2
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":0
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_E_1.B1":
+    {
+      "name":"kernel_E_1.B1"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":0
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_E_1.B2":
+    {
+      "name":"kernel_E_1.B2"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":6
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"No"
+      , "loop_layer":1
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"a.cl"
+                , "line":"1398"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_E_1.B3":
+    {
+      "name":"kernel_E_1.B3"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":5
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"No"
+      , "loop_layer":2
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"a.cl"
+                , "line":"1402"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_E_1.B4":
+    {
+      "name":"kernel_E_1.B4"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":1
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_E_1.B5":
+    {
+      "name":"kernel_E_1.B5"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":12
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"Yes"
+      , "loop_layer":3
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"a.cl"
+                , "line":"1405"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_E_1.B6":
+    {
+      "name":"kernel_E_1.B6"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":2
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_ALoader_1.B0":
+    {
+      "name":"kernel_ALoader_1.B0"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":2
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":0
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_ALoader_1.B1":
+    {
+      "name":"kernel_ALoader_1.B1"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":0
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_ALoader_1.B2":
+    {
+      "name":"kernel_ALoader_1.B2"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":8
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"No"
+      , "loop_layer":1
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"a.cl"
+                , "line":"103"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_ALoader_1.B3":
+    {
+      "name":"kernel_ALoader_1.B3"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":1
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_ALoader_1.B4":
+    {
+      "name":"kernel_ALoader_1.B4"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":5
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"No"
+      , "loop_layer":2
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"a.cl"
+                , "line":"107"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_ALoader_1.B5":
+    {
+      "name":"kernel_ALoader_1.B5"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":5
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"No"
+      , "loop_layer":3
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"a.cl"
+                , "line":"110"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_ALoader_1.B6":
+    {
+      "name":"kernel_ALoader_1.B6"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":2
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_ALoader_1.B7":
+    {
+      "name":"kernel_ALoader_1.B7"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":136
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"Yes"
+      , "loop_layer":4
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"a.cl"
+                , "line":"113"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_ALoader_1.B8":
+    {
+      "name":"kernel_ALoader_1.B8"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":3
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_BLoader_1.B0":
+    {
+      "name":"kernel_BLoader_1.B0"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":2
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":0
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_BLoader_1.B1":
+    {
+      "name":"kernel_BLoader_1.B1"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":0
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_BLoader_1.B2":
+    {
+      "name":"kernel_BLoader_1.B2"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":8
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"No"
+      , "loop_layer":1
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"a.cl"
+                , "line":"306"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_BLoader_1.B3":
+    {
+      "name":"kernel_BLoader_1.B3"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":1
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_BLoader_1.B4":
+    {
+      "name":"kernel_BLoader_1.B4"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":8
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"No"
+      , "loop_layer":2
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"a.cl"
+                , "line":"310"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_BLoader_1.B5":
+    {
+      "name":"kernel_BLoader_1.B5"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":5
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"No"
+      , "loop_layer":3
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"a.cl"
+                , "line":"313"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_BLoader_1.B6":
+    {
+      "name":"kernel_BLoader_1.B6"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":2
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_BLoader_1.B7":
+    {
+      "name":"kernel_BLoader_1.B7"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":136
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"Yes"
+      , "loop_layer":4
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"a.cl"
+                , "line":"316"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_BLoader_1.B8":
+    {
+      "name":"kernel_BLoader_1.B8"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":3
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_ALoader_T_1.B0":
+    {
+      "name":"kernel_ALoader_T_1.B0"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":2
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":0
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_ALoader_T_1.B1":
+    {
+      "name":"kernel_ALoader_T_1.B1"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":0
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_ALoader_T_1.B2":
+    {
+      "name":"kernel_ALoader_T_1.B2"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":8
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"No"
+      , "loop_layer":1
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"a.cl"
+                , "line":"752"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_ALoader_T_1.B3":
+    {
+      "name":"kernel_ALoader_T_1.B3"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":1
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_ALoader_T_1.B4":
+    {
+      "name":"kernel_ALoader_T_1.B4"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":8
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"No"
+      , "loop_layer":2
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"a.cl"
+                , "line":"756"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_ALoader_T_1.B5":
+    {
+      "name":"kernel_ALoader_T_1.B5"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":5
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"No"
+      , "loop_layer":3
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"a.cl"
+                , "line":"759"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_ALoader_T_1.B6":
+    {
+      "name":"kernel_ALoader_T_1.B6"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":2
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_ALoader_T_1.B7":
+    {
+      "name":"kernel_ALoader_T_1.B7"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":136
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"Yes"
+      , "loop_layer":4
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"a.cl"
+                , "line":"762"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_ALoader_T_1.B8":
+    {
+      "name":"kernel_ALoader_T_1.B8"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":3
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_BLoader_T_1.B0":
+    {
+      "name":"kernel_BLoader_T_1.B0"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":2
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":0
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_BLoader_T_1.B1":
+    {
+      "name":"kernel_BLoader_T_1.B1"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":0
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_BLoader_T_1.B2":
+    {
+      "name":"kernel_BLoader_T_1.B2"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":8
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"No"
+      , "loop_layer":1
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"a.cl"
+                , "line":"954"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_BLoader_T_1.B3":
+    {
+      "name":"kernel_BLoader_T_1.B3"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":1
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_BLoader_T_1.B4":
+    {
+      "name":"kernel_BLoader_T_1.B4"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":5
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"No"
+      , "loop_layer":2
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"a.cl"
+                , "line":"958"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_BLoader_T_1.B5":
+    {
+      "name":"kernel_BLoader_T_1.B5"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":5
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"No"
+      , "loop_layer":3
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"a.cl"
+                , "line":"961"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_BLoader_T_1.B6":
+    {
+      "name":"kernel_BLoader_T_1.B6"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":2
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_BLoader_T_1.B7":
+    {
+      "name":"kernel_BLoader_T_1.B7"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":136
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"Yes"
+      , "loop_layer":4
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"a.cl"
+                , "line":"964"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_BLoader_T_1.B8":
+    {
+      "name":"kernel_BLoader_T_1.B8"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":3
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_unloader_1.B0":
+    {
+      "name":"kernel_unloader_1.B0"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":2
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":0
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_unloader_1.B1":
+    {
+      "name":"kernel_unloader_1.B1"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":0
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_unloader_1.B2":
+    {
+      "name":"kernel_unloader_1.B2"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":6
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"No"
+      , "loop_layer":1
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"a.cl"
+                , "line":"1432"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_unloader_1.B3":
+    {
+      "name":"kernel_unloader_1.B3"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":5
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"No"
+      , "loop_layer":2
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"a.cl"
+                , "line":"1436"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_unloader_1.B4":
+    {
+      "name":"kernel_unloader_1.B4"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":1
+      , "loop_location":
+      {
+      }
+    }
+    , "kernel_unloader_1.B5":
+    {
+      "name":"kernel_unloader_1.B5"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":12
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"Yes"
+      , "is_single_block_loop":"Yes"
+      , "loop_layer":3
+      , "loop_location":
+      {
+        "details":
+        [
+          {
+            "type":"text"
+            , "text":"Loop:  (%L)"
+            , "links":
+            [
+              {
+                "filename":"a.cl"
+                , "line":"1439"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    , "kernel_unloader_1.B6":
+    {
+      "name":"kernel_unloader_1.B6"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":0
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":2
+      , "loop_location":
+      {
+      }
+    }
+    , "Intel_Internal_Collect_Autorun_Profiling.B0":
+    {
+      "name":"Intel_Internal_Collect_Autorun_Profiling.B0"
+      , "target_fmax":"Not specified"
+      , "target_ii":"Not specified"
+      , "achieved_fmax":"240.0"
+      , "achieved_ii":1
+      , "latency":1
+      , "max_interleaving":1
+      , "is_fmax_bottleneck":"No"
+      , "is_loop_header":"No"
+      , "is_single_block_loop":"No"
+      , "loop_layer":0
+      , "loop_location":
+      {
+      }
+    }
+  }
+  , "functions":
+  {
+    "kernel_AFeeder_1":
+    {
+      "debug":
+      [
+        {
+          "filename":"a.cl"
+          , "line":159
+        }
+      ]
+      , "loop_hierachy":
+      {
+        "kernel_AFeeder_1__no_loop":
+        [
+          "kernel_AFeeder_1.B0"
+        ]
+        , "kernel_AFeeder_1.B1":
+        [
+          "kernel_AFeeder_1.B1"
+        ]
+      }
+    }
+    , "kernel_BFeeder_1":
+    {
+      "debug":
+      [
+        {
+          "filename":"a.cl"
+          , "line":362
+        }
+      ]
+      , "loop_hierachy":
+      {
+        "kernel_BFeeder_1__no_loop":
+        [
+          "kernel_BFeeder_1.B0"
+        ]
+        , "kernel_BFeeder_1.B1":
+        [
+          "kernel_BFeeder_1.B1"
+        ]
+      }
+    }
+    , "kernel_Out_1":
+    {
+      "debug":
+      [
+        {
+          "filename":"a.cl"
+          , "line":499
+        }
+      ]
+      , "loop_hierachy":
+      {
+        "kernel_Out_1__no_loop":
+        [
+          "kernel_Out_1.B0"
+          , "kernel_Out_1.B1"
+        ]
+        , "kernel_Out_1.B2":
+        [
+          "kernel_Out_1.B2"
+          , "kernel_Out_1.B3"
+          , "kernel_Out_1.B4"
+        ]
+        , "kernel_Out_1.B3":
+        [
+          "kernel_Out_1.B3"
+          , "kernel_Out_1.B5"
+          , "kernel_Out_1.B6"
+        ]
+        , "kernel_Out_1.B5":
+        [
+          "kernel_Out_1.B5"
+        ]
+      }
+    }
+    , "kernel_AFeeder_T_1":
+    {
+      "debug":
+      [
+        {
+          "filename":"a.cl"
+          , "line":808
+        }
+      ]
+      , "loop_hierachy":
+      {
+        "kernel_AFeeder_T_1__no_loop":
+        [
+          "kernel_AFeeder_T_1.B0"
+        ]
+        , "kernel_AFeeder_T_1.B1":
+        [
+          "kernel_AFeeder_T_1.B1"
+        ]
+      }
+    }
+    , "kernel_BFeeder_T_1":
+    {
+      "debug":
+      [
+        {
+          "filename":"a.cl"
+          , "line":1010
+        }
+      ]
+      , "loop_hierachy":
+      {
+        "kernel_BFeeder_T_1__no_loop":
+        [
+          "kernel_BFeeder_T_1.B0"
+        ]
+        , "kernel_BFeeder_T_1.B1":
+        [
+          "kernel_BFeeder_T_1.B1"
+        ]
+      }
+    }
+    , "kernel_Out_T_1":
+    {
+      "debug":
+      [
+        {
+          "filename":"a.cl"
+          , "line":1148
+        }
+      ]
+      , "loop_hierachy":
+      {
+        "kernel_Out_T_1__no_loop":
+        [
+          "kernel_Out_T_1.B0"
+          , "kernel_Out_T_1.B1"
+        ]
+        , "kernel_Out_T_1.B2":
+        [
+          "kernel_Out_T_1.B2"
+          , "kernel_Out_T_1.B3"
+          , "kernel_Out_T_1.B4"
+        ]
+        , "kernel_Out_T_1.B3":
+        [
+          "kernel_Out_T_1.B3"
+          , "kernel_Out_T_1.B5"
+          , "kernel_Out_T_1.B6"
+        ]
+        , "kernel_Out_T_1.B5":
+        [
+          "kernel_Out_T_1.B5"
+        ]
+      }
+    }
+    , "kernel_E_1":
+    {
+      "debug":
+      [
+        {
+          "filename":"a.cl"
+          , "line":1393
+        }
+      ]
+      , "loop_hierachy":
+      {
+        "kernel_E_1__no_loop":
+        [
+          "kernel_E_1.B0"
+          , "kernel_E_1.B1"
+        ]
+        , "kernel_E_1.B2":
+        [
+          "kernel_E_1.B2"
+          , "kernel_E_1.B3"
+          , "kernel_E_1.B4"
+        ]
+        , "kernel_E_1.B3":
+        [
+          "kernel_E_1.B3"
+          , "kernel_E_1.B5"
+          , "kernel_E_1.B6"
+        ]
+        , "kernel_E_1.B5":
+        [
+          "kernel_E_1.B5"
+        ]
+      }
+    }
+    , "kernel_ALoader_1":
+    {
+      "debug":
+      [
+        {
+          "filename":"a.cl"
+          , "line":95
+        }
+      ]
+      , "loop_hierachy":
+      {
+        "kernel_ALoader_1__no_loop":
+        [
+          "kernel_ALoader_1.B0"
+          , "kernel_ALoader_1.B1"
+        ]
+        , "kernel_ALoader_1.B2":
+        [
+          "kernel_ALoader_1.B2"
+          , "kernel_ALoader_1.B4"
+          , "kernel_ALoader_1.B3"
+        ]
+        , "kernel_ALoader_1.B4":
+        [
+          "kernel_ALoader_1.B4"
+          , "kernel_ALoader_1.B5"
+          , "kernel_ALoader_1.B6"
+        ]
+        , "kernel_ALoader_1.B5":
+        [
+          "kernel_ALoader_1.B5"
+          , "kernel_ALoader_1.B7"
+          , "kernel_ALoader_1.B8"
+        ]
+        , "kernel_ALoader_1.B7":
+        [
+          "kernel_ALoader_1.B7"
+        ]
+      }
+    }
+    , "kernel_BLoader_1":
+    {
+      "debug":
+      [
+        {
+          "filename":"a.cl"
+          , "line":298
+        }
+      ]
+      , "loop_hierachy":
+      {
+        "kernel_BLoader_1__no_loop":
+        [
+          "kernel_BLoader_1.B0"
+          , "kernel_BLoader_1.B1"
+        ]
+        , "kernel_BLoader_1.B2":
+        [
+          "kernel_BLoader_1.B2"
+          , "kernel_BLoader_1.B4"
+          , "kernel_BLoader_1.B3"
+        ]
+        , "kernel_BLoader_1.B4":
+        [
+          "kernel_BLoader_1.B4"
+          , "kernel_BLoader_1.B5"
+          , "kernel_BLoader_1.B6"
+        ]
+        , "kernel_BLoader_1.B5":
+        [
+          "kernel_BLoader_1.B5"
+          , "kernel_BLoader_1.B7"
+          , "kernel_BLoader_1.B8"
+        ]
+        , "kernel_BLoader_1.B7":
+        [
+          "kernel_BLoader_1.B7"
+        ]
+      }
+    }
+    , "kernel_ALoader_T_1":
+    {
+      "debug":
+      [
+        {
+          "filename":"a.cl"
+          , "line":744
+        }
+      ]
+      , "loop_hierachy":
+      {
+        "kernel_ALoader_T_1__no_loop":
+        [
+          "kernel_ALoader_T_1.B0"
+          , "kernel_ALoader_T_1.B1"
+        ]
+        , "kernel_ALoader_T_1.B2":
+        [
+          "kernel_ALoader_T_1.B2"
+          , "kernel_ALoader_T_1.B4"
+          , "kernel_ALoader_T_1.B3"
+        ]
+        , "kernel_ALoader_T_1.B4":
+        [
+          "kernel_ALoader_T_1.B4"
+          , "kernel_ALoader_T_1.B5"
+          , "kernel_ALoader_T_1.B6"
+        ]
+        , "kernel_ALoader_T_1.B5":
+        [
+          "kernel_ALoader_T_1.B5"
+          , "kernel_ALoader_T_1.B7"
+          , "kernel_ALoader_T_1.B8"
+        ]
+        , "kernel_ALoader_T_1.B7":
+        [
+          "kernel_ALoader_T_1.B7"
+        ]
+      }
+    }
+    , "kernel_BLoader_T_1":
+    {
+      "debug":
+      [
+        {
+          "filename":"a.cl"
+          , "line":946
+        }
+      ]
+      , "loop_hierachy":
+      {
+        "kernel_BLoader_T_1__no_loop":
+        [
+          "kernel_BLoader_T_1.B0"
+          , "kernel_BLoader_T_1.B1"
+        ]
+        , "kernel_BLoader_T_1.B2":
+        [
+          "kernel_BLoader_T_1.B2"
+          , "kernel_BLoader_T_1.B4"
+          , "kernel_BLoader_T_1.B3"
+        ]
+        , "kernel_BLoader_T_1.B4":
+        [
+          "kernel_BLoader_T_1.B4"
+          , "kernel_BLoader_T_1.B5"
+          , "kernel_BLoader_T_1.B6"
+        ]
+        , "kernel_BLoader_T_1.B5":
+        [
+          "kernel_BLoader_T_1.B5"
+          , "kernel_BLoader_T_1.B7"
+          , "kernel_BLoader_T_1.B8"
+        ]
+        , "kernel_BLoader_T_1.B7":
+        [
+          "kernel_BLoader_T_1.B7"
+        ]
+      }
+    }
+    , "kernel_unloader_1":
+    {
+      "debug":
+      [
+        {
+          "filename":"a.cl"
+          , "line":1424
+        }
+      ]
+      , "loop_hierachy":
+      {
+        "kernel_unloader_1__no_loop":
+        [
+          "kernel_unloader_1.B0"
+          , "kernel_unloader_1.B1"
+        ]
+        , "kernel_unloader_1.B2":
+        [
+          "kernel_unloader_1.B2"
+          , "kernel_unloader_1.B3"
+          , "kernel_unloader_1.B4"
+        ]
+        , "kernel_unloader_1.B3":
+        [
+          "kernel_unloader_1.B3"
+          , "kernel_unloader_1.B5"
+          , "kernel_unloader_1.B6"
+        ]
+        , "kernel_unloader_1.B5":
+        [
+          "kernel_unloader_1.B5"
+        ]
+      }
+    }
+    , "Intel_Internal_Collect_Autorun_Profiling":
+    {
+      "debug":
+      [
+        {
+          "filename":"Unknown location"
+          , "line":0
+        }
+      ]
+      , "loop_hierachy":
+      {
+        "Intel_Internal_Collect_Autorun_Profiling__no_loop":
+        [
+          "Intel_Internal_Collect_Autorun_Profiling.B0"
+        ]
+      }
+    }
+  }
+}
