@@ -9,9 +9,9 @@
     #define J           4//4
     #define I           4//4
 #else
-    #define K           22
-    #define J           22
-    #define I           22
+    #define K           32
+    #define J           32
+    #define I           32
 #endif
 
 // Roofline utilities
