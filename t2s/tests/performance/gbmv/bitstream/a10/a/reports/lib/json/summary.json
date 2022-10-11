@@ -7,41 +7,37 @@
     , "children":
     [
       {
-        "name":"kernel_Out"
+        "name":"Intel_Internal_Collect_Autorun_Profiling"
         , "data":
         [
-          "Single work-item"
+          "NDRange"
           , "No"
-          , [1, 1, 1]
+          , "n/a"
           , 1
         ]
         , "details":
         [
           {
             "type":"text"
-            , "text":"Kernel type: Single work-item"
+            , "text":"Kernel type: NDRange"
           }
           , {
             "type":"text"
-            , "text":"Required workgroup size: (1, 1, 1)"
-          }
-          , {
-            "type":"text"
-            , "text":"Maximum workgroup size: 1"
+            , "text":"The kernel does not use any work-group information (such as get_local_id() or get_group_id()).Local work-group size will be automatically modified to match global work-group size on launch.This is a hardware optimization."
           }
         ]
         , "debug":
         [
           [
             {
-              "filename":"a.cl"
-              , "line":383
+              "filename":""
+              , "line":0
             }
           ]
         ]
       }
       , {
-        "name":"kernel_V"
+        "name":"kernel_V_1"
         , "data":
         [
           "Single work-item"
@@ -69,7 +65,7 @@
           [
             {
               "filename":"a.cl"
-              , "line":255
+              , "line":189
             }
           ]
         ]
@@ -103,13 +99,13 @@
           [
             {
               "filename":"a.cl"
-              , "line":74
+              , "line":63
             }
           ]
         ]
       }
       , {
-        "name":"kernel_unloader"
+        "name":"kernel_unloader_1"
         , "data":
         [
           "Single work-item"
@@ -137,7 +133,41 @@
           [
             {
               "filename":"a.cl"
-              , "line":408
+              , "line":319
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_unloader_2"
+        , "data":
+        [
+          "Single work-item"
+          , "No"
+          , [1, 1, 1]
+          , 1
+        ]
+        , "details":
+        [
+          {
+            "type":"text"
+            , "text":"Kernel type: Single work-item"
+          }
+          , {
+            "type":"text"
+            , "text":"Required workgroup size: (1, 1, 1)"
+          }
+          , {
+            "type":"text"
+            , "text":"Maximum workgroup size: 1"
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":350
             }
           ]
         ]
@@ -147,7 +177,7 @@
         , "data":
         [
           "Single work-item"
-          , "No"
+          , "Yes"
           , [1, 1, 1]
           , 1
         ]
@@ -156,6 +186,14 @@
           {
             "type":"text"
             , "text":"Kernel type: Single work-item"
+          }
+          , {
+            "type":"text"
+            , "text":"Autorun Kernel: This kernel will start running before any other kernel is explicitly launched by the host.  The kernel will be automatically restarted as soon as it finishes."
+          }
+          , {
+            "type":"text"
+            , "text":"Max global work dimension: 0"
           }
           , {
             "type":"text"
@@ -171,7 +209,7 @@
           [
             {
               "filename":"a.cl"
-              , "line":130
+              , "line":146
             }
           ]
         ]
@@ -205,41 +243,7 @@
           [
             {
               "filename":"a.cl"
-              , "line":105
-            }
-          ]
-        ]
-      }
-      , {
-        "name":"kernel_yLoader"
-        , "data":
-        [
-          "Single work-item"
-          , "No"
-          , [1, 1, 1]
-          , 1
-        ]
-        , "details":
-        [
-          {
-            "type":"text"
-            , "text":"Kernel type: Single work-item"
-          }
-          , {
-            "type":"text"
-            , "text":"Required workgroup size: (1, 1, 1)"
-          }
-          , {
-            "type":"text"
-            , "text":"Maximum workgroup size: 1"
-          }
-        ]
-        , "debug":
-        [
-          [
-            {
-              "filename":"a.cl"
-              , "line":360
+              , "line":95
             }
           ]
         ]
@@ -254,29 +258,29 @@
     , "children":
     [
       {
-        "name":"kernel_Out"
+        "name":"Intel_Internal_Collect_Autorun_Profiling"
         , "data":
-        [2251, 5713, 0, 64, 66]
+        [1338, 2411, 0, 0, 10]
         , "debug":
         [
           [
             {
-              "filename":"a.cl"
-              , "line":383
+              "filename":""
+              , "line":0
             }
           ]
         ]
       }
       , {
-        "name":"kernel_V"
+        "name":"kernel_V_1"
         , "data":
-        [6419, 13158, 0, 32, 135]
+        [6983, 9480, 81, 32, 147]
         , "debug":
         [
           [
             {
               "filename":"a.cl"
-              , "line":255
+              , "line":189
             }
           ]
         ]
@@ -284,27 +288,41 @@
       , {
         "name":"kernel_aLoader"
         , "data":
-        [3603, 8081, 32, 0, 22]
+        [3733, 8412, 32, 0, 34]
         , "debug":
         [
           [
             {
               "filename":"a.cl"
-              , "line":74
+              , "line":63
             }
           ]
         ]
       }
       , {
-        "name":"kernel_unloader"
+        "name":"kernel_unloader_1"
         , "data":
-        [2202, 6791, 0, 0, 78]
+        [2501, 5141, 0, 0, 53]
         , "debug":
         [
           [
             {
               "filename":"a.cl"
-              , "line":408
+              , "line":319
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"kernel_unloader_2"
+        , "data":
+        [7935, 12784, 0, 0, 82]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":350
             }
           ]
         ]
@@ -312,13 +330,13 @@
       , {
         "name":"kernel_xFeeder"
         , "data":
-        [40325.5, 21790, 70, 1.5, 56]
+        [218, 366, 32, 0, 8]
         , "debug":
         [
           [
             {
               "filename":"a.cl"
-              , "line":130
+              , "line":146
             }
           ]
         ]
@@ -326,27 +344,13 @@
       , {
         "name":"kernel_xLoader"
         , "data":
-        [3272, 7688, 30, 0, 19]
+        [5255, 7349, 43, 0, 18]
         , "debug":
         [
           [
             {
               "filename":"a.cl"
-              , "line":105
-            }
-          ]
-        ]
-      }
-      , {
-        "name":"kernel_yLoader"
-        , "data":
-        [2945, 7459, 30, 0, 16]
-        , "debug":
-        [
-          [
-            {
-              "filename":"a.cl"
-              , "line":360
+              , "line":95
             }
           ]
         ]
@@ -356,14 +360,14 @@
         , "classes":
         ["summary-highlight", "nohover"]
         , "data":
-        [61017, 70679, 162, 97, 392]
+        [27963, 45943, 188, 32, 352]
       }
       , {
         "name":"Global Interconnect"
         , "classes":
         ["summary-highlight", "nohover"]
         , "data":
-        [1243, 4108, 36, 0, 0]
+        [1804, 4199, 36, 0, 0]
       }
       , {
         "name":"Board Interface"
@@ -384,16 +388,16 @@
         , "classes":
         ["summary-highlight", "nohover"]
         , "data":
-        [228, 49272, 312, 0, 0]
+        [55, 6462, 55, 0, 0]
       }
       , {
         "name":"Total"
         , "classes":
         ["summary-highlight", "nohover"]
         , "data":
-        [196988, 296579, 909, 97, 392]
+        [164322, 229123, 678, 32, 352]
         , "data_percent":
-        [23.0558, 17.356, 33.5053, 6.45586]
+        [19.2324, 13.4084, 24.9908, 2.10804]
       }
       , {
         "name":"Available"
@@ -409,6 +413,44 @@
     "name":"Compile Warnings"
     , "children":
     [
+      {
+        "name":"Load uses a Burst-coalesced cached LSU"
+        , "details":
+        [
+          {
+            "type":"text"
+            , "text":"Load with a private 512 kilobit cache. Cache is not shared with any other load. It is flushed on kernel start. Use Dynamic Profiler to verify cache effectiveness. Other kernels should not be updating the data in global memory while this kernel is using it. Cache is created when memory access pattern is data-dependent or appears to be repetitive. Simplify access pattern or mark pointer as 'volatile' to disable generation of this cache."
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":123
+            }
+          ]
+        ]
+      }
+      , {
+        "name":"Store uses a Burst-coalesced non-aligned LSU"
+        , "details":
+        [
+          {
+            "type":"text"
+            , "text":"Use Dynamic Profiler to determine performance impact of this LSU."
+          }
+        ]
+        , "debug":
+        [
+          [
+            {
+              "filename":"a.cl"
+              , "line":372
+            }
+          ]
+        ]
+      }
     ]
   }
 }

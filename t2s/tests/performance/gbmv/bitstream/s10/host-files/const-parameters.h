@@ -36,13 +36,13 @@
     #elif S10
         #define KKK	        1
         #define III	        64
-        #define II	        32
-        #define KK	        64
+        #define II	        64
+        #define KK	        8192
     #else
         #define KKK         1
         #define III         32
-        #define II          32
-        #define KK          32
+        #define II          64
+        #define KK          8192
     #endif
 #endif
 

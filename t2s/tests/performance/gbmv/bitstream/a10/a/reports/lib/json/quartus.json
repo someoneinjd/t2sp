@@ -4,34 +4,34 @@
   "name":"Quartus Fit Clock Summary"
   ,"columns":["", "Kernel fmax", "2x clock fmax"]  ,"children":[
   {
-    "name":"Frequency (MHz)","data":["Kernel fmax": 258.00 ,"2x clock fmax": 516.00]
+    "name":"Frequency (MHz)","data":["Kernel fmax": 277.00 ,"2x clock fmax": 554.00]
   }
 ]}
 ,"quartusFitResourceUsageSummary":
 {
   "name":"Quartus Fit Resource Utilization Summary"
   ,"columns":["", "ALMs", "FFs", "RAMs", "DSPs", "MLABs"]  ,"children":[
-  {"name":"Full design (all kernels)","data":["ALMs": 49843.7 ,"FFs": 113166 ,"RAMs": 158 ,"DSPs": 98 ,"MLABs": 348  ]
+  {"name":"Full design (all kernels)","data":["ALMs": 20853.8 ,"FFs": 44882 ,"RAMs": 217 ,"DSPs": 32 ,"MLABs": 286  ]
   }
 ,
-  {"name":"kernel_Out","data":["ALMs": 2633.6 ,"FFs": 4940 ,"RAMs": 0 ,"DSPs": 64 ,"MLABs": 56]
+  {"name":"Intel_Internal_Collect_Autorun_Profiling","data":["ALMs": 65.7 ,"FFs": 162 ,"RAMs": 0 ,"DSPs": 0 ,"MLABs": 0]
   }
 ,
-  {"name":"kernel_V","data":["ALMs": 6250.2 ,"FFs": 13592 ,"RAMs": 0 ,"DSPs": 32 ,"MLABs": 123]
+  {"name":"kernel_V_1","data":["ALMs": 6987.3 ,"FFs": 16229 ,"RAMs": 80 ,"DSPs": 32 ,"MLABs": 150]
   }
 ,
-  {"name":"kernel_aLoader","data":["ALMs": 2800.4 ,"FFs": 6064 ,"RAMs": 30 ,"DSPs": 0 ,"MLABs": 22]
+  {"name":"kernel_aLoader","data":["ALMs": 2831.3 ,"FFs": 6131 ,"RAMs": 30 ,"DSPs": 0 ,"MLABs": 24]
   }
 ,
-  {"name":"kernel_unloader","data":["ALMs": 4006.4 ,"FFs": 9117 ,"RAMs": 0 ,"DSPs": 0 ,"MLABs": 66]
+  {"name":"kernel_unloader_1","data":["ALMs": 2643.2 ,"FFs": 5452 ,"RAMs": 0 ,"DSPs": 0 ,"MLABs": 38]
   }
 ,
-  {"name":"kernel_xFeeder","data":["ALMs": 29678.6 ,"FFs": 68092 ,"RAMs": 70 ,"DSPs": 2 ,"MLABs": 56]
+  {"name":"kernel_unloader_2","data":["ALMs": 5164.6 ,"FFs": 10814 ,"RAMs": 32 ,"DSPs": 0 ,"MLABs": 64]
   }
 ,
-  {"name":"kernel_xLoader","data":["ALMs": 2287.6 ,"FFs": 5773 ,"RAMs": 29 ,"DSPs": 0 ,"MLABs": 13]
+  {"name":"kernel_xFeeder","data":["ALMs": 920.0 ,"FFs": 2108 ,"RAMs": 32 ,"DSPs": 0 ,"MLABs": 5]
   }
 ,
-  {"name":"kernel_yLoader","data":["ALMs": 2186.9 ,"FFs": 5588 ,"RAMs": 29 ,"DSPs": 0 ,"MLABs": 12]
+  {"name":"kernel_xLoader","data":["ALMs": 2241.7 ,"FFs": 3986 ,"RAMs": 43 ,"DSPs": 0 ,"MLABs": 5]
   }
 ]}}

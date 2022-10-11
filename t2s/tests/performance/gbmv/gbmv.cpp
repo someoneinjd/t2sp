@@ -27,20 +27,20 @@ using namespace Halide;
 int main()
 {
     // Dependences
-    #define P                          kkk,       iii,       ii,      kk,      k,   i
-    #define P_kkk_minus_1              kkk-1,     iii,       ii,      kk,      k,   i
-    #define P_kkk_minus_1_iii_minus_1  kkk-1,     iii-1,     ii,      kk,      k,   i
-    #define P_kk_minus_1               kkk+KKK-1, iii,       ii,      kk-1,    k,   i
-    #define P_k_minus_1                kkk+KKK-1, iii,       ii,      kk+KK-1, k-1, i
-    #define P_Out                                 iii,       ii,                    i
+    #define P                         iii,       ii,      kk,      k,   i
+    #define P_iii_minus_1             iii-1,     ii,      kk,      k,   i
+    #define P_kk_minus_1_iii_plus_1   iii+1,     ii,      kk-1,    k,   i
+    #define P_kk_minus_1_ii_plus_1    iii-III+1, ii+1,    kk-1,    k,   i
+    #define P_Out_1                                       kk,      k,   i
+    #define P_Out_2                   iii,       ii,               k,   i
 
     // Linearized addresses
     #define total_i         (iii + III * ii + III * II * i)
-    #define total_k         (kkk + KKK * kk + KKK * KK * k)
+    #define total_k         (kk + KK * k)
 
     // Outer loop bounds, which are determined by input sizes
     #define I               (A.dim(1).extent() / (III * II))
-    #define K               ((A.dim(0).extent() + KKK * KK - 1) / (KKK * KK))
+    #define K               (A.dim(0).extent() / (KKK * KK))
 
     // Type of the data to process in C and T2S
     #define CTYPE float
@@ -51,33 +51,29 @@ int main()
     ImageParam A("A", TTYPE, 2), X("X", TTYPE, 1), Y("Y", TTYPE, 1);
 
     // UREs
-    Var kkk("kkk"), iii("iii"), kk("kk"), ii("ii"), k("k"), i("i");
-    URE uA("uA", TTYPE, {P}), uX("uX", TTYPE, {P}), uY("uY", TTYPE, {P}), uZ("uZ", TTYPE, {P}), V("V"), Out("Out");
+    Var iii("iii"), kk("kk"), ii("ii"), k("k"), i("i");
+    URE uA("uA", TTYPE, {P}), uX("uX", TTYPE, {P}), uY("uY", TTYPE, {P}), uZ("uZ", TTYPE, {P});
+    URE V_1("V_1"), V_2("V_2"), Out("Out");
     uA(P) = A(total_k, total_i);
-    uX(P) = X(total_i + total_k);
-    uZ(P) = select(total_k == 0, 0,
-                                 select(kkk == 0, select(kk == 0, uZ(P_k_minus_1),
-                                                                  uZ(P_kk_minus_1)), 
-                                                  uZ(P_kkk_minus_1)))
-            + uA(P) * uX(P);
-    V(P_Out) = select(kkk == KKK-1 && kk == KK-1 && k == K-1, uZ(P));
-    Out(P_Out) = V(P_Out) * Alpha + Y(total_i) * Beta;
+    uX(P) = select(iii == 0, X(total_k), uX(P_iii_minus_1));
+    uZ(P) = select(kk == 0 || (iii == III-1 && ii == II-1), 0,
+                    select(iii == III-1, uZ(P_kk_minus_1_ii_plus_1),
+                                         uZ(P_kk_minus_1_iii_plus_1))
+                  ) + uA(P) * uX(P);
+    V_1(P_Out_1) = select(iii == 0 && ii == 0, uZ(P));
+    // V_2(P_Out_2) = select(kk == KK-1, uZ(P));
 
     // Put all the UREs inside the same loop nest of X.
-    uA.merge_ures(uX, uZ, V);
+    uA.merge_ures(uX, uZ, V_1);
 
     // Explicitly set the loop bounds
-    uA.set_bounds(iii, 0, III, kkk, 0, KKK)
+    uA.set_bounds(iii, 0, III)
       .set_bounds(ii,  0, II,  kk,  0, KK)
       .set_bounds(i,   0, I,   k,   0, K);
-    Out.set_bounds(iii, 0, III)
-       .set_bounds(ii,  0, II)
-       .set_bounds(i,   0, I);
+    V_1.set_bounds(kk, 0, KK);
 
     // Create a systolic array
     uA.space_time_transform(iii);
-    uA.vectorize(kkk);
-    Out.vectorize(iii);
 
     // GPU can have many threads running in parallel.
 #ifdef GPU
@@ -85,29 +81,21 @@ int main()
 #endif
 
     // I/O network
-    Func aSerializer("aSerializer", Place::Host), aLoader("aLoader", Place::Device);
-    Func xSerializer("xSerializer", Place::Host), xLoader("xLoader", Place::Device);
-    Func ySerializer("ySerializer", Place::Host), yLoader("yLoader", Place::Device);
-    Func unloader("unloader", Place::Device);
-    Func deserializer("deserializer", Place::Host);
+    Stensor aLoader("aLoader", DRAM);
+    A >> aLoader >> FIFO(256);
 
-    uA.isolate_producer_chain(A, aSerializer, aLoader);
-    uA.isolate_producer_chain(X, xSerializer, xLoader);
-    Out.isolate_producer_chain(Y, ySerializer, yLoader);
+    Stensor xLoader("xLoader", DRAM), xFeeder("xFeeder", SRAM);
+    X >> xLoader >> FIFO(256)
+      >> xFeeder.scope(k) >> FIFO(256);
 
-    xLoader.vectorize(kkk);
-    aLoader.min_depth(1024);
-    xLoader.min_depth(1024);
-    V.min_depth(1024);
-    yLoader.min_depth(1024);
-    Out.min_depth(1024);
-    unloader.min_depth(1024);
+    Stensor unloader_1("unloader_1", DRAM), deserializer_1("deserializer_1");
+    V_1 >> FIFO(256) >> unloader_1 >> deserializer_1(total_i);
 
-    Out.isolate_consumer_chain(unloader, deserializer);
-    Target acc = get_host_target();
-    acc.set_feature(Target::IntelFPGA);
-    acc.set_feature(Target::EnableSynthesis);
-    deserializer.compile_to_host("gbmv3-interface", { Alpha, Beta, A, X, Y }, "gbmv3", acc);
+    // Stensor unloader_2("unloader_2", DRAM), deserializer_2("deserializer_2");
+    // V_2 >> FIFO(256) >> unloader_2 >> deserializer_2(total_i);
+
+    // Compile the kernel to an FPGA bitstream, and expose a C interface for the host to invoke
+    deserializer_1.compile_to_host("gbmv-interface", { A, X }, "gbmv", IntelFPGA);
     printf("Success\n");
 
     return 0;

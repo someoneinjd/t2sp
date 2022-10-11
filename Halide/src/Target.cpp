@@ -691,10 +691,6 @@ void Target::set_feature(Feature f, bool value) {
     if (f == Target::IntelFPGA && value) {
         // Enabling generating OpenCL code for Intel FPGAs
         features.set(Target::OpenCL, true);
-    } else if  (f == Target::OneAPI && value) {
-        // Enabling generating OpenCL OneAPI code for IntelFPGAs w/ CodeGen_OneAPI_Dev.h/.cpp
-        // NOTE, the IntelFPGA must be set before the OneAPI is set
-        features.set(Target::OpenCL, false);
     }
 }
 
