@@ -83,7 +83,6 @@ int main()
 #endif
 
     Halide::Runtime::Buffer<double> c(JJJ, III, JJ, II, J, I);
-    printf("\x1b[31mBegin\x1b[0m\n");
     trmm(a, b, c);
 
 #ifdef TINY
