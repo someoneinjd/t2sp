@@ -2,6 +2,7 @@
 #define BLAS_COMMON_H
 
 // Below is adapted from Halide/apps/linear_algebra/src/halide_blas.cpp
+#include "Halide.h"
 #include "HalideBuffer.h"
 using Halide::Runtime::Buffer;
 
