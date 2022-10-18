@@ -48,20 +48,22 @@ int main()
     // Inputs
     Param<int> TransA, TransB;
     Param<CONST_TYPE> alpha, beta;
-    ImageParam A("A", TTYPE, 2), B("B", TTYPE, 2);
+    ImageParam A("A", TTYPE, 2), B("B", TTYPE, 2), C("C", TTYPE, 6);
 
     // UREs
     Var kkk("kkk"), jjj("jjj"), iii("iii"), jj("jj"), ii("ii"), kk("kk"), k("k"), j("j"), i("i");
-    URE X("X", TTYPE, {P}), Y("Y", TTYPE, {P}), Z("Z", TTYPE, {P}), Out("Out");
+    URE X("X", TTYPE, {P}), Y("Y", TTYPE, {P}), Z("Z", TTYPE, {P}), Product("Product"), Out("Out");
     X(P) = select(jjj == 0, A(total_k, total_i), X(P_jjj_minus_1));
     Y(P) = select(iii == 0, B(total_j, total_k), Y(P_iii_minus_1));
     Z(P) = select(kkk == 0 && kk == 0 && k == 0, 0,
                 select(kkk == 0, select(kk == 0, Z(P_k_minus_1), Z(P_kk_minus_1)), Z(P_kkk_minus_1)))
                 + X(P) * Y(P);
-    Out(P_Out) = select(kkk == KKK-1 && kk == KK-1 && k == K-1, alpha * Z(P));
+    Product(P_Out) = select(kkk == KKK-1 && kk == KK-1 && k == K-1, Z(P));
+
+    Out(P_Out) = alpha * Product(P_Out) + beta * C(P_Out);
 
     // Put all the UREs inside the same loop nest of X.
-    X.merge_ures(Y, Z, Out);
+    X.merge_ures(Y, Z, Product);
 
     // Explicitly set the loop bounds
     X.set_bounds(jjj, 0, JJJ, iii, 0, III, kkk, 0, KKK)
@@ -72,17 +74,19 @@ int main()
     X.space_time_transform(jjj, iii);
 
     // I/O network
-    Stensor DA("aLoader", DRAM), SA("aFeeder", SRAM), DB("bLoader", DRAM), SB("bFeeder", SRAM);
-    Stensor ROut("collector", REG), DOut("unloader", DRAM), Result("Result");
+    Stensor DA("aLoader", DRAM), SA("aFeeder", SRAM), DB("bLoader", DRAM), SB("bFeeder", SRAM), DC("cLoader", DRAM);
+    Stensor ROut("collector", REG), DOut("unloader", DRAM), Output("Result");
     A >> DA.out(kkk)                >> FIFO(256)
       >> SA.scope(k).out(kkk, iii)  >> FIFO(256);
     B >> DB.out(kkk)                >> FIFO(256)
       >> SB.scope(k).out(kkk, jjj)  >> FIFO(256);
+    // This part will cause a compiler error, because the compiler thinks that C is isolated from X. That is, the compiler just knows there is a single group of merged ures, but here we actually have two groups. 
+    C >> DC.out(jjj)                >> FIFO(256);
     Out >> ROut.scope(iii).out(jjj)   >> FIFO(256)
-        >> DOut >> Result(total_j, total_i);
+        >> DOut >> Output(total_j, total_i);
 
     // Compile the kernel to an FPGA bitstream, and expose a C interface for the host to invoke
-    Result.compile_to_host("kernel-interface", { TransA, TransB, alpha, beta, A, B }, "gemm", IntelFPGA);
+    Output.compile_to_host("kernel-interface", { TransA, TransB, alpha, beta, A, B, C }, "gemm", IntelFPGA);
 
     return 0;
 }

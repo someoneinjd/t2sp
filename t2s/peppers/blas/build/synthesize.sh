@@ -1,4 +1,4 @@
-#set -x
+set -x
 
 # BASH_SOURCE is this script
 if [ $0 != $BASH_SOURCE ]; then
