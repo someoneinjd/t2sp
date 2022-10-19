@@ -1,5 +1,6 @@
 #include <string.h>
 #include <iostream>
+#include <ctype.h>
 #include "./common.h"
 
 // Below is adapted from Halide/apps/linear_algebra/src/halide_blas.cpp

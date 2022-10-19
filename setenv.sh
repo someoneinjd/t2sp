@@ -54,6 +54,10 @@ GCC_PATH=$TOOLS_PATH/gcc-7.5.0
 export LLVM_CONFIG=$TOOLS_PATH/bin/llvm-config
 export CLANG=$TOOLS_PATH/bin/clang
 
+# Modify these 2 paths if you have installed MKL and LAPACK
+export MKLROOT=$HOME/intel/oneapi/mkl/latest
+export LAPACKROOT=$HOME/lapack
+
 if [ "$1" = "local" -a "$2" = "fpga" ]; then
     # Modify according to your machine's setting
     ALTERA_PATH=$HOME/intelFPGA_pro
@@ -89,15 +93,15 @@ if [ "$2" = "fpga" ]; then
         fi
         pbsnodes $(hostname) >& tmp.txt
         if grep "fpga,arria10" tmp.txt; then
-        if grep "fpga_opencl" tmp.txt; then
-              tools_setup -t A10DS 1.2.1
-        fi
+            if grep "fpga_opencl" tmp.txt; then
+                tools_setup -t A10DS 1.2.1
+            fi
             export FPGA_BOARD=pac_a10
         else
             if grep "fpga,stratix10" tmp.txt; then
-        if grep "fpga_opencl" tmp.txt; then
-                  tools_setup -t S10DS
-        fi
+                if grep "fpga_opencl" tmp.txt; then
+                    tools_setup -t S10DS
+                fi
                 export FPGA_BOARD=pac_s10_dc
             else
                 echo The current compute node does not have either an A10 or an S10 card with it.

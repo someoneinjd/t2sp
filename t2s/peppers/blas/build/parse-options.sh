@@ -6,6 +6,7 @@ function show_usage {
     echo "  where * is one of s, d, c, and z."
 }
 
+# TODO: Fill in the kernels we support below
 # All the kernels we support
 level1_kernels=()
 level2_kernels=()
