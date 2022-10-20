@@ -26,9 +26,9 @@ void GEMM(const char TransA, const char TransB, const MKL_INT M, const MKL_INT N
     assert(LDC >= std::max(1, M));
 
     // Initialize input buffers. Make the buffers as linear, and handle transpose and lda/b/c explicitly
-    auto bufferA = init_vector_buffer<ELEM_TYPE>(LDA * K, a, 1);
-    auto bufferB = init_vector_buffer<ELEM_TYPE>(LDB * N, b, 1);
-    auto bufferC = init_vector_buffer<ELEM_TYPE>(LDC * N, c, 1);
+    auto bufferA = init_matrix_buffer<ELEM_TYPE>(M, K, a, LDA);
+    auto bufferB = init_matrix_buffer<ELEM_TYPE>(K, N, b, LDB);
+    auto bufferC = init_matrix_buffer<ELEM_TYPE>(M, N, c, LDC);
 
     if (typeid(OP) == typeid(type_of_float) && Type_size == 32) {
         tblas_sgemm(TransA, TransB, alpha, beta, bufferA, bufferB, bufferC);
