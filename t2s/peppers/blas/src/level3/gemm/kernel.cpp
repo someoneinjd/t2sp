@@ -31,26 +31,21 @@ int main()
     #define addr_B_in_range select(TransB = 'N', total_k < MATRICES_K && total_j < MATRICES_J, total_j < MATRICES_K && total_k < MATRICES_J)
     #define addr_C_in_range (total_i < MATRICES_I && total_j < MATRICES_J)
 
-    // Addresses of matrices
-    #define addr_A          select(TransA = 'N', total_i + MATRICES_I * total_k, total_k + MATRICES_I * total_i)
-    #define addr_B          select(TransA = 'N', total_k + MATRICES_K * total_j, total_j + MATRICES_K * total_k)
-    #define addr_output     (total_i + MATRICES_I * total_j)
-
     // Outer loop bounds, which are determined by the matrices' dimensions
     #define I (MATRICES_I / (III * II))
     #define J (MATRICES_J / (JJJ * JJ))
     #define K (MATRICES_K / (KKK * KK))
 
-    // Inputs. The matrices have been linearized into vectors. We will access them explicitly according to transpose and leading dimension info.
+    // Inputs.
     Param<char> TransA, TransB;
     Param<CONST_TYPE> alpha, beta;
-    ImageParam A("A", TTYPE, 1), B("B", TTYPE, 1), C("C", TTYPE, 1);
+    ImageParam A("A", TTYPE, 2), B("B", TTYPE, 2), C("C", TTYPE, 2);
 
     // UREs
     Var kkk("kkk"), jjj("jjj"), iii("iii"), jj("jj"), ii("ii"), kk("kk"), k("k"), j("j"), i("i");
     URE X("X", TTYPE, {P}), Y("Y", TTYPE, {P}), Z("Z", TTYPE, {P}), Product("Product"), Out("Out");
-    X(P) = select(jjj == 0, select(addr_A_in_range, A(addr_A), 0), X(P_jjj_minus_1));
-    Y(P) = select(iii == 0, select(addr_B_in_range, B(addr_B), 0), Y(P_iii_minus_1));
+    X(P) = select(jjj == 0, select(addr_A_in_range, select(TransA == 'N', A(total_i, total_k), A(total_k, total_i)), 0), X(P_jjj_minus_1));
+    Y(P) = select(iii == 0, select(addr_B_in_range, select(TransB == 'N', B(total_k, total_j), B(total_j, total_k)), 0), Y(P_iii_minus_1));
     Z(P) = select(kkk == 0 && kk == 0 && k == 0, 0,
                 select(kkk == 0, select(kk == 0, Z(P_k_minus_1), Z(P_kk_minus_1)), Z(P_kkk_minus_1)))
                 + X(P) * Y(P);
@@ -78,7 +73,7 @@ int main()
     A   >> DA.out(kkk)              >> FIFO(256) >> SA.scope(k).out(kkk, iii) >> FIFO(256);
     B   >> DB.out(kkk)              >> FIFO(256) >> SB.scope(k).out(kkk, jjj) >> FIFO(256);
     C   >> DC.out(jjj)              >> FIFO(256);
-    Out >> ROut.scope(iii).out(jjj) >> FIFO(256) >> DOut >> Output(addr_output);
+    Out >> ROut.scope(iii).out(jjj) >> FIFO(256) >> DOut >> Output(total_i, total_j);
 
     // Compile the kernel to an FPGA bitstream, and expose a C interface for the host to invoke
     Output.compile_to_host(INTERFACE_FILE, { TransA, TransB, alpha, beta, A, B, C }, KERNEL, IntelFPGA);
