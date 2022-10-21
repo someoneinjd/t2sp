@@ -240,6 +240,9 @@ struct FindVars
                                 user_assert(!chain.control_ure.defined() or chain.control_ure.function().name() == control_ure.function().name()) << "Error: ImageParams " << to_string(chain.imp) << " are not from the same group of merged UREs";
                                 chain.control_ure = control_ure;
                                 chain.used_vars[ref.first] = ref.second;
+                                auto _temp = control_ure.function().definition().schedule().dims();
+                                for (auto && d : _temp)
+                                    chain.free_vars.push_back(d.var);
                             }
                         }
                     }
