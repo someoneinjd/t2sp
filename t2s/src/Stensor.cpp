@@ -206,6 +206,7 @@ struct FindVars
         vector<string> visited_image_params;
         for (auto entry : env) {
             const Func& f = entry.second;
+            fuv.used_vars.clear();
             f.value().accept(&fuv);
             if (!fuv.used_vars.empty()) {
                 ImageParamReferencesInAFunc reference;
@@ -226,12 +227,12 @@ struct FindVars
         find_image_param_references(env, references);
 
         // Find control_ure, free_vars and used_vars for each stensor chain
-        for (auto chain : schains) {
+        for (auto &chain : schains) {
             if (chain.is_output) {
                 chain.control_ure = control_ure_of_func(env, chain.outf);
             } else {
                 for (auto i : chain.imp) {
-                    string image_param = remove_postfix(i.name(), "_im");
+                    auto image_param = ends_with(i.name(), "_im") ? remove_postfix(i.name(), "_im") : i.name();
                     for (auto refs_in_a_func : references) {
                         for (auto ref : refs_in_a_func.used_vars) {
                             if (image_param == ref.first) {

@@ -36,8 +36,8 @@ function synthesize_fpga_kernel {
         echo TODO: HANDLE other prefixes!
     fi      
         
-    g++ kernel.cpp -g -DCONST_TYPE=$CONST_TYPE -DTTYPE=$TTYPE -DINTERFACE_FILE=${workload}-interface -DKERNEL=tblas_${workload} -I $T2S_PATH/Halide/include -L $T2S_PATH/Halide/bin $(libhalide_to_link) -lz -lpthread -ldl -std=c++11 \
-        -DSIZE=${size^^} -DPREFIXES=${prefixes^^} -DTARGET=${target^^} -o kernel.out
+g++ kernel.cpp -g -DCONST_TYPE=$CONST_TYPE -DTTYPE=$TTYPE -DINTERFACE_FILE=\"${workload}-interface\" -DKERNEL=\"tblas_${workload}\" -I $T2S_PATH/Halide/include -L $T2S_PATH/Halide/bin $(libhalide_to_link) -lz -lpthread -ldl -std=c++11 \
+        -D${size^^} -D${prefixes^^} -D${target^^} -o kernel.out
 
     # Generate a device kernel, and a C interface for the host to invoke the kernel:
     # The bitstream generated is kernel.aocx.

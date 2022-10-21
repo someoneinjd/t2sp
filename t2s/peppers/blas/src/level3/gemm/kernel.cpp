@@ -27,8 +27,8 @@ int main()
     #define MATRICES_J      (B.dim(1).extent())
 
     // Are the loop indices within the range of the matrices' dimensions?
-    #define addr_A_in_range select(TransA = 'N', total_i < MATRICES_I && total_k < MATRICES_K, total_k < MATRICES_I && total_i < MATRICES_K)
-    #define addr_B_in_range select(TransB = 'N', total_k < MATRICES_K && total_j < MATRICES_J, total_j < MATRICES_K && total_k < MATRICES_J)
+    #define addr_A_in_range select(!TransA, total_i < MATRICES_I && total_k < MATRICES_K, total_k < MATRICES_I && total_i < MATRICES_K)
+    #define addr_B_in_range select(!TransB, total_k < MATRICES_K && total_j < MATRICES_J, total_j < MATRICES_K && total_k < MATRICES_J)
     #define addr_C_in_range (total_i < MATRICES_I && total_j < MATRICES_J)
 
     // Outer loop bounds, which are determined by the matrices' dimensions
@@ -37,24 +37,25 @@ int main()
     #define K (MATRICES_K / (KKK * KK))
 
     // Inputs.
-    Param<char> TransA, TransB;
+    Param<bool> TransA{false}, TransB{false};
     Param<CONST_TYPE> alpha, beta;
     ImageParam A("A", TTYPE, 2), B("B", TTYPE, 2), C("C", TTYPE, 2);
-
     // UREs
     Var kkk("kkk"), jjj("jjj"), iii("iii"), jj("jj"), ii("ii"), kk("kk"), k("k"), j("j"), i("i");
-    URE X("X", TTYPE, {P}), Y("Y", TTYPE, {P}), Z("Z", TTYPE, {P}), Product("Product"), Out("Out");
-    X(P) = select(jjj == 0, select(addr_A_in_range, select(TransA == 'N', A(total_i, total_k), A(total_k, total_i)), 0), X(P_jjj_minus_1));
-    Y(P) = select(iii == 0, select(addr_B_in_range, select(TransB == 'N', B(total_k, total_j), B(total_j, total_k)), 0), Y(P_iii_minus_1));
+    URE X("AX", TTYPE, {P}), Y("Y", TTYPE, {P}), Z("Z", TTYPE, {P}), Product("Product");
+    URE Out("Out");//, TTYPE, {P_Out});
+    X(P) = select(jjj == 0, select(addr_A_in_range, A(select(!TransA, total_i, total_k), select(!TransA, total_k, total_i)), 0), X(P_jjj_minus_1));
+    Y(P) = select(iii == 0, select(addr_B_in_range, B(select(!TransB, total_k, total_j), select(!TransB, total_j, total_k)), 0), Y(P_iii_minus_1));
     Z(P) = select(kkk == 0 && kk == 0 && k == 0, 0,
                 select(kkk == 0, select(kk == 0, Z(P_k_minus_1), Z(P_kk_minus_1)), Z(P_kkk_minus_1)))
                 + X(P) * Y(P);
-    Product(P_Out) = select(kkk == KKK-1 && kk == KK-1 && k == K-1, Z(P));
+    Product(P_Out) = select(kkk == KKK-1 && kk == KK-1 && k == K-1,
+                select(alpha == 0, 0, alpha * Z(P)) + select(beta == 0, 0, beta * C(total_i, total_j)));
 
     // Output, which is actually connected to C. So we read C(i,j) and then overwrite it. There should be no worry of data race.
     // Note that in this URE, the select does not have a false branch. So only when address of matrix C is within range,
     // we will overwrite C.
-    Out(P_Out) = select(addr_C_in_range, select(alpha == 0, 0, alpha * Product(P_Out)) + select(beta == 0, 0, beta * C(P_Out));
+    Out(P_Out) = select(addr_C_in_range, Product(P_Out));
 
     // Put the UREs that compute A*B (i.e. X, Y, Z and Product) inside the same loop nest.
     X.merge_ures(Y, Z, Product);
