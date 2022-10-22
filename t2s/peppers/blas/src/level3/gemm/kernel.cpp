@@ -42,7 +42,7 @@ int main()
     ImageParam A("A", TTYPE, 2), B("B", TTYPE, 2), C("C", TTYPE, 2);
     // UREs
     Var kkk("kkk"), jjj("jjj"), iii("iii"), jj("jj"), ii("ii"), kk("kk"), k("k"), j("j"), i("i");
-    URE X("AX", TTYPE, {P}), Y("Y", TTYPE, {P}), Z("Z", TTYPE, {P}), Product("Product");
+    URE X("X", TTYPE, {P}), Y("Y", TTYPE, {P}), Z("Z", TTYPE, {P}), Product("Product");
     URE Out("Out");//, TTYPE, {P_Out});
     X(P) = select(jjj == 0, select(addr_A_in_range, A(select(!TransA, total_i, total_k), select(!TransA, total_k, total_i)), 0), X(P_jjj_minus_1));
     Y(P) = select(iii == 0, select(addr_B_in_range, B(select(!TransB, total_k, total_j), select(!TransB, total_j, total_k)), 0), Y(P_iii_minus_1));
