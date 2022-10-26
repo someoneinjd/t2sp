@@ -1050,7 +1050,7 @@ private:
         return true;
     }
 
-    void intialize_common_constants() {
+    void initialize_common_constants() {
         internal_assert(original_read_node.defined());
         TYPE = original_read_node.type();
         WRITES = 1, READS = 1, PERIODS = 1;
@@ -1264,7 +1264,7 @@ private:
     }
 
     void initialize_common_constants_vars() {
-        intialize_common_constants();
+        initialize_common_constants();
 
         value = Variable::make(TYPE, func_name + "_value.shreg");
         time_stamp = Variable::make(UInt(32), func_name + "_time_stamp.shreg");
