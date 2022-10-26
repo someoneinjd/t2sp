@@ -73,11 +73,11 @@ int main()
        .set_bounds(j,   0, J,   i,   0, I);
 
     // I/O network
-    Stensor DA("aLoader", DRAM), SA("aFeeder", SRAM), DB("bLoader", DRAM), SB("bFeeder", SRAM), DC("cLoader", DRAM);
+    Stensor DA("aLoader", DRAM), SA("aFeeder", SRAM), DB("bLoader", DRAM), SB("bFeeder", SRAM), DC("cLoader", DRAM), SC("cFeeder", SRAM);
     Stensor ROut("collector", REG), DOut("unloader", DRAM), Output("Output");
     A   >> DA.out(kkk)              >> FIFO(256) >> SA.scope(k).out(kkk, iii) >> FIFO(256);
     B   >> DB.out(kkk)              >> FIFO(256) >> SB.scope(k).out(kkk, jjj) >> FIFO(256);
-    C   >> DC.out(jjj)              >> FIFO(256);
+    C   >> DC.out(jjj)              >> FIFO(256) >> SC.scope(j).out(jjj, iii) >> FIFO(256);
     Out >> ROut.scope(iii).out(jjj) >> FIFO(256) >> DOut >> Output(total_i, total_j);
 
     // Compile the kernel to an FPGA bitstream, and expose a C interface for the host to invoke
