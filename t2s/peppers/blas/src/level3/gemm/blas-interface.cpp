@@ -31,14 +31,14 @@ void GEMM(const char TransA, const char TransB, const MKL_INT M, const MKL_INT N
     auto bufferC = init_matrix_buffer<ELEM_TYPE>(M, N, c, LDC);
 
     if (typeid(OP) == typeid(type_of_float) && Type_size == 32) {
-        tblas_sgemm(TransA, TransB, alpha, beta, bufferA, bufferB, bufferC);
+        tblas_sgemm(TransA == 'T', TransB == 'T', alpha, beta, bufferA, bufferB, bufferC);
     } else if (typeid(OP) == typeid(type_of_float) && Type_size == 64) {
-        tblas_dgemm(TransA, TransB, alpha, beta, bufferA, bufferB, bufferC);
+        tblas_dgemm(TransA == 'T', TransB == 'T', alpha, beta, bufferA, bufferB, bufferC);
     } else if (typeid(OP) == typeid(type_of_complex) && Type_size == 32) {
-        tblas_cgemm(TransA, TransB, alpha, beta, bufferA, bufferB, bufferC);
+        tblas_cgemm(TransA == 'T', TransB == 'T', alpha, beta, bufferA, bufferB, bufferC);
     } else {
         assert (typeid(OP) == typeid(type_of_complex) && Type_size == 64);
-        tblas_zgemm(TransA, TransB, alpha, beta, bufferA, bufferB, bufferC);
+        tblas_zgemm(TransA == 'T', TransB == 'T', alpha, beta, bufferA, bufferB, bufferC);
     }
 }
 
