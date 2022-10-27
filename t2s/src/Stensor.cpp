@@ -50,7 +50,7 @@ public:
     }
 
     bool exists(const vector<Var> &vars) {
-        for (auto &v : vars) {
+        for (const auto &v : vars) {
             if (var_index(v) == -1) {
                 return false;
             }
@@ -64,12 +64,12 @@ public:
 
     vector<VarOrRVar> find_reuse_vars(string imp, Var scope) {
         vector<VarOrRVar> reuse_vars;
-        for (Var v : free_vars) {
+        for (const auto &v : free_vars) {
             if (v.same_as(scope)) {
                 break;
             }
             if (used_vars[imp].count(v.name()) == 0) {
-                reuse_vars.push_back(Var(v));
+                reuse_vars.push_back(v);
             }
         }
         return reuse_vars;
@@ -183,10 +183,10 @@ struct FindVars
     } fuv;
 
     Func control_ure_of_func(const map<string, Func> &env, const Func &func) {
-        for (auto entry : env) {
+        for (const auto &entry : env) {
             const Func& f = entry.second;
             if (f.function().has_merged_defs()) {
-                for (string name : f.function().merged_func_names()) {
+                for (const auto &name : f.function().merged_func_names()) {
                     if (func.name() == name)
                         return std::move(Func(f));
                 }
@@ -204,7 +204,7 @@ struct FindVars
     // Find out which function references which image param, and the variables used in referencing an image param
     void find_image_param_references(const map<string, Func> &env, vector<ImageParamReferencesInAFunc> &references) {
         vector<string> visited_image_params;
-        for (auto entry : env) {
+        for (const auto &entry : env) {
             const Func& f = entry.second;
             fuv.used_vars.clear();
             f.value().accept(&fuv);
@@ -213,7 +213,7 @@ struct FindVars
                 reference.func = f;
                 reference.used_vars = fuv.used_vars;
                 references.push_back(reference);
-                for (auto v : reference.used_vars) {
+                for (const auto &v : reference.used_vars) {
                     user_assert(std::find(visited_image_params.begin(), visited_image_params.end(), v.first) == visited_image_params.end()) << "Error: ImageParam " << v.first << " is referenced more than once.";
                     visited_image_params.push_back(v.first);
                 }
@@ -231,17 +231,16 @@ struct FindVars
             if (chain.is_output) {
                 chain.control_ure = control_ure_of_func(env, chain.outf);
             } else {
-                for (auto i : chain.imp) {
+                for (const auto &i : chain.imp) {
                     auto image_param = ends_with(i.name(), "_im") ? remove_postfix(i.name(), "_im") : i.name();
-                    for (auto refs_in_a_func : references) {
-                        for (auto ref : refs_in_a_func.used_vars) {
+                    for (const auto &refs_in_a_func : references) {
+                        for (const auto &ref : refs_in_a_func.used_vars) {
                             if (image_param == ref.first) {
                                 Func control_ure = control_ure_of_func(env, refs_in_a_func.func);
                                 user_assert(!chain.control_ure.defined() or chain.control_ure.function().name() == control_ure.function().name()) << "Error: ImageParams " << to_string(chain.imp) << " are not from the same group of merged UREs";
                                 chain.control_ure = control_ure;
                                 chain.used_vars[ref.first] = ref.second;
-                                auto _temp = control_ure.function().definition().schedule().dims();
-                                for (auto && d : _temp)
+                                for (const auto &d : control_ure.function().definition().schedule().dims())
                                     chain.free_vars.push_back(d.var);
                             }
                         }
@@ -292,7 +291,7 @@ class RealizeOnFPGA
             c.stensors.insert(c.stensors.begin(), s_host);
         }
         vector<Func> producers;
-        for (auto &s : c.stensors) {
+        for (const auto &s : c.stensors) {
             Place place = s.position == SMemType::HOST ? Place::Host : Place::Device;
             Func isolated_func(s.name, place);
             producers.push_back(std::move(isolated_func));
@@ -403,9 +402,9 @@ class RealizeOnFPGA
     }
 
     Var find_differences(vector<Var> set_a, vector<Var> set_b) {
-        for (auto &a : set_a) {
+        for (const auto &a : set_a) {
             bool found = false;
-            for (auto &b : set_b)
+            for (const auto &b : set_b)
                 if (a.name() == b.name()) found = true;
             if (!found) return a;
         }
@@ -547,9 +546,9 @@ class RealizeOnFPGA
         // The dst_vars includes space loops plus one time loop
         const auto &dst_vars = c.control_ure.function().definition().schedule().transform_params()[0].dst_vars;
         for (auto &s : c.stensors) {
-            for (auto &v : s.v_outs) {
+            for (const auto &v : s.v_outs) {
                 auto p = std::find_if(dst_vars.begin(), dst_vars.end()-1,
-                                    [&](string &n){ return v.name() == n; });
+                                    [&](const string &n){ return v.name() == n; });
                 if (p != dst_vars.end()-1) {
                     // Find it is in space loops, so we view it as a bank
                     s.v_banks.push_back(Var(*p));
