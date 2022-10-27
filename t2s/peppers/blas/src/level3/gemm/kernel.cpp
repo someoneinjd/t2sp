@@ -49,13 +49,12 @@ int main()
     Z(P) = select(kkk == 0 && kk == 0 && k == 0, 0,
                 select(kkk == 0, select(kk == 0, Z(P_k_minus_1), Z(P_kk_minus_1)), Z(P_kkk_minus_1)))
                 + X(P) * Y(P);
-    Product(P_Out) = select(kkk == KKK-1 && kk == KK-1 && k == K-1,
-                select(alpha == 0, 0, alpha * Z(P)) + select(beta == 0, 0, beta * C(total_i, total_j)));
+    Product(P_Out) = select(kkk == KKK-1 && kk == KK-1 && k == K-1, Z(P));
 
     // Output, which is actually connected to C. So we read C(i,j) and then overwrite it. There should be no worry of data race.
     // Note that in this URE, the select does not have a false branch. So only when address of matrix C is within range,
     // we will overwrite C.
-    Out(P_Out) = select(addr_C_in_range, Product(P_Out));
+    Out(P_Out) = select(addr_C_in_range, alpha * Product(P_Out)) + select(beta == 0, 0, beta * C(total_i, total_j)));
 
     // Put the UREs that compute A*B (i.e. X, Y, Z and Product) inside the same loop nest.
     X.merge_ures(Y, Z, Product);
@@ -73,11 +72,11 @@ int main()
        .set_bounds(j,   0, J,   i,   0, I);
 
     // I/O network
-    Stensor DA("aLoader", DRAM), SA("aFeeder", SRAM), DB("bLoader", DRAM), SB("bFeeder", SRAM), DC("cLoader", DRAM), SC("cFeeder", SRAM);
+    Stensor DA("aLoader", DRAM), SA("aFeeder", SRAM), DB("bLoader", DRAM), SB("bFeeder", SRAM), DC("cLoader", DRAM);
     Stensor ROut("collector", REG), DOut("unloader", DRAM), Output("Output");
     A   >> DA.out(kkk)              >> FIFO(256) >> SA.scope(k).out(kkk, iii) >> FIFO(256);
     B   >> DB.out(kkk)              >> FIFO(256) >> SB.scope(k).out(kkk, jjj) >> FIFO(256);
-    C   >> DC.out(jjj)              >> FIFO(256) >> SC.scope(j).out(jjj, iii) >> FIFO(256);
+    C   >> DC.out(jjj)              >> FIFO(256);
     Out >> ROut.scope(iii).out(jjj) >> FIFO(256) >> DOut >> Output(total_i, total_j);
 
     // Compile the kernel to an FPGA bitstream, and expose a C interface for the host to invoke
