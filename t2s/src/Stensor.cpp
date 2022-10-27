@@ -541,8 +541,11 @@ class RealizeOnFPGA
     }
 
     void find_banks(Schain &c) {
+        // No space-time transformation, no need to allocate banks
+        if (c.control_ure.function().definition().schedule().transform_params().empty())
+            return;
         // The dst_vars includes space loops plus one time loop
-        auto dst_vars = c.control_ure.function().definition().schedule().transform_params()[0].dst_vars;
+        const auto &dst_vars = c.control_ure.function().definition().schedule().transform_params()[0].dst_vars;
         for (auto &s : c.stensors) {
             for (auto &v : s.v_outs) {
                 auto p = std::find_if(dst_vars.begin(), dst_vars.end()-1,
