@@ -489,8 +489,65 @@ class CheckLoopBounds : public IRMutator {
 };
 
 }  // namespace
+// Info in a function tha buffers and/or scattes data
+class ScatterBufferArg {
+public:
+    std::string producer = "";          // The Func that sends data to buffer and/or scatter
+    std::string buffer_loop = "";       // Loop under which a buffer is to be inserted. Undocorated name without func and stage prefix, e.g. "x"
+    std::string scatter_loop = "";      // Loop along which data are to be scattered.  Undocorated name without func and stage prefix, e.g. "y"
+    Expr read_node = nullptr;      // The expression that reads the data from the producer
+    Expr read_condition = nullptr; // Path conditioin to read_node. It is the same condition the producer writes into its output channel.
+    BufferStrategy buffer_strategy = BufferStrategy::Double;
+    ScatterStrategy scatter_strategy = ScatterStrategy::Up; 
 
-Stmt trim_no_ops(Stmt s) {
+    // Full names, mins, extents and types of the loops around the read node.
+    std::vector<std::tuple<std::string, Expr, Expr, ForType>> loops{};
+};
+
+using ScatterBufferArgs = std::map<std::string, ScatterBufferArg>;
+
+void get_ScatterBufferArgs(const std::map<std::string, Function> &envs, ScatterBufferArgs& scatterbuffer_args){
+    for(const auto &e : envs){
+        Function func = e.second;
+        auto buffer_params = func.definition().schedule().buffer_params();
+        auto scatter_params = func.definition().schedule().scatter_params();
+        if(buffer_params.empty() && scatter_params.empty()) {
+            continue;
+        }
+        internal_assert(buffer_params.size() <= 1 && scatter_params.size() <= 1);
+        
+        if(!buffer_params.empty()){
+            if(!scatter_params.empty()) {
+                user_assert(buffer_params[0].func_name == scatter_params[0].func_name)
+                    <<"Func " << func.name() << " buffers data from Func " << buffer_params[0].func_name
+                    << ", but scatters data from another Func " << scatter_params[0].func_name
+                    << ". We require the data to buffer and scatter are from the same producer.";
+            }
+        }
+
+        ScatterBufferArg tmp;
+        if(!buffer_params.empty()) {
+            tmp.producer = buffer_params[0].func_name;
+            tmp.buffer_loop = buffer_params[0].loop_name;
+            tmp.buffer_strategy = buffer_params[0].strategy;
+        }
+
+        if(!scatter_params.empty()) {
+            tmp.producer = scatter_params[0].func_name;
+            tmp.scatter_loop = scatter_params[0].loop_name;
+            tmp.scatter_strategy = scatter_params[0].strategy;
+        }
+
+        debug(4) <<  tmp.producer << " --> " << func.name() << ": "
+                 << "buffer at loop ("<< tmp.buffer_loop << "), "
+                 << "scatter along loop (" << tmp.scatter_loop << ")\n";
+        scatterbuffer_args.insert({func.name(), std::move(tmp)});
+    }
+}
+
+Stmt trim_no_ops(Stmt s, const std::map<std::string, Function> &env) {
+    ScatterBufferArgs scatterbuffer_args{};
+    get_ScatterBufferArgs(env, scatterbuffer_args);
     TrimNoOps tno;
     s = tno.mutate(s);
 

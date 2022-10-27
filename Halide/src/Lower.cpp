@@ -402,10 +402,10 @@ Module lower(const vector<Function> &output_funcs,
     s = combine_channels(s);
     debug(2) << "Lowering after combining channels:\n" << s << "\n\n";
 
-    debug(1) << "Trimming loops to the region over which they do something...\n";
-    s = trim_no_ops(s);
-    debug(2) << "Lowering after loop trimming:\n"
-             << s << "\n\n";
+    // debug(1) << "Trimming loops to the region over which they do something...\n";
+    // s = trim_no_ops(s, env);
+    // debug(2) << "Lowering after loop trimming:\n"
+    //          << s << "\n\n";
 
     debug(1) << "Remove Lets and LetStmts in funcs with buffering or scattering...\n";
     {
