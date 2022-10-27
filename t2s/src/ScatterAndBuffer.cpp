@@ -962,6 +962,13 @@ private:
     } buffer_info;
     vector<buffer_info> buffers_info; // Buffer info for all fields
 
+    struct GetVars : public IRVisitor {
+        std::vector<std::string> vars{};
+        void visit(const Variable *var) override {
+            if (!var->param.defined() && !var->image.defined())
+                vars.push_back(var->name);
+        }
+    };
 public:
     ScatterAndBuffer(
         const map<string, Function>& envs,
@@ -1592,6 +1599,9 @@ public:
             write_buffer = Block::make(writes);
             write_buffer = LetStmt::make("_tmp", read_value, write_buffer);
         }
+        GetVars gv{};
+        original_read_condition->accept(&gv);
+        // TODO
         write_buffer = IfThenElse::make(original_read_condition, write_buffer);
 
         // Calculate the write loop vars for write buffer.
