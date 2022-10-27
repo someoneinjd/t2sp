@@ -54,7 +54,7 @@ int main()
     // Output, which is actually connected to C. So we read C(i,j) and then overwrite it. There should be no worry of data race.
     // Note that in this URE, the select does not have a false branch. So only when address of matrix C is within range,
     // we will overwrite C.
-    Out(P_Out) = select(addr_C_in_range, alpha * Product(P_Out)) + select(beta == 0, 0, beta * C(total_i, total_j)));
+    Out(P_Out) = select(addr_C_in_range, alpha * Product(P_Out) + select(beta == 0, 0, beta * C(total_i, total_j)));
 
     // Put the UREs that compute A*B (i.e. X, Y, Z and Product) inside the same loop nest.
     X.merge_ures(Y, Z, Product);
