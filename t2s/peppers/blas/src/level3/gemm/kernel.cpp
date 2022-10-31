@@ -40,12 +40,17 @@ int main()
     Param<bool> TransA{false}, TransB{false};
     Param<CONST_TYPE> alpha, beta;
     ImageParam A("A", TTYPE, 2), B("B", TTYPE, 2), C("C", TTYPE, 2);
+
     // UREs
     Var kkk("kkk"), jjj("jjj"), iii("iii"), jj("jj"), ii("ii"), kk("kk"), k("k"), j("j"), i("i");
     URE X("X", TTYPE, {P}), Y("Y", TTYPE, {P}), Z("Z", TTYPE, {P}), Product("Product");
     URE Out("Out", TTYPE, {P_Out});
-    X(P) = select(jjj == 0, select(addr_A_in_range, A(select(!TransA, total_i, total_k), select(!TransA, total_k, total_i)), 0), X(P_jjj_minus_1));
-    Y(P) = select(iii == 0, select(addr_B_in_range, B(select(!TransB, total_k, total_j), select(!TransB, total_j, total_k)), 0), Y(P_iii_minus_1));
+
+    Expr Check_Load_A = select(addr_A_in_range, A(select(!TransA, total_i, total_k), select(!TransA, total_k, total_i)), 0);
+    Expr Check_Load_B = select(addr_B_in_range, B(select(!TransB, total_k, total_j), select(!TransB, total_j, total_k)), 0);
+    
+    X(P) = select(jjj == 0, Check_Load_A, X(P_jjj_minus_1));
+    Y(P) = select(iii == 0, Check_Load_B, Y(P_iii_minus_1));
     Z(P) = select(kkk == 0 && kk == 0 && k == 0, 0,
                 select(kkk == 0, select(kk == 0, Z(P_k_minus_1), Z(P_kk_minus_1)), Z(P_kkk_minus_1)))
                 + X(P) * Y(P);
@@ -64,19 +69,19 @@ int main()
      .set_bounds(jj,  0, JJ,  ii,  0, II,  kk,  0, KK)
      .set_bounds(j,   0, J,   i,   0, I,   k,   0, K);
 
-    // Create a systolic array
-    X.space_time_transform(jjj, iii);
-
     Out.set_bounds(jjj, 0, JJJ, iii, 0, III)
        .set_bounds(jj,  0, JJ,  ii,  0, II)
        .set_bounds(j,   0, J,   i,   0, I);
 
+    // Create a systolic array
+    X.space_time_transform(jjj, iii);
+
     // I/O network
-    Stensor DA("aLoader", DRAM), SA("aFeeder", SRAM), DB("bLoader", DRAM), SB("bFeeder", SRAM);
+    Stensor DA("aLoader", DRAM), SA("aFeeder", SRAM), DB("bLoader", DRAM), SB("bFeeder", SRAM), DC("cLoader", DRAM);
     Stensor ROut("collector", REG), DOut("unloader", DRAM), Output("Output");
-    A   >> DA.out(kkk)              >> FIFO(256) >> SA.scope(k).out(kkk, iii) >> FIFO(256);
-    B   >> DB.out(kkk)              >> FIFO(256) >> SB.scope(k).out(kkk, jjj) >> FIFO(256);
-    C   >> DC.out(jjj)              >> FIFO(256);
+    A   >> DA.out(kkk).apply_transform(Check_Load_A)              >> FIFO(256) >> SA.scope(k).out(kkk, iii) >> FIFO(256);
+    B   >> DB.out(kkk).apply_transform(Check_Load_B)              >> FIFO(256) >> SB.scope(k).out(kkk, jjj) >> FIFO(256);
+    C   >> DC.out(jjj)              >> FIFO(256);// >> SC.scope(j).out(jjj, iii) >> FIFO(256);
     Out >> ROut.scope(iii).out(jjj) >> FIFO(256) >> DOut >> Output(total_i, total_j);
 
     // Compile the kernel to an FPGA bitstream, and expose a C interface for the host to invoke

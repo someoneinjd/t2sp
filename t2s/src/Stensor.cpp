@@ -113,6 +113,13 @@ Stensor &Stensor::out(const vector<Var> &v) {
     return *this;
 }
 
+Stensor &Stensor::apply_transform(const std::vector<Expr> &exprs) {
+    if (exprs.empty())
+        return *this;
+    std::copy(exprs.begin(), exprs.end(), back_inserter(operations));
+    return *this;
+}
+
 Stensor &Stensor::operator()(const vector<Expr> &d) {
     if (d.empty()) {
         // By default, this stensor will use the original layout.
@@ -285,22 +292,37 @@ class RealizeOnFPGA
         if (c.stensors[0].position != HOST) {
             // The device stensors needs serialized inputs
             // If the host stensor is not specified, we automatically generate it
-            string host_name = c.imp[0].name() + "_serializer";
+            string name = "";
+            for (const auto &chain_imp : c.imp)
+                name += chain_imp.name() + "_";
+            string host_name = name + "serializer";
             Stensor s_host(host_name);
             s_host.schain_idx = c.stensors[0].schain_idx;
             c.stensors.insert(c.stensors.begin(), s_host);
         }
-        vector<Func> producers;
+        std::copy(c.imp.begin(), c.imp.end(), back_inserter(c.stensors[0].operations));
+        vector<size_t> fs_idxs{};
+        vector<Func> producers{};
+        size_t idx = 0;
         for (const auto &s : c.stensors) {
             Place place = s.position == SMemType::HOST ? Place::Host : Place::Device;
             Func isolated_func(s.name, place);
             producers.push_back(std::move(isolated_func));
+            if (!s.operations.empty())
+                fs_idxs.push_back(idx);
+            idx++;
         }
-        vector<FuncOrExpr> imp;
-        std::copy(c.imp.begin(), c.imp.end(), std::back_inserter(imp));
+        vector<Func> _producers(producers.begin() + fs_idxs.back(), producers.end());
+        c.control_ure.isolate_producer_chain(c.stensors[fs_idxs.back()].operations, _producers);
         debug(1) << "T2X emits: " << c.control_ure.name() << ".isolate_producer_chain({"
-                 << names_to_string(c.imp) << "}, " << names_to_string(producers) << ");\n";
-        c.control_ure.isolate_producer_chain(imp, producers);
+                 << names_to_string(c.stensors[fs_idxs.back()].operations) << "}, " << names_to_string(_producers) << ");\n";
+        for (int i = fs_idxs.size() - 2; i >= 0; i--) {
+            _producers.clear();
+            _producers.insert(_producers.end(), producers.begin() + fs_idxs[i], producers.begin() + fs_idxs[i + 1]);
+            producers[fs_idxs[i + 1]].isolate_producer_chain(c.stensors[fs_idxs[i]].operations, _producers);
+            debug(1) << "T2X emits: " << producers[fs_idxs[i + 1]].name() << ".isolate_producer_chain({"
+                     << names_to_string(c.stensors[fs_idxs[i]].operations) << "}, " << names_to_string(_producers) << ");\n";
+        }
         return producers;
     }
 
