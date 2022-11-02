@@ -1479,22 +1479,6 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Store *op) {
 namespace {
 }
 
-// In the following logic operations, we specially handle the non-standard bool vector
-// like this:
-//      int16  x = y == z;                   // y and z are int16
-//      bool16 b = {x.s0, x.s1, ..., x.s15}; // convert from int16 to bool16
-void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::cast_to_bool_vector(Type bool_type, Type other_type, string other_var) {
-    if (bool_type.is_vector() && bool_type.bits() == 1 && other_type.bits() != 1) {
-        internal_assert(other_type.is_vector() && other_type.lanes() == bool_type.lanes());
-        std::ostringstream oss;
-        for (int i = 0; i < bool_type.lanes(); i++) {
-            oss << (i == 0 ? "{" : ", ") << "(bool)" << other_var << ".s" << vector_index_to_string(i);
-        }
-        oss << "};\n";
-        print_assignment(bool_type, oss.str());
-    }
-}
-
 void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit_binop(Type t, Expr a, Expr b, const char *op) {
     string sa = print_expr(a);
     string sb = print_expr(b);
@@ -1515,32 +1499,26 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit_binop(Type t, Expr a, Expr b, c
 
 void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const EQ *op) {
     visit_binop(eliminated_bool_type(op->type, op->a.type()), op->a, op->b, "==");
-    cast_to_bool_vector(op->type, op->a.type(), id);
 }
 
 void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const NE *op) {
     visit_binop(eliminated_bool_type(op->type, op->a.type()), op->a, op->b, "!=");
-    cast_to_bool_vector(op->type, op->a.type(), id);
 }
 
 void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const LT *op) {
     visit_binop(eliminated_bool_type(op->type, op->a.type()), op->a, op->b, "<");
-    cast_to_bool_vector(op->type, op->a.type(), id);
 }
 
 void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const LE *op) {
     visit_binop(eliminated_bool_type(op->type, op->a.type()), op->a, op->b, "<=");
-    cast_to_bool_vector(op->type, op->a.type(), id);
 }
 
 void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const GT *op) {
     visit_binop(eliminated_bool_type(op->type, op->a.type()), op->a, op->b, ">");
-    cast_to_bool_vector(op->type, op->a.type(), id);
 }
 
 void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const GE *op) {
     visit_binop(eliminated_bool_type(op->type, op->a.type()), op->a, op->b, ">=");
-    cast_to_bool_vector(op->type, op->a.type(), id);
 }
 
 void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Cast *op) {
@@ -1560,12 +1538,11 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Cast *op) {
 }
 
 void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Select *op) {
-    // The branch(es) might contain actions with side effects like a channel read.
-    // Thus we must guard the branch(es).
-    // So first convert to if_then_else.
-    user_assert(op->condition.type().is_scalar())
-        << "The OpenCL does not support branch divergence. "
-        << "Please do not perform vectorization if the value of a URE depends on the incoming data.\n";
+    if (!op->condition.type().is_scalar()) {
+        Expr equiv = eliminate_bool_vectors(op);
+        equiv.accept(this);
+        return;
+    }
     Expr c = Call::make(op->type, Call::if_then_else, {op->condition, op->true_value, op->false_value}, Call::PureIntrinsic);
     c.accept(this);
 }
