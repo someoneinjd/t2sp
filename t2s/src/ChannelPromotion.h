@@ -37,7 +37,7 @@ namespace Halide {
 namespace Internal {
 
 /* Promote channels */
-extern Stmt channel_promotion(Stmt s);
+extern Stmt channel_promotion(Stmt s, const std::map<std::string, Function>& env);
 
 }
 }

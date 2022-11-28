@@ -545,11 +545,15 @@ class ChannelPromotor : public IRMutator {
     }
 };
 
-Stmt channel_promotion(Stmt s) {
+Stmt channel_promotion(Stmt s, const std::map<std::string, Function> &env) {
     VarsFinder vf;
     ChannelVisitor cv(vf);
     ChannelPromotor cp(cv);
-    s = remove_lets(s, true, false, false, false, {});
+    std::set<std::string> funcs{};
+    for (const auto &t : env)
+        if (t.second.place() == Place::Device)
+            funcs.insert(t.first);
+    s = remove_lets(s, true, true, true, false, funcs);
     s.accept(&vf);
     s.accept(&cv);
     s = cp.mutate(s);

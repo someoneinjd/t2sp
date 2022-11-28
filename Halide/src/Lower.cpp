@@ -259,6 +259,7 @@ Module lower(const vector<Function> &output_funcs,
     debug(2) << "Lowering after placing device functions:\n" << s << "\n\n";
 
     debug(1) << "Replacing references with channels and shift registers...\n";
+    add_reference_names(s, env, reg_size_map);
     s = replace_references_with_channels(s, env, global_bounds);
     s = replace_references_with_shift_registers(s, env, reg_size_map);
     debug(2) << "Lowering after replacing references with channels and shift registers:\n" << s << "\n\n";
@@ -575,7 +576,7 @@ Module lower(const vector<Function> &output_funcs,
              << s << "\n\n";
 
     debug(1) << "Promoting channels...\n";
-    s = channel_promotion(s);
+    s = channel_promotion(s, env);
     debug(2) << "Lowering after channel promotion:\n"
              << s << "\n\n";
 

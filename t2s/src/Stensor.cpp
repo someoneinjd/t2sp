@@ -20,6 +20,7 @@
 #include "./Utilities.h"
 #include "./PreprocessBeforeLower.h"
 #include "./Stensor.h"
+#include "./BuildCallRelation.h"
 
 namespace Halide {
 
@@ -33,6 +34,7 @@ using std::set;
 class Schain {
 public:
     bool is_output;                     // Is this chain for output? An output chain needs different primitives
+    bool write_to_host;
     // Starting point(s) of the chain
     Func outf;                          // Valid only if is_output is true. An output chain starts from a function
     vector<ImageParam> imp;              // Valid only if is_output is false. An input chain starts from external inputs (image params, i.e. tensors)
@@ -141,6 +143,7 @@ Stensor &operator>>(const vector<ImageParam> &im, Stensor &s) {
     Schain tmp;
     s.schain_idx = schains.size();
     tmp.is_output = false;
+    tmp.write_to_host = false;
     tmp.imp = im;
     tmp.stensors.push_back(s);
     schains.push_back(std::move(tmp));
@@ -347,7 +350,7 @@ class RealizeOnFPGA
 
     vector<Func> isolate_consumer(Schain &c) {
         vector<Func> consumers;
-        if (c.stensors.back().position != HOST) {
+        if (c.stensors.back().position != HOST && c.write_to_host) {
             // If the host stensor is not specified, we automatically generate it
             string host_name = c.outf.name() + "_deserializer";
             Stensor s_host(host_name);
@@ -363,7 +366,7 @@ class RealizeOnFPGA
         }
         if (c.stensors[0].v_banks.size() == 1) {
             // This is a special case where the single dimension banks are inside systolic array
-            user_assert(c.stensors[1].position == SMemType::DRAM);
+            user_assert(!c.write_to_host ||  c.stensors[1].position == SMemType::DRAM);
             Var bank = c.stensors[0].v_banks[0];
             c.outf.value().accept(&fpo);
             debug(1) << "T2X emits: " << c.outf.name() << ".relay("
@@ -376,14 +379,16 @@ class RealizeOnFPGA
             // Remove the first stensor as it is inside systolic array
             c.stensors.erase(c.stensors.begin());
             consumers.erase(consumers.begin());
-            // Vectorize all the subsequent stensors
-            debug(1) << "T2X emits: " << c.outf.name() << ".isolate_consumer_chain("
-                     << names_to_string(consumers) << ");\n";
-            c.outf.isolate_consumer_chain(consumers);
-            for (auto &f : consumers) {
-                debug(1) << "T2X emits: " << f.name() << ".vectorize("
-                         << bank.name() << ");\n";
-                f.vectorize(bank);
+            if (!consumers.empty()) {
+                // Vectorize all the subsequent stensors
+                debug(1) << "T2X emits: " << c.outf.name() << ".isolate_consumer_chain("
+                         << names_to_string(consumers) << ");\n";
+                c.outf.isolate_consumer_chain(consumers);
+                for (auto &f : consumers) {
+                    debug(1) << "T2X emits: " << f.name() << ".vectorize("
+                             << bank.name() << ");\n";
+                    f.vectorize(bank);
+                }
             }
         } else if (c.stensors[0].v_banks.size() == 2) {
             // The output stensor inherits loops of the output URE, generally less than that of systolic array
@@ -605,7 +610,8 @@ public:
                 gather(c, consumers);
                 vectorize(c, consumers);
                 min_depth(c, consumers);
-                out = consumers.back();
+                if (c.write_to_host)
+                    out = consumers.back();
             }
         }
         internal_assert(out.defined());
@@ -714,6 +720,21 @@ Func Stensor::stensor_realize_wrapper(Starget t) {
         FindVars fv(env);
         FindProducerForOutput fpo(env);
         RealizeOnFPGA fpga(fv, fpo);
+        std::map<string, Function> new_env{};
+        for (const auto &p : env)
+            new_env.emplace(p.first, p.second.function());
+        const auto call_graph = build_reverse_call_graph(build_call_graph(new_env));
+        for (auto &c : schains)
+            if (c.is_output) {
+                const auto outf_name = c.outf.function().name();
+                c.write_to_host = call_graph.at(outf_name).empty() ||
+                    std::any_of(
+                        call_graph.at(outf_name).begin(),
+                        call_graph.at(outf_name).end(),
+                        [&](const string &func_name) {
+                            return new_env[func_name].place() == Place::Host;
+                        });
+            }
         f = fpga.realize();
         internal_assert(f.function().place() == Place::Host);
     }

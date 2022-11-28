@@ -1120,55 +1120,54 @@ public:
         Function stt_func;
         if (op->is_producer
             && function_is_in_environment(op->name, env, stt_func)
-            && stt_func.definition().schedule().transform_params().size() > 0) {
-            const auto &params = stt_func.definition().schedule().transform_params();
-            if (!params[0].sch_vector_specified) {
-                // This func has STT specified but without a scheduling vector.
+            && (stt_func.definition().schedule().transform_params().empty()
+                ? !stt_func.definition().schedule().is_merged()
+                : !stt_func.definition().schedule().transform_params()[0].sch_vector_specified)) {
+            // This func has STT specified but without a scheduling vector.
 
-                // Func name --> dependences of the func. Note that there might be multiple Func names found, because
-                // multiple UREs can be merged into the stt_func.
-                map<string, FlowDependences> func_to_deps;
-                collect_dependences_for_shift_regs(op->body, func_to_deps);
-                if (func_to_deps.empty()) {
-                    return op;
-                }
-                // Clear saved state
-                vectorized_loop_var = Expr();
-
-                // Loop info.
-                vector<Expr> all_loop_vars, all_unrolled_loop_vars; // No order is enforced on these vars. Instead, we will
-                                                                    // get order info based on the args of a dependence.
-                collect_loop_info(op->body, all_loop_vars, all_unrolled_loop_vars, vectorized_loop_var, loop_mins, loop_extents, global_min, global_max);
-                for (auto &entry: func_to_deps) {
-                    const auto &deps = entry.second;
-                    vector<int> unrolled_dims = locate_loops(deps.args, all_unrolled_loop_vars);
-                    unrolled_loop_vars = sub_vector<Expr>(deps.args, unrolled_dims); // These vars are ordered.
-                    if (vectorized_loop_var.defined()) {
-                        vector<int> v_dims = locate_loops(deps.args, {vectorized_loop_var});
-                        internal_assert(v_dims.size() == 1 && v_dims[0] == 0); // One vectorized loop allowed at the inermost level.
-                    }
-                    break;
-                }
-
-                // Decide how to minimize shift registers.
-                for (auto &entry: func_to_deps) {
-                    const string &func_name = entry.first;
-                    const auto &deps = entry.second;
-                    ShiftRegAlloc alloc;
-                    Function func = env.at(func_name);
-                    decide_shift_reg_alloc_for_unscheduled_stt(func_name, func, deps, all_loop_vars, all_unrolled_loop_vars, vectorized_loop_var, 
-                                                               loop_mins, loop_extents, global_min, global_max, alloc);
-                    func_to_regalloc[func_name] = std::move(alloc);
-                }
-
-                Stmt stmt = IRMutator::visit(op);
-
-                for (auto &t : temporaries) {
-                    stmt = Realize::make(std::get<0>(t), {std::get<1>(t)}, MemoryType::Auto, std::get<2>(t), const_true(), stmt);
-                }
-                return stmt;
+            // Func name --> dependences of the func. Note that there might be multiple Func names found, because
+            // multiple UREs can be merged into the stt_func.
+            map<string, FlowDependences> func_to_deps;
+            collect_dependences_for_shift_regs(op->body, func_to_deps);
+            if (func_to_deps.empty()) {
+                return op;
             }
-       }
+            // Clear saved state
+            vectorized_loop_var = Expr();
+
+            // Loop info.
+            vector<Expr> all_loop_vars, all_unrolled_loop_vars; // No order is enforced on these vars. Instead, we will
+                                                                // get order info based on the args of a dependence.
+            collect_loop_info(op->body, all_loop_vars, all_unrolled_loop_vars, vectorized_loop_var, loop_mins, loop_extents, global_min, global_max);
+            for (auto &entry: func_to_deps) {
+                const auto &deps = entry.second;
+                vector<int> unrolled_dims = locate_loops(deps.args, all_unrolled_loop_vars);
+                unrolled_loop_vars = sub_vector<Expr>(deps.args, unrolled_dims); // These vars are ordered.
+                if (vectorized_loop_var.defined()) {
+                    vector<int> v_dims = locate_loops(deps.args, {vectorized_loop_var});
+                    internal_assert(v_dims.size() == 1 && v_dims[0] == 0); // One vectorized loop allowed at the inermost level.
+                }
+                break;
+            }
+
+            // Decide how to minimize shift registers.
+            for (auto &entry: func_to_deps) {
+                const string &func_name = entry.first;
+                const auto &deps = entry.second;
+                ShiftRegAlloc alloc;
+                Function func = env.at(func_name);
+                decide_shift_reg_alloc_for_unscheduled_stt(func_name, func, deps, all_loop_vars, all_unrolled_loop_vars, vectorized_loop_var, 
+                                                           loop_mins, loop_extents, global_min, global_max, alloc);
+                func_to_regalloc[func_name] = std::move(alloc);
+            }
+
+            Stmt stmt = IRMutator::visit(op);
+
+            for (auto &t : temporaries) {
+                stmt = Realize::make(std::get<0>(t), {std::get<1>(t)}, MemoryType::Auto, std::get<2>(t), const_true(), stmt);
+            }
+            return stmt;
+        }
         return IRMutator::visit(op);
     }
 

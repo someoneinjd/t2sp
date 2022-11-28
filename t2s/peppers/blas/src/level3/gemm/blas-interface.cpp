@@ -25,6 +25,10 @@ void GEMM(const char TransA, const char TransB, const MKL_INT M, const MKL_INT N
     assert(transb == BlasNoTrans || LDB >= std::max(1, N));
     assert(LDC >= std::max(1, M));
 
+    // Assumeption (FIXME: To remove)
+    assert(K % KKK == 0);
+    assert(N % JJJ == 0);
+
     // Initialize input buffers. Make the buffers as linear, and handle transpose and lda/b/c explicitly
     auto bufferA = init_matrix_buffer<ELEM_TYPE>(M, K, a, LDA);
     auto bufferB = init_matrix_buffer<ELEM_TYPE>(K, N, b, LDB);
