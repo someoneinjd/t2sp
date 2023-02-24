@@ -27,7 +27,92 @@
 #include <algorithm>
 
 namespace Halide {
+
+// Reuse the functions defined in IsolateProducer.cpp
+extern void clone_func(Func &clone, const string &name, Place place, const Func &original);
+// Replace all calls to a Halide function with a substitute.
+class SubstituteExpr : public IRMutator {
+    using IRMutator::visit;
+
+    const Expr &original;
+    const Expr &substitute;
+
+public:
+    Expr mutate(const Expr &expr) override {
+        if (equal(original, expr)) {
+            return substitute;
+        }
+        return IRMutator::mutate(expr);
+    }
+
+    Stmt mutate(const Stmt &stmt) override {
+        return IRMutator::mutate(stmt);
+    }
+    SubstituteExpr(const Expr &original, const Expr &substitute)
+        : original(original), substitute(substitute) {}
+};
+
+Expr find_matched_operand(const vector<Expr> operands, FuncOrExpr op) {
+    internal_assert(op.is_image);
+    for (auto &e : operands) {
+        if (e.as<Call>()) {
+            string decorated_name = op.image->name() + "_im";
+            if (decorated_name == e.as<Call>()->name)
+                return e;
+        }
+    }
+    return Expr();
+}
+
+Func &Func::partition(FuncOrExpr op, Func consumer, Var loop, int num_partitions) {
+    auto operand = find_matched_operand(function().isolated_operands_as_producer(), op);
+    auto dims = func.definition().schedule().dims();
+    user_assert(func.place() == Place::Host) << "Func " << this->name() << " should be placed on host to partition data.\n";
+    user_assert(operand.defined()) << "No operand of " << op.image->name() << " is isolated into " << this->name() << "\n";
+    user_assert(dims[0].var == loop.name()) << loop << " is not the innermost loop along which data can be partitioned.\n";
+    auto loop_bound = this->function().get_bounds(loop.name());
+    auto p_extent = loop_bound.second.as<IntImm>();
+    user_assert(p_extent) << "Loop " << loop.name() << " should have constant bound.\n";
+    user_assert(num_partitions >= 2 && num_partitions <= 4) << "Please specify 2-4 partitions.\n";
+    user_assert(p_extent->value % num_partitions == 0) << "Loop " << loop << " should be divisable with " << num_partitions << "\n";
+
+    vector<Func> all_new_funcs;
+    vector<Expr> args = function().definition().args();
+    int stride = p_extent->value / num_partitions;
+    auto& partition_params = func.definition().schedule().partition_params();
+    partition_params.push_back(Internal::PartitionItem(consumer.name(), loop.name(), num_partitions, stride));
+    // Clone the original function
+    for (int i = 0; i < num_partitions; i++) {
+        string name = this->name() + "_c" + to_string(i);
+        Func new_func;
+        clone_func(new_func, name, Place::Host, *this);
+
+        Expr new_expr = substitute(loop.name(), loop+Expr(i*stride), operand);
+        SubstituteExpr se(operand, new_expr);
+        new_func.function().mutate(&se);
+        all_new_funcs.push_back(std::move(new_func));
+        debug(4) << "Create Func " << name << "(" << to_string(args) << ")" << " = " << new_expr << "\n";
+    }
+    vector<Func> all_except_first_new_funcs(all_new_funcs.begin()+1, all_new_funcs.end());
+    all_new_funcs[0].merge_ures(all_except_first_new_funcs, true);
+    all_new_funcs[0].set_bounds(loop, loop_bound.first, Expr(stride));
+
+    // Construct the consumer expr
+    int i = num_partitions-2;
+    Expr consumer_expr = select(loop < (i+1)*stride, all_new_funcs[i](args), all_new_funcs[i+1](args));
+    for (i = i-1; i >=0; i--) {
+        consumer_expr = select(loop < (i+1)*stride, all_new_funcs[i](args), consumer_expr);
+    }
+    Expr original_ref = (*this)(args);
+    SubstituteExpr se(original_ref, consumer_expr);
+    consumer.function().mutate(&se);
+    debug(4) << "Substitute the reference to " << original_ref << " with " << consumer_expr << "\n";
+
+    return *this;
+}
+
 namespace Internal {
+
 class PlaceDeviceFunctions : public IRMutator {
     using IRMutator::visit;
 public:
@@ -90,24 +175,30 @@ private:
     const map<string, vector<Expr>> &channel2read_args;
     const map<string, Function>     &env;
     map<string, int>                 multiple_values;
+    string                          in_func;
 
     Stmt visit(const Realize *op) override {
         // Process the body of Realize; in that process, the compiler might create a channel array for this function
         // due to a visit to a Provide inside the Realize. If so, we realize the channel array here.
-        if (channel2bounds.find(op->name) != channel2bounds.end()) {
-            if(op->types.size() == 1){
-                Stmt stmt = Realize::make(op->name + ".channel", op->types, op->memory_type, channel2bounds.at(op->name), mutate(op->condition), mutate(op->body));
-                return stmt;
-            } else {
-                multiple_values[op->name] = op->types.size();
-                Stmt stmt = mutate(op->body);
-                for (size_t i = 0; i < op->types.size(); i++) {
-                    std::vector<Type> types;
-                    types.push_back(op->types[i]);
-                    stmt = Realize::make(op->name + "." + std::to_string(i) + ".channel", types, op->memory_type, channel2bounds.at(op->name), mutate(op->condition), stmt);
+        auto it = std::find_if(channel2bounds.begin(), channel2bounds.end(),
+                               [&](const std::pair<string, Region> &kv){ return extract_first_token(kv.first) == op->name; });
+        if (it != channel2bounds.end()) {
+            Stmt stmt = mutate(op->body);
+            while (it != channel2bounds.end()) {
+                if(op->types.size() == 1) {
+                    stmt = Realize::make(it->first + ".channel", op->types, op->memory_type, it->second, mutate(op->condition), stmt);
+                } else {
+                    multiple_values[it->first] = op->types.size();
+                    for (size_t i = 0; i < op->types.size(); i++) {
+                        std::vector<Type> types;
+                        types.push_back(op->types[i]);
+                        stmt = Realize::make(it->first + "." + std::to_string(i) + ".channel", types, op->memory_type, it->second, mutate(op->condition), stmt);
+                    }
                 }
-                return stmt;
+                it = std::find_if(++it, channel2bounds.end(),
+                                  [&](const std::pair<string, Region> &kv){ return extract_first_token(kv.first) == op->name; });
             }
+            return stmt;
         } else {
             Stmt stmt = Realize::make(op->name, op->types, op->memory_type, op->bounds, mutate(op->condition), mutate(op->body));
             return stmt;
@@ -115,43 +206,57 @@ private:
     }
 
     Stmt visit(const Provide *op) override {
-        if (channel2write_args.find(op->name) != channel2write_args.end()) {
-            if(op->values.size() == 1){
-                // internal_assert(op->values.size() == 1) << "Values of a Provide is expected to have been combined into a tuple before writing to a channel\n";
-                Expr value = mutate(op->values[0]);
-                vector<Expr> args(channel2write_args.at(op->name));
-                args.insert(args.begin(), value);
-                args.insert(args.begin(), Expr(op->name + ".channel"));
-                Stmt write_call = Evaluate::make(Call::make(value.type(), Call::write_channel, args, Call::Intrinsic));
-                return write_call;
-            } else {
-                Stmt write_call = Stmt();
+        auto it = std::find_if(channel2write_args.begin(), channel2write_args.end(),
+                               [&](const std::pair<string, vector<Expr>> &kv){ return extract_first_token(kv.first) == op->name; });
+        in_func = op->name;
+        if (it != channel2write_args.end()) {
+            Stmt write_call;
+            vector<Expr> values;
+            int num_writes = 0;
+            while (it != channel2write_args.end()) {
                 for (size_t i = 0; i < op->values.size(); i++) {
-                    Expr value = mutate(op->values[i]);
-                    vector<Expr> args(channel2write_args.at(op->name));
-                    args.insert(args.begin(), value);
-                    args.insert(args.begin(), Expr(op->name + "." + std::to_string(i) + ".channel"));
-                    if (write_call.defined()) {
-                        write_call = Block::make(Evaluate::make(Call::make(value.type(), Call::write_channel, args, Call::Intrinsic)),
-                                                 write_call);
-                    } else {
-                        write_call = Evaluate::make(Call::make(value.type(), Call::write_channel, args, Call::Intrinsic));
+                    if (num_writes == 0) {
+                        values.push_back(mutate(op->values[i]));
                     }
+                    vector<Expr> args(it->second);
+                    string name = op->values.size() == 1 ? it->first + ".channel" : it->first + "." + std::to_string(i) + ".channel";
+                    args.insert(args.begin(), values[i]);
+                    args.insert(args.begin(), Expr(name));
+                    Stmt tmp = Evaluate::make(Call::make(values[i].type(), Call::write_channel, args, Call::Intrinsic));
+                    write_call = write_call.defined() ? Block::make(write_call, tmp) : tmp;
                 }
-                return write_call;
+                num_writes++;
+                it = std::find_if(++it, channel2write_args.end(),
+                                  [&](const std::pair<string, vector<Expr>> &kv){ return extract_first_token(kv.first) == op->name; });
             }
+            if (num_writes > 1) {
+                // Eliminate redundant read operations
+                string name = op->name + ".temp";
+                vector<Type> types;
+                for (size_t i = 0; i < op->values.size(); i++) {
+                    types.push_back(values[i].type());
+                    Expr read_from_temp = Call::make(values[i].type(), name, {}, Call::Intrinsic, FunctionPtr(), i);
+                    SubstituteExpr se(values[i], read_from_temp);
+                    write_call = se.mutate(write_call);
+                }
+                Stmt write_to_temp = Provide::make(name, values, {});
+                write_call = Block::make(write_to_temp, write_call);
+                write_call = Realize::make(name, types, MemoryType::Auto, {}, const_true(), write_call);
+            }
+            return write_call;
         } else {
             return IRMutator::visit(op);
         }
     }
 
     Expr visit(const Call *op) override {
-        if (channel2read_args.find(op->name) != channel2read_args.end()) {
-            vector<Expr> args(channel2read_args.at(op->name));
-            if (multiple_values.find(op->name) != multiple_values.end() && multiple_values[op->name] > 1) {
-                args.insert(args.begin(), Expr(op->name + "." + std::to_string(op->value_index) + ".channel"));
+        string name = op->name + "." + in_func;
+        if (channel2read_args.find(name) != channel2read_args.end()) {
+            vector<Expr> args(channel2read_args.at(name));
+            if (multiple_values.find(name) != multiple_values.end() && multiple_values[name] > 1) {
+                args.insert(args.begin(), Expr(name + "." + std::to_string(op->value_index) + ".channel"));
             } else {
-                args.insert(args.begin(), Expr(op->name + ".channel"));
+                args.insert(args.begin(), Expr(name + ".channel"));
             }
             Expr new_call = Call::make(op->type, Call::read_channel, args, Call::Intrinsic);
             return new_call;
@@ -302,6 +407,7 @@ private:
                                                                         // every loop enclosing the current IR
     map<string, vector<tuple<string, Expr, bool>>> channel2write_loops; // Channel name --> <Full name, extent, is unrolled loop>
                                                                         // for loops enclosing the (only) writing to the channel
+    string in_provide;
     // map<string, int>                               multiple_values;
 
     void visit(const For *op) override {
@@ -328,31 +434,37 @@ private:
     }
 
     void visit(const Provide *op) override {
-        if (std::find(funcs_outputting_to_channels.begin(), funcs_outputting_to_channels.end(), op->name) != funcs_outputting_to_channels.end()) {
-            // Statically there can only be 1 writing of the channel
-            internal_assert(channel2write_loops.find(op->name) == channel2write_loops.end());
-            channel2write_loops[op->name] = enclosing_loops;
-            debug(4) << "Enclosing write loops of channel for " << op->name << ": "
-                     << to_string(enclosing_loops, true) << "\n";
-            // if (op->values.size() > 1) {
-            //     multiple_values[op->name] == op->values.size();
-            // }
+        for (auto chn : funcs_outputting_to_channels) {
+            if (extract_first_token(chn) == op->name) {
+                // Statically there can only be 1 writing of the channel
+                internal_assert(channel2write_loops.find(op->name) == channel2write_loops.end());
+                channel2write_loops[chn] = enclosing_loops;
+                debug(4) << "Enclosing write loops of channel for " << chn << ": "
+                        << to_string(enclosing_loops, true) << "\n";
+                // if (op->values.size() > 1) {
+                //     multiple_values[op->name] == op->values.size();
+                // }
+            }
         }
+        in_provide = op->name;
         IRVisitor::visit(op);
+        in_provide = "";
     }
 
     void visit(const Call *op) override {
-        if (std::find(funcs_outputting_to_channels.begin(), funcs_outputting_to_channels.end(), op->name) != funcs_outputting_to_channels.end()) {
+        string chn = op->name + "." + in_provide;
+        auto it = std::find(funcs_outputting_to_channels.begin(), funcs_outputting_to_channels.end(), chn);
+        if (it != funcs_outputting_to_channels.end()) {
             // Writing of the channel must have already been processed in a producer Func.
-            internal_assert(channel2write_loops.find(op->name) != channel2write_loops.end());
+            internal_assert(channel2write_loops.find(chn) != channel2write_loops.end());
 
             if (op->value_index == 0) {
                 // Statically there can only be 1 reading of the channel
-                internal_assert(channel2bounds.find(op->name) == channel2bounds.end());
-                internal_assert(channel2write_args.find(op->name) == channel2write_args.end());
-                internal_assert(channel2read_args.find(op->name) == channel2read_args.end());
-  
-                debug(4) << "Enclosing read loops of channel for " << op->name << ": "
+                // internal_assert(channel2bounds.find(chn) == channel2bounds.end());
+                // internal_assert(channel2write_args.find(chn) == channel2write_args.end());
+                // internal_assert(channel2read_args.find(chn) == channel2read_args.end());
+
+                debug(4) << "Enclosing read loops of channel for " << chn << ": "
                         << to_string(enclosing_loops, true) << "\n";
 
                 // Merge the set of unroll loops from both the write and the read. For example, if
@@ -366,7 +478,7 @@ private:
                     const string &read_loop_name = std::get<0>(l);
                     const Expr &read_loop_extent = std::get<1>(l);
                     bool read_loop_is_unrolled = std::get<2>(l);
-                    const auto &write_loops = channel2write_loops.at(op->name);
+                    const auto &write_loops = channel2write_loops.at(chn);
                     for (const auto &wl : write_loops) {
                         const string &write_loop_name = std::get<0>(wl);
                         if (extract_after_tokens(read_loop_name, 2) != extract_after_tokens(write_loop_name, 2)) {
@@ -395,15 +507,16 @@ private:
                 Expr min_depth(func.min_depth());
                 bounds.push_back(Range(0, min_depth));
 
-                debug(4) << "channel2bounds[" << op->name  << "]: " << to_string(bounds) << "\n";
-                debug(4) << "channel2write_args[" << op->name  << "]: " << to_string<Expr>(write_args) << "\n";
-                debug(4) << "channel2read_args[" << op->name  << "]: " << to_string<Expr>(read_args) << "\n";
+                debug(4) << "channel2bounds[" << chn  << "]: " << to_string(bounds) << "\n";
+                debug(4) << "channel2write_args[" << chn  << "]: " << to_string<Expr>(write_args) << "\n";
+                debug(4) << "channel2read_args[" << chn  << "]: " << to_string<Expr>(read_args) << "\n";
 
-                channel2bounds[op->name] = std::move(bounds);
-                channel2write_args[op->name] = std::move(write_args);
-                channel2read_args[op->name] = std::move(read_args);
+                channel2bounds[chn] = std::move(bounds);
+                channel2write_args[chn] = std::move(write_args);
+                channel2read_args[chn] = std::move(read_args);
             }
         }
+
         IRVisitor::visit(op);
     }
 };
@@ -606,16 +719,13 @@ void identify_funcs_outputting_to_channels(Stmt s, const map<string, Function>  
             // See if the function is used on the device.
             if (reverse_call_graph.find(func_name) != reverse_call_graph.end()) {
                 const vector<string> &consumers = reverse_call_graph.at(func_name);
-                if (consumers.size() == 1) {
-                    const string &consumer = consumers[0];
-                    internal_assert(env.find(consumer) != env.end());
-                    const Function &consumer_func = env.at(consumer);
+                for (auto co : consumers) {
+                    internal_assert(env.find(co) != env.end());
+                    const Function &consumer_func = env.at(co);
                     if (consumer_func.place() == Place::Device) {
-                        funcs_outputting_to_channels.push_back(func_name);
+                        string channel_name = func_name + "." + co;
+                        funcs_outputting_to_channels.push_back(channel_name);
                     }
-                } else {
-                    // So far, we restrict a channel can have only one write and only one read site.
-                    // When there is more than one read site, the producer and consumer function can communicate only through memory.
                 }
             }
         }
@@ -625,12 +735,13 @@ void identify_funcs_outputting_to_channels(Stmt s, const map<string, Function>  
     std::map<std::string, bool> used_in_realize;
     ProducerConsumerChecker checker(used_in_producer, used_in_consumer, used_in_realize);
     s.accept(&checker);
+
     vector<string> funcs_to_channels;
     for (size_t i = 0; i < funcs_outputting_to_channels.size(); i++) {
-        std::string name = funcs_outputting_to_channels[i];
+        std::string name = extract_first_token(funcs_outputting_to_channels[i]);
         if ((used_in_producer.find(name) != used_in_producer.end())
                 && (used_in_consumer.find(name) != used_in_consumer.end())) {
-            funcs_to_channels.push_back(name);
+            funcs_to_channels.push_back(funcs_outputting_to_channels[i]);
         }
     }
     debug(4) << "Funcs to output to channels: " << to_string<string>(funcs_to_channels) << "\n";
@@ -799,16 +910,16 @@ set<string> identify_funcs_outputting_to_mem_channels(Stmt s, const map<string, 
                     internal_assert(env.find(consumer) != env.end());
                     const Function &consumer_func = env.at(consumer);
                     if (consumer_func.place() == Place::Host && consumer_func.isolated_from_as_consumer() == func_name && func.isolated_from_as_consumer() != "") {
-                        CheckIsSinglePE checker(func_name, func_name, loops_to_serialize);
-                        s.accept(&checker);
-                        if (checker.is_single_PE) {
+                        // CheckIsSinglePE checker(func_name, func_name, loops_to_serialize);
+                        // s.accept(&checker);
+                        // if (checker.is_single_PE) {
                             funcs_outputting_to_mem_channels.insert(func_name);
                             funcs_using_mem_channels[func_name] = Place::Device;
                             funcs_using_mem_channels[consumer] = Place::Host;
                             debug(2) << "Find Func output to mem channel\n"
                                      << "Producer: " << func_name << "\n"
                                      << "Consumer: " << consumer << "\n";
-                        }
+                        // }
                     }
                 }
             }
@@ -820,16 +931,16 @@ set<string> identify_funcs_outputting_to_mem_channels(Stmt s, const map<string, 
                     internal_assert(env.find(consumer) != env.end());
                     const Function &consumer_func = env.at(consumer);
                     if (consumer_func.place() == Place::Device && func.isolated_from_as_producer() == consumer && consumer_func.isolated_from_as_producer() != "") {
-                        CheckIsSinglePE checker(consumer, func_name, loops_to_serialize);
-                        s.accept(&checker);
-                        if (checker.is_single_PE) {
+                        // CheckIsSinglePE checker(consumer, func_name, loops_to_serialize);
+                        // s.accept(&checker);
+                        // if (checker.is_single_PE) {
                             funcs_outputting_to_mem_channels.insert(func_name);
                             funcs_using_mem_channels[func_name] = Place::Host;
                             funcs_using_mem_channels[consumer] = Place::Device;
                             debug(2) << "Find Func output to mem channel\n"
                                      << "Producer: " << func_name << "\n"
                                      << "Consumer: " << consumer << "\n";
-                        }
+                        // }
                     }
                 }
             }

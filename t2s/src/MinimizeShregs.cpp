@@ -195,7 +195,7 @@ vector<int> distance_between_accesses(const string &var, const vector<Expr> &sou
     for (size_t k = 0; k < source_args.size(); k++) {
         // We must ensure the source access (a write) is in terms of the loop variables, not any other expressions.
         internal_assert(source_args[k].as<Variable>());
-        // TODO: how to handdle the read op with a constant index? 
+        // TODO: how to handdle the read op with a constant index?
         Expr dk = is_const(sink_args[k]) ? Expr(0) : simplify(source_args[k] - sink_args[k]);
         user_assert(dk.as<IntImm>()) << "Dependence distance vector is not constant:\n"
                 << "\tWrite: " << var << "(" << to_string<Expr>(source_args) << "\n"
@@ -276,7 +276,7 @@ class LoopInfoCollector : public IRVisitor {
     using IRVisitor::visit;
   public:
     LoopInfoCollector(vector<Expr> &loop_vars, vector<Expr> &unrolled_loop_vars, Expr &vectorized_loop_var,
-                      map<string, Expr> &loop_mins, map<string, Expr> &loop_extents, 
+                      map<string, Expr> &loop_mins, map<string, Expr> &loop_extents,
                       map<string, Expr> &global_min, map<string, Expr> &global_max) :
                       loop_vars(loop_vars), unrolled_loop_vars(unrolled_loop_vars), vectorized_loop_var(vectorized_loop_var),
                       loop_mins(loop_mins), loop_extents(loop_extents), global_min(global_min), global_max(global_max) {}
@@ -304,7 +304,7 @@ class LoopInfoCollector : public IRVisitor {
         Expr loop_min = op->min;
         loop_mins[op->name] = loop_min;
         loop_extents[op->name] = loop_extent;
-        
+
         if (loop_extent.as<IntImm>() == nullptr && !global_max.empty()) {
             Expr max_substitute = substitute(global_max, loop_extent);
             Expr min_substitute = substitute(global_min, loop_extent);
@@ -315,6 +315,11 @@ class LoopInfoCollector : public IRVisitor {
         }
         global_max[op->name] = simplify(loop_min+loop_extent-1);
         global_min[op->name] = simplify(loop_min);
+        debug(4) << "Loop " << op->name << ":";
+        debug(4) << "\n\t Loop min: " << loop_mins[op->name];
+        debug(4) << "\n\t Loop extent: " << loop_extents[op->name];
+        debug(4) << "\n\t Global min: " << global_min[op->name];
+        debug(4) << "\n\t Global max: " << global_max[op->name] << "\n";
         op->body.accept(this);
     }
 };
@@ -497,6 +502,16 @@ int first_non_zero_dim(const vector<FlowDependence> &dependences, int start, int
     return end;
 }
 
+int first_non_const_dim(const Function &func, int start, int end) {
+    for (int i = start; i < end; i++) {
+        auto &min_ext = func.arg_min_extents().at(func.args()[i]);
+        if (!is_const(min_ext.first) || !is_const(min_ext.second)) {
+            return i;
+        }
+    }
+    return end;
+}
+
 Expr linearized_extent(const vector<Expr>      &args,
                        const map<string, Expr> &loop_extents,
                        const vector<int>       &dims) {
@@ -512,7 +527,8 @@ Expr linearized_extent(const vector<Expr>      &args,
 // Find contiguous zero dimensions from start (included) before the end.
 // Return the next dimension after the newly-found zero-dims, or end if
 // there is no zero-dims found.
-int make_one_group_of_zero_dims(const vector<FlowDependence> &dependences,
+int make_one_group_of_zero_dims(const Function               &func,
+                                const vector<FlowDependence> &dependences,
                                 const map<string, Expr>       loop_extents,
                                 int                           start,
                                 int                           end,
@@ -522,33 +538,21 @@ int make_one_group_of_zero_dims(const vector<FlowDependence> &dependences,
         // No dimension is zero
         return end;
     }
-    int next_end = first_non_zero_dim(dependences, next_start + 1, end);
-    // All dimensions in the range of [next_start, next_end) are zeros.
-    internal_assert(next_start <= next_end - 1);
-    vector<int> dims = range_to_vector(next_start, next_end - 1);
-    alloc.linearized_dims.push_back(dims);
-    Expr extent = linearized_extent(alloc.args, loop_extents, dims);
-    alloc.linearized_extents.push_back(extent);
-    alloc.strategy.push_back(RegStrategy::Rotate); // Rotate registers for a zero_dims.
-    return next_end;
-}
-
-int make_direct_access_of_zero_dims(const vector<FlowDependence> &dependences,
-                                    const map<string, Expr>       loop_extents,
-                                    int                           start,
-                                    int                           end,
-                                    ShiftRegAlloc                &alloc) {
-    int next_start = first_zero_dim(dependences, start, end);
-    if (next_start == end) {
-        // No dimension is zero
-        return end;
+    int next_end = std::min(first_non_zero_dim(dependences, next_start + 1, end),
+                            first_non_const_dim(func, next_start, end));
+    RegStrategy strategy = RegStrategy::Rotate;  // Rotate registers for a zero_dims.
+    if (next_start == next_end) {
+        // Found a non-const dimension to be directly accessed
+        next_end++;
+        strategy = RegStrategy::DirectAccess;
     }
-    int next_end = next_start + 1;
+    // All dimensions in the range of [next_start, next_end) are zeros.
     vector<int> dims = range_to_vector(next_start, next_end - 1);
     alloc.linearized_dims.push_back(dims);
+    alloc.is_zero_dims.push_back(true);
     Expr extent = linearized_extent(alloc.args, loop_extents, dims);
     alloc.linearized_extents.push_back(extent);
-    alloc.strategy.push_back(RegStrategy::DirectAccess);
+    alloc.strategy.push_back(strategy);
     return next_end;
 }
 
@@ -572,12 +576,7 @@ void make_zero_dims(const Function               &func,
     }
     int i = last_PE_dim + 1;
     while (i < outermost_non_zero_dim) {
-        auto &min_ext = func.arg_min_extents().at(func.args()[i]);
-        if (!is_const(min_ext.first) || !is_const(min_ext.second)) {
-            i = make_direct_access_of_zero_dims(dependences, new_extents, i, outermost_non_zero_dim, alloc);
-        } else {
-            i = make_one_group_of_zero_dims(dependences, loop_extents, i, outermost_non_zero_dim, alloc);
-        }
+        i = make_one_group_of_zero_dims(func, dependences, new_extents, i, outermost_non_zero_dim, alloc);
     }
 }
 
@@ -708,6 +707,7 @@ void make_time_dims(const vector<FlowDependence> &dependences,
     }
     internal_assert(lin_time_position <= (int)alloc.linearized_dims.size());
     alloc.linearized_dims.insert(alloc.linearized_dims.begin() + lin_time_position, time_dims);
+    alloc.is_zero_dims.insert(alloc.is_zero_dims.begin() + lin_time_position, false);
     alloc.linearized_extents.insert(alloc.linearized_extents.begin() + lin_time_position, lin_time_extent);
     alloc.strategy.insert(alloc.strategy.begin() + lin_time_position, strategy);
 }
@@ -747,7 +747,7 @@ void decide_shift_reg_alloc_for_unscheduled_stt(const string            &func_na
                                                 const Function          &func,
                                                 const FlowDependences   &dependences,
                                                 const vector<Expr>      &loop_vars,
-                                                const vector<Expr>      &unrolled_loop_vars,
+                                                const vector<Expr>      &PE_loop_vars,
                                                 const Expr              &vectorized_loop_var,
                                                 const map<string, Expr> &loop_mins,
                                                 const map<string, Expr> &loop_extents,
@@ -764,13 +764,13 @@ void decide_shift_reg_alloc_for_unscheduled_stt(const string            &func_na
     const Type                    type = dependences.type;
 
     // Find unrolled dimensions from the args.
-    vector<int> unrolled_dims = locate_loops(args, unrolled_loop_vars);
+    vector<int> PE_dims = locate_loops(args, PE_loop_vars);
 
     // Make a decision
     alloc.type = type;
     alloc.args = args;
     alloc.args_without_prefix = args_without_prefix;
-    alloc.PE_dims = unrolled_dims;
+    alloc.PE_dims = PE_dims;
     alloc.vectorized_dim = -1;
     alloc.vectorized_dim_as_space = false;
     if (vectorized_loop_var.defined()) {
@@ -1156,7 +1156,13 @@ public:
                     const auto &deps = entry.second;
                     ShiftRegAlloc alloc;
                     Function func = env.at(func_name);
-                    decide_shift_reg_alloc_for_unscheduled_stt(func_name, func, deps, all_loop_vars, all_unrolled_loop_vars, vectorized_loop_var, 
+                    // PE dims are the unrolled dims specified in an STT
+                    vector<Expr> PE_dims;
+                    for (size_t i = 0; i < params[0].num_space_vars; i++) {
+                        Expr v = Variable::make(Int(32), op->name+".s0."+params[0].src_vars[i]);
+                        PE_dims.push_back(v);
+                    }
+                    decide_shift_reg_alloc_for_unscheduled_stt(func_name, func, deps, all_loop_vars, PE_dims, vectorized_loop_var,
                                                                loop_mins, loop_extents, global_min, global_max, alloc);
                     func_to_regalloc[func_name] = std::move(alloc);
                 }

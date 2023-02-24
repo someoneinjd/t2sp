@@ -198,7 +198,7 @@ public:
                 name = remove_postfix(name, "." + postfix);
             }
             vector<Expr> args;
-            bool is_write = op->is_intrinsic(Call::write_channel) || op->is_intrinsic(Call::write_shift_reg);
+            bool is_write = op->is_intrinsic(Call::write_channel) || op->is_intrinsic(Call::write_shift_reg) || op->is_intrinsic(Call::write_array);
             size_t dim_pos = op->is_intrinsic(Call::write_channel) ? 2 : 1;
             size_t num_dim = is_write ? op->args.size() -2 : op->args.size() -1;
             args.push_back(op->args[0]);

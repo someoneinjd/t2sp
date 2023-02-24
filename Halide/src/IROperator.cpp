@@ -865,6 +865,15 @@ Expr BufferBuilder::build() const {
                                make_const(UInt(64), halide_buffer_flag_device_dirty),
                                make_zero(UInt(64)));
     }
+    if (channel) {
+        switch (channel) {
+            case 1: flags = flags | make_const(UInt(64), halide_buffer_flag_channel_1); break;
+            case 2: flags = flags | make_const(UInt(64), halide_buffer_flag_channel_2); break;
+            case 3: flags = flags | make_const(UInt(64), halide_buffer_flag_channel_3); break;
+            case 4: flags = flags | make_const(UInt(64), halide_buffer_flag_channel_4); break;
+            default: internal_error;
+        }
+    }
     args[9] = flags;
 
     Expr e = Call::make(type_of<struct halide_buffer_t *>(), Call::buffer_init, args, Call::Extern);

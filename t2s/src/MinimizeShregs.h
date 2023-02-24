@@ -48,6 +48,7 @@ struct ShiftRegAlloc {
                                                     // happens when all dependences at this dimension have a distance of 0.
                                                     // Otherwise, the vectorized_dim will be part of the time_dims.
     vector<vector<int>>    linearized_dims;         // Zero_dims_* and time_dims.
+    vector<bool>           is_zero_dims;
     vector<int>            PE_dims;                 // Indices of the unrolled loops in the args.
 
     // (Linearized) extents of the dimensions.

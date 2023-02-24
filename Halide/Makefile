@@ -804,6 +804,7 @@ HEADERS = $(HEADER_FILES:%.h=$(SRC_DIR)/%.h)
 T2S_DIR  = $(ROOT_DIR)/../t2s
 
 T2S_SOURCE_FILES = \
+  AddressableBuffer.cpp \
   AutorunKernels.cpp \
   BuildCallRelation.cpp \
   ChannelPromotion.cpp \
@@ -841,6 +842,7 @@ T2S_SOURCE_FILES = \
   Utilities.cpp
 
 T2S_HEADER_FILES = \
+  AddressableBuffer.h \
   AutorunKernels.h \
   BuildCallRelation.h \
   ChannelPromotion.h \

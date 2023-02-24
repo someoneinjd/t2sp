@@ -43,6 +43,24 @@ namespace Internal {
         Type halide_type = Type(halide_type_handle, index, 1, &GeneratedStructType::dummy);
         return halide_type;
     }
+
+    vector<tuple<string, Type, Region>> GeneratedArrayType::arrays;
+    halide_handle_cplusplus_type        GeneratedArrayType::dummy = halide_handle_cplusplus_type(
+        halide_cplusplus_type_name(halide_cplusplus_type_name::Struct, "CGA"));
+    Type generate_array(Type t, const vector<Range> &ranges) {
+        // Generate and record a new struct type
+        size_t index;
+        GeneratedArrayType array_type(ranges, t, index);
+
+        // Return a halide type to represent the generated array type
+        // In the Halide type system, a type has one of the following type code: halide_type_int/unit/float/handle/bfloat,
+        // And a type can have "bits" (8 bits wide) and "lanes" (16-bit wide). In order to plug this type
+        // into the Halide type system as if it is a usual Halide type, we choose to create this type
+        // as halide_type_handle pointing to a dummy handle named "CGA"(compiler_generated_array).
+        // We use the "bits" for type id, and so we can create up to 256 different arrays.
+        Type halide_type = Type(halide_type_handle, index, 1, &GeneratedArrayType::dummy);
+        return halide_type;
+    }
 } // Internal
 
 bool Type::is_generated_struct() const {
@@ -50,6 +68,13 @@ bool Type::is_generated_struct() const {
             (handle_type != NULL &&
              handle_type->inner_name.cpp_type_type == halide_cplusplus_type_name::Struct &&
              handle_type->inner_name.name =="CGS"));
+}
+
+bool Type::is_generated_array() const {
+    return (code() == halide_type_handle &&
+            (handle_type != NULL &&
+             handle_type->inner_name.cpp_type_type == halide_cplusplus_type_name::Struct &&
+             handle_type->inner_name.name =="CGA"));
 }
 
 } // Halide

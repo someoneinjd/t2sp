@@ -69,6 +69,11 @@ string CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::print_type(Type type, AppendSpaceIf
         const std::pair<std::string, std::vector<Type>> &entry = GeneratedStructType::structs[type_id];
         string struct_name = entry.first;
         oss << struct_name;
+    } else if (type.is_generated_array()) {
+        int type_id = type.bits();
+        const std::tuple<std::string, Type, Region> &entry = GeneratedArrayType::arrays[type_id];
+        string array_name = std::get<0>(entry);
+        oss << print_name(array_name);
     } else if (!is_standard_opencl_type(type)) {
         Type basic_type = type.with_lanes(1);
         string type_name = print_type(basic_type);
@@ -185,6 +190,32 @@ Expr CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::DefineVectorStructTypes::mutate(const
 }
 
 Stmt CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::DefineVectorStructTypes::mutate(const Stmt &op) {
+    return IRMutator::mutate(op);
+}
+
+Expr CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::DefineArrayTypes::mutate(const Expr &op) {
+    Type type = op.type();
+
+    if (type.is_generated_array()) {
+        std::ostringstream oss;
+        int type_id = type.bits();
+        if (std::find(parent->defined_array_ids.begin(), parent->defined_array_ids.end(), type_id) == parent->defined_array_ids.end()) {
+            parent->defined_array_ids.push_back(type_id);
+            const auto &entry = GeneratedArrayType::arrays[type_id];
+            // Define a struct like: struct foo {int f0, char f1, int f2};
+            oss << "typedef struct { " << parent->print_type(std::get<1>(entry)) << " s";
+            for (const auto &r : std::get<2>(entry)) {
+                oss << "[" << parent->print_expr(r.extent) << "]";
+            }
+            oss << "; } " << parent->print_name(std::get<0>(entry)) << ";\n";
+            arrays += oss.str();
+        }
+    }
+
+    return IRMutator::mutate(op);
+}
+
+Stmt CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::DefineArrayTypes::mutate(const Stmt &op) {
     return IRMutator::mutate(op);
 }
 
@@ -510,9 +541,6 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Call *op) {
         }
         debug(4) << "modified channel name: " << channel_name << "\n";
         string type = print_type(op->type);
-        if (op->type.is_handle() && !op->type.is_generated_struct()) {
-            type = print_name(channel_name + ".array.t");
-        }
         string read_call = "read_channel_intel(" + print_name(channel_name) + string_channel_index + ")";
         stream << get_indent() << type << " " << id << " = " << read_call << ";\n";
     } else if (op->is_intrinsic(Call::read_channel_nb)) {
@@ -626,18 +654,20 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Call *op) {
         rhs << write_data;
         stream << get_indent() << print_name(write_success->value) << " = write_channel_nb_intel(" << rhs.str() << ");\n";
     } else if (op->is_intrinsic(Call::read_array)) {
-        std::string arr_name = op->args[0].as<StringImm>()->value;
+        std::string arr_name = op->args[0].as<StringImm>()
+                                ? print_name(op->args[0].as<StringImm>()->value)
+                                : print_expr(op->args[0]);
         // read the entire array as a whole
         if (op->args.size() == 1) {
             std::string string_index = op->type.is_handle() ? "" : ".s";
-            id = print_name(arr_name) + string_index;
+            id = arr_name + string_index;
         } else {
             std::string string_index = ".s";
             for (size_t i = 1; i < op->args.size(); i++)
                 string_index += "[" + print_expr(op->args[i]) + "]";
             id = '_' + unique_name('_');
             stream << get_indent() << print_type(op->type) << " " << id
-                   <<" = " << print_name(arr_name) << string_index << ";\n";
+                   <<" = " << arr_name << string_index << ";\n";
         }
     } else if (op->is_intrinsic(Call::write_array)) {
         std::string arr_name = op->args[0].as<StringImm>()->value;
@@ -1946,10 +1976,6 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::add_kernel(Stmt s,
         }
     }
 
-    DeclareArrays da(this);
-    s.accept(&da);
-    stream << da.arrays.str();
-
     print(s);
     close_scope("kernel " + name);
 
@@ -2444,9 +2470,14 @@ void CodeGen_OpenCL_Dev::compile_to_aocx(std::ostringstream &src_stream) {
 
 void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::print_global_data_structures_before_kernel(const Stmt *op) {
     // Define the compiler-generated vector and struct types.
-    DefineVectorStructTypes def(this);
-    def.mutate(*op);
-    stream << def.vectors + def.structs;
+    DefineVectorStructTypes def_vs(this);
+    def_vs.mutate(*op);
+    stream << def_vs.vectors + def_vs.structs;
+
+    // Define the compiler-generated arrays
+    DefineArrayTypes def_ar(this);
+    def_ar.mutate(*op);
+    stream << def_ar.arrays;
 
     // Declare the output channels of the kernel.
     DeclareChannels decl(this);
@@ -2455,7 +2486,7 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::print_global_data_structures_before_k
 }
 
 void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::DeclareChannels::visit(const Realize *op) {
-    if (ends_with(op->name, ".channel") || ends_with(op->name, ".channel.array")) {
+    if (ends_with(op->name, ".channel")) {
         // Get the bounds in which all bounds are for the dimensions of the channel array, except the last one is for the min depth.
         Region bounds = op->bounds;
         std::string bounds_str = "";
@@ -2490,18 +2521,6 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::DeclareChannels::visit(const Realize 
         }
     }
     IRVisitor::visit(op);
-}
-
-void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::DeclareArrays::visit(const Call *op) {
-    if (op->is_intrinsic(Call::write_array)) {
-        string printed_name = parent->print_name(op->args[0].as<StringImm>()->value);
-        string type_name = printed_name + "_t";
-        if (array_set.find(printed_name) == array_set.end()) {
-            array_set.insert(printed_name);
-            arrays << parent->get_indent() << type_name << " " << printed_name << ";\n";
-        }
-    }
-    return IRVisitor::visit(op);
 }
 
 /*
@@ -2588,7 +2607,7 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::GatherShiftRegsAllocates::visit(const
 }
 
 void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::GatherShiftRegsAllocates::visit(const Realize *op) {
-    if (ends_with(op->name, ".channel") || ends_with(op->name, ".channel.array")) {
+    if (ends_with(op->name, ".channel") || ends_with(op->name, ".array")) {
     } else if (ends_with(op->name, ".shreg")) {
         ostringstream rhs;
         Region bounds = op->bounds;
@@ -2640,7 +2659,11 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::GatherShiftRegsAllocates::visit(const
                 internal_assert(e_extent->value > 0);
                 bounds_str = "[" + std::to_string(e_extent->value) + "]" + bounds_str;
             }
-            rhs << type << " " << parent->print_name(op->name) << bounds_str << ";\n";
+            rhs << type << " ";
+            // if (op->memory_type == MemoryType::Register) {
+            //     rhs << "__attribute__((register)) ";
+            // }
+            rhs << parent->print_name(op->name) << bounds_str << ";\n";
             std::vector<std::string> names = split_string(op->name, ".");
             shift_regs_allocates[names[0]].push_back(rhs.str());
         }
@@ -2683,16 +2706,30 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::GatherShiftRegsAllocates::visit(const
 }
 
 void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Realize *op) {
-    if (ends_with(op->name, ".channel") || ends_with(op->name, ".channel")) {
+    if (ends_with(op->name, ".channel")) {
         // We have already declared the channel before the kernel with print_global_data_structures_before_kernel().
         // Just skip it and get into the body.
+        print_stmt(op->body);
+    } else if (ends_with(op->name, ".array")) {
+        std::string string_bound = "" ;
+        std::vector<std::string> access_exprs;
+        Type t = op->types[0];
+        internal_assert(op->types.size() == 1 && t.is_generated_array());
+        for (Range b : op->bounds) {
+            access_exprs.push_back(print_expr(b.extent));
+        }
+        for (std::string ae : access_exprs) {
+            string_bound += "[" + ae + "]";
+        }
+        stream << get_indent() << print_type(t) << " " << print_name(op->name)
+               << string_bound << ";\n";
         print_stmt(op->body);
     } else if (ends_with(op->name, ".shreg")) {
         // We have already gathered shift regs allocates with gather_shift_regs_allocates().
         // Just skip it and get into the body.
         print_stmt(op->body);
     } else if(ends_with(op->name,".temp")){
-        std::string string_bound = "" ;
+        std::string string_bound = "";
         std::vector<std::string> access_exprs;
         for (Range b : op->bounds) {
             access_exprs.push_back(print_expr(b.extent));
@@ -2703,11 +2740,14 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Realize *op) {
         for(size_t i=0;i<op->types.size();i++) {
             // do_indent();
             std::string name = op->name;
-            stream << get_indent() << print_type(op->types[i]) << " " << print_name(name)
-                << string_bound << ";\n";
+            stream << get_indent() << print_type(op->types[i]) << " ";
+            // if (op->memory_type == MemoryType::Register) {
+            //     stream << "__attribute__((register)) ";
+            // }
+            stream << print_name(name) << string_bound << ";\n";
         }
         print_stmt(op->body);
-    } else if(ends_with(op->name,".ibuffer")){
+    } else if (ends_with(op->name,".ibuffer")) {
         std::string string_bound = "" ;
         std::vector<std::string> access_exprs;
         for (Range b : op->bounds) {
@@ -2716,15 +2756,26 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Realize *op) {
         for (std::string ae : access_exprs) {
             string_bound += "[" + ae + "]";
         }
-        for(size_t i=0;i<op->types.size();i++) {
+        // for (size_t i=0; i<op->types.size(); i++) {
             std::string name = op->name.substr(0, op->name.length()-std::string(".ibuffer").size());
-            string buffer_name = name + '.' + std::to_string(i) + ".ibuffer";
-            stream << get_indent() << print_type(op->types[i]) << " ";
-            stream << "__attribute__((memory, numbanks("
-                   << access_exprs.back()
-                   << "), singlepump, numwriteports(1), numreadports(1))) "
+            string buffer_name = name + '.' + std::to_string(0) + ".ibuffer";
+            internal_assert(op->types.size() == 2);
+            stream << get_indent() << print_type(op->types[0]) << " ";
+            auto num_banks = op->types[1].lanes();
+            auto bank_bits = op->types[1].bits();
+            string bank_str;
+            if (bank_bits == 0) bank_str = "numbanks(" + to_string(num_banks) + ")";
+            else {
+                bank_str = "bank_bits(";
+                for (int i = 0; i < int(log2(num_banks)); i++) {
+                    bank_str += to_string(bank_bits + i);
+                    if (i != int(log2(num_banks)-1)) bank_str += ",";
+                }
+                bank_str += ")";
+            }
+            stream << "__attribute__((memory, " << bank_str << ", singlepump)) "
                    << print_name(buffer_name) << string_bound << ";\n";
-        }
+        // }
         print_stmt(op->body);
     } else if (ends_with(op->name,".break")){
         print_stmt(op->body);

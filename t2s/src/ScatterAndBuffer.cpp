@@ -47,7 +47,7 @@ Func &Func::buffer(Func f, VarOrRVar loop, BufferStrategy buffer_strategy, Buffe
     std::vector<Internal::BufferItem> &buffer_params = func.definition().schedule().buffer_params();
     user_assert(buffer_params.empty())
         << "Inserting more than 1 buffer to Func " << func.name() << " is unexpected. We support only one buffer in a function so far\n";
-    buffer_params.push_back(Internal::BufferItem(f.name(), loop.name(), buffer_strategy,read_strategy));
+    buffer_params.push_back(Internal::BufferItem(f.name(), loop.name(), buffer_strategy, read_strategy));
     return *this;
 }
 
@@ -909,6 +909,7 @@ private:
     uint32_t READS;          // Product of the extents of READ_LOOPS
     int32_t BUFFERS;         // Number of double buffers (i.e. extent of the scatter loop)
     int32_t BANKS;           // The last dimension of a buffer, which usually equals BUFFERS, rounded up to a power of two
+    int32_t BANKWIDTH;
     uint32_t CYCLES_PER_PERIOD;
     uint32_t INIT;           // The cycle in a period when buffer writing should start.
     Expr PERIODS;            // Total periods
@@ -955,6 +956,8 @@ private:
         Region dims;             // [2][extents of NonScatter_NonReuse_Write_Loops][extents of nonscatter_unroll_loops][BANKS],
                                  // where NonScatter_NonReuse_Write_Loops = (WRITE_LOOPS - REUSE_WRITE_LOOPS - scatter loop),
                                  // where REUSE_WRITE_LOOPS are subset of WRITE_LOOPS that are not referred by the field.
+        int32_t num_banks;
+        int32_t bank_bits;
         vector<Expr> write_args; // [_idx][WRITE_TO(_offset)][nonscatter_unroll_loops][buf], where WRITE_TO(_offset) is the address determined by
                                  // the NonScatter_NonReuse_Write_Loops out of the WRITE_LOOPS
         vector<Expr> read_args;  // DB[!_idx][READ_FROM(_offset)][nonscatter_unroll_loops][buf], where READ_FROM(_offset) is the address determined by
@@ -1221,17 +1224,18 @@ private:
         }
 
         if (!scatter_loop_removed_in_producer) {
-            BANKS = (int32_t)closest_power_of_two((uint32_t)BUFFERS);
-            buf.dims.push_back(Range(0, Expr(BANKS)));
+            buf.num_banks = (int32_t)closest_power_of_two((uint32_t)BUFFERS);
+            buf.dims.push_back(Range(0, Expr(buf.num_banks)));
             buf.write_args.push_back(buf_loop_var);
             buf.read_args.push_back(buf_loop_var);
         } else {
             auto dim = buf.dims.back();
             internal_assert(dim.extent.as<IntImm>());
             int extent = dim.extent.as<IntImm>()->value;
-            BANKS = (int32_t)closest_power_of_two((uint32_t)extent);
-            buf.dims.back() = Range(dim.min, BANKS);
+            buf.num_banks = (int32_t)closest_power_of_two((uint32_t)extent);
+            buf.dims.back() = Range(dim.min, buf.num_banks);
         }
+        buf.bank_bits = 0;
     }
 
     void calculate_buffer_dims_args() {
@@ -1322,7 +1326,8 @@ public:
         internal_assert(ends_with(op->name,".run_on_device"));
         Stmt new_body = IRMutator::mutate(op->body);
         for (auto b : buffers_info) {
-            new_body = Realize::make(b.name, {b.type}, MemoryType::Auto, b.dims, const_true(), new_body);
+            Type bank_type = Int(b.bank_bits, b.num_banks);
+            new_body = Realize::make(b.name, {b.type, bank_type}, MemoryType::Auto, b.dims, const_true(), new_body);
         }
         new_body = Realize::make(var_name(cycle), {UInt(32)}, MemoryType::Auto, nonscatter_unroll_loop_dims, const_true(), new_body);
         new_body = Realize::make(var_name(in_v), {TYPE}, MemoryType::Auto, nonscatter_unroll_loop_dims, const_true(), new_body);
@@ -1799,7 +1804,8 @@ public:
             auto iter = scatterbuffer_args.find(func_name);
             string producer = iter->second.producer;
             if(!op->args.empty() && op->args[0].as<StringImm>()){
-                if(producer + ".channel" == op->args[0].as<StringImm>()->value){
+                string chn_name = producer + "." + func_name + ".channel";
+                if (chn_name == op->args[0].as<StringImm>()->value) {
                     internal_assert(!iter->second.read_node.defined());
                     iter->second.read_node = op;
                     iter->second.read_condition = path_condition;
@@ -1846,7 +1852,6 @@ public:
                             << " (consumer) at an outer loop level. However, the current loop to insert the buffer"
                             << ", " << buffer_loop << ", is not at an outer loop of loop " << remove_param << "\n";
                     }
-
                 }
             }
             if(scatter_loop != "" && ends_with(op->name,"." + scatter_loop)){
@@ -2039,7 +2044,7 @@ public:
                 for (size_t i = 1; i < loops.size(); i++) {
                     Expr loop_var = Variable::make(Int(32), loops[i]);
                     cond2 = cond2 && (loop_var == mins[i]);
-                    if (loops[i] == buffer_loop) {
+                    if (extract_after_tokens(loops[i], 2) == buffer_loop) {
                         break;
                     }
                 }
@@ -2060,7 +2065,7 @@ public:
         // TODO: here we should catch calls with side effects, or memory reads, and change them into
         // something like select(cond, op, dummy) instead. No need to change write_channel.
         // Also put the cond at the beginning of the innermost loop.
-        if (op->is_intrinsic(Call::write_channel) && op->args[0].as<StringImm>()->value == (producer_name + ".channel")) {
+        if (op->is_intrinsic(Call::write_channel) && extract_first_token(op->args[0].as<StringImm>()->value) == producer_name) {
             // Change the value to write to the channel as
             //      select(first loop < its extent, current value, a dummy value);
             innermost_loop = loops.back();
@@ -2082,6 +2087,11 @@ public:
 void get_ScatterBufferArgs(const map<string, Function> &envs, ScatterBufferArgs& scatterbuffer_args){
     for(const auto &e : envs){
         Function func = e.second;
+        auto addressable_params = func.definition().schedule().addressable_buffer_params();
+        if (!addressable_params.empty()) {
+            // Handled by another stage
+            continue;
+        }
         auto buffer_params = func.definition().schedule().buffer_params();
         auto scatter_params = func.definition().schedule().scatter_params();
         if(buffer_params.empty() && scatter_params.empty()) {

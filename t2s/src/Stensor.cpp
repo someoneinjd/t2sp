@@ -239,12 +239,14 @@ class RealizeOnFPGA
             Place place = s.position == SMemType::HOST ? Place::Host : Place::Device;
             Func isolated_func(s.name, place);
             producers.push_back(std::move(isolated_func));
+            debug(1) << "T2X emits: " << "Func " << s.name << "(\"" << s.name << "\", "
+                     << (place == Place::Host ? "Place::Host" : "Place::Device") << ");\n";
         }
         vector<FuncOrExpr> imp;
         std::copy(c.imp.begin(), c.imp.end(), std::back_inserter(imp));
         fv.ure.isolate_producer_chain(imp, producers);
-        debug(1) << "T2X emits: " << fv.ure.name() << ".isolate_producer_chain({"
-                 << names_to_string(c.imp) << "}, " << names_to_string(producers) << ");\n";
+        debug(1) << "T2X emits: " << fv.ure.name() << ".isolate_producer_chain("
+                 << names_to_string(c.imp) << ", " << names_to_string(producers) << ");\n";
         return producers;
     }
 
@@ -282,6 +284,8 @@ class RealizeOnFPGA
             Place place = s.position == SMemType::HOST ? Place::Host : Place::Device;
             Func new_func(s.name, place);
             consumers.push_back(std::move(new_func));
+            debug(1) << "T2X emits: " << "Func " << s.name << "(\"" << s.name << "\", "
+                     << (place == Place::Host ? "Place::Host" : "Place::Device") << ");\n";
         }
         if (c.stensors[0].v_banks.size() == 1) {
             // This is a special case where the single dimension banks are inside systolic array

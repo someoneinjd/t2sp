@@ -86,13 +86,30 @@ protected:
 
             // Definitions of the struct types.
             std::string structs;
-            
+
             DefineVectorStructTypes(CodeGen_OpenCL_C* parent) : parent(parent) {}
             Expr mutate(const Expr &expr) override;
             Stmt mutate(const Stmt &stmt) override;
         };
         // Ids of struct types defined
         std::vector<int> defined_struct_ids;
+
+        // Generate code for the compiler-generated arrays.
+        // This class does not really mutate the IR.
+        class DefineArrayTypes : public IRMutator {
+            using IRMutator::visit;
+        private:
+            CodeGen_OpenCL_C* parent;
+        public:
+            // Definitions of arrays.
+            std::string arrays;
+
+            DefineArrayTypes(CodeGen_OpenCL_C* parent) : parent(parent) {}
+            Expr mutate(const Expr &expr) override;
+            Stmt mutate(const Stmt &stmt) override;
+        };
+        // Ids of struct types defined
+        std::vector<int> defined_array_ids;
 
         std::string get_memory_space(const std::string &);
 
@@ -127,7 +144,7 @@ protected:
         public:
             bool in_if_then_else;       // The current IR is in a branch
             bool conditional_access;    // There is a conditional execution of channel read/write inside the current loop
-            bool irregular_loop_dep;    // There is a irregular loop inside the current loop and the irregular bound 
+            bool irregular_loop_dep;    // There is a irregular loop inside the current loop and the irregular bound
                                         // depends on current loop var
             CheckConditionalChannelAccess(CodeGen_OpenCL_C* parent, std::string current_loop_name) : parent(parent), current_loop_name(current_loop_name) {
                 in_if_then_else = false;
@@ -150,7 +167,7 @@ protected:
             std::map<std::string, std::vector<Expr>> &space_vars;
         public:
             GatherShiftRegsAllocates(CodeGen_OpenCL_C* parent, std::map<std::string, std::vector<std::string>> &shift_regs_allocates,
-                std::map<std::string, size_t> &shift_regs_bounds, std::map<std::string, size_t> &temp_regs_bounds, 
+                std::map<std::string, size_t> &shift_regs_bounds, std::map<std::string, size_t> &temp_regs_bounds,
                 std::map<std::string, std::vector<Expr>> &space_vars) :
                     parent(parent), shift_regs_allocates(shift_regs_allocates), shift_regs_bounds(shift_regs_bounds), temp_regs_bounds(temp_regs_bounds), space_vars(space_vars) {}
             void visit(const Call *op) override;

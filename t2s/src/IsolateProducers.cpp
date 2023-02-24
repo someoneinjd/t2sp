@@ -172,11 +172,11 @@ void check_preconditions_of_isolate_producers(const vector<Func_Expr> &fs, const
             << "To avoid the error, isolate from that reprensative Func instead.\n";
 
     // The producers are yet to be defined by the isolation
-    for (auto p : producers) {
-        user_assert(!p.defined()) << "Isolating (" << names_to_string(fs)
-                    << ") into an already defined Func " << p.name()
-                    << ", which is expected to be undefined before the isolation.\n";
-    }
+    // for (auto p : producers) {
+    //     user_assert(!p.defined()) << "Isolating (" << names_to_string(fs)
+    //                 << ") into an already defined Func " << p.name()
+    //                 << ", which is expected to be undefined before the isolation.\n";
+    // }
 
     // A Func or Expr to be isolated cannot be a component of another Func or Expr to be isolated. For example, you can
     // not isolate a + b and a, because a is a component of a + b. Instead, you can isolate, e.g. a + b and a + 0 (or a * 1), because
@@ -506,6 +506,32 @@ Func &Func::isolate_producer(const vector<FuncOrExpr> &_fs, Func p) {
     vector<Func> dependees;
     match_calls_and_find_dependees(fs, ures, matched_operands, matched_exprs, dependees);
 
+    // Replace the matched expression with calls to the already defined Funcs.
+    vector<Expr> substitute_args;
+    for (auto a : this->args()) {
+        substitute_args.push_back(a);
+    }
+    if (p.defined()) {
+        auto p_operands = p.function().isolated_operands_as_producer();
+        for (auto op : matched_operands) {
+            auto it = std::find_if(p_operands.begin(), p_operands.end(), [&](const Expr &t){ return equal(op, t); });
+            user_assert(it != p_operands.end())
+                << "Operand " << op << " cannot be isolated into an already defined fuction " << p.name() << "\n";
+        }
+        // Use the already defined function in producer
+        vector<Func> p_ures;
+        all_ures(p, p_ures);
+        internal_assert(matched_operands.size() == p_ures.size());
+        SubstituteOperands sub_opnd(matched_operands, p_ures, substitute_args);
+        for (auto u : ures) {
+            u.function().mutate(&sub_opnd);
+        }
+        internal_assert(sub_opnd.total_replaced == matched_operands.size());
+
+        debug(4) << "After isolating " << names_to_string(fs) << " to an already defined producer " << p.name() << "\n";
+        return *this;
+    }
+
     // Clone the dependees. Build a map from a dependee to its clone.
     vector<Func>                 clones;
     map<Func, Func, FuncCompare> originals_to_clones;
@@ -555,10 +581,6 @@ Func &Func::isolate_producer(const vector<FuncOrExpr> &_fs, Func p) {
     }
 
     // In this Func, for every URE, replace the matched expressions with calls to the new Funcs.
-    vector<Expr> substitute_args;
-    for (auto a : this->args()) {
-        substitute_args.push_back(a);
-    }
     SubstituteOperands sub_opnd(matched_operands, new_funcs_for_matched_exprs, substitute_args);
     for (auto u : ures) {
         u.function().mutate(&sub_opnd);

@@ -16,34 +16,17 @@
 *
 * SPDX-License-Identifier: BSD-2-Clause-Patent
 *******************************************************************************/
-#ifndef GEMM_CONST_PARAMS_H
-#define GEMM_CONST_PARAMS_H
+#ifndef T2S_DATA_PLACEMENT_H
+#define T2S_DATA_PLACEMENT_H
 
-// Inner loop bounds, which are static constant parameters of the design
-#ifdef GPU
-    #define KKK         8
-    #define JJJ         8
-    #define III         32
-    #define JJ          8
-    #define II          2
-    #define KK          1
-#else // FPGA
-    #ifdef TINY // For verifying correctness only
-        #define KK          32
-        #define II          32
-        #define I           32
-        #define K           32
-    #elif S10
-        #define KKK         1
-        #define III         64
-        #define II          16
-        #define KK          1024
-    #else
-        #define KK          32
-        #define II          32
-        #define I           32
-        #define K           32
-    #endif
-#endif
+#include "../../Halide/src/IR.h"
+
+namespace Halide {
+namespace Internal {
+
+Stmt place_data_accrss_banks(Stmt s, const std::map<std::string, Function> &env);
+
+}
+}
 
 #endif

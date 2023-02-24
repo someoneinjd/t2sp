@@ -240,6 +240,17 @@ uint32_t closest_power_of_two(uint32_t n)
     return 1 << count;
 }
 
+int get_number_of_a_channel(string name) {
+    if (ends_with(name, ".mem_channel")) {
+        name = remove_postfix(name, ".mem_channel");
+    }
+    if (ends_with(name, "_c0")) return 1;
+    if (ends_with(name, "_c1")) return 2;
+    if (ends_with(name, "_c2")) return 3;
+    if (ends_with(name, "_c3")) return 4;
+    return 0;
+}
+
 
 namespace {
 class ReplacePrefix: public IRMutator {

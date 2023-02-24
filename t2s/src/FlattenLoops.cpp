@@ -294,13 +294,14 @@ class ConstLoopFlattening : public IRMutator {
 
 typedef struct DynamicForLoopContainer {
     std::string name;
-    Expr min;
     Expr extent;
 } DynamicForLoopContainer_t;
 
 class FlattenOuterLoops : public IRMutator {
-    string &loop_level; // The innermost loop that might get flattened. Do not flatten its inner loops.
-    std::vector<DynamicForLoopContainer_t> flattened_loops; // A set of loops that can be flattened.
+    string &loop_level;
+    bool up_loop_level = true;
+
+    std::vector<DynamicForLoopContainer_t> flattened_loops;
 
 public:
     using IRMutator::visit;
@@ -308,78 +309,47 @@ public:
     FlattenOuterLoops(string &_l)
         : loop_level(_l) {}
 
-    bool flattenable(const For *op) {
-        if (!ends_with(op->name, ".infinite") && !ends_with(op->name, ".run_on_device")) {
-            if (op->for_type == ForType::Serial && is_const(op->min) && is_const(op->extent)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    Stmt flatten(const For *op) { // op is the current innermost loop to flatten
-        internal_assert(!flattened_loops.empty());
-        Stmt body = op->body;
-        string name = extract_before_tokens(op->name, 2);
-        Expr final_extent = 1;
-        for (auto &l : flattened_loops) {
-            name += "." + extract_after_tokens(l.name, 2);
-            final_extent *= l.extent;
-        }
-        final_extent = simplify(final_extent);
-        loop_level = name;
-
-        size_t num_loops = flattened_loops.size();
-        Expr mod_part = 1;
-        for (int i = num_loops-1; i >= 0; i--) {
-            Expr value = Variable::make(Int(32), name);
-            Expr div_part = mod_part;
-            mod_part *= flattened_loops[i].extent;
-            debug(4) << "mod part = " << mod_part << ", div part = " << div_part << "\n";
-            value = Mod::make(value, mod_part);
-            value = Div::make(value, div_part);
-            value = value + flattened_loops[i].min;
-            value = simplify(value);
-            body = LetStmt::make(flattened_loops[i].name, value, body);
-        }
-        debug(4) << "...... after flattening: body is >>>>>>>\n" << to_string(body) << "\n<<<<<<<\n\n";
-        return For::make(name, op->min, final_extent, op->for_type, op->device_api, body);
-    }
-
     Stmt visit(const For* op) override {
-        if (flattenable(op)) {
-            DynamicForLoopContainer_t f = {op->name, op->min, op->extent};
-            flattened_loops.push_back(f);
-            if  (extract_last_token(op->name) == loop_level) {
-                // Flatten the current loops found so far and stop flattening inner loops
-                return flatten(op);
-            } else {
-                const For *inner_loop = (op->body.as<For>());
-                if (flattenable(inner_loop)) {
-                    // Let the inner loop handle the flattening
-                    return mutate(op->body);
-                } else {
-                    // Flatten the inner loop(s) separately
-                    auto old_flattened_loops = flattened_loops;
-                    flattened_loops.clear();
-                    Stmt new_body = mutate(op->body);
-
-                    // Now faltten the loops with the new body
-                    flattened_loops = old_flattened_loops;
-                    Stmt new_loop = flatten(op);
-                    return new_loop;
-                }
-            }
-        } else {
-            // We ensure it is impossible to have flattenable outer loops above
-            internal_assert(flattened_loops.empty());
-            if  (extract_last_token(op->name) == loop_level) {
-                // Done.
-                return op;
-            } else {
-                return IRMutator::visit(op);
-            }
+        if (ends_with(op->name, ".infinite") || ends_with(op->name, ".run_on_device")) {
+            return IRMutator::visit(op);
         }
+        if (extract_last_token(op->name) == loop_level && is_const(op->min)) {
+            internal_assert(op->for_type == ForType::Serial && is_const(op->min));
+            up_loop_level = false;
+            DynamicForLoopContainer_t f = {op->name, op->extent};
+            flattened_loops.push_back(f);
+
+            Stmt body = mutate(op->body);
+            string name = extract_before_tokens(op->name, 2);
+            Expr final_extent = 1;
+            for (auto &l : flattened_loops) {
+                name += "." + extract_after_tokens(l.name, 2);
+                final_extent *= l.extent;
+            }
+            final_extent = simplify(final_extent);
+            loop_level = name;
+
+            size_t num_loops = flattened_loops.size();
+            Expr mod_part = 1;
+            for (int i = num_loops-1; i >= 0; i--) {
+                Expr value = Variable::make(Int(32), name);
+                Expr div_part = mod_part;
+                mod_part *= flattened_loops[i].extent;
+                debug(4) << "mod part = " << mod_part << ", div part = " << div_part << "\n";
+                value = Mod::make(value, mod_part);
+                value = Div::make(value, div_part);
+                value = simplify(value);
+                body = LetStmt::make(flattened_loops[i].name, value, body);
+            }
+            return For::make(name, op->min, final_extent, op->for_type, op->device_api, body);
+        }
+        if (up_loop_level && op->for_type == ForType::Serial) {
+            internal_assert(op->body.as<For>());
+            DynamicForLoopContainer_t f = {op->name, op->extent};
+            flattened_loops.push_back(f);
+            return mutate(op->body);
+        }
+        return IRMutator::visit(op);
     }
 };
 
@@ -859,25 +829,51 @@ public:
         : mem_addr(_mem_addr), env(_env) {};
 
 private:
-    vector<string> current_loops;
-    vector<Expr> current_extents;
+    Expr path_condition = const_true();
+    vector<string> loops;
+    vector<Expr> extents;
     map<string, vector<string>> producer_loops;
     map<string, Expr> &mem_addr;
     const map<string, Function> &env;
 
     void visit(const For *op) override {
-        if (op->for_type == ForType::Serial) {
+        if (op->for_type == ForType::Serial || op->for_type == ForType::Unrolled) {
             std::string undecorated_loop_name = extract_after_tokens(op->name, 2); // remove func and stage from the name
-            current_loops.push_back(undecorated_loop_name);
-            current_extents.push_back(op->extent);
+            loops.push_back(undecorated_loop_name);
+            extents.push_back(op->extent);
         }
 
         IRVisitor::visit(op);
 
-        if (op->for_type == ForType::Serial) {
-            current_loops.pop_back();
-            current_extents.pop_back();
+        if (op->for_type == ForType::Serial || op->for_type == ForType::Unrolled) {
+            loops.pop_back();
+            extents.pop_back();
         }
+    }
+
+    void visit(const IfThenElse *op) override {
+        Expr tmp = path_condition;
+        path_condition = tmp && op->condition;
+        op->then_case.accept(this);
+        if (op->else_case.defined()) {
+            path_condition = tmp && !op->condition;
+            op->else_case.accept(this);
+        }
+        path_condition = tmp;
+    }
+
+    bool is_trivial_loop(string name) {
+        vector<Expr> conj = break_logic_into_conjunction(path_condition);
+        for (auto c : conj) {
+            auto eq = c.as<EQ>();
+            if (eq) {
+                auto a = eq->a.as<Variable>();
+                if (a && is_const(eq->b)) {
+                    if (extract_last_token(a->name) == name) return true;
+                }
+            }
+        }
+        return false;
     }
 
     void visit(const Call *op) override {
@@ -888,15 +884,34 @@ private:
 
             internal_assert(producer_loops.find(name) != producer_loops.end());
             auto prod_loops = producer_loops[name];
+            auto current_loops = loops;
+            auto current_extents = extents;
             // internal_assert(current_loops.size() >= prod_loops.size());
 
             Expr temp;
             temp = Call::make(Int(32), "addr.temp", {}, Call::PureIntrinsic);
             const Function &func = env.at(extract_first_token(name));
+            const auto &params = func.definition().schedule().partition_params();
+            if (!params.empty()) {
+                internal_assert(params.size() == 1);
+                string loop = params[0].loop_name;
+                internal_assert(current_loops.back() == loop);
+                current_loops.pop_back();
+                current_extents.pop_back();
+                // There are two virtual loops, one for partitions and the other for stride, to generate addresses
+                current_loops.push_back(".partitions");
+                current_extents.push_back(Expr(params[0].num_partitions));
+                current_loops.push_back(loop);
+                current_extents.push_back(Expr(params[0].stride));
+            }
             Expr inner_loops_extents_prod = Expr(1); // product of the extents of the non-reuse inner loops of the current loop level
             Expr reuse_loops_extents_prod = Expr(1); // product of the extents of contiguous reuse loops immediately enclosed by the current loop level
             Expr index = temp;
             for (int j = current_loops.size() - 1; j >= 0; j--) {
+                if (is_trivial_loop(current_loops[j])) {
+                    // This loop is enclosed by a condition
+                    continue;
+                }
                 bool is_reuse_loop = true;
                 for (auto loop_name : prod_loops) {
                     if (loop_name == current_loops[j]) {
@@ -930,7 +945,7 @@ private:
                              << ", extent: " << current_extents[j] << "\n";
                 }
             }
-	    if (!equal(reuse_loops_extents_prod, 1)) {
+            if (!equal(reuse_loops_extents_prod, 1)) {
                 // Remove the part of the index for the contiguous reuse loops starting from the outermost level 
                 index = index % inner_loops_extents_prod;
             }
@@ -940,7 +955,7 @@ private:
             vector<Expr> args = op->args;
             internal_assert(args[0].as<StringImm>());
             string name = args[0].as<StringImm>()->value;
-            producer_loops[name] = current_loops;
+            producer_loops[name] = loops;
         }
         IRVisitor::visit(op);
     }
@@ -961,12 +976,10 @@ private:
     const map<string, Expr> &mem_addr;                       // Memory channal name -> index of Load
     bool in_function;                                        // The current IR is in a function definition.
     bool on_device;                                          // The current IR is on device.
-    vector<string> serial_loops;                             // Current serial loop names
     vector<string> unrolled_loops;                           // Current unrolled loops
     string current_loop;                                     // Current serial or unroll loop
     string loop_enclosing_mem_channel_access;                // The loop that immediately encloses a read/write_mem_channel
-    int num_mem_channel_accesses;                            // We assume there can only be 1 read or write of mem channel for 1 func.
-                                                             // Then with loop unrolling, there may appear multiple duplicates of the access.
+    int num_mem_channel_accesses;                            // With loop unrolling, there might be multiple accesses to a channel
     Expr path_condition;                                     // The path condition to a read/write_mem_channel
     Expr single_PE_condition;                                // The part of the path condition that checks for a single PE.
                                                              // E.g. given path condition "some cond && u0=0 && u1=0", where u0 and u1
@@ -980,7 +993,7 @@ private:
     map<string, Expr> temp_val;                              // The variable with suffix ".temp" generated after combinning memory channels
     vector<std::pair<string, Expr>> &letstmts_backup;
 
-    // Some buffer-realted values are lost, and thus we need to re-generate them
+    // Some buffer-realted letstmts are lost, and thus we need to re-generate them
     Stmt rebuild_buffer_stmt(string name, Type buf_t, int dims, Stmt body) {
         vector<string> min_name(dims), extent_name(dims), stride_name(dims);
         for (int i = 0; i < dims; i++) {
@@ -1006,19 +1019,18 @@ private:
             builder.extents.push_back(extent_var[i]);
             builder.strides.push_back(stride_var[i]);
         }
+        builder.channel = get_number_of_a_channel(name);
         return LetStmt::make(name + ".buffer", builder.build(), body);
     }
 
-    // Some values are lost after replacing memory references with mem_channels,
-    // to restore memory references, we need to insert these values again
+    // Some letstmts are lost after replacing memory references with mem_channels,
+    // to restore memory references, we need to insert these letstmts again
     Stmt rebuild_letstmt(string channel, Type buf_t, int dims, Stmt body) {
         for (auto &p : letstmts_backup) {
             if (extract_before_tokens(p.first, 2) != channel)
                 continue;
 
-            string type = extract_last_token(p.first);
-            // internal_assert(type=="buffer" || type=="min" || type=="extent" || type=="stride")
-            //     << "Unexpected let statement \n";
+            string type = extract_token(p.first, 3);
             if (type == "buffer") {
                 body = rebuild_buffer_stmt(channel, buf_t, dims, body);
                 continue;
@@ -1034,9 +1046,9 @@ private:
             Expr value = p.second;
             if (type == "stride") {
                 string last_dim = prefix + "." + to_string(idx - 1);
-                Expr cur_dim = Variable::make(Int(32), p.first);
-                value = (idx == 0) ? cur_dim * cgs_for_mem_channels[channel].size
-                            : substitute(last_dim, cur_dim, value);
+                Expr curr_dim = Variable::make(Int(32), p.first);
+                value = (idx == 0) ? curr_dim * cgs_for_mem_channels[channel].size
+                                   : substitute(last_dim, curr_dim, value);
             }
             body = LetStmt::make(name, value, body);
             if (idx == 0) {
@@ -1069,7 +1081,7 @@ private:
         return offsets;
     }
 
-    // Get the size with a given element in a given CGS variable
+    // Get the size of a given element in a given CGS variable
     int get_cgs_element_size(int type_id, int elem_id) {
         const vector<Type> &entry = GeneratedStructType::structs[type_id].second;
         return entry[elem_id].bits() /8;
@@ -1081,8 +1093,7 @@ public:
             // Initial all the variables
             in_function = true;
             on_device = false;
-            internal_assert(serial_loops.empty());
-            internal_assert(unrolled_loops.empty());
+            unrolled_loops.clear();
             current_loop.clear();
             loop_enclosing_mem_channel_access.clear();
             num_mem_channel_accesses = 0;
@@ -1091,12 +1102,20 @@ public:
         } else {
             in_function = false;
         }
-        return IRMutator::visit(op);
+        Stmt body = mutate(op->body);
+        if (op->is_producer) {
+            if (!loop_enclosing_mem_channel_access.empty() && !on_device) {
+                // Allocate the counter for host function
+                loop_enclosing_mem_channel_access.clear();
+                body = Allocate::make("addr.temp", Int(32), MemoryType::Auto, {}, const_true(), body);
+            }
+        }
+        return ProducerConsumer::make(op->name, op->is_producer, body);
     }
 
     Stmt visit(const Provide *op) override {
-        // These temp variables are generated after combining channels,
-        // and no longer needed for memory references
+        // The temporary elements will be combined togehter,
+        // so we leave the original reference to it empty
         if (!on_device && ends_with(op->name, ".temp")) {
             internal_assert(op->values[0].as<Load>());
             temp_val[op->name] = op->values[0];
@@ -1105,11 +1124,10 @@ public:
         return IRMutator::visit(op);
     }
 
-    // For path condition: we track only IfThenElse, not Select, because channel writes do not happen inside Select,
-    // and we assume channel reads have the same condition with channel writes.
+    // The memory channel accesses can only be guarded by IfThenElse node.
+    // Though some of them are inside Select node, it is to merge the partitions, not divert control flow.
     Stmt visit(const IfThenElse *op) override {
         if (!in_function) {
-            // We do not gather condition outside of a function.
             return IRMutator::visit(op);
         }
         Expr old_condition = path_condition;
@@ -1132,69 +1150,31 @@ public:
             return IRMutator::visit(op);
         }
 
-        bool prev_on_device = on_device;
         if (ends_with(op->name, ".run_on_device")) {
             on_device = true;
         }
-
-        string prev_loop;
-        int prev_num_mem_channel_accesses = 0;
-        if ((op->for_type == ForType::Serial) || (op->for_type == ForType::Unrolled) ||
-            (op->for_type == ForType::PragmaUnrolled) || (op->for_type == ForType::DelayUnroll)) {
-            if (op->for_type == ForType::Serial) {
-                serial_loops.push_back(op->name);
-            } else {
-                unrolled_loops.push_back(op->name);
-            }
-            prev_loop = current_loop;
-            current_loop = op->name;
-            prev_num_mem_channel_accesses = num_mem_channel_accesses;
-            num_mem_channel_accesses = 0;
+        if (op->for_type == ForType::Unrolled) {
+            unrolled_loops.push_back(op->name);
         }
-        
+        current_loop = op->name;
         Stmt body = mutate(op->body);
 
-        if ((op->for_type == ForType::Serial) || (op->for_type == ForType::Unrolled) ||
-            (op->for_type == ForType::PragmaUnrolled) || (op->for_type == ForType::DelayUnroll)) {
-            // If the current loop immediately encloses a read/write_mem_channel, increment the address temp
-            // at the end of the loop
-            if (loop_enclosing_mem_channel_access == current_loop) {
-                Stmt inc = Provide::make("addr.temp", {Call::make(Int(32), "addr.temp", {}, Call::Intrinsic) + num_mem_channel_accesses}, {});
-                if (!equal(single_PE_condition, const_true())) {
-                    inc = IfThenElse::make(single_PE_condition, inc);
-                }
-                body = Block::make(body, inc);
+        // At the end of enclosing loop, increase the counter
+        if (loop_enclosing_mem_channel_access == op->name) {
+            // At least one access exists. However, accesses to partitions (with the same address) are not counted
+            int inc_num = num_mem_channel_accesses == 0 ? 1 : num_mem_channel_accesses;
+            Stmt inc = Provide::make("addr.temp", {Call::make(Int(32), "addr.temp", {}, Call::Intrinsic) + inc_num}, {});
+            if (!equal(single_PE_condition, const_true())) {
+                inc = IfThenElse::make(single_PE_condition, inc);
             }
+            body = Block::make(body, inc);
+        }
+
+        if (ends_with(op->name, ".run_on_device") && !loop_enclosing_mem_channel_access.empty()) {
+            // For device function, allocate the counter inside the run_on_device loop
+            body = Realize::make("addr.temp", {Int(32)}, MemoryType::Auto, {}, const_true(), body);
         }
         Stmt s = For::make(op->name, op->min, op->extent, op->for_type, op->device_api, body);
-
-        if ((op->for_type == ForType::Serial) || (op->for_type == ForType::Unrolled) ||
-            (op->for_type == ForType::PragmaUnrolled) || (op->for_type == ForType::DelayUnroll)) {
-            // Allocate and initialize addr before any the serial and unrolled loops
-            if (prev_loop.empty()) {
-                if (!loop_enclosing_mem_channel_access.empty()) {
-                    s = Block::make(Provide::make("addr.temp", {0}, {}), s);
-                    if (on_device) {
-                        s = Realize::make("addr.temp", {Int(32)}, MemoryType::Auto, {}, const_true(), s);
-                    } else {
-                        s = Allocate::make("addr.temp", Int(32), MemoryType::Auto, {}, const_true(), s);
-                    }
-                }
-            }
-
-            if (op->for_type == ForType::Serial) {
-                serial_loops.pop_back();
-            } else {
-                unrolled_loops.pop_back();
-            }
-            current_loop = prev_loop;
-            num_mem_channel_accesses = prev_num_mem_channel_accesses;
-        }
-
-        if (ends_with(op->name, ".run_on_device")) {
-            on_device = prev_on_device;
-        }
-
         return s;
     }
 
@@ -1202,7 +1182,7 @@ public:
         auto it = std::find_if(letstmts_backup.begin(), letstmts_backup.end(),
                                [&](std::pair<string, Expr> &p){ return p.first == op->name; });
         if (it != letstmts_backup.end()) {
-            // To avoid duplication, we remove existing values
+            // LetStmts of this function still exist, remove redundancy
             letstmts_backup.erase(it);
         }
         return IRMutator::visit(op);
@@ -1214,7 +1194,7 @@ public:
             if (!op->type.is_generated_struct()) {
                 body = rebuild_letstmt(op->name, op->type, op->extents.size(), body);
                 return Allocate::make(op->name, op->type, op->memory_type, op->extents,
-                                    op->condition, body, op->new_expr, op->free_function);
+                                      op->condition, body, op->new_expr, op->free_function);
             }
             internal_assert(cgs_for_mem_channels.find(op->name) != cgs_for_mem_channels.end());
             vector<Expr> extents = op->extents;
@@ -1229,13 +1209,15 @@ public:
                 }
             }
             return Allocate::make(op->name, op->type, op->memory_type, op->extents,
-                                op->condition, body, op->new_expr, op->free_function);
+                                  op->condition, body, op->new_expr, op->free_function);
         }
     }
 
     Stmt visit(const Realize *op) override {
-        if (!on_device && ends_with(op->name, ".temp"))
+        if (!on_device && ends_with(op->name, ".temp")) {
+            // Eliminate temporary nodes allocated for struct fields
             return mutate(op->body);
+        }
         return IRMutator::visit(op);
     }
 
@@ -1248,35 +1230,38 @@ public:
                 loop_enclosing_mem_channel_access = current_loop;
                 vector<string> unrolled_loops_without_terms;
                 check_is_single_PE(on_device, path_condition, unrolled_loops, {}, single_PE_condition, unrolled_loops_without_terms);
+
                 vector<Expr> args = call->args;
                 internal_assert(args[0].as<StringImm>());
-                string name = args[0].as<StringImm>()->value;
+                auto name = args[0].as<StringImm>()->value;
                 in_mem_channel = name;
-                Expr value = mutate(args[1]);
+                auto value = mutate(args[1]);
+                auto p_call = value.as<Call>();
 
                 Expr i = mutate(Call::make(Int(32), "addr.temp", {}, Call::Intrinsic));
-                auto make_cgs = value.as<Call>();
                 Stmt s;
-                if (!make_cgs || !make_cgs->is_intrinsic(Call::make_struct)) {
+                if (!p_call || !p_call->is_intrinsic(Call::make_struct)) {
                     int lanes = value.type().lanes();
-                    Expr idx = lanes <= 1 ? i : Ramp::make(i*lanes, 1, lanes);
-                    s = Store::make(name, value, idx, call->param,
+                    Expr index = lanes <= 1 ? i : Ramp::make(i*lanes, 1, lanes);
+                    s = Store::make(name, value, index, call->param,
                                     const_true(value.type().lanes()), ModulusRemainder()*lanes);
                 } else {
-                    auto offsets = get_cgs_offsets(make_cgs->type.bits());
+                    auto offsets = get_cgs_offsets(p_call->type.bits());
                     auto cgs_sz = offsets.back();
 
                     // Replace each field in the CGS with a store statement
-                    for (size_t j = 0; j < make_cgs->args.size(); j++) {
-                        auto elem = make_cgs->args[j].as<Call>();
-                        auto elem_sz = get_cgs_element_size(make_cgs->type.bits(), j);
+                    for (size_t j = 0; j < p_call->args.size(); j++) {
+                        auto elem = p_call->args[j].as<Call>();
+                        auto elem_sz = get_cgs_element_size(p_call->type.bits(), j);
                         internal_assert(elem && temp_val.find(elem->name) != temp_val.end());
                         Stmt store = Store::make(name, temp_val[elem->name], (i * cgs_sz + offsets[j]) / elem_sz,
                                                  call->param, const_true(), ModulusRemainder());
                         s = !s.defined() ? store : Block::make(s, store);
                     }
                 }
-                num_mem_channel_accesses++;
+                if (!get_number_of_a_channel(name)) {
+                    num_mem_channel_accesses++;
+                }
                 in_mem_channel.clear();
                 return s;
             }
@@ -1292,13 +1277,17 @@ public:
             loop_enclosing_mem_channel_access = current_loop;
             vector<string> unrolled_loops_without_terms;
             check_is_single_PE(on_device, path_condition, unrolled_loops, {}, single_PE_condition, unrolled_loops_without_terms);
+
             internal_assert(op->args[0].as<StringImm>());
             string name = op->args[0].as<StringImm>()->value;
             Expr addr = mem_addr.at(name);
             Expr i = mutate(addr);
             int lanes = op->type.lanes();
-            Expr e = Load::make(op->type, name, lanes <= 1 ? i : Ramp::make(i*lanes, 1, lanes), op->image, op->param, const_true(op->type.lanes()), ModulusRemainder()*lanes);
-            num_mem_channel_accesses++;
+            Expr e = Load::make(op->type, name, lanes <= 1 ? i : Ramp::make(i*lanes, 1, lanes),
+                                op->image, op->param, const_true(op->type.lanes()), ModulusRemainder()*lanes);
+            if (!get_number_of_a_channel(name)) {
+                num_mem_channel_accesses++;
+            }
             return e;
         } else if (op->is_intrinsic(Call::make_struct) && !in_mem_channel.empty()) {
             if (cgs_for_mem_channels.find(in_mem_channel) == cgs_for_mem_channels.end()) {
@@ -1367,6 +1356,13 @@ Stmt flatten_outer_loops(Stmt s, string &loop_lvl, const std::map<std::string, F
     FlattenOuterLoops fol(loop_lvl);
     s = fol.mutate(s);
 
+    std::set<string> funcs;
+    for(auto entry : env){
+        if (entry.second.place() == Place::Device) {
+            funcs.insert(entry.first);
+        }
+    }
+    s = remove_lets(s, false, true, true, true, funcs);
     debug(2) << "IR after outer loop flattening ...\n\n" << s << "\n";
 
     return s;
