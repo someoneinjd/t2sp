@@ -895,14 +895,8 @@ private:
             if (!params.empty()) {
                 internal_assert(params.size() == 1);
                 string loop = params[0].loop_name;
-                internal_assert(current_loops.back() == loop);
-                current_loops.pop_back();
-                current_extents.pop_back();
-                // There are two virtual loops, one for partitions and the other for stride, to generate addresses
-                current_loops.push_back(".partitions");
-                current_extents.push_back(Expr(params[0].num_partitions));
-                current_loops.push_back(loop);
-                current_extents.push_back(Expr(params[0].stride));
+                internal_assert(current_loops.back() == loop + ".t");
+                current_loops.back() = loop;
             }
             Expr inner_loops_extents_prod = Expr(1); // product of the extents of the non-reuse inner loops of the current loop level
             Expr reuse_loops_extents_prod = Expr(1); // product of the extents of contiguous reuse loops immediately enclosed by the current loop level
@@ -1019,7 +1013,7 @@ private:
             builder.extents.push_back(extent_var[i]);
             builder.strides.push_back(stride_var[i]);
         }
-        builder.channel = get_number_of_a_channel(name);
+        builder.channel = get_number_of_mem_channel(name);
         return LetStmt::make(name + ".buffer", builder.build(), body);
     }
 
@@ -1259,7 +1253,7 @@ public:
                         s = !s.defined() ? store : Block::make(s, store);
                     }
                 }
-                if (!get_number_of_a_channel(name)) {
+                if (!get_number_of_mem_channel(name)) {
                     num_mem_channel_accesses++;
                 }
                 in_mem_channel.clear();
@@ -1285,7 +1279,7 @@ public:
             int lanes = op->type.lanes();
             Expr e = Load::make(op->type, name, lanes <= 1 ? i : Ramp::make(i*lanes, 1, lanes),
                                 op->image, op->param, const_true(op->type.lanes()), ModulusRemainder()*lanes);
-            if (!get_number_of_a_channel(name)) {
+            if (!get_number_of_mem_channel(name)) {
                 num_mem_channel_accesses++;
             }
             return e;

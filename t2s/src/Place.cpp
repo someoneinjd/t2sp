@@ -17,6 +17,7 @@
 * SPDX-License-Identifier: BSD-2-Clause-Patent
 *******************************************************************************/
 #include "../../Halide/src/Simplify.h"
+#include "./PatternMatcher.h"
 #include "./Place.h"
 #include "./BuildCallRelation.h"
 #include "./DebugPrint.h"
@@ -212,12 +213,9 @@ private:
         if (it != channel2write_args.end()) {
             Stmt write_call;
             vector<Expr> values;
-            int num_writes = 0;
             while (it != channel2write_args.end()) {
                 for (size_t i = 0; i < op->values.size(); i++) {
-                    if (num_writes == 0) {
-                        values.push_back(mutate(op->values[i]));
-                    }
+                    values.push_back(mutate(op->values[i]));
                     vector<Expr> args(it->second);
                     string name = op->values.size() == 1 ? it->first + ".channel" : it->first + "." + std::to_string(i) + ".channel";
                     args.insert(args.begin(), values[i]);
@@ -225,23 +223,8 @@ private:
                     Stmt tmp = Evaluate::make(Call::make(values[i].type(), Call::write_channel, args, Call::Intrinsic));
                     write_call = write_call.defined() ? Block::make(write_call, tmp) : tmp;
                 }
-                num_writes++;
                 it = std::find_if(++it, channel2write_args.end(),
                                   [&](const std::pair<string, vector<Expr>> &kv){ return extract_first_token(kv.first) == op->name; });
-            }
-            if (num_writes > 1) {
-                // Eliminate redundant read operations
-                string name = op->name + ".temp";
-                vector<Type> types;
-                for (size_t i = 0; i < op->values.size(); i++) {
-                    types.push_back(values[i].type());
-                    Expr read_from_temp = Call::make(values[i].type(), name, {}, Call::Intrinsic, FunctionPtr(), i);
-                    SubstituteExpr se(values[i], read_from_temp);
-                    write_call = se.mutate(write_call);
-                }
-                Stmt write_to_temp = Provide::make(name, values, {});
-                write_call = Block::make(write_to_temp, write_call);
-                write_call = Realize::make(name, types, MemoryType::Auto, {}, const_true(), write_call);
             }
             return write_call;
         } else {
@@ -1117,6 +1100,8 @@ Stmt replace_references_with_channels(Stmt s, const std::map<std::string, Functi
     map<string, vector<Expr>> channel2read_args;
     identify_funcs_outputting_to_channels(s, env, reverse_call_graph, global_bounds, channel2bounds, channel2write_args, channel2read_args);
 
+    s = rewrite_memory_partition(s, env);
+    debug(4) << "After rewriting memory partition:\n" << s << "\n\n";
     ReplaceReferencesWithChannels replacer(channel2bounds, channel2write_args, channel2read_args, env);
     s = replacer.mutate(s);
     return s;

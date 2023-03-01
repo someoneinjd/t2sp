@@ -240,7 +240,7 @@ uint32_t closest_power_of_two(uint32_t n)
     return 1 << count;
 }
 
-int get_number_of_a_channel(string name) {
+int get_number_of_mem_channel(string name) {
     if (ends_with(name, ".mem_channel")) {
         name = remove_postfix(name, ".mem_channel");
     }

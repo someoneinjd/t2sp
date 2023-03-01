@@ -24,7 +24,10 @@
 namespace Halide {
 namespace Internal {
 
+using std::string;
+
 Stmt match_patterns(Stmt s);
+Stmt rewrite_memory_partition(Stmt s, const std::map<string, Function> &env);
 
 }
 }

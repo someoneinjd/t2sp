@@ -578,6 +578,13 @@ void make_zero_dims(const Function               &func,
     while (i < outermost_non_zero_dim) {
         i = make_one_group_of_zero_dims(func, dependences, new_extents, i, outermost_non_zero_dim, alloc);
     }
+    // If any dimension is DirectAccess, we disable rotate.
+    auto it = std::find(alloc.strategy.begin(), alloc.strategy.end(), RegStrategy::DirectAccess);
+    if (it != alloc.strategy.end()) {
+        for (auto &s : alloc.strategy) {
+            if (s == RegStrategy::Rotate) s = RegStrategy::DirectAccess;
+        }
+    }
 }
 
 // Linearize a specific part of the distance vector.

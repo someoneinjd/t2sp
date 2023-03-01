@@ -29,20 +29,23 @@
     #define KK          1
 #else // FPGA
     #ifdef TINY // For verifying correctness only
-        #define KK          32
-        #define II          32
-        #define I           32
-        #define K           32
+        #define III         32
+        #define II          8
+        #define I           16
+        #define KK          256
+        #define K           16
     #elif S10
-        #define KKK         1
         #define III         64
-        #define II          16
-        #define KK          1024
+        #define II          8
+        #define I           16
+        #define KK          512
+        #define K           16
     #else
-        #define KK          32
-        #define II          32
-        #define I           32
-        #define K           32
+        #define III         32
+        #define II          8
+        #define I           16
+        #define KK          256
+        #define K           16
     #endif
 #endif
 

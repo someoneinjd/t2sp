@@ -2660,9 +2660,9 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::GatherShiftRegsAllocates::visit(const
                 bounds_str = "[" + std::to_string(e_extent->value) + "]" + bounds_str;
             }
             rhs << type << " ";
-            // if (op->memory_type == MemoryType::Register) {
-            //     rhs << "__attribute__((register)) ";
-            // }
+            if (op->memory_type == MemoryType::Register) {
+                rhs << "__attribute__((register)) ";
+            }
             rhs << parent->print_name(op->name) << bounds_str << ";\n";
             std::vector<std::string> names = split_string(op->name, ".");
             shift_regs_allocates[names[0]].push_back(rhs.str());
@@ -2741,9 +2741,9 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Realize *op) {
             // do_indent();
             std::string name = op->name;
             stream << get_indent() << print_type(op->types[i]) << " ";
-            // if (op->memory_type == MemoryType::Register) {
-            //     stream << "__attribute__((register)) ";
-            // }
+            if (op->memory_type == MemoryType::Register) {
+                stream << "__attribute__((register)) ";
+            }
             stream << print_name(name) << string_bound << ";\n";
         }
         print_stmt(op->body);
