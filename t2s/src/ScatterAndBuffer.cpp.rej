@@ -1,0 +1,8 @@
+diff a/t2s/src/ScatterAndBuffer.cpp b/t2s/src/ScatterAndBuffer.cpp	(rejected hunks)
+@@ -2195,4 +2195,4 @@ Stmt scatter_buffer(Stmt s, const std::map<std::string, Function> &env){
+ }
+ 
+ }
+-}
+\ No newline at end of file
++}
