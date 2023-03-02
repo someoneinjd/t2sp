@@ -31,9 +31,9 @@
     #ifdef TINY // For verifying correctness only
         #define III         32
         #define II          8
-        #define I           16
+        #define I           128
         #define KK          256
-        #define K           16
+        #define K           128
     #elif S10
         #define III         64
         #define II          8
@@ -43,9 +43,9 @@
     #else
         #define III         32
         #define II          8
-        #define I           16
+        #define I           128
         #define KK          256
-        #define K           16
+        #define K           128
     #endif
 #endif
 

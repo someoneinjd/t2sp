@@ -584,9 +584,10 @@ class BufferInserter: public IRMutator{
                 new_body = Block::make(init_counter, new_body);
             }
 
-            // realize counters and buffers 
+            // realize counters and buffers
+            Type bank_type = Int(0, 1);
             new_body = Realize::make(
-                buffer_name,{data_type},MemoryType::Auto,buffer_dims,const_true(),new_body
+                buffer_name,{data_type, bank_type},MemoryType::Auto,buffer_dims,const_true(),new_body
             );
             new_body = Realize::make(
                 cycle_name, {Int(32)}, MemoryType::Auto,cycle_dims, const_true(),new_body

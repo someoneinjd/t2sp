@@ -85,14 +85,13 @@ int main()
     Add.set_bounds(iii, 0, III)
        .set_bounds(ii,  0, II)
        .set_bounds(i,   0, I);
-    Add.space_time_transform(iii);
+    // Add.space_time_transform(iii);
 
     // Input path of matrix A
     Func A_serializer("A_serializer", Place::Host), DA("DA", Place::Device), SA("SA", Place::Device);
     UpFx.isolate_producer_chain(A, A_serializer, DA);
     LowFx.isolate_producer_chain(A, DA, SA);
-    DA.min_depth(128);
-    SA.min_depth(128);
+    A_serializer.bound_storage(k, 0, K/2+1);
 #ifdef S10
     A_serializer.partition(A, DA, iii, 4);
 #else
@@ -100,13 +99,22 @@ int main()
 #endif
     SA.scatter(DA, iii, ScatterStrategy::ForwardVector);
     SA.addressable_buffer(DA, i, {iii+III*ii, kk}, {kk, iii+III*ii});
+    DA.min_depth(128);
+    SA.min_depth(128);
 
     // Input path of vector X
-    Func XUp_serializer("XUp_serializer", Place::Host), DX_Up("DX_Up", Place::Device);
-    Func XLow_serializer("XLow_serializer", Place::Host), DX_Low("DX_Low", Place::Device);
-    UpFx.isolate_producer_chain(x, XUp_serializer, DX_Up);
-    LowFx.isolate_producer_chain(x, XLow_serializer, DX_Low);
-    XLow_serializer.bound_storage(i, 0, I);
+    Func XUp_serializer("XUp_serializer", Place::Host), DX_Up("DX_Up", Place::Device), SX_Up("SX_Up", Place::Device);
+    Func XLow_serializer("XLow_serializer", Place::Host), DX_Low("DX_Low", Place::Device), SX_Low("SX_Low", Place::Device);
+    UpFx.isolate_producer_chain(x, XUp_serializer, DX_Up, SX_Up);
+    LowFx.isolate_producer_chain(x, XLow_serializer, DX_Low, SX_Low);
+    XUp_serializer.remove(ii, iii);
+    XUp_serializer.bound_storage(k, 0, K/2+1);
+    DX_Up.remove(ii, iii);
+    SX_Up.buffer(DX_Up, k);
+    XLow_serializer.remove(ii, iii);
+    XLow_serializer.bound_storage(i, 0, I/2+1);
+    DX_Low.remove(ii, iii);
+    SX_Low.buffer(DX_Low, i);
     DX_Up.min_depth(128);
     DX_Low.min_depth(128);
 
