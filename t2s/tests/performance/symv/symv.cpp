@@ -36,7 +36,8 @@ int main()
     #define P_T             iii,   ii, kk,      i,   k
     #define P_T_iii_minus_1 iii-1, ii, kk,      i,   k
     #define P_T_kk_minus_1  iii,   ii, kk-1,    i,   k
-    #define P_T_k_minus_1   iii,   ii, kk+KK-1, i,   k-1
+    #define P_s0            iii,   ii,          i,   k
+    #define P_T_k_minus_1   iii,   ii,          i,   k-1
 
     // Linearized addresses
     #define lin_k           (kk + KK*k)
@@ -54,7 +55,8 @@ int main()
     Var kk("kk"), iii("iii"), ii("ii"), k("k"), i("i");
     URE UpFx("UpFx", TTYPE, {P}), LowFx("LowFx", TTYPE, {P_T});
     URE UpMV("UpMV", TTYPE, {P}), UpMVOut("UpMVOut", TTYPE, {P_out});
-    URE LowMV("LowMV", TTYPE, {P_T}), LowMVOut("LowMVOut", TTYPE, {P_out});
+    URE LowMV_s0("LowMV_s0", TTYPE, {P_T}), LowMVOut_s0("LowMVOut_s0", TTYPE, {P_s0});
+    URE LowMV_s1("LowMV_s1", TTYPE, {P_s0}), LowMVOut_s1("LowMVOut_s1", TTYPE, {P_out});
     URE Add("Add", TTYPE, {P_out});
 
     UpFx(P) = select(iii == 0, x(lin_k), UpFx(P_iii_minus_1));
@@ -64,24 +66,28 @@ int main()
     UpMVOut(P_out) = select(kk == KK-1 && k == K-1, UpMV(P));
 
     LowFx(P_T) = select(iii == 0, x(lin_k), LowFx(P_T_iii_minus_1));
-    LowMV(P_T) = select(kk == 0 && k == 0, 0,
-                    select(kk == 0, LowMV(P_T_k_minus_1), LowMV(P_T_kk_minus_1))
+    LowMV_s0(P_T) = select(kk == 0, 0, LowMV_s0(P_T_kk_minus_1)
                     ) + A(lin_k, lin_i) * LowFx(P_T);
-    LowMVOut(P_out) = select(kk == KK-1 && k == i-1, LowMV(P_T));
+    LowMVOut_s0(P_s0) = select(kk == KK-1, LowMV_s0(P_T));
+    LowMV_s1(P_s0) = select(k == 0, 0, LowMV_s1(P_T_k_minus_1)) + LowMVOut_s0(P_s0);
+    LowMVOut_s1(P_out) = select(k == i-1, LowMV_s1(P_s0));
 
-    Add(P_out) = alpha*select(i == 0, UpMVOut(P_out), UpMVOut(P_out) + LowMVOut(P_out)) + beta*y(lin_i);
+    Add(P_out) = alpha*select(i == 0, UpMVOut(P_out), UpMVOut(P_out) + LowMVOut_s1(P_out)) + beta*y(lin_i);
 
     UpFx.merge_ures(UpMV, UpMVOut);
     UpFx.set_bounds(iii, 0, III)
         .set_bounds(ii,  0, II,  kk,  0, KK)
         .set_bounds(i,   0, I,   k,   i, K-i);
     UpFx.space_time_transform(iii);
-    LowFx.merge_ures(LowMV, LowMVOut);
-    // LowFx.reorder(ii, kk, i, k);
+    LowFx.merge_ures(LowMV_s0, LowMVOut_s0);
     LowFx.set_bounds(iii, 0, III)
          .set_bounds(ii,  0, II,   kk,  0, KK)
          .set_bounds(i,   k, I-k,  k,   0, K);
     LowFx.space_time_transform(iii);
+    LowMV_s1.merge_ures(LowMVOut_s1);
+    LowMV_s1.set_bounds(iii, 0, III, ii, 0, II)
+            .set_bounds(i,   k, I-k, k,  0, K);
+    LowMV_s1.space_time_transform(iii);
     Add.set_bounds(iii, 0, III)
        .set_bounds(ii,  0, II)
        .set_bounds(i,   0, I);
@@ -116,7 +122,9 @@ int main()
     DX_Low.remove(ii, iii);
     SX_Low.buffer(DX_Low, i);
     DX_Up.min_depth(128);
+    SX_Up.min_depth(128);
     DX_Low.min_depth(128);
+    SX_Low.min_depth(128);
 
     // Input path of vector Y
     Func Y_serializer("Y_serializer", Place::Host), DY("DY", Place::Device);
@@ -127,7 +135,8 @@ int main()
     Func deserializer("deserializer", Place::Host), DZ("DZ", Place::Device);
     Add.isolate_consumer_chain(DZ, deserializer);
     UpMVOut.min_depth(128);
-    LowMVOut.min_depth(128);
+    LowMVOut_s0.min_depth(128);
+    LowMVOut_s1.min_depth(128);
     Add.min_depth(128);
 
     // Compile the kernel to an FPGA bitstream, and expose a C interface for the host to invoke

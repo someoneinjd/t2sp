@@ -578,7 +578,7 @@ void make_zero_dims(const Function               &func,
     while (i < outermost_non_zero_dim) {
         i = make_one_group_of_zero_dims(func, dependences, new_extents, i, outermost_non_zero_dim, alloc);
     }
-    // If any dimension is DirectAccess, we disable rotate.
+    // The register will be realized in memory if its dimension is DirectAccess. So we disable data rotation.
     auto it = std::find(alloc.strategy.begin(), alloc.strategy.end(), RegStrategy::DirectAccess);
     if (it != alloc.strategy.end()) {
         for (auto &s : alloc.strategy) {
