@@ -90,7 +90,7 @@ protected:
 
             // Definitions of the struct types.
             std::string structs;
-            
+
             DefineVectorStructTypes(CodeGen_Clear_OpenCL_C* parent) : parent(parent) {}
             Expr mutate(const Expr &expr) override;
             Stmt mutate(const Stmt &stmt) override;
@@ -131,7 +131,7 @@ protected:
         public:
             bool in_if_then_else;       // The current IR is in a branch
             bool conditional_access;    // There is a conditional execution of channel read/write inside the current loop
-            bool irregular_loop_dep;    // There is a irregular loop inside the current loop and the irregular bound 
+            bool irregular_loop_dep;    // There is a irregular loop inside the current loop and the irregular bound
                                         // depends on current loop var
             CheckConditionalChannelAccess(CodeGen_Clear_OpenCL_C* parent, std::string current_loop_name) : parent(parent), current_loop_name(current_loop_name) {
                 in_if_then_else = false;

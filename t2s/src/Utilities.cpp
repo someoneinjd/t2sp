@@ -39,7 +39,7 @@ bool function_is_in_environment(const string &func_name, const map<string, Funct
 string extract_first_token(const string &str) {
     size_t i;
     for (i = 0; i < str.size() && str[i] != '.'; i++) { ; }
-    return str.substr(0, i);    
+    return str.substr(0, i);
 }
 
 string extract_last_token(const string &str) {
@@ -281,29 +281,6 @@ public:
 Expr replace_prefix(const string &old_prefix, const string &new_prefix, const Expr &e) {
     Expr new_value = ReplacePrefix(old_prefix, new_prefix).mutate(e);
     return new_value;
-}
-
-string create_kernel_name(const For *op) {
-    // Remove already useless info from the loop name, so as to get a cleaner kernel name.
-    string loop_name = op->name;
-    string func_name = extract_first_token(loop_name);
-    string kernel_name = "kernel_" + func_name;
-
-    // If the kernel writes to memory, append "_WAIT_FINISH" so that the OpenCL runtime knows to wait for this
-    // kernel to finish.
-    // KernelStoresToMemory checker;
-    // op->body.accept(&checker);
-    //if (checker.stores_to_memory) {
-        // TOFIX: overlay does not work well with this change of name
-        // kernel_name += "_WAIT_FINISH";
-    //}
-
-    for (size_t i = 0; i < kernel_name.size(); i++) {
-        if (!isalnum(kernel_name[i])) {
-            kernel_name[i] = '_';
-        }
-    }
-    return kernel_name;
 }
 
 } // namespace Internal

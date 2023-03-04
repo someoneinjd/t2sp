@@ -102,9 +102,6 @@ bool is_power_of_two(uint32_t n);
 // The power of two closest to n. n is required to be a positive number.
 uint32_t closest_power_of_two(uint32_t n);
 
-// Extract the loop name (must ended with ".run_on_device") and create a kernel name
-std::string create_kernel_name(const For *op);
-
 // Extract the number of DRAM channel in which a buffer is allocated
 int get_number_of_mem_channel(std::string name);
 

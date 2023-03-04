@@ -171,7 +171,7 @@ void CodeGen_OneAPI_Dev::init_module() {
     src_stream_oneapi << "#include \"pipe_array.hpp\"\n";
     src_stream_oneapi << "using namespace sycl;\n\n";
 
-    // (TODO) Comment Not Needed sections for OneAPI Raw Code Generator as it does not currently have a runtime 
+    // (TODO) Comment Not Needed sections for OneAPI Raw Code Generator as it does not currently have a runtime
 
     src_stream_oneapi << "#pragma OPENCL FP_CONTRACT ON\n";
 
@@ -500,7 +500,7 @@ void CodeGen_OneAPI_Dev::init_module() {
                        << string(20, ' ') << "break;\n";
             src_stream_oneapi << string(16, ' ') << "}\n";
         }
-        
+
         src_stream_oneapi << "(\n"
             << "            }\n"
             << "        }\n"
@@ -1673,9 +1673,9 @@ void CodeGen_OneAPI_Dev::CodeGen_OneAPI_C::visit(const Call *op) {
                     if (i < op->args.size() - 1) rhs << ", ";
                 }
                 rhs << "}";
-                print_assignment(op->type, rhs.str());   
+                print_assignment(op->type, rhs.str());
             }
-            print_assignment(op->type, rhs.str());            
+            print_assignment(op->type, rhs.str());
         } else if(false){
             // CodeGen_C Implementation
             ostringstream rhs;
@@ -2668,7 +2668,7 @@ void CodeGen_OneAPI_Dev::CodeGen_OneAPI_C::add_kernel(Stmt s,
         open_scope();
 
         print(s);
-        
+
         close_scope(name);
 
         // Undef all the buffer address spaces, in case they're different in another kernel.
@@ -2677,7 +2677,7 @@ void CodeGen_OneAPI_Dev::CodeGen_OneAPI_C::add_kernel(Stmt s,
         //         stream << "#undef " << print_name(args[i].name) << "\n";
         //     }
         // }
-        
+
         stream << "\n\n";
         // indent -= 2;
         return;
@@ -2693,12 +2693,12 @@ void CodeGen_OneAPI_Dev::CodeGen_OneAPI_C::add_kernel(Stmt s,
         s.accept(&storechecker);
 
         // The idea of where to place memory copies is as followes
-        // KEY		
-        // load	store	
+        // KEY
+        // load	store
         // 0	0	Do Nothing, no loads or stores used
         // 1	0	host->device & before
         // 0	1	device->host & after
-        // 1	1	error 
+        // 1	1	error
 
         assert( !(loadcheker.stores_to_memory && storechecker.stores_to_memory) );
 
@@ -2711,7 +2711,7 @@ void CodeGen_OneAPI_Dev::CodeGen_OneAPI_C::add_kernel(Stmt s,
                 if (args[i].is_buffer) {
                     // e.g. q_device.submit([&](handler& h) { h.memcpy(_I_serializer_device, _I_serializer_host,  _deserializer->size_in_bytes() ); }).wait();
                     stream << get_indent() << "std::cout << \"// host->device memcpy\\n\";\n";
-                    stream << get_indent() << "q_" << name << ".submit([&](handler& h){ h.memcpy( " 
+                    stream << get_indent() << "q_" << name << ".submit([&](handler& h){ h.memcpy( "
                             << print_name(args[i].name) << "_device, "   // dst
                             <<  print_name(args[i].name) << "_host, "    // src
                             <<  print_name(args[i].name) << "_size"      // size
@@ -2850,7 +2850,7 @@ void CodeGen_OneAPI_Dev::CodeGen_OneAPI_C::add_kernel(Stmt s,
                     // e.g. q_device.submit([&](handler& h) { h.memcpy(_I_serializer_device, _I_serializer_host,  _deserializer->size_in_bytes() ); }).wait();
                     stream << "\n\n";
                     stream << get_indent() << "std::cout << \"// device->host memcpy\\n\";\n";
-                    stream << get_indent() << "q_" << name << ".submit([&](handler& h){ h.memcpy( " 
+                    stream << get_indent() << "q_" << name << ".submit([&](handler& h){ h.memcpy( "
                             << print_name(args[i].name) << "_host, "            // dst
                             << print_name(args[i].name) << "_device, "          // src
                             << print_name(args[i].name) << "_size"              // size
@@ -3134,7 +3134,7 @@ void CodeGen_OneAPI_Dev::CodeGen_OneAPI_C::add_kernel(Stmt s,
     //         s.accept(&device_run_checker);
     //         // Emmit Host Code
     //         if(device_run_checker.is_run_on_device){
-    //             function_top << get_indent() << "sycl::queue q_" << k_name 
+    //             function_top << get_indent() << "sycl::queue q_" << k_name
     //                         << "(dev, dpc_common::exception_handler, {sycl::property::queue::enable_profiling(), sycl::property::queue::in_order()} );\n";
     //         }
     //     }
@@ -3152,18 +3152,18 @@ void CodeGen_OneAPI_Dev::CodeGen_OneAPI_C::add_kernel(Stmt s,
     //     function_top << get_indent() << "std::cout << \"// Allocating memory\\n\";\n";
     //     // for(size_t i = 0, j = 0, i < buffer_input_args.size() && j < buffer_args.size(); i++, j++ ){
     //     //     std::string halide_buffer_arg = print_halide_buffer_name( buffer_input_args[i].name );
-    //     //     std::string kernel_buffer_arg = print_name(buffer_args[i].name); 
+    //     //     std::string kernel_buffer_arg = print_name(buffer_args[i].name);
     //     // }
 
     //     // buffer_input_args are from the generall wrapper
     //     // buffer_args are from the kernels
 
-    //     // define the neccessary host gerneral pointers 
+    //     // define the neccessary host gerneral pointers
     //     // e.g. T* <name>_host = <Name>_halide_buffer->begin();
     //     for(size_t i = 0, j = 0; i < buffer_input_args.size() && j < buffer_args.size(); i++, j++ ){
     //         std::string halide_buffer_arg = print_halide_buffer_name( buffer_input_args[i].name );
     //         function_top << get_indent() << print_type(buffer_input_args[i].type) << " *" << print_name(buffer_input_args[i].name)
-    //                         << "_host = " << print_halide_buffer_name(buffer_input_args[i].name) << "->begin();\n";  
+    //                         << "_host = " << print_halide_buffer_name(buffer_input_args[i].name) << "->begin();\n";
     //         function_top << get_indent() << print_type(buffer_input_args[i].type) << " *" << print_name(buffer_input_args[i].name)
     //                     << "_device = (" << print_type(buffer_input_args[i].type) << "*)sycl::malloc_device("
     //                     <<  print_halide_buffer_name(buffer_input_args[i].name) << "->size_in_bytes(), q_device);\n";
@@ -3181,7 +3181,7 @@ void CodeGen_OneAPI_Dev::CodeGen_OneAPI_C::add_kernel(Stmt s,
     //             std::string curr_ptr = ptr_vec[k];
     //             if( (defined_pointers.find(curr_ptr) == defined_pointers.end()) ){
 
-    //                 // find the matching input buffer if you can either get the size for the malloc or 
+    //                 // find the matching input buffer if you can either get the size for the malloc or
     //                 int input_buffer_index = -1;
     //                 for(size_t j = 0; j < buffer_input_args.size(); j++){
     //                     if( buffer_input_args[j].name.find_last_of(ptr_base) != std::string::npos ){
@@ -3355,7 +3355,7 @@ std::string CodeGen_OneAPI_Dev::compile_oneapi(const Module &input){
     init_module();
 
     std::ostringstream EmitOneAPIFunc_stream;
-    EmitOneAPIFunc em_visitor(&one_clc, EmitOneAPIFunc_stream, one_clc.get_target() ); 
+    EmitOneAPIFunc em_visitor(&one_clc, EmitOneAPIFunc_stream, one_clc.get_target() );
 
     // OneAPI compile_to_devsrc() implementation
     // see CodeGen_LLVM::compile_to_devsrc(const Module &input) for refrence
@@ -3365,7 +3365,7 @@ std::string CodeGen_OneAPI_Dev::compile_oneapi(const Module &input){
 
     // (NOTE) implementation is modeled after CodeGen_LLVM::compile_to_devsrc(const Module &input);
     {
-        // init_codegen(input.name(), input.any_strict_float()); // Not Used 
+        // init_codegen(input.name(), input.any_strict_float()); // Not Used
         // internal_assert(module && context && builder) << "The CodeGen_LLVM subclass should have made an initial module before calling CodeGen_LLVM::compile\n";
         // add_external_code(input);
 
@@ -3399,12 +3399,12 @@ std::string CodeGen_OneAPI_Dev::compile_oneapi(const Module &input){
 void CodeGen_OneAPI_Dev::compile_oneapi_devsrc(const Module &input){
     // (NOTE) implementation is modeled after CodeGen_LLVM::compile_to_devsrc(const Module &input);
 
-    // init_codegen(input.name(), input.any_strict_float()); // Not Used 
+    // init_codegen(input.name(), input.any_strict_float()); // Not Used
     // internal_assert(module && context && builder) << "The CodeGen_LLVM subclass should have made an initial module before calling CodeGen_LLVM::compile\n";
     // add_external_code(input);
 
     // for (const auto &b : input.buffers()) {
-    if (input.buffers().size() > 0) {        
+    if (input.buffers().size() > 0) {
         // compile_buffer(b);
         // compile_oneapi_buffer(b);
         internal_assert(false) << "OneAPI has no implementation to compile buffers at this time.\n";
@@ -3431,22 +3431,22 @@ void CodeGen_OneAPI_Dev::compile_oneapi_func(const LoweredFunc &f, const std::st
     gather_shift_regs_allocates(&f.body);
 
     std::ostringstream EmitOneAPIFunc_stream;
-    EmitOneAPIFunc em_visitor(&one_clc, EmitOneAPIFunc_stream, one_clc.get_target() ); 
+    EmitOneAPIFunc em_visitor(&one_clc, EmitOneAPIFunc_stream, one_clc.get_target() );
     em_visitor.gather_shift_regs_allocates(&f.body);
 
     // (TODO)
     // Call the base implementation to create the function.
     // In OneAPI Case, That usually means calling the following chain
-    //    CodeGen_GPU_Host<CodeGen_X86> -> 
+    //    CodeGen_GPU_Host<CodeGen_X86> ->
     //    CodeGen_X86::compile_func() ->
-    //    class CodeGen_X86 : public CodeGen_Posix -> 
+    //    class CodeGen_X86 : public CodeGen_Posix ->
     //    class CodeGen_Posix : public CodeGen_LLVM ->
     //    CodeGen_LLVM::compile_func()
     // CodeGen_CPU::compile_func(f, simple_name, extern_name);
 
     // In OneAPI Case to follow the C implementaiton for DPC++
     // follow the CodeGen_C.cpp implementation to compile a func
-    // i.e. void CodeGen_C::compile(const LoweredFunc &f) 
+    // i.e. void CodeGen_C::compile(const LoweredFunc &f)
     {
         // Generate the function declaration and argument unpacking code.
         // begin_func(f);
@@ -3548,7 +3548,7 @@ void CodeGen_OneAPI_Dev::EmitOneAPIFunc::compile(const LoweredFunc &f){
         // If the function isn't public, mark it static.
         stream << "static ";
     }
-    
+
     // (TODO) Check that HALIDE_FUNCTION_ATTRS is necessary or not
     // stream << "HALIDE_FUNCTION_ATTRS\n";
     stream << "double " << simple_name << "(const sycl::device_selector &deviceSelector";
@@ -3594,7 +3594,7 @@ void CodeGen_OneAPI_Dev::EmitOneAPIFunc::compile(const LoweredFunc &f){
     stream << get_indent() << "for(unsigned int i = 0; i < oneapi_kernel_events.size(); i++){ oneapi_kernel_events.at(i).wait(); };\n";
 
 
-    // Return execution time of the kernels. 
+    // Return execution time of the kernels.
     stream << get_indent() << "std::cout << \"// return the kernel execution time in nanoseconds\\n\";\n";
     stream  << ""
             << get_indent() << "if(oneapi_kernel_events.size() > 0){\n"
@@ -3639,6 +3639,36 @@ void CodeGen_OneAPI_Dev::EmitOneAPIFunc::compile(const LoweredFunc &f){
     }
 
 }
+
+
+// EmitOneAPIFunc
+std::string CodeGen_OneAPI_Dev::EmitOneAPIFunc::create_kernel_name(const For *op) {
+    // Remove already useless info from the loop name, so as to get a cleaner kernel name.
+    std::string loop_name = op->name;
+    std::string func_name = extract_first_token(loop_name);
+    std::string kernel_name;
+    {
+        using namespace llvm;
+        kernel_name = unique_name("kernel_" + func_name);
+    }
+
+    // If the kernel writes to memory, append "_WAIT_FINISH" so that the OpenCL runtime knows to wait for this
+    // kernel to finish.
+    // KernelStoresToMemory checker;
+    // op->body.accept(&checker);
+    // if (checker.stores_to_memory) {
+    //     // TOFIX: overlay does not work well with this change of name
+    //     // kernel_name += "_WAIT_FINISH";
+    // }
+
+    for (size_t i = 0; i < kernel_name.size(); i++) {
+        if (!isalnum(kernel_name[i])) {
+            kernel_name[i] = '_';
+        }
+    }
+    return kernel_name;
+}
+
 
 void CodeGen_OneAPI_Dev::EmitOneAPIFunc::create_kernel_wrapper(const std::string &name, std::string q_device_name, const std::vector<DeviceArgument> &args, bool begining, bool is_run_on_device){
     // (TODO), will need a function wrapper if user wants to ever
@@ -3717,7 +3747,7 @@ void CodeGen_OneAPI_Dev::EmitOneAPIFunc::add_kernel(Stmt s,
     // create kernel wrapper top half
     create_kernel_wrapper(name, queue_name, args, true, device_run_checker.is_run_on_device);
 
-    // Output q.submit kernel code 
+    // Output q.submit kernel code
     DeclareArrays da(this);
     s.accept(&da);
     stream << da.arrays.str();
@@ -3737,12 +3767,12 @@ void CodeGen_OneAPI_Dev::EmitOneAPIFunc::add_kernel(Stmt s,
             // create kernel wrapper top half
             create_kernel_wrapper(name, "q_host", args, true, device_run_checker.is_run_on_device);
 
-            // Output q.submit kernel code 
+            // Output q.submit kernel code
             DeclareArrays da(this);
             s.accept(&da);
             stream << da.arrays.str();
             print(s);
-            
+
             // create kernel wrapper btm half
             create_kernel_wrapper(name, "q_host", args, false, device_run_checker.is_run_on_device);
 
@@ -3754,7 +3784,7 @@ void CodeGen_OneAPI_Dev::EmitOneAPIFunc::add_kernel(Stmt s,
             // create kernel wrapper top half
             create_kernel_wrapper(name, "q_device", args, true, device_run_checker.is_run_on_device);
 
-            // Output q.submit kernel code 
+            // Output q.submit kernel code
             DeclareArrays da(this);
             s.accept(&da);
             stream << da.arrays.str();
@@ -3776,7 +3806,7 @@ void CodeGen_OneAPI_Dev::EmitOneAPIFunc::visit(const For *loop){
     debug(3) << "//!!! EmitOneAPIFunc::visit(const For *loop) FOR LOOP NAME << " << loop->name << "\n";
 
 
-    // The currently_inside_kernel is set to true/false inside the 
+    // The currently_inside_kernel is set to true/false inside the
     // ::add_kerel() function. This prevennts the CodeGen from adding recursively calling it forever
     if(currently_inside_kernel){
         debug(3) << "//!!! EmitOneAPIFunc::visit(const For *loop) FOUND << " << loop->name << "\n";
@@ -3898,7 +3928,7 @@ void CodeGen_OneAPI_Dev::EmitOneAPIFunc::visit(const For *loop){
     }
 
 
-    
+
 
     debug(3) << "//!!! EmitOneAPIFunc::visit(const For *loop) FIRST TIME << " << loop->name << "\n";
 
@@ -3911,8 +3941,8 @@ void CodeGen_OneAPI_Dev::EmitOneAPIFunc::visit(const For *loop){
     {
         using namespace llvm;
         kernel_name = create_kernel_name(loop);
-    
-        // std::string kernel_name = "Kernel_" + loop->name; 
+
+        // std::string kernel_name = "Kernel_" + loop->name;
         // compute a closure over the state passed into the kernel
         HostClosure c(loop->body, loop->name);
         // Determine the arguments that must be passed into the halide function
@@ -3928,8 +3958,8 @@ void CodeGen_OneAPI_Dev::EmitOneAPIFunc::visit(const For *loop){
                             return a.is_buffer < b.is_buffer;
                         }
                     });
-        
-        
+
+
         // (TODO) Verify that not setting the closure arg size will not effect generated code
         // for (size_t i = 0; i < closure_args.size(); i++) {
         //     if (closure_args[i].is_buffer && allocations.contains(closure_args[i].name)) {
@@ -3962,7 +3992,7 @@ void CodeGen_OneAPI_Dev::EmitOneAPIFunc::visit(const Allocate *op) {
         Type size_id_type;
         std::string free_function;
 
-        
+
         if (op->new_expr.defined()) {
             Allocation alloc;
             alloc.type = op->type;
@@ -4012,13 +4042,13 @@ void CodeGen_OneAPI_Dev::EmitOneAPIFunc::visit(const Allocate *op) {
                     << size_id << " * sizeof("
                     << op_type << ")) > ((int64_t(1) << 31) - 1)))\n";
                 open_scope();
-                
+
                 // (TODO) Have some sort of check for the buffer allocaiton here directly in C
                 user_warning << "OneAPI currently does not validate for "
                              << "32-bit signed overflow computing size of allocation " << op->name << "\n";
                 stream << get_indent() << "// OneAPI currently does not validate for "
                              << "32-bit signed overflow computing size of allocation " << op->name << "\n";
-                
+
                 // Below is the original implementaiton from CodeGen_C
 
                 // stream << get_indent();
@@ -4065,9 +4095,9 @@ void CodeGen_OneAPI_Dev::EmitOneAPIFunc::visit(const Allocate *op) {
                     << op_type
                     << ")*" << size_id << ");\n";
                 heap_allocations.push(op->name);
-            } 
+            }
         }
-        
+
         if (!on_stack) {
             // create_assertion(op_name, "assert(false) /* replaced halide_error_out_of_memory */");
             EmitOneAPIFunc::create_assertion(op_name, "None");
@@ -4090,7 +4120,7 @@ void CodeGen_OneAPI_Dev::EmitOneAPIFunc::visit(const Allocate *op) {
                     stream << get_indent() << ext_funcs.halide_device_host_nop_free( print_name(op->name) );
                 } else {
                     // internal_assert(false);
-                    user_warning << "OneAPI: Free " << op->name << " with " << free_function << " to-be-replaced"; 
+                    user_warning << "OneAPI: Free " << op->name << " with " << free_function << " to-be-replaced";
                     UnImplementedExternFuncs.insert( free_function  );
                 }
                 heap_allocations.pop(op->name);
@@ -4098,7 +4128,7 @@ void CodeGen_OneAPI_Dev::EmitOneAPIFunc::visit(const Allocate *op) {
             allocations.pop(op->name);
         }
 
-        close_scope("alloc " + print_name(op->name));       
+        close_scope("alloc " + print_name(op->name));
     }
     return;
 
@@ -4123,7 +4153,7 @@ void CodeGen_OneAPI_Dev::EmitOneAPIFunc::visit(const Allocate *op) {
             //     return;
             // }
 
-            open_scope(); 
+            open_scope();
 
             // debug(2) << "Allocate " << op->name << " on device\n";
             debug(2) << "Allocate " << op->name << " on device w/ memory_type: " << op->memory_type << "\n";
@@ -4134,7 +4164,7 @@ void CodeGen_OneAPI_Dev::EmitOneAPIFunc::visit(const Allocate *op) {
             // It must have a constant size.
             int32_t size = op->constant_allocation_size();
             // user_assert(size > 0)
-            //     << "OneAPI at this time has not implemented the case of allocation of size 0 for: " 
+            //     << "OneAPI at this time has not implemented the case of allocation of size 0 for: "
             //     << op->name << "\n";
 
             if(size == 0){
@@ -4143,10 +4173,10 @@ void CodeGen_OneAPI_Dev::EmitOneAPIFunc::visit(const Allocate *op) {
 
             if(size == 1){
                 stream << get_indent() << print_type(op->type) << ' '
-                    << print_name(op->name) << ";\n";       
+                    << print_name(op->name) << ";\n";
             } else {
                 stream << get_indent() << print_type(op->type) << ' '
-                    << print_name(op->name) << "[" << size << "];\n";               
+                    << print_name(op->name) << "[" << size << "];\n";
             }
 
 
@@ -4271,7 +4301,7 @@ void CodeGen_OneAPI_Dev::EmitOneAPIFunc::visit(const Allocate *op) {
                     << op_type
                     << ")*" << size_id << ");\n";
                 heap_allocations.push(op->name);
-            } 
+            }
         }
 
         if (!on_stack) {
@@ -4292,7 +4322,7 @@ void CodeGen_OneAPI_Dev::EmitOneAPIFunc::visit(const Allocate *op) {
             allocations.pop(op->name);
         }
 
-        close_scope("alloc " + print_name(op->name));               
+        close_scope("alloc " + print_name(op->name));
     }
     return;
 
@@ -4326,7 +4356,7 @@ void CodeGen_OneAPI_Dev::EmitOneAPIFunc::visit(const AssertStmt *op) {
 
         stream << get_indent() << "if (!" << id_cond << ") ";
         open_scope();
-        stream << get_indent() << "std::cout << \"Condition '" 
+        stream << get_indent() << "std::cout << \"Condition '"
                <<  id_cond << "' failed ";
         if(op->message.defined()){
             std::string id_msg = print_expr(op->message);
@@ -4360,21 +4390,21 @@ std::string CodeGen_OneAPI_Dev::EmitOneAPIFunc::print_extern_call(const Call *op
                 // functions that take user context return 0 on success
                 // simple place 0 as the value and run the actual function in the next line
                 rhs << "0; // " << op->name << "(" << with_commas(args) << ") replaced with line(s) below \n";
-                rhs << get_indent() << (ext_funcs.*(search->second))(op); 
+                rhs << get_indent() << (ext_funcs.*(search->second))(op);
             } else {
-                rhs << (ext_funcs.*(search->second))(op) << " /* " << op->name << "(" << with_commas(args) << ") replaced */"; 
+                rhs << (ext_funcs.*(search->second))(op) << " /* " << op->name << "(" << with_commas(args) << ") replaced */";
             }
         } else {
             if((op->name.find("_halide_buffer") != std::string::npos) && !function_takes_user_context(op->name) ){
-                rhs << op->name << "(" << with_commas(args) << ")"; 
+                rhs << op->name << "(" << with_commas(args) << ")";
             } else {
                 // (TODO) check with (target.has_feature(Target::NoAsserts)) as some call external functions
-                rhs << "0; //!!! print_extern_call(): " << op->name << "(" << with_commas(args) << ") to-be-replaced"; 
-                user_warning << "OneAPI: " << op->name << "(" << with_commas(args) << ") to-be-replaced"; 
+                rhs << "0; //!!! print_extern_call(): " << op->name << "(" << with_commas(args) << ") to-be-replaced";
+                user_warning << "OneAPI: " << op->name << "(" << with_commas(args) << ") to-be-replaced";
                 UnImplementedExternFuncs.insert( op->name  );
             }
         }
-        return rhs.str();        
+        return rhs.str();
     }
 }
 

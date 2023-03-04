@@ -1,16 +1,14 @@
-#include <fstream>
 #include <sstream>
+#include <fstream>
 
-#include "../../t2s/src/CodeGen_OneAPI_Dev.h"
-#include "../../t2s/src/Utilities.h"
-#include "CodeGen_CM_Dev.h"
 #include "CodeGen_D3D12Compute_Dev.h"
-#include "CodeGen_DPC_Dev.h"
 #include "CodeGen_GPU_Host.h"
 #include "CodeGen_Internal.h"
 #include "CodeGen_Metal_Dev.h"
 #include "CodeGen_Clear_OpenCL_Dev.h"
 #include "CodeGen_OpenCL_Dev.h"
+#include "../../t2s/src/CodeGen_OneAPI_Dev.h"
+#include "CodeGen_CM_Dev.h"
 #include "CodeGen_OpenGLCompute_Dev.h"
 #include "CodeGen_OpenGL_Dev.h"
 #include "CodeGen_PTX_Dev.h"
@@ -22,6 +20,7 @@
 #include "Simplify.h"
 #include "Util.h"
 #include "VaryingAttributes.h"
+#include "../../t2s/src/Utilities.h"
 
 namespace Halide {
 namespace Internal {
@@ -119,13 +118,11 @@ CodeGen_GPU_Host<CodeGen_CPU>::CodeGen_GPU_Host(Target target)
         debug(1) << "Constructing CUDA device codegen\n";
         cgdev[DeviceAPI::CUDA] = new CodeGen_PTX_Dev(target);
     }
-    if (target.has_feature(Target::CM) && target.has_feature(Target::IntelGPU)) {
+    if (target.has_feature(Target::IntelGPU)) {
         debug(1) << "Constructing CM device codegen\n";
         cgdev[DeviceAPI::CM] = new CodeGen_CM_Dev(target);
     }
     if (target.has_feature(Target::OpenCL)) {
-        debug(1) << "Constructing OpenCL device codegen\n";
-        cgdev[DeviceAPI::OpenCL] = new CodeGen_OpenCL_Dev(target);
         if (getenv("CLEARCODE") != NULL) {
             debug(1) << "Constructing clear OpenCL device codegen\n";
             cgdev[DeviceAPI::OpenCL] = new CodeGen_Clear_OpenCL_Dev(target);
@@ -135,13 +132,8 @@ CodeGen_GPU_Host<CodeGen_CPU>::CodeGen_GPU_Host(Target target)
         }
     }
     if (target.has_feature(Target::OneAPI)) {
-        if (target.has_feature(Target::IntelFPGA)) {
-            debug(1) << "Constructing OneAPI device codegen for FPGA\n";
-            cgdev[DeviceAPI::OneAPI] = new CodeGen_OneAPI_Dev(target);
-        } else if (target.has_feature(Target::IntelGPU)) {
-            debug(1) << "Constructing OneAPI device codegen for GPU\n";
-            cgdev[DeviceAPI::OneAPI] = new CodeGen_DPC_Dev(target);
-        }
+        debug(1) << "Constructing OneAPI device codegen\n";
+        cgdev[DeviceAPI::OneAPI] = new CodeGen_OneAPI_Dev(target);
     }
     if (target.has_feature(Target::Metal)) {
         debug(1) << "Constructing Metal device codegen\n";
@@ -194,11 +186,12 @@ void CodeGen_GPU_Host<CodeGen_CPU>::compile_func(const LoweredFunc &f,
         }
         if (target.has_feature(Target::IntelFPGA) && target.has_feature(Target::OneAPI)) {
             internal_assert(cgdev.find(DeviceAPI::OneAPI) != cgdev.end());
-            ((CodeGen_OneAPI_Dev *)cgdev[DeviceAPI::OneAPI])->print_global_data_structures_before_kernel(&f.body);
+            ((CodeGen_OneAPI_Dev*)cgdev[DeviceAPI::OneAPI])->print_global_data_structures_before_kernel(&f.body);
 
             // Gather shift registers' allocations.
-            ((CodeGen_OneAPI_Dev *)cgdev[DeviceAPI::OneAPI])->gather_shift_regs_allocates(&f.body);
+            ((CodeGen_OneAPI_Dev*)cgdev[DeviceAPI::OneAPI])->gather_shift_regs_allocates(&f.body);
         }
+
     }
 
     // Call the base implementation to create the function.
@@ -244,15 +237,6 @@ void CodeGen_GPU_Host<CodeGen_CPU>::compile_func(const LoweredFunc &f,
         std::vector<char> kernel_src = gpu_codegen->compile_to_src();
         if (api_unique_name == "cm") {
             debug(1) << "Currently, we do not implement CM runtime, so we just emit source code.\n";
-            std::ofstream file(simple_name + "_genx.cpp", std::fstream::out);
-            std::string src(kernel_src.cbegin(), kernel_src.cend());
-            if (file.is_open())
-                file << src;
-            file.close();
-            return;
-        }
-        if (api_unique_name == "dpc") {
-            debug(1) << "Currently, we do not implement DPC++ runtime, so we just emit source code.\n";
             std::ofstream file(simple_name + "_genx.cpp", std::fstream::out);
             std::string src(kernel_src.cbegin(), kernel_src.cend());
             if (file.is_open())
@@ -315,13 +299,10 @@ void CodeGen_GPU_Host<CodeGen_CPU>::visit(const Realize *op) {
 
 class KernelStoresToMemory : public IRVisitor {
     using IRVisitor::visit;
-
 public:
     bool stores_to_memory;
 
-    KernelStoresToMemory()
-        : stores_to_memory(false) {
-    }
+    KernelStoresToMemory() : stores_to_memory(false) {}
 
     void visit(const Store *op) override {
         stores_to_memory = true;
@@ -329,9 +310,32 @@ public:
     }
 };
 
+string create_kernel_name(const For *op) {
+    // Remove already useless info from the loop name, so as to get a cleaner kernel name.
+    string loop_name = op->name;
+    string func_name = extract_first_token(loop_name);
+    string kernel_name = unique_name("kernel_" + func_name);
+
+    // If the kernel writes to memory, append "_WAIT_FINISH" so that the OpenCL runtime knows to wait for this
+    // kernel to finish.
+    KernelStoresToMemory checker;
+    op->body.accept(&checker);
+    if (checker.stores_to_memory) {
+        // TOFIX: overlay does not work well with this change of name
+        // kernel_name += "_WAIT_FINISH";
+    }
+
+    for (size_t i = 0; i < kernel_name.size(); i++) {
+        if (!isalnum(kernel_name[i])) {
+            kernel_name[i] = '_';
+        }
+    }
+    return kernel_name;
+}
+
 template<typename CodeGen_CPU>
 void CodeGen_GPU_Host<CodeGen_CPU>::visit(const For *loop) {
-    if (CodeGen_GPU_Dev::is_gpu_var(loop->name) || ends_with(loop->name, ".run_on_device") || (target.has_feature(Target::OneAPI) && !target.has_feature(Target::IntelGPU))) {
+    if (CodeGen_GPU_Dev::is_gpu_var(loop->name) || ends_with(loop->name, ".run_on_device") || target.has_feature(Target::OneAPI)) {
         // We're in the loop over outermost block dimension
         debug(2) << "Kernel launch: " << loop->name << "\n";
 
@@ -434,20 +438,23 @@ void CodeGen_GPU_Host<CodeGen_CPU>::visit(const For *loop) {
             }
         }
 
+
+
         CodeGen_GPU_Dev *gpu_codegen;
 
-        if (target.has_feature(Target::OneAPI) && !target.has_feature(Target::IntelGPU)) {
+        if( target.has_feature(Target::OneAPI) ){
             // OneAPI combines host and device code into the same file, so use that code generator
             // since there is no device API, force into OneAPI CodeGen
             debug(2) << "Using <OneAPI> for : " << kernel_name << "\n";
-            gpu_codegen = ((CodeGen_OneAPI_Dev *)cgdev[DeviceAPI::OneAPI]);
+            gpu_codegen = ((CodeGen_OneAPI_Dev*)cgdev[DeviceAPI::OneAPI]);
         } else {
             gpu_codegen = cgdev[loop->device_api];
         }
         user_assert(gpu_codegen != nullptr)
             << "Loop is scheduled on device " << loop->device_api
             << " which does not appear in target " << target.to_string() << "\n";
-        if (target.has_feature(Target::OneAPI) && !target.has_feature(Target::IntelGPU)) {
+        if( target.has_feature(Target::OneAPI) ){
+
         }
         gpu_codegen->add_kernel(loop, kernel_name, closure_args);
 
@@ -617,7 +624,7 @@ void CodeGen_GPU_Host<CodeGen_CPU>::visit(const For *loop) {
 
         // Order-of-evaluation is guaranteed to be in order in brace-init-lists,
         // so the multiple calls to codegen here are fine
-        if (loop->device_api == DeviceAPI::CM || (loop->device_api == DeviceAPI::OneAPI && loop->for_type == Halide::Internal::ForType::GPUBlock)) {
+        if (loop->device_api == DeviceAPI::CM) {
             debug(1) << "Currently, we do not implement CM runtime.\n";
             get_module_state(api_unique_name);
             return;

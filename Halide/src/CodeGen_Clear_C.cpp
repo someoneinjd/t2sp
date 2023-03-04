@@ -2196,7 +2196,7 @@ void CodeGen_Clear_C::visit(const IntImm *op) {
 }
 
 void CodeGen_Clear_C::visit(const UIntImm *op) {
-    set_latest_expr(op->type, "(" + print_type(op->type) + ")(ADD_UINT64_T_SUFFIX(" + std::to_string(op->value) + "))");
+    set_latest_expr(op->type, "(" + print_type(op->type) + ")(ADD_UINT64_T_SUFFIX(" + std::to_string((uint64_t)op->value) + "))");
 }
 
 void CodeGen_Clear_C::visit(const StringImm *op) {
