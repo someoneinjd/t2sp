@@ -768,14 +768,14 @@ private:
                 // vectorization, so the original isolated operand's type might not be current.
                 // internal_assert(opnd.type() == entry.second[i]);
                 buf.type = entry.second[i];
-                buf.name = func_name + "_DB_f" + std::to_string(i) + ".ibuffer";
+                buf.name = func_name + ".DB_f" + std::to_string(i) + ".ibuffer";
                 calculate_buffer_dims_args(opnd, buf);
                 buffers_info.push_back(buf);
             }
         } else {
             internal_assert(isolated_operands.size() == 1);
             buf.type = original_read_node.type();
-            buf.name = func_name + "_DB.ibuffer";
+            buf.name = func_name + ".DB.ibuffer";
         }
         calculate_buffer_dims_args(isolated_operands[0], buf);
         buffers_info.push_back(buf);
@@ -843,7 +843,7 @@ public:
         Stmt new_body = IRMutator::mutate(op->body);
         for (auto b : buffers_info) {
             Type bank_type = Int(b.bank_bits, b.num_banks);
-            new_body = Realize::make(b.name, {b.type, bank_type}, MemoryType::Auto, b.dims, const_true(), new_body);
+            new_body = Realize::make(b.name, {bank_type, b.type}, MemoryType::Auto, b.dims, const_true(), new_body);
         }
         Type value_t = (scatter_strategy == ScatterStrategy::ForwardVector) ? vector_type : TYPE;
         new_body = Realize::make(var_name(cycle), {UInt(32)}, MemoryType::Register, nonscatter_unroll_loop_dims, const_true(), new_body);

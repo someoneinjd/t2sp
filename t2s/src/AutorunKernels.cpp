@@ -207,14 +207,15 @@ public:
         }
 
         // Infinitize first serial loop
-        Stmt new_stmt = Provide::make("counter.temp",
-                            {Call::make(Int(32), "counter.temp", {}, Call::Intrinsic) + 1}, {});
+        string counter_name = extract_last_token(op->name) + ".temp";
+        Stmt new_stmt = Provide::make(counter_name,
+                            {Call::make(Int(32), counter_name, {}, Call::Intrinsic) + 1}, {});
         Stmt new_body = substitute(Variable::make(Int(32), op->name),
-                            Call::make(Int(32), "counter.temp", {}, Call::Intrinsic), op->body);
+                            Call::make(Int(32), counter_name, {}, Call::Intrinsic), op->body);
         new_stmt = Block::make(new_body, new_stmt);
         new_stmt = For::make(op->name + ".infinite", 0, 10, ForType::Serial, op->device_api, new_stmt);
-        new_stmt = Block::make(Provide::make("counter.temp", {0}, {}), new_stmt);
-        new_stmt = Realize::make("counter.temp", {Int(32)},
+        new_stmt = Block::make(Provide::make(counter_name, {0}, {}), new_stmt);
+        new_stmt = Realize::make(counter_name, {Int(32)},
                         MemoryType::Auto, {}, const_true(), new_stmt);
         return new_stmt;
     }

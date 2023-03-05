@@ -428,6 +428,11 @@ WEAK int halide_opencl_buffer_copy(void *user_context, struct halide_buffer_t *s
                                      0, NULL, NULL);
         std::cout << "Done.\n";
     } else if (from_host && !to_host) {
+        if (dst->device == 0) {
+            // Allocate a buffer on device
+            int status = halide_device_malloc(user_context, dst, NULL);
+            CHECK(status);
+        }
         std::cout << "Command queue " << current_kernel << ": copying " << src->size_in_bytes() << " bytes data from host to device. ";
         status = clEnqueueWriteBuffer(cmdQueue[current_kernel], ((device_handle *)dst->device)->mem,
                                       CL_TRUE, 0, src->size_in_bytes(), (void *)(src->host),

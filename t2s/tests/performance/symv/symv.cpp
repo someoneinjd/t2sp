@@ -105,39 +105,35 @@ int main()
 #endif
     SA.scatter(DA, iii, ScatterStrategy::ForwardVector);
     SA.addressable_buffer(DA, i, {iii+III*ii, kk}, {kk, iii+III*ii});
-    DA.min_depth(128);
-    SA.min_depth(128);
+    DA.min_depth(256);
+    SA.min_depth(256);
 
     // Input path of vector X
-    Func XUp_serializer("XUp_serializer", Place::Host), DX_Up("DX_Up", Place::Device), SX_Up("SX_Up", Place::Device);
-    Func XLow_serializer("XLow_serializer", Place::Host), DX_Low("DX_Low", Place::Device), SX_Low("SX_Low", Place::Device);
-    UpFx.isolate_producer_chain(x, XUp_serializer, DX_Up, SX_Up);
-    LowFx.isolate_producer_chain(x, XLow_serializer, DX_Low, SX_Low);
-    XUp_serializer.remove(ii, iii);
-    XUp_serializer.bound_storage(k, 0, K/2+1);
-    DX_Up.remove(ii, iii);
+    Func DX_Up("DX_Up", Place::Device), SX_Up("SX_Up", Place::Device);
+    Func DX_Low("DX_Low", Place::Device), SX_Low("SX_Low", Place::Device);
+    UpFx.isolate_producer_chain(x, DX_Up, SX_Up);
+    LowFx.isolate_producer_chain(x, DX_Low, SX_Low);
     SX_Up.buffer(DX_Up, k);
-    XLow_serializer.remove(ii, iii);
-    XLow_serializer.bound_storage(i, 0, I/2+1);
-    DX_Low.remove(ii, iii);
+    DX_Up.remove(ii, iii);
     SX_Low.buffer(DX_Low, i);
-    DX_Up.min_depth(128);
-    SX_Up.min_depth(128);
-    DX_Low.min_depth(128);
-    SX_Low.min_depth(128);
+    DX_Low.remove(ii, iii);
+    DX_Up.min_depth(256);
+    SX_Up.min_depth(256);
+    DX_Low.min_depth(256);
+    SX_Low.min_depth(256);
 
     // Input path of vector Y
     Func Y_serializer("Y_serializer", Place::Host), DY("DY", Place::Device);
     Add.isolate_producer_chain(y, Y_serializer, DY);
-    DY.min_depth(128);
+    DY.min_depth(256);
 
     // Output path of vector Z
     Func deserializer("deserializer", Place::Host), DZ("DZ", Place::Device);
     Add.isolate_consumer_chain(DZ, deserializer);
-    UpMVOut.min_depth(128);
-    LowMVOut_s0.min_depth(128);
-    LowMVOut_s1.min_depth(128);
-    Add.min_depth(128);
+    UpMVOut.min_depth(256);
+    LowMVOut_s0.min_depth(256);
+    LowMVOut_s1.min_depth(256);
+    Add.min_depth(256);
 
     // Compile the kernel to an FPGA bitstream, and expose a C interface for the host to invoke
     Target acc = get_host_target();

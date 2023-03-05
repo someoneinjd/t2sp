@@ -339,16 +339,16 @@ class BufferInserter: public IRMutator{
 
             debug(4)<<"The new condition is "<<new_condition<<"\n";
 
-            vector<Expr> cycle_args;
-                //counter is an array, its same dimension is unroll loops
-            {
-                for(size_t i = 0;i < unroll_loop_indexes.size();++i){
-                    int index = unroll_loop_indexes[i];
-                    cycle_args.push_back(
-                        Variable::make(Int(32), loop_names[index]) - loop_mins[index]
-                    );
-                }
-            }
+            // vector<Expr> cycle_args;
+            //counter is an array, its same dimension is unroll loops
+            // {
+            //     for(size_t i = 0;i < unroll_loop_indexes.size();++i){
+            //         int index = unroll_loop_indexes[i];
+            //         cycle_args.push_back(
+            //             Variable::make(Int(32), loop_names[index]) - loop_mins[index]
+            //         );
+            //     }
+            // }
 
             
             
@@ -424,10 +424,10 @@ class BufferInserter: public IRMutator{
                 //iter_pos : read (or write) how many times in this iter now
             {
                 period = 
-                    Call::make(Int(32),cycle_name, cycle_args, Call::PureIntrinsic) /
+                    Call::make(Int(32),cycle_name,{}, Call::PureIntrinsic) /
                     reads;
                 offset =
-                    Call::make(Int(32),cycle_name,cycle_args,Call::PureIntrinsic) %
+                    Call::make(Int(32),cycle_name,{},Call::PureIntrinsic) %
                     reads;
             }
 
@@ -442,7 +442,7 @@ class BufferInserter: public IRMutator{
                 new_body = substitute(iter->second.read_node,read_buffer,new_body);
 
                 Expr counter = 
-                    Call::make(Int(32),cycle_name,cycle_args,Call::PureIntrinsic) - reads;
+                    Call::make(Int(32),cycle_name,{},Call::PureIntrinsic) - reads;
                 if(!loop_names.empty()){
                     int beg = loop_names.size() - 1;
                     for(int i = beg;i >= 0; --i){
@@ -505,17 +505,6 @@ class BufferInserter: public IRMutator{
                 new_body = Block::make(write_buffer, new_body);
             }
 
-            // this part will change "new_body" stmt, take care
-            {// add "inc counter" part in the end of new_body
-                Stmt inc_counter = Provide::make(cycle_name,{Call::make(Int(32),cycle_name,cycle_args,Call::PureIntrinsic)+1},cycle_args);
-                // Expr inc_counter_cond = (Variable::make(Int(32),"period") <= Variable::make(Int(32),"period_num"));
-                Expr inc_counter_cond = const_true();
-                if(new_condition.defined())
-                    inc_counter_cond = new_condition && inc_counter_cond;
-                inc_counter = IfThenElse::make(inc_counter_cond, inc_counter);
-                new_body = Block::make(new_body,inc_counter);
-            }
-        
             new_body = LetStmt::make("idx",idx,new_body);
             new_body = LetStmt::make("period",period,new_body);
             new_body = LetStmt::make("offset",offset,new_body);
@@ -527,7 +516,16 @@ class BufferInserter: public IRMutator{
                     loop_names[index], loop_mins[index], loop_extents[index],ForType::Unrolled, op->device_api,new_body
                 );
             }
-                
+            // this part will change "new_body" stmt, take care
+            {// add "inc counter" part in the end of new_body
+                Stmt inc_counter = Provide::make(cycle_name,{Call::make(Int(32),cycle_name,{},Call::PureIntrinsic)+1},{});
+                // Expr inc_counter_cond = (Variable::make(Int(32),"period") <= Variable::make(Int(32),"period_num"));
+                Expr inc_counter_cond = const_true();
+                if(new_condition.defined())
+                    inc_counter_cond = new_condition && inc_counter_cond;
+                inc_counter = IfThenElse::make(inc_counter_cond, inc_counter);
+                new_body = Block::make(new_body,inc_counter);
+            }
             Expr period_num;
             // PERIOD in document
             {
@@ -555,42 +553,44 @@ class BufferInserter: public IRMutator{
 
             new_body = For::make(caller_name+".s0.outermost_loop.infinite",0,10,ForType::Serial,op->device_api,new_body);
 
-            Region cycle_dims;
-                //counter is an array, its same dimension is unroll loops
-            {
-                for(size_t i = 0;i < loop_names.size(); ++i){
-                    if(for_types[i] == ForType::Unrolled){
-                        cycle_dims.push_back(Range(loop_mins[i],loop_extents[i]));
-                    }
-                }
-            }
+            // Region cycle_dims;
+            //counter is an array, its same dimension is unroll loops
+            // {
+            //     for(size_t i = 0;i < loop_names.size(); ++i){
+            //         if(for_types[i] == ForType::Unrolled){
+            //             cycle_dims.push_back(Range(loop_mins[i],loop_extents[i]));
+            //         }
+            //     }
+            // }
 
-            {//init the counters
-                Stmt init_counter = Provide::make(cycle_name,{init},cycle_args);
-                for(size_t i = 0;i < unroll_loop_indexes.size();++i){
-                    int index = unroll_loop_indexes[i];
-                    int min = loop_mins[index].as<IntImm>()->value;
-                    int extent = loop_extents[index].as<IntImm>()->value;
-                    Stmt tmp_stmt;
-                    for(int j = min; j < extent;++j){
-                        if(tmp_stmt.defined()){
-                            tmp_stmt = Block::make(tmp_stmt,substitute(loop_names[index],j,init_counter));
-                        }else{
-                            tmp_stmt = substitute(loop_names[index],j,init_counter);
-                        }
-                    }
-                    init_counter = tmp_stmt;
-                }
-                new_body = Block::make(init_counter, new_body);
-            }
+            // {//init the counters
+            //     Stmt init_counter = Provide::make(cycle_name,{init},cycle_args);
+            //     for(size_t i = 0;i < unroll_loop_indexes.size();++i){
+            //         int index = unroll_loop_indexes[i];
+            //         int min = loop_mins[index].as<IntImm>()->value;
+            //         int extent = loop_extents[index].as<IntImm>()->value;
+            //         Stmt tmp_stmt;
+            //         for(int j = min; j < extent;++j){
+            //             if(tmp_stmt.defined()){
+            //                 tmp_stmt = Block::make(tmp_stmt,substitute(loop_names[index],j,init_counter));
+            //             }else{
+            //                 tmp_stmt = substitute(loop_names[index],j,init_counter);
+            //             }
+            //         }
+            //         init_counter = tmp_stmt;
+            //     }
+            //     new_body = Block::make(init_counter, new_body);
+            // }
+            Stmt init_counter = Provide::make(cycle_name,{init},{});
+            new_body = Block::make(init_counter, new_body);
 
             // realize counters and buffers
             Type bank_type = Int(0, 1);
             new_body = Realize::make(
-                buffer_name,{data_type, bank_type},MemoryType::Auto,buffer_dims,const_true(),new_body
+                buffer_name,{bank_type, data_type},MemoryType::Auto,buffer_dims,const_true(),new_body
             );
             new_body = Realize::make(
-                cycle_name, {Int(32)}, MemoryType::Auto,cycle_dims, const_true(),new_body
+                cycle_name, {Int(32)}, MemoryType::Auto, {}, const_true(),new_body
             );
 
 
@@ -1328,7 +1328,7 @@ public:
         Stmt new_body = IRMutator::mutate(op->body);
         for (auto b : buffers_info) {
             Type bank_type = Int(b.bank_bits, b.num_banks);
-            new_body = Realize::make(b.name, {b.type, bank_type}, MemoryType::Auto, b.dims, const_true(), new_body);
+            new_body = Realize::make(b.name, {bank_type, b.type}, MemoryType::Auto, b.dims, const_true(), new_body);
         }
         new_body = Realize::make(var_name(cycle), {UInt(32)}, MemoryType::Auto, nonscatter_unroll_loop_dims, const_true(), new_body);
         new_body = Realize::make(var_name(in_v), {TYPE}, MemoryType::Auto, nonscatter_unroll_loop_dims, const_true(), new_body);
