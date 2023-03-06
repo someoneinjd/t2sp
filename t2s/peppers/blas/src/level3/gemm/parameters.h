@@ -36,15 +36,15 @@
         #define II          2
         #define KK          1
     #elif defined(S10)
-        #ifdef S
+        #ifdef SGEMM
             #define KKK         16
             #define JJJ         16
             #define III         14
             #define JJ          32
             #define II          32
             #define KK          32
-        #elif defined(D)
-        #elif defined(C)
+        #elif defined(DGEMM)
+        #elif defined(CGEMM)
             #define KKK         16
             #define JJJ         16
             #define III         14
@@ -60,15 +60,21 @@
             #define KK          32
         #endif
     #else   // TARGET == A10
-        #ifdef S
+        #ifdef SGEMM
             #define KKK         16
             #define JJJ         8
             #define III         10
             #define JJ          32
             #define II          32
             #define KK          32
-        #elif defined(D)
-        #elif defined(C)
+        #elif defined(DGEMM)
+            #define KKK         8
+            #define JJJ         4
+            #define III         8
+            #define JJ          32
+            #define II          32
+            #define KK          32
+        #elif defined(CGEMM)
             #define KKK         8
             #define JJJ         4
             #define III         10
@@ -78,7 +84,7 @@
         #else
             #define KKK         4
             #define JJJ         4
-            #define III         5
+            #define III         4
             #define JJ          32
             #define II          32
             #define KK          32        

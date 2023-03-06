@@ -1498,11 +1498,23 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit_binop(Type t, Expr a, Expr b, c
 }
 
 void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const EQ *op) {
-    visit_binop(eliminated_bool_type(op->type, op->a.type()), op->a, op->b, "==");
+    if (op->a.type().is_complex() && op->a.type().lanes() == 1) {// only complex
+        string sa = print_expr(op->a);
+        string sb = print_expr(op->b);
+        print_assignment(op->type, "all("+ sa + " == " + sb + ")");
+    } else {
+        visit_binop(eliminated_bool_type(op->type, op->a.type()), op->a, op->b, "==");
+    }
 }
 
 void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const NE *op) {
-    visit_binop(eliminated_bool_type(op->type, op->a.type()), op->a, op->b, "!=");
+    if (op->a.type().is_complex() && op->a.type().lanes() == 1) {// only complex
+        string sa = print_expr(op->a);
+        string sb = print_expr(op->b);
+        print_assignment(op->type, "any("+ sa + " == " + sb + ")");
+    } else {
+        visit_binop(eliminated_bool_type(op->type, op->a.type()), op->a, op->b, "!=");
+    }
 }
 
 void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const LT *op) {

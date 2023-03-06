@@ -1,5 +1,6 @@
 #include <iostream>
 #include <limits>
+#include <string>
 
 #include "CodeGen_C.h"
 #include "CodeGen_Internal.h"
@@ -1959,28 +1960,56 @@ void CodeGen_C::visit_binop(Type t, Expr a, Expr b, const char *op) {
 }
 
 void CodeGen_C::visit(const Add *op) {
-    visit_binop(op->type, op->a, op->b, "+");
+    if (op->type.is_complex() && op->type.lanes() > 1) {
+        string sa = print_expr(op->a);
+        string sb = print_expr(op->b);
+        print_assignment(op->type, "(" + print_type(op->type) + "){" + sa + ".t + " + sb + ".t}");
+    } else {
+        visit_binop(op->type, op->a, op->b, "+");
+    }
 }
 
 void CodeGen_C::visit(const Sub *op) {
-    visit_binop(op->type, op->a, op->b, "-");
+    if (op->type.is_complex() && op->type.lanes() > 1) {
+        string sa = print_expr(op->a);
+        string sb = print_expr(op->b);
+        print_assignment(op->type, "(" + print_type(op->type) + "){" + sa + ".t - " + sb + ".t}");
+    } else {
+        visit_binop(op->type, op->a, op->b, "-");
+    }
 }
 
 void CodeGen_C::visit(const Mul *op) {
     if (op->type.is_complex()) {
         string sa = print_expr(op->a);
         string sb = print_expr(op->b);
-        string sa_re = sa + ".s0";
-        string sa_im = sa + ".s1";
-        string sb_re = sb + ".s0";
-        string sb_im = sb + ".s1";
-        string type_string = "(float2)";
-        if (op->type.bits() == 128) {
-            type_string = "(double2)";
+        if (op->type.lanes() > 1) {
+            string expr{};
+            for (size_t i = 0; i < op->type.lanes(); i++) {
+                auto sa_re = sa + ".s[" + std::to_string(i) + "].s0";
+                auto sa_im = sa + ".s[" + std::to_string(i) + "].s1";
+                auto sb_re = sb + ".s[" + std::to_string(i) + "].s0";
+                auto sb_im = sb + ".s[" + std::to_string(i) + "].s1";
+                expr +=
+                    sa_re + " * " + sb_re + " - " + sa_im + " * " + sb_im + ", " +
+                    sa_re + " * " + sb_im + " + " + sa_im + " * " + sb_re + ", ";
+            }
+            expr = remove_postfix(expr, ", ");
+            string type_string = (op->type.bits() == 128 ? "double" : "float") + std::to_string(op->type.lanes() * 2);
+            print_assignment(op->type, "(" + print_type(op->type) + ")(" + type_string + ")" + "{" + expr + "}");
+        } else {
+            string sa_re = sa + ".s0";
+            string sa_im = sa + ".s1";
+            string sb_re = sb + ".s0";
+            string sb_im = sb + ".s1";
+            string type_string = "(float2)";
+            if (op->type.bits() == 128) {
+                type_string = "(double2)";
+            }
+            print_assignment(op->type, type_string + "(" +
+                sa_re + " * " + sb_re + " - " + sa_im + " * " + sb_im + ", " +
+                sa_re + " * " + sb_im + " + " + sa_im + " * " + sb_re + ")");
         }
-        print_assignment(op->type, type_string + "(" +
-            sa_re + " * " + sb_re + " - " + sa_im + " * " + sb_im + ", " +
-            sa_re + " * " + sb_im + " + " + sa_im + " * " + sb_re + ")");
     } else {
         visit_binop(op->type, op->a, op->b, "*");
     }
