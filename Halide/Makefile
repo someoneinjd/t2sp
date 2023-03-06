@@ -482,6 +482,8 @@ SOURCE_FILES = \
   CodeGen_ARM.cpp \
   CodeGen_DPC_Dev.cpp \
   CodeGen_C.cpp \
+  CodeGen_Clear_C.cpp \
+  CodeGen_Clear_OpenCL_Dev.cpp \
   CodeGen_D3D12Compute_Dev.cpp \
   CodeGen_GPU_Dev.cpp \
   CodeGen_GPU_Host.cpp \
@@ -656,6 +658,8 @@ HEADER_FILES = \
   CodeGen_ARM.h \
   CodeGen_DPC_Dev.h \
   CodeGen_C.h \
+  CodeGen_Clear_C.h \
+  CodeGen_Clear_OpenCL_Dev.h \
   CodeGen_D3D12Compute_Dev.h \
   CodeGen_GPU_Dev.h \
   CodeGen_GPU_Host.h \
@@ -804,6 +808,7 @@ HEADERS = $(HEADER_FILES:%.h=$(SRC_DIR)/%.h)
 T2S_DIR  = $(ROOT_DIR)/../t2s
 
 T2S_SOURCE_FILES = \
+  AddressableBuffer.cpp \
   AutorunKernels.cpp \
   BuildCallRelation.cpp \
   ChannelPromotion.cpp \
@@ -835,12 +840,14 @@ T2S_SOURCE_FILES = \
   ScatterAndBuffer.cpp \
   SliceExprTree.cpp \
   SpaceTimeTransform.cpp \
+  StandardizeIRForOpenCL.cpp \
   Stensor.cpp \
   StructType.cpp \
   TriangularLoopOptimize.cpp \
   Utilities.cpp
 
 T2S_HEADER_FILES = \
+  AddressableBuffer.h \
   AutorunKernels.h \
   BuildCallRelation.h \
   ChannelPromotion.h \
@@ -869,6 +876,7 @@ T2S_HEADER_FILES = \
   ScatterAndBuffer.h \
   SliceExprTree.h \
   SpaceTimeTransform.h \
+  StandardizeIRForOpenCL.h \
   Stensor.h \
   StructType.h \
   TriangularLoopOptimize.h \

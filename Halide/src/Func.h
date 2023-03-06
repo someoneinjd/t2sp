@@ -1593,6 +1593,10 @@ public:
      * dimension of the split. 'factor' must be an integer. */
     Func &unroll(VarOrRVar var, Expr factor, TailStrategy tail = TailStrategy::Auto);
 
+    /** Explicitly declare that the range over which a function should
+     * be realized. This can bypass inaccurate bound inference. */
+    Func &bound_storage(Var var, Expr min, Expr extent);
+
     /** Statically declare that the range over which a function should
      * be evaluated is given by the second and third arguments. This
      * can let Halide perform some optimizations. E.g. if you know
@@ -2704,6 +2708,12 @@ public:
      *  g.buffer(f, x, BufferStrategy::Double)
     */
     Func &buffer(Func f, VarOrRVar loop, BufferStrategy strategy = BufferStrategy::Double, BufferReadStrategy read_strategy = BufferReadStrategy::Block);
+    Func &addressable_buffer(Func f, VarOrRVar buffer_loop, vector<Expr> write_indices, vector<Expr> read_indices = {}, BufferStrategy strategy = BufferStrategy::Double);
+
+    /** Partition the operand "op" of this Func along the "loop" into "nums" (e.g., 4) parts,
+     * which are placed in separate DDR channels and sent into "consumer".
+    */
+    Func &partition(FuncOrExpr op, Func consumer, Var loop, int nums);
 
     /**   the values of f along the given loop with the given strategy.
      * For example,

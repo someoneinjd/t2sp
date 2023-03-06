@@ -15,7 +15,7 @@
 namespace Halide {
 namespace Internal {
 
-class CodeGen_OneAPI_Dev : public CodeGen_GPU_Dev { 
+class CodeGen_OneAPI_Dev : public CodeGen_GPU_Dev {
 public:
     CodeGen_OneAPI_Dev(Target target);
 
@@ -59,12 +59,12 @@ public:
     void compile_oneapi_devsrc(const Module &input);
     void compile_oneapi_func(const LoweredFunc &f, const std::string &simple_name, const std::string &extern_name);
     // (TODO) Method to compile buffers as well
-    // void compile_oneapi(const Buffer<> &buffer); 
+    // void compile_oneapi(const Buffer<> &buffer);
 
 protected:
-    // (NOTE)  CodeGen_OneAPI_C     -(derived from)-> 
-    //         CodeGen_C            -(derived from)-> 
-    //         public IRPrinter     -(derived from)-> 
+    // (NOTE)  CodeGen_OneAPI_C     -(derived from)->
+    //         CodeGen_C            -(derived from)->
+    //         public IRPrinter     -(derived from)->
     //         public IRVisitor
     class CodeGen_OneAPI_C : public CodeGen_C {
     public:
@@ -102,7 +102,7 @@ protected:
 
             // Definitions of the struct types.
             std::string structs;
-            
+
             DefineVectorStructTypes(CodeGen_OneAPI_C* parent) : parent(parent) {}
             Expr mutate(const Expr &expr) override;
             Stmt mutate(const Stmt &stmt) override;
@@ -145,7 +145,7 @@ protected:
         public:
             bool in_if_then_else;       // The current IR is in a branch
             bool conditional_access;    // There is a conditional execution of channel read/write inside the current loop
-            bool irregular_loop_dep;    // There is a irregular loop inside the current loop and the irregular bound 
+            bool irregular_loop_dep;    // There is a irregular loop inside the current loop and the irregular bound
                                         // depends on current loop var
             CheckConditionalChannelAccess(CodeGen_OneAPI_C* parent, std::string current_loop_name) : parent(parent), current_loop_name(current_loop_name) {
                 in_if_then_else = false;
@@ -220,8 +220,8 @@ protected:
     std::string cur_kernel_name_oneapi;
     CodeGen_OneAPI_C one_clc;
 
-        
-    // Wrapper for CodeGen_OneAPI_C to add host/device code 
+
+    // Wrapper for CodeGen_OneAPI_C to add host/device code
     // Note: CodeGen_OneAPI_C still checks for user contexts and throws error
     // (TODO): Need to combine all the structures & overritten functions for EmitOneAPIFunc into CodeGen_OneAPI_C
     class EmitOneAPIFunc : public CodeGen_OneAPI_C {
@@ -230,16 +230,19 @@ protected:
         // using CodeGen_OneAPI_C::print_type;
         using CodeGen_C::compile;
     protected:
+        // From CodeGen_GPU_Host
+        std::string create_kernel_name(const For *op);
+
         // Form CodeGen_OneAPI_C
         void visit(const For *) override;
-        void visit(const Allocate *) override;    
+        void visit(const Allocate *) override;
         void visit(const AssertStmt *) override;
         void visit(const Free *op) override;
         std::string print_extern_call(const Call *) override;
         std::string print_reinterpret(Type type, Expr e) override;
         std::string print_type(Type type, AppendSpaceIfNeeded append_space = DoNotAppendSpace) override;
 
-        // New 
+        // New
         void create_kernel_wrapper(const std::string &name, std::string q_device_name, const std::vector<DeviceArgument> &args, bool begining, bool is_run_on_device);
 
     private:
@@ -305,16 +308,16 @@ protected:
             std::string halide_host_malloc(const Call *op){
                 check_valid(op, 2, 1);
                 std::ostringstream rhs;
-                std::vector<Expr> args = op->args;   
+                std::vector<Expr> args = op->args;
                 std::string buffer_name = p->print_expr(args[0]);
                 rhs << "{ // host malloc\n";
                 rhs << p->get_indent() << "  std::cout << \"//\\t host malloc "<< buffer_name << "\\n\";\n";
                 rhs << p->get_indent() << "  assert(" << buffer_name << "->size_in_bytes() != 0);\n";
                 rhs << p->get_indent() << "  " << buffer_name << "->host = (uint8_t*)std::malloc(" << buffer_name << "->size_in_bytes() );\n";
                 rhs << p->get_indent() << "  assert(" << buffer_name << "->host != NULL);\n";
-                rhs << p->get_indent() << "}";              
+                rhs << p->get_indent() << "}";
                 return rhs.str();
-            }            
+            }
 
             std::string halide_copy_to_device(const Call *op){
                 check_valid(op, 2, 1);
@@ -327,7 +330,7 @@ protected:
                 //     << "(void *)(((device_handle*)"<< buffer_name <<"->device)->mem), " // dst
                 //     << "(void *)" << buffer_name << "->host, " // src
                 //     << buffer_name << "->size_in_bytes() ); })"; // size
-                
+
                 rhs << halide_opencl_buffer_copy(op, false);
                 return rhs.str();
             }
@@ -429,7 +432,7 @@ protected:
                 return rhs.str();
             }
 
-            // Defined in DeviceInterface.cpp 
+            // Defined in DeviceInterface.cpp
 
             std::string halide_oneapi_device_interface(const Call *op){
                 return "NULL";
@@ -474,75 +477,75 @@ protected:
             // Halide buffer type functions
             // See CodeGen_Internal.cpp for refrence
 
-            // {"halide_buffer_copy" , NULL}, 
-            {"halide_copy_to_host" , &ExternCallFuncs::halide_copy_to_host}, 
-            {"halide_copy_to_device" , &ExternCallFuncs::halide_copy_to_device}, 
-            // {"halide_current_time_ns" , NULL}, 
-            // {"halide_debug_to_file" , NULL}, 
-            // {"halide_device_free" , NULL}, 
-            // {"halide_device_host_nop_free" , NULL}, 
-            // {"halide_device_free_as_destructor" , NULL}, 
-            {"halide_device_and_host_free" , &ExternCallFuncs::halide_device_and_host_free}, 
-            // {"halide_device_and_host_free_as_destructor" , NULL}, 
-            {"halide_device_malloc" , &ExternCallFuncs::halide_device_malloc}, 
-            {"halide_device_and_host_malloc" , &ExternCallFuncs::halide_device_and_host_malloc}, 
-            // {"halide_device_sync" , NULL}, 
-            // {"halide_do_par_for" , NULL}, 
-            // {"halide_do_loop_task" , NULL}, 
-            // {"halide_do_task" , NULL}, 
-            // {"halide_do_async_consumer" , NULL}, 
-            // {"halide_error" , NULL}, 
-            // {"halide_free" , NULL}, 
-            // {"halide_malloc" , NULL}, 
-            // {"halide_print" , NULL}, 
-            // {"halide_profiler_memory_allocate" , NULL}, 
-            // {"halide_profiler_memory_free" , NULL}, 
-            // {"halide_profiler_pipeline_start" , NULL}, 
-            // {"halide_profiler_pipeline_end" , NULL}, 
-            // {"halide_profiler_stack_peak_update" , NULL}, 
-            // {"halide_spawn_thread" , NULL}, 
-            // {"halide_device_release" , NULL}, 
-            // {"halide_start_clock" , NULL}, 
-            // {"halide_trace" , NULL}, 
-            // {"halide_trace_helper" , NULL}, 
-            // {"halide_memoization_cache_lookup" , NULL}, 
-            // {"halide_memoization_cache_store" , NULL}, 
-            // {"halide_memoization_cache_release" , NULL}, 
-            // {"halide_cuda_run" , NULL}, 
-            // {"halide_opencl_run" , NULL}, 
-            // {"halide_opengl_run" , NULL}, 
-            // {"halide_openglcompute_run" , NULL}, 
-            // {"halide_metal_run" , NULL}, 
-            // {"halide_d3d12compute_run" , NULL}, 
-            // {"halide_msan_annotate_buffer_is_initialized_as_destructor" , NULL}, 
-            // {"halide_msan_annotate_buffer_is_initialized" , NULL}, 
-            // {"halide_msan_annotate_memory_is_initialized" , NULL}, 
-            // {"halide_hexagon_initialize_kernels" , NULL}, 
-            // {"halide_hexagon_run" , NULL}, 
-            // {"halide_hexagon_device_release" , NULL}, 
-            // {"halide_hexagon_power_hvx_on" , NULL}, 
-            // {"halide_hexagon_power_hvx_on_mode" , NULL}, 
-            // {"halide_hexagon_power_hvx_on_perf" , NULL}, 
-            // {"halide_hexagon_power_hvx_off" , NULL}, 
-            // {"halide_hexagon_power_hvx_off_as_destructor" , NULL}, 
-            // {"halide_qurt_hvx_lock" , NULL}, 
-            // {"halide_qurt_hvx_unlock" , NULL}, 
-            // {"halide_qurt_hvx_unlock_as_destructor" , NULL}, 
-            // {"halide_vtcm_malloc" , NULL}, 
-            // {"halide_vtcm_free" , NULL}, 
-            // {"halide_cuda_initialize_kernels" , NULL}, 
-            // {"halide_opencl_initialize_kernels" , NULL}, 
-            // {"halide_opengl_initialize_kernels" , NULL}, 
-            // {"halide_openglcompute_initialize_kernels" , NULL}, 
-            // {"halide_metal_initialize_kernels" , NULL}, 
-            // {"halide_d3d12compute_initialize_kernels" , NULL}, 
-            // {"halide_get_gpu_device" , NULL}, 
-            // {"halide_upgrade_buffer_t" , NULL}, 
-            // {"halide_downgrade_buffer_t" , NULL}, 
-            // {"halide_downgrade_buffer_t_device_fields" , NULL}, 
-            // {"_halide_buffer_crop" , NULL}, 
-            // {"_halide_buffer_retire_crop_after_extern_stage" , NULL}, 
-            // {"_halide_buffer_retire_crops_after_extern_stage" , NULL}, 
+            // {"halide_buffer_copy" , NULL},
+            {"halide_copy_to_host" , &ExternCallFuncs::halide_copy_to_host},
+            {"halide_copy_to_device" , &ExternCallFuncs::halide_copy_to_device},
+            // {"halide_current_time_ns" , NULL},
+            // {"halide_debug_to_file" , NULL},
+            // {"halide_device_free" , NULL},
+            // {"halide_device_host_nop_free" , NULL},
+            // {"halide_device_free_as_destructor" , NULL},
+            {"halide_device_and_host_free" , &ExternCallFuncs::halide_device_and_host_free},
+            // {"halide_device_and_host_free_as_destructor" , NULL},
+            {"halide_device_malloc" , &ExternCallFuncs::halide_device_malloc},
+            {"halide_device_and_host_malloc" , &ExternCallFuncs::halide_device_and_host_malloc},
+            // {"halide_device_sync" , NULL},
+            // {"halide_do_par_for" , NULL},
+            // {"halide_do_loop_task" , NULL},
+            // {"halide_do_task" , NULL},
+            // {"halide_do_async_consumer" , NULL},
+            // {"halide_error" , NULL},
+            // {"halide_free" , NULL},
+            // {"halide_malloc" , NULL},
+            // {"halide_print" , NULL},
+            // {"halide_profiler_memory_allocate" , NULL},
+            // {"halide_profiler_memory_free" , NULL},
+            // {"halide_profiler_pipeline_start" , NULL},
+            // {"halide_profiler_pipeline_end" , NULL},
+            // {"halide_profiler_stack_peak_update" , NULL},
+            // {"halide_spawn_thread" , NULL},
+            // {"halide_device_release" , NULL},
+            // {"halide_start_clock" , NULL},
+            // {"halide_trace" , NULL},
+            // {"halide_trace_helper" , NULL},
+            // {"halide_memoization_cache_lookup" , NULL},
+            // {"halide_memoization_cache_store" , NULL},
+            // {"halide_memoization_cache_release" , NULL},
+            // {"halide_cuda_run" , NULL},
+            // {"halide_opencl_run" , NULL},
+            // {"halide_opengl_run" , NULL},
+            // {"halide_openglcompute_run" , NULL},
+            // {"halide_metal_run" , NULL},
+            // {"halide_d3d12compute_run" , NULL},
+            // {"halide_msan_annotate_buffer_is_initialized_as_destructor" , NULL},
+            // {"halide_msan_annotate_buffer_is_initialized" , NULL},
+            // {"halide_msan_annotate_memory_is_initialized" , NULL},
+            // {"halide_hexagon_initialize_kernels" , NULL},
+            // {"halide_hexagon_run" , NULL},
+            // {"halide_hexagon_device_release" , NULL},
+            // {"halide_hexagon_power_hvx_on" , NULL},
+            // {"halide_hexagon_power_hvx_on_mode" , NULL},
+            // {"halide_hexagon_power_hvx_on_perf" , NULL},
+            // {"halide_hexagon_power_hvx_off" , NULL},
+            // {"halide_hexagon_power_hvx_off_as_destructor" , NULL},
+            // {"halide_qurt_hvx_lock" , NULL},
+            // {"halide_qurt_hvx_unlock" , NULL},
+            // {"halide_qurt_hvx_unlock_as_destructor" , NULL},
+            // {"halide_vtcm_malloc" , NULL},
+            // {"halide_vtcm_free" , NULL},
+            // {"halide_cuda_initialize_kernels" , NULL},
+            // {"halide_opencl_initialize_kernels" , NULL},
+            // {"halide_opengl_initialize_kernels" , NULL},
+            // {"halide_openglcompute_initialize_kernels" , NULL},
+            // {"halide_metal_initialize_kernels" , NULL},
+            // {"halide_d3d12compute_initialize_kernels" , NULL},
+            // {"halide_get_gpu_device" , NULL},
+            // {"halide_upgrade_buffer_t" , NULL},
+            // {"halide_downgrade_buffer_t" , NULL},
+            // {"halide_downgrade_buffer_t_device_fields" , NULL},
+            // {"_halide_buffer_crop" , NULL},
+            // {"_halide_buffer_retire_crop_after_extern_stage" , NULL},
+            // {"_halide_buffer_retire_crops_after_extern_stage" , NULL},
             {"halide_opencl_wait_for_kernels_finish" , &ExternCallFuncs::halide_opencl_wait_for_kernels_finish},
 
             // All Non-user context functions here
@@ -550,28 +553,28 @@ protected:
             // Buffer functions
             // See IR.cpp and buffer_t.cpp for refrence
 
-            // {"_halide_buffer_get_dimensions", &ExternCallFuncs::_halide_buffer_get_dimensions}, 
-            // {"_halide_buffer_get_min", &ExternCallFuncs::_halide_buffer_get_min}, 
-            // {"_halide_buffer_get_extent", &ExternCallFuncs::_halide_buffer_get_extent}, 
-            // {"_halide_buffer_get_stride", &ExternCallFuncs::_halide_buffer_get_stride}, 
-            // {"_halide_buffer_get_max", NULL}, 
-            // {"_halide_buffer_get_host", &ExternCallFuncs::_halide_buffer_get_host}, 
-            // {"_halide_buffer_get_device", NULL}, 
-            // {"_halide_buffer_get_device_interface", NULL}, 
-            // {"_halide_buffer_get_shape", &ExternCallFuncs::_halide_buffer_get_shape}, 
-            // {"_halide_buffer_get_host_dirty", NULL}, 
-            // {"_halide_buffer_get_device_dirty", NULL}, 
-            // {"_halide_buffer_get_type", &ExternCallFuncs::_halide_buffer_get_type}, 
-            // {"_halide_buffer_set_host_dirty", NULL}, 
-            // {"_halide_buffer_set_device_dirty", NULL}, 
-            // {"_halide_buffer_is_bounds_query", NULL}, 
-            // {"_halide_buffer_init", NULL}, 
-            // {"_halide_buffer_init_from_buffer", NULL}, 
-            // {"_halide_buffer_crop", NULL}, 
-            // {"_halide_buffer_set_bounds", NULL}, 
+            // {"_halide_buffer_get_dimensions", &ExternCallFuncs::_halide_buffer_get_dimensions},
+            // {"_halide_buffer_get_min", &ExternCallFuncs::_halide_buffer_get_min},
+            // {"_halide_buffer_get_extent", &ExternCallFuncs::_halide_buffer_get_extent},
+            // {"_halide_buffer_get_stride", &ExternCallFuncs::_halide_buffer_get_stride},
+            // {"_halide_buffer_get_max", NULL},
+            // {"_halide_buffer_get_host", &ExternCallFuncs::_halide_buffer_get_host},
+            // {"_halide_buffer_get_device", NULL},
+            // {"_halide_buffer_get_device_interface", NULL},
+            // {"_halide_buffer_get_shape", &ExternCallFuncs::_halide_buffer_get_shape},
+            // {"_halide_buffer_get_host_dirty", NULL},
+            // {"_halide_buffer_get_device_dirty", NULL},
+            // {"_halide_buffer_get_type", &ExternCallFuncs::_halide_buffer_get_type},
+            // {"_halide_buffer_set_host_dirty", NULL},
+            // {"_halide_buffer_set_device_dirty", NULL},
+            // {"_halide_buffer_is_bounds_query", NULL},
+            // {"_halide_buffer_init", NULL},
+            // {"_halide_buffer_init_from_buffer", NULL},
+            // {"_halide_buffer_crop", NULL},
+            // {"_halide_buffer_set_bounds", NULL},
             // {"halide_trace_helper", NULL},
 
-            // Defined in DeviceInterface.cpp 
+            // Defined in DeviceInterface.cpp
             // Replaced here by directly returning Null insteaf of an AOT-...-Runtime.cpp
 
             {"halide_oneapi_device_interface", &ExternCallFuncs::halide_oneapi_device_interface}
@@ -588,7 +591,7 @@ protected:
             stream << get_indent() << "std::cout << \"Condition '" <<  id_cond << "' failed "
                    << "with error id_msg: " << id_msg
                    << "\\n\";\n";
-            stream << get_indent() << "assert(false);\n"; 
+            stream << get_indent() << "assert(false);\n";
             // stream << get_indent() << "return " << id_msg << ";\n";
             close_scope("");
         }
@@ -608,13 +611,13 @@ protected:
             rhs << "    // insert padding otherwise.\n";
             rhs << "    uint64_t offset;\n";
             rhs << "    void* mem;\n";
-            rhs << "};\n"; 
-            return rhs.str();        
+            rhs << "};\n";
+            return rhs.str();
         }
 
 
     public:
-        EmitOneAPIFunc(CodeGen_OneAPI_C* parent, std::ostringstream &s, Target t) : 
+        EmitOneAPIFunc(CodeGen_OneAPI_C* parent, std::ostringstream &s, Target t) :
             CodeGen_OneAPI_C(s, t) {
                 parent = parent;
                 stream << EmitOneAPIFunc_Marker;
@@ -624,13 +627,13 @@ protected:
                 currently_inside_kernel = false;
         }
 
-        // (TODO) Make a function to use instead of void CodeGen_C::compile(const Module &input) 
+        // (TODO) Make a function to use instead of void CodeGen_C::compile(const Module &input)
         // b/c it is not overridable
 
-        // From CodeGen_C 
+        // From CodeGen_C
         void compile(const LoweredFunc &func) override;
 
-        // From CodeGen_OneAPI_C 
+        // From CodeGen_OneAPI_C
         void add_kernel(Stmt stmt,
                         const std::string &name,
                         const std::vector<DeviceArgument> &args);
@@ -643,7 +646,7 @@ protected:
                 it++;
             }
 
-            // return everything after the EmitOneAPIFunc_Marker  
+            // return everything after the EmitOneAPIFunc_Marker
             // This removes any extra output returned from the parent class initalization
             std::string str = stream_ptr->str();
             // size_t pos = str.find(EmitOneAPIFunc_Marker) + EmitOneAPIFunc_Marker.size();
@@ -653,7 +656,7 @@ protected:
             return str;
         };
 
-    };  
+    };
 
 private:
 

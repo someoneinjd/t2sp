@@ -16,21 +16,18 @@
 *
 * SPDX-License-Identifier: BSD-2-Clause-Patent
 *******************************************************************************/
-#ifndef T2S_PATTERN_MATCHER_H
-#define T2S_PATTERN_MATCHER_H
+#ifndef T2S_PABUFFER_H
+#define T2S_PABUFFER_H
 
 #include "../../Halide/src/IR.h"
 
 namespace Halide {
-namespace Internal {
 
-using std::string;
+namespace Internal{
 
-Stmt match_patterns(Stmt s);
-Stmt rewrite_memory_partition(Stmt s, const std::map<string, Function> &env);
+extern Stmt insert_addressable_buffer(Stmt s, const std::map<std::string, Function> &env);
 
 }
 }
-
-
 #endif
+

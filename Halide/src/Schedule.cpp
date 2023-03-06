@@ -221,6 +221,7 @@ struct FuncScheduleContents {
     LateFuseParams late_fuse_params;
     std::vector<StorageDim> storage_dims;
     std::vector<Bound> bounds;
+    std::vector<Bound> storage_bounds;
     std::vector<Bound> estimates;
     std::map<std::string, Internal::FunctionPtr> wrappers;
     MemoryType memory_type;
@@ -287,10 +288,12 @@ struct StageScheduleContents {
     std::vector<Func> merged_ures;
     std::vector<SpaceTimeTransformParams> transform_params;
     std::vector<TriangularLoopParams> triangular_loop_params;
+    std::vector<PartitionItem> partition_params;
     std::vector<ScatterItem> scatter_params;
     std::vector<GatherItem> gather_params;
     std::vector<RelayItem> relay_params;
     std::vector<BufferItem> buffer_params;
+    std::vector<AddressableBufferItem> addressable_buffer_params;
     std::vector<CmdQueueItem> cmd_params;
     std::vector<std::string> remove_params;
     StoreParams store_params;
@@ -358,6 +361,7 @@ FuncSchedule FuncSchedule::deep_copy(
     copy.contents->compute_level = contents->compute_level;
     copy.contents->storage_dims = contents->storage_dims;
     copy.contents->bounds = contents->bounds;
+    copy.contents->storage_bounds = contents->storage_bounds;
     copy.contents->estimates = contents->estimates;
     copy.contents->memory_type = contents->memory_type;
     copy.contents->memoized = contents->memoized;
@@ -412,6 +416,14 @@ std::vector<Bound> &FuncSchedule::bounds() {
 
 const std::vector<Bound> &FuncSchedule::bounds() const {
     return contents->bounds;
+}
+
+std::vector<Bound> &FuncSchedule::storage_bounds() {
+    return contents->storage_bounds;
+}
+
+const std::vector<Bound> &FuncSchedule::storage_bounds() const {
+    return contents->storage_bounds;
 }
 
 std::vector<Bound> &FuncSchedule::estimates() {
@@ -526,8 +538,10 @@ StageSchedule StageSchedule::get_copy() const {
     copy.contents->transform_params = contents->transform_params;
     copy.contents->fetch_params = contents->fetch_params;
     copy.contents->store_params = contents->store_params;
+    copy.contents->partition_params = contents->partition_params;
     copy.contents->scatter_params = contents->scatter_params;
-    copy.contents->buffer_params = contents->buffer_params; 
+    copy.contents->buffer_params = contents->buffer_params;
+    copy.contents->addressable_buffer_params = contents->addressable_buffer_params;
     copy.contents->gather_params = contents->gather_params; 
     copy.contents->relay_params = contents->relay_params;
     copy.contents->remove_params = contents->remove_params; 
@@ -661,6 +675,14 @@ bool &StageSchedule::is_extended_ure() {
     return contents->is_extended_ure;
 }
 
+const std::vector<PartitionItem> &StageSchedule::partition_params() const {
+    return contents->partition_params;
+}
+
+std::vector<PartitionItem> &StageSchedule::partition_params() {
+    return contents->partition_params;
+}
+
 const std::vector<ScatterItem> &StageSchedule::scatter_params() const {
     return contents->scatter_params;
 }
@@ -699,6 +721,14 @@ const std::vector<BufferItem> &StageSchedule::buffer_params() const {
 
 std::vector<BufferItem> &StageSchedule::buffer_params() {
     return contents->buffer_params;
+}
+
+const std::vector<AddressableBufferItem> &StageSchedule::addressable_buffer_params() const {
+    return contents->addressable_buffer_params;
+}
+
+std::vector<AddressableBufferItem> &StageSchedule::addressable_buffer_params() {
+    return contents->addressable_buffer_params;
 }
 
 const std::vector<CmdQueueItem> &StageSchedule::cmd_params() const {

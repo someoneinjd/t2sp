@@ -16,21 +16,17 @@
 *
 * SPDX-License-Identifier: BSD-2-Clause-Patent
 *******************************************************************************/
-#ifndef T2S_PATTERN_MATCHER_H
-#define T2S_PATTERN_MATCHER_H
+#ifndef T2S_DATA_PLACEMENT_H
+#define T2S_DATA_PLACEMENT_H
 
 #include "../../Halide/src/IR.h"
 
 namespace Halide {
 namespace Internal {
 
-using std::string;
-
-Stmt match_patterns(Stmt s);
-Stmt rewrite_memory_partition(Stmt s, const std::map<string, Function> &env);
+Stmt place_data_accrss_banks(Stmt s, const std::map<std::string, Function> &env);
 
 }
 }
-
 
 #endif

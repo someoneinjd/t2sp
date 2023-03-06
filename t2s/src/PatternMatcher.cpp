@@ -20,6 +20,7 @@
 #include "../../Halide/src/IRVisitor.h"
 #include "../../Halide/src/Simplify.h"
 #include "../../Halide/src/IREquality.h"
+#include "./StructType.h"
 #include "./PatternMatcher.h"
 #include "./Utilities.h"
 
@@ -213,6 +214,83 @@ public:
         return body;
     }
 };
+
+class PartitionMatcher : public IRMutator
+{
+    vector<PartitionItem> v_param;
+    std::map<string, Expr> original_node;
+    const std::map<string, Function> &env;
+public:
+    using IRMutator::visit;
+    PartitionMatcher(const std::map<string, Function> &_e) : env(_e) {}
+
+    Stmt visit(const ProducerConsumer *op) override {
+        Function func;
+        if (op->is_producer && function_is_in_environment(op->name, env, func)) {
+            auto &param = func.definition().schedule().partition_params();
+            if (!param.empty()) {
+                internal_assert(param.size() == 1);
+                v_param.push_back(param[0]);
+            }
+        }
+        return IRMutator::visit(op);
+    }
+
+    Stmt visit(const For *op) override {
+        Stmt body = mutate(op->body);
+        string func_name = extract_first_token(op->name);
+        auto it = std::find_if(v_param.begin(), v_param.end(), [&](const PartitionItem &p){ return p.consumer == func_name; });
+        if (it != v_param.end() && extract_last_token(op->name) == it->loop_name) {
+            internal_assert(original_node.count(func_name) > 0);
+            Expr write_val = original_node.at(func_name);
+            string tmp_array_name = func_name + ".temp";
+            string tmp_loop_name = op->name + ".t";
+            Stmt write_temp;
+            auto extent = op->extent.as<IntImm>();
+            internal_assert(extent);
+            for (int i = 0; i < extent->value; i += it->stride) {
+                Expr curr = write_val;
+                if (write_val.as<Select>()) {
+                    Expr expected_cond = Variable::make(Int(32), op->name) < (i+it->stride);
+                    internal_assert(equal(expected_cond, write_val.as<Select>()->condition));
+                    curr = write_val.as<Select>()->true_value;
+                    write_val = write_val.as<Select>()->false_value;
+                }
+                Expr write_idx = Variable::make(Int(32), tmp_loop_name) + i;
+                Stmt write_node = Provide::make(tmp_array_name, {curr}, {write_idx});
+                write_temp = write_temp.defined() ? Block::make(write_temp, write_node) : write_node;
+            }
+            write_temp = For::make(tmp_loop_name, 0, it->stride, ForType::Unrolled, op->device_api, write_temp);
+            body = For::make(op->name, op->min, op->extent, op->for_type, op->device_api, body);
+            body = Block::make(write_temp, body);
+            Stmt realize_temp = Realize::make(tmp_array_name, { write_val.type() }, MemoryType::Auto,
+                                              { Range(op->min, op->extent) }, const_true(), body);
+            return realize_temp;
+        }
+        return For::make(op->name, op->min, op->extent, op->for_type, op->device_api, body);
+    }
+
+    Stmt visit(const Provide *op) override {
+        auto it = std::find_if(v_param.begin(), v_param.end(), [&](const PartitionItem &p){ return p.consumer == op->name; });
+        if (it != v_param.end()) {
+            // Replace the reference to the original value with the temporary value
+            internal_assert(op->values.size() == 1 && op->values[0].as<Select>());
+            original_node[op->name] = op->values[0];
+            auto tmp_array_name = it->consumer + ".temp";
+            auto loop_var = Variable::make(Int(32), it->consumer + ".s0." + it->loop_name);
+            Expr read_temp = Call::make(op->values[0].type(), tmp_array_name, { loop_var }, Call::Intrinsic);
+            return Provide::make(op->name, { read_temp }, op->args);
+        }
+        return IRMutator::visit(op);
+    }
+
+};
+
+Stmt rewrite_memory_partition(Stmt s, const std::map<string, Function> &env) {
+    PartitionMatcher pm(env);
+    s = pm.mutate(s);
+    return s;
+}
 
 Stmt match_patterns(Stmt s) {
     InnerProductMatcher ipm;

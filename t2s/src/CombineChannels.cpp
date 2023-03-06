@@ -327,6 +327,10 @@ void decide_channels_to_combine(const vector<ChannelAccess>  &channel_accesses,
                 // this channel is already combined before
                 continue;
             }
+            if (get_number_of_mem_channel(c1.channel) || get_number_of_mem_channel(c2.channel)) {
+                // this mem_channel is partitioned, not to combine
+                continue;
+            }
             // Look at writes in the same func under same path condition in same args for combining
             if (!c1.is_write || !c2.is_write) {
                 continue;

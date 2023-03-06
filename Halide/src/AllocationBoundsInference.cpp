@@ -90,6 +90,13 @@ class AllocationInference : public IRMutator {
                     bound = b;
                 }
             }
+            Bound storage_bound;
+            for (size_t j = 0; j < f.schedule().storage_bounds().size(); j++) {
+                Bound b = f.schedule().storage_bounds()[j];
+                if (f_args[i] == b.var) {
+                    storage_bound = b;
+                }
+            }
 
             string prefix = op->name + "." + f_args[i];
             string min_name = prefix + ".min_realized";
@@ -102,14 +109,20 @@ class AllocationInference : public IRMutator {
             Expr min, max, extent;
             b[i].min = simplify(b[i].min);
             b[i].max = simplify(b[i].max);
-            if (arg_min_extents.find(f_args[i]) != arg_min_extents.end()) {
+            // Storage bound has the highest priority
+            if (storage_bound.min.defined()) {
+                min = storage_bound.min;
+            } else if (arg_min_extents.find(f_args[i]) != arg_min_extents.end()) {
                 min = arg_min_extents.at(f_args[i]).first;
             } else if (bound.min.defined()) {
                 min = bound.min;
             } else {
                 min = b[i].min;
             }
-            if (arg_min_extents.find(f_args[i]) != arg_min_extents.end()) {
+            if (storage_bound.extent.defined()) {
+                extent = storage_bound.extent;
+                max = simplify(min + extent - 1);
+            } else if (arg_min_extents.find(f_args[i]) != arg_min_extents.end()) {
                 extent = arg_min_extents.at(f_args[i]).second;
                 max = simplify(min +extent - 1);
             } else if (bound.extent.defined()) {

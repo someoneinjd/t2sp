@@ -1,7 +1,7 @@
 #include <iostream>
 #include <limits>
 
-#include "CodeGen_C.h"
+#include "CodeGen_Clear_C.h"
 #include "CodeGen_Internal.h"
 #include "Deinterleave.h"
 #include "DeviceArgument.h"
@@ -13,6 +13,7 @@
 #include "Type.h"
 #include "Util.h"
 #include "Var.h"
+#include "../../t2s/src/DebugPrint.h"
 #include "../../t2s/src/Utilities.h"
 
 namespace Halide {
@@ -316,8 +317,8 @@ public:
     std::set<Type> vector_types_used;
 };
 
-CodeGen_C::CodeGen_C(ostream &s, Target t, OutputKind output_kind, const std::string &guard)
-    : IRPrinter(s), id("$$ BAD ID $$"), target(t), output_kind(output_kind),
+CodeGen_Clear_C::CodeGen_Clear_C(ostream &s, Target t, OutputKind output_kind, const std::string &guard)
+    : IRPrinter(s), latest_expr("$$ BAD ID $$"), target(t), output_kind(output_kind),
       extern_c_open(false), inside_atomic_mutex_node(false), emit_atomic_stores(false) {
 
     if (is_host_interface()) {
@@ -392,7 +393,7 @@ CodeGen_C::CodeGen_C(ostream &s, Target t, OutputKind output_kind, const std::st
     }
 }
 
-CodeGen_C::~CodeGen_C() {
+CodeGen_Clear_C::~CodeGen_Clear_C() {
     set_name_mangling_mode(NameMangling::Default);
 
     if (is_header()) {
@@ -452,7 +453,7 @@ CodeGen_C::~CodeGen_C() {
     }
 }
 
-void CodeGen_C::add_common_macros(std::ostream &dest) {
+void CodeGen_Clear_C::add_common_macros(std::ostream &dest) {
     const char *macros = R"INLINE_CODE(
 // ll suffix in OpenCL is reserved for 128-bit integers.
 #if defined __OPENCL_VERSION__
@@ -470,7 +471,7 @@ void CodeGen_C::add_common_macros(std::ostream &dest) {
     dest << macros;
 }
 
-void CodeGen_C::add_vector_typedefs(const std::set<Type> &vector_types) {
+void CodeGen_Clear_C::add_vector_typedefs(const std::set<Type> &vector_types) {
     if (!vector_types.empty()) {
         // MSVC has a limit of ~16k for string literals, so split
         // up these declarations accordingly
@@ -1371,7 +1372,7 @@ NativeVector<ElementType, Lanes> operator>>(const NativeVector<ElementType, Lane
     }
 }
 
-void CodeGen_C::set_name_mangling_mode(NameMangling mode) {
+void CodeGen_Clear_C::set_name_mangling_mode(NameMangling mode) {
     if (extern_c_open && mode != NameMangling::C) {
         stream << "\n#ifdef __cplusplus\n";
         stream << "}  // extern \"C\"\n";
@@ -1385,11 +1386,11 @@ void CodeGen_C::set_name_mangling_mode(NameMangling mode) {
     }
 }
 
-string CodeGen_C::print_type(Type type, AppendSpaceIfNeeded space_option) {
+string CodeGen_Clear_C::print_type(Type type, AppendSpaceIfNeeded space_option) {
     return type_to_c_type(type, space_option == AppendSpace);
 }
 
-string CodeGen_C::print_reinterpret(Type type, Expr e) {
+string CodeGen_Clear_C::print_reinterpret(Type type, Expr e) {
     ostringstream oss;
     if (type.is_handle() || e.type().is_handle()) {
         // Use a c-style cast if either src or dest is a handle --
@@ -1405,8 +1406,20 @@ string CodeGen_C::print_reinterpret(Type type, Expr e) {
     return oss.str();
 }
 
-string CodeGen_C::print_name(const string &name) {
-    return c_print_name(name);
+string CodeGen_Clear_C::print_name(const string &name) {
+    ostringstream oss;
+    for (size_t i = 0; i < name.size(); i++) {
+        if (name[i] == '.') {
+            oss << '_';
+        } else if (name[i] == '$') {
+            oss << "_";
+        } else if (name[i] != '_' && !isalnum(name[i])) {
+            oss << "_";
+        } else {
+            oss << name[i];
+        }
+    }
+    return oss.str();
 }
 
 namespace {
@@ -1594,7 +1607,7 @@ string create_kernel_name(const For *op) {
 class GatherKernelInfo : public IRVisitor {
     using IRVisitor::visit;
 private:
-    CodeGen_C* parent;
+    CodeGen_Clear_C* parent;
 public:
     vector<string> kernel_names;
 
@@ -1617,7 +1630,7 @@ public:
 
 }  // namespace
 
-void CodeGen_C::forward_declare_type_if_needed(const Type &t) {
+void CodeGen_Clear_C::forward_declare_type_if_needed(const Type &t) {
     if (!t.handle_type ||
         forward_declared.count(t.handle_type) ||
         t.handle_type->inner_name.cpp_type_type == halide_cplusplus_type_name::Simple) {
@@ -1651,7 +1664,7 @@ void CodeGen_C::forward_declare_type_if_needed(const Type &t) {
     forward_declared.insert(t.handle_type);
 }
 
-void CodeGen_C::compile(const Module &input) {
+void CodeGen_Clear_C::compile(const Module &input) {
     TypeInfoGatherer type_info;
     for (const auto &f : input.functions()) {
         if (f.body.defined()) {
@@ -1741,7 +1754,7 @@ void CodeGen_C::compile(const Module &input) {
     }
 }
 
-void CodeGen_C::compile(const LoweredFunc &f) {
+void CodeGen_Clear_C::compile(const LoweredFunc &f) {
     // Don't put non-external function declarations in headers.
     if (is_header_or_extern_decl() && f.linkage == LinkageType::Internal) {
         return;
@@ -1842,7 +1855,7 @@ void CodeGen_C::compile(const LoweredFunc &f) {
     }
 }
 
-void CodeGen_C::compile(const Buffer<> &buffer) {
+void CodeGen_Clear_C::compile(const Buffer<> &buffer) {
     // Don't define buffers in headers or extern decls.
     if (is_header_or_extern_decl()) {
         return;
@@ -1915,115 +1928,204 @@ void CodeGen_C::compile(const Buffer<> &buffer) {
     stream << "static halide_buffer_t * const " << name << "_buffer = &" << name << "_buffer_;\n";
 }
 
-string CodeGen_C::print_expr(Expr e) {
-    id = "$$ BAD ID $$";
-    e.accept(this);
-    return id;
+int CodeGen_Clear_C::precedence_of_op(const char *op) {
+    // Per https://en.cppreference.com/w/c/language/operator_precedence
+    if (strcmp(op, "!") == 0 || strcmp(op, "~") == 0) {
+        return 2;
+    }
+    if (strcmp(op, "*") == 0 || strcmp(op, "/") == 0 || strcmp(op, "%") == 0) {
+        return 3;
+    }
+    if (strcmp(op, "+") == 0 || strcmp(op, "-") == 0) {
+        return 4;
+    }
+    if (strcmp(op, "<<") == 0 || strcmp(op, ">>") == 0) {
+        return 5;
+    }
+    if (strcmp(op, "<") == 0 || strcmp(op, "<=") == 0 || strcmp(op, ">") == 0 || strcmp(op, ">=") == 0) {
+        return 6;
+    }
+    if (strcmp(op, "==") == 0 || strcmp(op, "!=") == 0) {
+        return 7;
+    }
+    if (strcmp(op, "&") == 0) {
+        return 8;
+    }
+    if (strcmp(op, "^") == 0) {
+        return 9;
+    }
+    if (strcmp(op, "|") == 0) {
+        return 10;
+    }
+    if (strcmp(op, "&&") == 0) {
+        return 11;
+    }
+    if (strcmp(op, "||") == 0) {
+        return 12;
+    }
+    if (strcmp(op, "?:") == 0) {
+        return 13;
+    }
+
+    internal_assert(strcmp(op, "Variable") == 0 || strcmp(op, "Immediate") == 0 || strcmp(op, "Call") == 0);
+    return 1;
 }
 
-string CodeGen_C::print_cast_expr(const Type &t, Expr e) {
+void CodeGen_Clear_C::op_of_expr(const Expr & e, char * op) {
+    internal_assert(op != NULL);
+    if (e.as<Variable>()) {
+        strncpy(op, "Variable", 15);
+    } else if (e.as<IntImm>() || e.as<UIntImm>() || e.as<StringImm>() ||e.as<FloatImm>()) {
+        strncpy(op, "Immediate", 15);
+    } else if (e.as<Cast>() || e.as<Max>() || e.as<Min>()) {
+        strncpy(op, "Call", 15);
+    } else if (e.as<Add>()) {
+        strncpy(op, "+", 15);
+    } else if (e.as<Sub>()) {
+        strncpy(op, "-", 15);
+    } else if (e.as<Mul>()) {
+        strncpy(op, "*", 15);
+    } else if (e.as<Div>()) {
+        strncpy(op, "/", 15);
+    } else if (e.as<Mod>()) {
+        strncpy(op, "%", 15);
+    } else if (e.as<EQ>()) {
+        strncpy(op, "==", 15);
+    } else if (e.as<NE>()) {
+        strncpy(op, "!=", 15);
+    } else if (e.as<LT>()) {
+        strncpy(op, "<", 15);
+    } else if (e.as<LE>()) {
+        strncpy(op, "<=", 15);
+    } else if (e.as<GT>()) {
+        strncpy(op, ">", 15);
+    } else if (e.as<GE>()) {
+        strncpy(op, ">=", 15);
+    } else if (e.as<And>()) {
+        strncpy(op, "&&", 15);
+    } else if (e.as<Or>()) {
+        strncpy(op, "||", 15);
+    } else if (e.as<Not>()) {
+        strncpy(op, "!", 15);
+    } else if (e.as<Select>()) {
+        strncpy(op, "?:", 15);
+    } else if (e.as<Let>()) {
+        // The expression we care is the body.
+        op_of_expr(e.as<Let>()->body, op);
+    } else if (e.as<Broadcast>()) {
+        // The expression we care is the value.
+        op_of_expr(e.as<Broadcast>()->value, op);
+    } else if (e.as<Ramp>()) {
+        // The expression will be generated as base + stride * (0,.., lanes-1). So operation is +
+        strncpy(op, "+", 15);
+    } else {
+        const Call *call = e.as<Call>();
+        if (call) {
+            if (call->name == "bitwise_and") {
+                strncpy(op, "&", 15);
+            } else if (call->name == "bitwise_not") {
+                strncpy(op, "~", 15);
+            } else if (call->name == "bitwise_or") {
+                strncpy(op, "|", 15);
+            } else if (call->name == "bitwise_xor") {
+                strncpy(op, "^", 15);
+            } else if (call->name == "shift_left") {
+                strncpy(op, "<<", 15);
+            } else if (call->name == "shift_right") {
+                strncpy(op, ">>", 15);
+            } else {
+                strncpy(op, "Call", 15);
+            }
+        } else {
+            // All the other types of expressions will be generated as function calls.
+            strncpy(op, "Call", 15);
+        }
+    }
+}
+
+int CodeGen_Clear_C::precedence_of_expr(const Expr &e) {
+    char e_op[20];
+    op_of_expr(e, e_op);
+    return precedence_of_op(e_op);
+}
+
+string CodeGen_Clear_C::print_expr(Expr e) {
+    latest_expr = "$$ BAD ID $$";
+    e.accept(this);
+    return latest_expr;
+}
+
+string CodeGen_Clear_C::print_cast_expr(const Type &t, Expr e) {
     string value = print_expr(e);
     string type = print_type(t);
     if (t.is_vector() &&
         t.lanes() == e.type().lanes() &&
         t != e.type()) {
-        return print_assignment(t, type + "::convert_from<" + print_type(e.type()) + ">(" + value + ")");
+        return set_latest_expr(t, type + "::convert_from<" + print_type(e.type()) + ">(" + value + ")");
     } else {
-        return print_assignment(t, "(" + type + ")(" + value + ")");
+        return set_latest_expr(t, "(" + type + ")(" + value + ")");
     }
 }
 
-void CodeGen_C::print_stmt(Stmt s) {
+void CodeGen_Clear_C::print_stmt(Stmt s) {
     s.accept(this);
 }
 
-string CodeGen_C::print_assignment(Type t, const std::string &rhs) {
-    auto cached = cache.find(rhs);
-    if (cached == cache.end()) {
-        id = unique_name('_');
-        stream << get_indent() << print_type(t, AppendSpace) << (output_kind == CPlusPlusImplementation ? "const " : "") << id << " = " << rhs << ";\n";
-        cache[rhs] = id;
-    } else {
-        id = cached->second;
-    }
-    return id;
+string CodeGen_Clear_C::set_latest_expr(Type t, const std::string &rhs) {
+    // Type conversion must have been done before calling this function
+    latest_expr = rhs;
+    return latest_expr;
 }
 
-void CodeGen_C::open_scope() {
-    cache.clear();
+void CodeGen_Clear_C::open_scope() {
     stream << get_indent();
     indent++;
     stream << "{\n";
 }
 
-void CodeGen_C::close_scope(const std::string &comment) {
-    cache.clear();
+void CodeGen_Clear_C::close_scope(const std::string &comment) {
     indent--;
     stream << get_indent();
-    if (!comment.empty()) {
-        stream << "} // " << comment << "\n";
-    } else {
-        stream << "}\n";
-    }
+    stream << "}\n";
 }
 
-void CodeGen_C::visit(const Variable *op) {
-    id = print_name(op->name);
+void CodeGen_Clear_C::visit(const Variable *op) {
+    latest_expr = print_name(op->name);
 }
 
-void CodeGen_C::visit(const Cast *op) {
-    id = print_cast_expr(op->type, op->value);
+void CodeGen_Clear_C::visit(const Cast *op) {
+    latest_expr = print_cast_expr(op->type, op->value);
 }
 
-void CodeGen_C::visit_binop(Type t, Expr a, Expr b, const char *op) {
+void CodeGen_Clear_C::visit_binop(Type t, Expr a, Expr b, const char *op) {
     string sa = print_expr(a);
     string sb = print_expr(b);
-    print_assignment(t, sa + " " + op + " " + sb);
+    string sa1 = (precedence_of_op(op) < precedence_of_expr(a)) ? "(" + sa + ")" : sa;
+    string sb1 = (precedence_of_op(op) <= precedence_of_expr(b)) ? "(" + sb + ")" : sb;
+    set_latest_expr(t, sa1 + " " + op + " " + sb1);
 }
 
-void CodeGen_C::visit(const Add *op) {
+void CodeGen_Clear_C::visit(const Add *op) {
     visit_binop(op->type, op->a, op->b, "+");
 }
 
-void CodeGen_C::visit(const Sub *op) {
+void CodeGen_Clear_C::visit(const Sub *op) {
     visit_binop(op->type, op->a, op->b, "-");
 }
 
-void CodeGen_C::visit(const Mul *op) {
+void CodeGen_Clear_C::visit(const Mul *op) {
     visit_binop(op->type, op->a, op->b, "*");
 }
 
-void CodeGen_C::visit(const Div *op) {
-    int bits;
-    char* ediv = getenv("EUCLIDEAN_DIVISION");
-    if (is_const_power_of_two_integer(op->b, &bits)) {
-        visit_binop(op->type, op->a, make_const(op->a.type(), bits), ">>");
-    } else if (ediv && op->type.is_int()) {
-        print_expr(lower_euclidean_div(op->a, op->b));
-    } else {
-        visit_binop(op->type, op->a, op->b, "/");
-    }
+void CodeGen_Clear_C::visit(const Div *op) {
+    visit_binop(op->type, op->a, op->b, "/");
 }
 
-void CodeGen_C::visit(const Mod *op) {
-    int bits;
-    char* ediv = getenv("EUCLIDEAN_DIVISION");
-    if (is_const_power_of_two_integer(op->b, &bits)) {
-        visit_binop(op->type, op->a, make_const(op->a.type(), (1 << bits) - 1), "&");
-    } else if (ediv && op->type.is_int()) {
-        print_expr(lower_euclidean_mod(op->a, op->b));
-    } else if (op->type.is_float()) {
-        string arg0 = print_expr(op->a);
-        string arg1 = print_expr(op->b);
-        ostringstream rhs;
-        rhs << "fmod(" << arg0 << ", " << arg1 << ")";
-        print_assignment(op->type, rhs.str());
-    } else {
-        visit_binop(op->type, op->a, op->b, "%");
-    }
+void CodeGen_Clear_C::visit(const Mod *op) {
+    visit_binop(op->type, op->a, op->b, "%");
 }
 
-void CodeGen_C::visit(const Max *op) {
+void CodeGen_Clear_C::visit(const Max *op) {
     // clang doesn't support the ternary operator on OpenCL style vectors.
     // See: https://bugs.llvm.org/show_bug.cgi?id=33103
     if (op->type.is_scalar()) {
@@ -2031,11 +2133,11 @@ void CodeGen_C::visit(const Max *op) {
     } else {
         ostringstream rhs;
         rhs << print_type(op->type) << "::max(" << print_expr(op->a) << ", " << print_expr(op->b) << ")";
-        print_assignment(op->type, rhs.str());
+        set_latest_expr(op->type, rhs.str());
     }
 }
 
-void CodeGen_C::visit(const Min *op) {
+void CodeGen_Clear_C::visit(const Min *op) {
     // clang doesn't support the ternary operator on OpenCL style vectors.
     // See: https://bugs.llvm.org/show_bug.cgi?id=33103
     if (op->type.is_scalar()) {
@@ -2043,62 +2145,64 @@ void CodeGen_C::visit(const Min *op) {
     } else {
         ostringstream rhs;
         rhs << print_type(op->type) << "::min(" << print_expr(op->a) << ", " << print_expr(op->b) << ")";
-        print_assignment(op->type, rhs.str());
+        set_latest_expr(op->type, rhs.str());
     }
 }
 
-void CodeGen_C::visit(const EQ *op) {
+void CodeGen_Clear_C::visit(const EQ *op) {
     visit_binop(op->type, op->a, op->b, "==");
 }
 
-void CodeGen_C::visit(const NE *op) {
+void CodeGen_Clear_C::visit(const NE *op) {
     visit_binop(op->type, op->a, op->b, "!=");
 }
 
-void CodeGen_C::visit(const LT *op) {
+void CodeGen_Clear_C::visit(const LT *op) {
     visit_binop(op->type, op->a, op->b, "<");
 }
 
-void CodeGen_C::visit(const LE *op) {
+void CodeGen_Clear_C::visit(const LE *op) {
     visit_binop(op->type, op->a, op->b, "<=");
 }
 
-void CodeGen_C::visit(const GT *op) {
+void CodeGen_Clear_C::visit(const GT *op) {
     visit_binop(op->type, op->a, op->b, ">");
 }
 
-void CodeGen_C::visit(const GE *op) {
+void CodeGen_Clear_C::visit(const GE *op) {
     visit_binop(op->type, op->a, op->b, ">=");
 }
 
-void CodeGen_C::visit(const Or *op) {
+void CodeGen_Clear_C::visit(const Or *op) {
     visit_binop(op->type, op->a, op->b, "||");
 }
 
-void CodeGen_C::visit(const And *op) {
+void CodeGen_Clear_C::visit(const And *op) {
     visit_binop(op->type, op->a, op->b, "&&");
 }
 
-void CodeGen_C::visit(const Not *op) {
-    print_assignment(op->type, "!(" + print_expr(op->a) + ")");
+void CodeGen_Clear_C::visit(const Not *op) {
+    string sa = print_expr(op->a);
+    string sa1 = (precedence_of_op("!") <= precedence_of_expr(op->a)) ? "(" + sa + ")" : sa;
+    set_latest_expr(op->type, "!" + sa1);
 }
 
-void CodeGen_C::visit(const IntImm *op) {
+void CodeGen_Clear_C::visit(const IntImm *op) {
     if (op->type == Int(32)) {
-        id = std::to_string(op->value);
+        latest_expr = std::to_string(op->value);
     } else {
-        print_assignment(op->type, "(" + print_type(op->type) + ")(ADD_INT64_T_SUFFIX(" + std::to_string(op->value) + "))");
+        set_latest_expr(op->type, "(" + print_type(op->type) + ")(ADD_INT64_T_SUFFIX(" + std::to_string(op->value) + "))");
     }
 }
 
-void CodeGen_C::visit(const UIntImm *op) {
-    print_assignment(op->type, "(" + print_type(op->type) + ")(ADD_UINT64_T_SUFFIX(" + std::to_string((uint64_t)op->value) + "))");
+void CodeGen_Clear_C::visit(const UIntImm *op) {
+    set_latest_expr(op->type, "(" + print_type(op->type) + ")(ADD_UINT64_T_SUFFIX(" + std::to_string((uint64_t)op->value) + "))");
 }
 
-void CodeGen_C::visit(const StringImm *op) {
+void CodeGen_Clear_C::visit(const StringImm *op) {
     ostringstream oss;
     oss << Expr(op);
-    id = oss.str();
+    latest_expr = oss.str();
 }
 
 // NaN is the only float/double for which this is true... and
@@ -2115,14 +2219,14 @@ static bool isinf(T x) {
                                                     x == -std::numeric_limits<T>::infinity());
 }
 
-void CodeGen_C::visit(const FloatImm *op) {
+void CodeGen_Clear_C::visit(const FloatImm *op) {
     if (isnan(op->value)) {
-        id = "nan_f32()";
+        latest_expr = "nan_f32()";
     } else if (isinf(op->value)) {
         if (op->value > 0) {
-            id = "inf_f32()";
+            latest_expr = "inf_f32()";
         } else {
-            id = "neg_inf_f32()";
+            latest_expr = "neg_inf_f32()";
         }
     } else {
         // Write the constant as reinterpreted uint to avoid any bits lost in conversion.
@@ -2136,12 +2240,12 @@ void CodeGen_C::visit(const FloatImm *op) {
         if (op->type.bits() == 64) {
             oss << "(double) ";
         }
-        oss << "float_from_bits(" << u.as_uint << " /* " << u.as_float << " */)";
-        print_assignment(op->type, oss.str());
+        oss << "float_from_bits(" << u.as_uint << ")"; // "/* " << u.as_float << " */)";
+        set_latest_expr(op->type, oss.str());
     }
 }
 
-void CodeGen_C::visit(const Call *op) {
+void CodeGen_Clear_C::visit(const Call *op) {
 
     internal_assert(op->is_extern() || op->is_intrinsic())
         << "Can only codegen extern calls and intrinsics\n";
@@ -2165,20 +2269,28 @@ void CodeGen_C::visit(const Call *op) {
         internal_assert(op->args.size() == 2);
         string a0 = print_expr(op->args[0]);
         string a1 = print_expr(op->args[1]);
-        rhs << a0 << " & " << a1;
+        string a00 = (precedence_of_op("&") <= precedence_of_expr(op->args[0])) ? "(" + a0 + ")" : a0;
+        string a11 = (precedence_of_op("&") <= precedence_of_expr(op->args[1])) ? "(" + a1 + ")" : a1;
+        rhs << a00 << " & " << a11;
     } else if (op->is_intrinsic(Call::bitwise_xor)) {
         internal_assert(op->args.size() == 2);
         string a0 = print_expr(op->args[0]);
         string a1 = print_expr(op->args[1]);
-        rhs << a0 << " ^ " << a1;
+        string a00 = (precedence_of_op("^") <= precedence_of_expr(op->args[0])) ? "(" + a0 + ")" : a0;
+        string a11 = (precedence_of_op("^") <= precedence_of_expr(op->args[1])) ? "(" + a1 + ")" : a1;
+        rhs << a00 << " ^ " << a11;
     } else if (op->is_intrinsic(Call::bitwise_or)) {
         internal_assert(op->args.size() == 2);
         string a0 = print_expr(op->args[0]);
         string a1 = print_expr(op->args[1]);
-        rhs << a0 << " | " << a1;
+        string a00 = (precedence_of_op("|") <= precedence_of_expr(op->args[0])) ? "(" + a0 + ")" : a0;
+        string a11 = (precedence_of_op("|") <= precedence_of_expr(op->args[1])) ? "(" + a1 + ")" : a1;
+        rhs << a00 << " | " << a11;
     } else if (op->is_intrinsic(Call::bitwise_not)) {
         internal_assert(op->args.size() == 1);
-        rhs << "~" << print_expr(op->args[0]);
+        string a0 = print_expr(op->args[0]);
+        string a00 = (precedence_of_op("~") <= precedence_of_expr(op->args[0])) ? "(" + a0 + ")" : a0;
+        rhs << "~" << a00;
     } else if (op->is_intrinsic(Call::reinterpret)) {
         internal_assert(op->args.size() == 1);
         rhs << print_reinterpret(op->type, op->args[0]);
@@ -2186,12 +2298,24 @@ void CodeGen_C::visit(const Call *op) {
         internal_assert(op->args.size() == 2);
         string a0 = print_expr(op->args[0]);
         string a1 = print_expr(op->args[1]);
-        rhs << a0 << " << " << a1;
+        // We often get a warning like: in a+b<<c, + is executed before <<. Although this is not an error,
+        // to avoid confusion, let us generate it like (a+b) << c instead.
+        string a00 = (precedence_of_op("<<") <= precedence_of_expr(op->args[0])) ? "(" + a0 + ")" :
+                     (op->args[0].as<Add>() || op->args[0].as<Sub>()) ? "(" + a0 + ")" : a0;
+        string a11 = (precedence_of_op("<<") <= precedence_of_expr(op->args[1])) ? "(" + a1 + ")" :
+                     (op->args[1].as<Add>() || op->args[1].as<Sub>()) ? "(" + a1 + ")" : a1;
+        rhs << a00 << " << " << a11;
     } else if (op->is_intrinsic(Call::shift_right)) {
         internal_assert(op->args.size() == 2);
         string a0 = print_expr(op->args[0]);
         string a1 = print_expr(op->args[1]);
-        rhs << a0 << " >> " << a1;
+        // We often get a warning like: in a+b>>c, + is executed before >>. Although this is not an error,
+        // to avoid confusion, let us generate it like (a+b) >> c instead.
+        string a00 = (precedence_of_op(">>") <= precedence_of_expr(op->args[0])) ? "(" + a0 + ")" :
+                     (op->args[0].as<Add>() || op->args[0].as<Sub>()) ? "(" + a0 + ")" : a0;
+        string a11 = (precedence_of_op(">>") <= precedence_of_expr(op->args[1])) ? "(" + a1 + ")" :
+                     (op->args[1].as<Add>() || op->args[1].as<Sub>()) ? "(" + a1 + ")" : a1;
+        rhs << a00 << " >> " << a11;
     } else if (op->is_intrinsic(Call::count_leading_zeros) ||
                op->is_intrinsic(Call::count_trailing_zeros) ||
                op->is_intrinsic(Call::popcount)) {
@@ -2256,7 +2380,7 @@ void CodeGen_C::visit(const Call *op) {
     } else if (op->is_intrinsic(Call::memoize_expr)) {
         internal_assert(!op->args.empty());
         string arg = print_expr(op->args[0]);
-        rhs << "(" << arg << ")";
+        rhs << arg;
     } else if (op->is_intrinsic(Call::alloca)) {
         internal_assert(op->args.size() == 1);
         internal_assert(op->type.is_handle());
@@ -2290,7 +2414,7 @@ void CodeGen_C::visit(const Call *op) {
             }
 
             static_assert(sizeof(halide_dimension_t) == 4 * sizeof(int32_t),
-                          "CodeGen_C assumes a halide_dimension_t is four densely-packed int32_ts");
+                          "CodeGen_Clear_C assumes a halide_dimension_t is four densely-packed int32_ts");
 
             internal_assert(values.size() % 4 == 0);
             int dimension = values.size() / 4;
@@ -2401,9 +2525,17 @@ void CodeGen_C::visit(const Call *op) {
                << "} " << instance_name << "(_ucon, " << arg << ");\n";
         rhs << print_expr(0);
     } else if (op->is_intrinsic(Call::div_round_to_zero)) {
-        rhs << print_expr(op->args[0]) << " / " << print_expr(op->args[1]);
+        string a0 = print_expr(op->args[0]);
+        string a1 = print_expr(op->args[1]);
+        string a00 = (precedence_of_op("/") <= precedence_of_expr(op->args[0])) ? "(" + a0 + ")" : a0;
+        string a11 = (precedence_of_op("/") <= precedence_of_expr(op->args[1])) ? "(" + a1 + ")" : a1;
+        rhs << a00  << " / " << a11;
     } else if (op->is_intrinsic(Call::mod_round_to_zero)) {
-        rhs << print_expr(op->args[0]) << " % " << print_expr(op->args[1]);
+        string a0 = print_expr(op->args[0]);
+        string a1 = print_expr(op->args[1]);
+        string a00 = (precedence_of_op("%") <= precedence_of_expr(op->args[0])) ? "(" + a0 + ")" : a0;
+        string a11 = (precedence_of_op("%") <= precedence_of_expr(op->args[1])) ? "(" + a1 + ")" : a1;
+        rhs << a00  << " % " << a11;
     } else if (op->is_intrinsic(Call::signed_integer_overflow)) {
         user_error << "Signed integer overflow occurred during constant-folding. Signed"
                       " integer overflow for int32 and int64 is undefined behavior in"
@@ -2459,13 +2591,13 @@ void CodeGen_C::visit(const Call *op) {
     if (op->name == "halide_print") {
         stream << get_indent() << rhs.str() << ";\n";
         // Make an innocuous assignment value for our caller (probably an Evaluate node) to ignore.
-        print_assignment(op->type, "0");
+        set_latest_expr(op->type, "0");
     } else {
-        print_assignment(op->type, rhs.str());
+        set_latest_expr(op->type, rhs.str());
     }
 }
 
-string CodeGen_C::print_scalarized_expr(Expr e) {
+string CodeGen_Clear_C::print_scalarized_expr(Expr e) {
     Type t = e.type();
     internal_assert(t.is_vector());
     string v = unique_name('_');
@@ -2475,12 +2607,12 @@ string CodeGen_C::print_scalarized_expr(Expr e) {
         string elem = print_expr(e2);
         ostringstream rhs;
         rhs << v << ".replace(" << lane << ", " << elem << ")";
-        v = print_assignment(t, rhs.str());
+        v = set_latest_expr(t, rhs.str());
     }
     return v;
 }
 
-string CodeGen_C::print_extern_call(const Call *op) {
+string CodeGen_Clear_C::print_extern_call(const Call *op) {
     if (op->type.is_vector()) {
         // Need to split into multiple scalar calls.
         return print_scalarized_expr(op);
@@ -2501,7 +2633,7 @@ string CodeGen_C::print_extern_call(const Call *op) {
     return rhs.str();
 }
 
-void CodeGen_C::visit(const Load *op) {
+void CodeGen_Clear_C::visit(const Load *op) {
     user_assert(is_one(op->predicate)) << "Predicated load is not supported by C backend.\n";
 
     // TODO: We could replicate the logic in the llvm codegen which decides whether
@@ -2534,10 +2666,10 @@ void CodeGen_C::visit(const Load *op) {
         }
         rhs << "[" << id_index << "]";
     }
-    print_assignment(t, rhs.str());
+    set_latest_expr(t, rhs.str());
 }
 
-void CodeGen_C::visit(const Store *op) {
+void CodeGen_Clear_C::visit(const Store *op) {
     user_assert(is_one(op->predicate)) << "Predicated store is not supported by C backend.\n";
 
     Type t = op->value.type();
@@ -2590,26 +2722,17 @@ void CodeGen_C::visit(const Store *op) {
         }
         stream << "[" << id_index << "] = " << id_value << ";\n";
     }
-    cache.clear();
 }
 
-void CodeGen_C::visit(const Let *op) {
-    string id_value = print_expr(op->value);
-    Expr body = op->body;
-    if (op->value.type().is_handle()) {
-        // The body might contain a Load that references this directly
-        // by name, so we can't rewrite the name.
-        stream << get_indent() << print_type(op->value.type())
-               << " " << print_name(op->name)
-               << " = " << id_value << ";\n";
-    } else {
-        Expr new_var = Variable::make(op->value.type(), id_value);
-        body = substitute(op->name, new_var, body);
-    }
-    print_expr(body);
+void CodeGen_Clear_C::visit(const Let *op) {
+    string value = print_expr(op->value);
+    stream << get_indent() << print_type(op->value.type())
+           << " " << print_name(op->name)
+           << " = " << value << ";\n";
+    print_expr(op->body);
 }
 
-void CodeGen_C::visit(const Select *op) {
+void CodeGen_Clear_C::visit(const Select *op) {
     if (is_host_interface()) {
         // The branch(es) might contain actions with side effects like a channel read.
         // Thus we must guard the branch(es).
@@ -2635,31 +2758,23 @@ void CodeGen_C::visit(const Select *op) {
         } else {
             rhs << type << "::select(" << cond << ", " << true_val << ", " << false_val << ")";
         }
-        print_assignment(op->type, rhs.str());
+        set_latest_expr(op->type, rhs.str());
     }
 }
 
-void CodeGen_C::visit(const LetStmt *op) {
+void CodeGen_Clear_C::visit(const LetStmt *op) {
     string id_value = print_expr(op->value);
-    Stmt body = op->body;
-    if (op->value.type().is_handle()) {
-        // The body might contain a Load or Store that references this
-        // directly by name, so we can't rewrite the name.
-        stream << get_indent() << print_type(op->value.type())
-               << " " << print_name(op->name)
-               << " = " << id_value << ";\n";
-    } else {
-        Expr new_var = Variable::make(op->value.type(), id_value);
-        body = substitute(op->name, new_var, body);
-    }
-    body.accept(this);
+    stream << get_indent() << print_type(op->value.type())
+           << " " << print_name(op->name)
+           << " = " << id_value << ";\n";
+    op->body.accept(this);
 }
 
 // Halide asserts have different semantics to C asserts.  They're
 // supposed to clean up and make the containing function return
 // -1, so we can't use the C version of assert. Instead we convert
 // to an if statement.
-void CodeGen_C::create_assertion(const string &id_cond, const string &id_msg) {
+void CodeGen_Clear_C::create_assertion(const string &id_cond, const string &id_msg) {
     if (target.has_feature(Target::NoAsserts)) return;
 
     stream << get_indent() << "if (!" << id_cond << ")\n";
@@ -2668,7 +2783,7 @@ void CodeGen_C::create_assertion(const string &id_cond, const string &id_msg) {
     close_scope("");
 }
 
-void CodeGen_C::create_assertion(const string &id_cond, Expr message) {
+void CodeGen_Clear_C::create_assertion(const string &id_cond, Expr message) {
     internal_assert(!message.defined() || message.type() == Int(32))
         << "Assertion result is not an int: " << message;
 
@@ -2683,25 +2798,20 @@ void CodeGen_C::create_assertion(const string &id_cond, Expr message) {
     close_scope("");
 }
 
-void CodeGen_C::create_assertion(Expr cond, Expr message) {
+void CodeGen_Clear_C::create_assertion(Expr cond, Expr message) {
     create_assertion(print_expr(cond), message);
 }
 
-void CodeGen_C::visit(const AssertStmt *op) {
+void CodeGen_Clear_C::visit(const AssertStmt *op) {
     create_assertion(op->condition, op->message);
 }
 
-void CodeGen_C::visit(const ProducerConsumer *op) {
+void CodeGen_Clear_C::visit(const ProducerConsumer *op) {
     stream << get_indent();
-    if (op->is_producer) {
-        stream << "// produce " << op->name << '\n';
-    } else {
-        stream << "// consume " << op->name << '\n';
-    }
     print_stmt(op->body);
 }
 
-void CodeGen_C::visit(const Fork *op) {
+void CodeGen_Clear_C::visit(const Fork *op) {
     // TODO: This doesn't actually work with nested tasks
     stream << get_indent() << "#pragma omp parallel\n";
     open_scope();
@@ -2720,7 +2830,7 @@ void CodeGen_C::visit(const Fork *op) {
     close_scope("");
 }
 
-void CodeGen_C::visit(const Acquire *op) {
+void CodeGen_Clear_C::visit(const Acquire *op) {
     string id_sem = print_expr(op->semaphore);
     string id_count = print_expr(op->count);
     open_scope();
@@ -2732,7 +2842,7 @@ void CodeGen_C::visit(const Acquire *op) {
     close_scope("");
 }
 
-void CodeGen_C::visit(const Atomic *op) {
+void CodeGen_Clear_C::visit(const Atomic *op) {
     if (!op->mutex_name.empty()) {
         internal_assert(!inside_atomic_mutex_node)
             << "Nested atomic mutex locks detected. This might causes a deadlock.\n";
@@ -2745,10 +2855,10 @@ void CodeGen_C::visit(const Atomic *op) {
     }
 }
 
-void CodeGen_C::visit(const For *op) {
+void CodeGen_Clear_C::visit(const For *op) {
     if (!ends_with(op->name, ".run_on_device")) {
         string id_min = print_expr(op->min);
-        string id_extent = print_expr(op->extent);
+        string id_ub = print_expr(is_zero(op->min) ? op->extent : simplify(op->min + op->extent));
 
         if (op->for_type == ForType::Parallel) {
             stream << get_indent() << "#pragma omp parallel for\n";
@@ -2764,11 +2874,10 @@ void CodeGen_C::visit(const For *op) {
             << " = " << id_min
             << "; "
             << print_name(op->name)
-            << " < " << id_min
-            << " + " << id_extent
+            << " < " << id_ub
             << "; "
             << print_name(op->name)
-            << "++)\n";
+            << "++) ";
 
         open_scope();
         op->body.accept(this);
@@ -2818,14 +2927,14 @@ void CodeGen_C::visit(const For *op) {
     }
 }
 
-void CodeGen_C::visit(const Ramp *op) {
+void CodeGen_Clear_C::visit(const Ramp *op) {
     Type vector_type = op->type.with_lanes(op->lanes);
     string id_base = print_expr(op->base);
     string id_stride = print_expr(op->stride);
-    print_assignment(vector_type, print_type(vector_type) + "::ramp(" + id_base + ", " + id_stride + ")");
+    set_latest_expr(vector_type, print_type(vector_type) + "::ramp(" + id_base + ", " + id_stride + ")");
 }
 
-void CodeGen_C::visit(const Broadcast *op) {
+void CodeGen_Clear_C::visit(const Broadcast *op) {
     Type vector_type = op->type.with_lanes(op->lanes);
     string id_value = print_expr(op->value);
     string rhs;
@@ -2835,12 +2944,12 @@ void CodeGen_C::visit(const Broadcast *op) {
         rhs = id_value;
     }
 
-    print_assignment(vector_type, rhs);
+    set_latest_expr(vector_type, rhs);
 }
 
-void CodeGen_C::visit(const Provide *op) {
+void CodeGen_Clear_C::visit(const Provide *op) {
     if (ends_with(op->name, ".temp")) {
-    	internal_assert(op->values.size() == 1);
+        internal_assert(op->values.size() == 1);
         internal_assert(op->args.size() == 0);
         string value = print_expr(op->values[0]);
         string name = print_name(op->name);
@@ -2850,7 +2959,7 @@ void CodeGen_C::visit(const Provide *op) {
     }
 }
 
-void CodeGen_C::visit(const Allocate *op) {
+void CodeGen_Clear_C::visit(const Allocate *op) {
     open_scope();
 
     string op_name = print_name(op->name);
@@ -2892,7 +3001,7 @@ void CodeGen_C::visit(const Allocate *op) {
             // it would have constant size).
             internal_assert(!op->extents.empty());
 
-            size_id = print_assignment(Int(64), print_expr(op->extents[0]));
+            size_id = set_latest_expr(Int(64), print_expr(op->extents[0]));
             size_id_type = Int(64);
 
             for (size_t i = 1; i < op->extents.size(); i++) {
@@ -2904,7 +3013,7 @@ void CodeGen_C::visit(const Allocate *op) {
                 } else {
                     new_size_id_rhs = size_id + " * " + next_extent;
                 }
-                size_id = print_assignment(Int(64), new_size_id_rhs);
+                size_id = set_latest_expr(Int(64), new_size_id_rhs);
             }
             stream << get_indent() << "if (("
                    << size_id << " > ((int64_t(1) << 31) - 1)) || (("
@@ -2929,7 +3038,7 @@ void CodeGen_C::visit(const Allocate *op) {
                                                  Variable::make(size_id_type, size_id),
                                                  make_const(size_id_type, 0));
             conditional_size = simplify(conditional_size);
-            size_id = print_assignment(Int(64), print_expr(conditional_size));
+            size_id = set_latest_expr(Int(64), print_expr(conditional_size));
         }
 
         Allocation alloc;
@@ -2978,7 +3087,7 @@ void CodeGen_C::visit(const Allocate *op) {
     close_scope("alloc " + print_name(op->name));
 }
 
-void CodeGen_C::visit(const Free *op) {
+void CodeGen_Clear_C::visit(const Free *op) {
     if (heap_allocations.contains(op->name)) {
         stream << get_indent() << print_name(op->name) << "_free.free();\n";
         heap_allocations.pop(op->name);
@@ -2986,7 +3095,7 @@ void CodeGen_C::visit(const Free *op) {
     allocations.pop(op->name);
 }
 
-void CodeGen_C::visit(const Realize *op) {
+void CodeGen_Clear_C::visit(const Realize *op) {
     if (is_host_interface()) {
         op->body.accept(this);
     } else {
@@ -2994,11 +3103,11 @@ void CodeGen_C::visit(const Realize *op) {
     }
 }
 
-void CodeGen_C::visit(const Prefetch *op) {
+void CodeGen_Clear_C::visit(const Prefetch *op) {
     internal_error << "Cannot emit prefetch statements to C\n";
 }
 
-void CodeGen_C::visit(const IfThenElse *op) {
+void CodeGen_Clear_C::visit(const IfThenElse *op) {
     string cond_id = print_expr(op->condition);
 
     stream << get_indent() << "if (" << cond_id << ")\n";
@@ -3014,21 +3123,13 @@ void CodeGen_C::visit(const IfThenElse *op) {
     }
 }
 
-void CodeGen_C::visit(const Evaluate *op) {
+void CodeGen_Clear_C::visit(const Evaluate *op) {
     if (is_const(op->value)) return;
-    // Skip the evaluation of some intrinsics
-    bool skip_eval = false;
-    if (auto call = op->value.as<Call>()) {
-        if (call->is_intrinsic(Call::overlay) || call->is_intrinsic(Call::overlay_switch) || call->is_intrinsic(Call::annotate))
-            skip_eval = true;
-    }
-    string id = print_expr(op->value);
-    if (!skip_eval) {
-        stream << get_indent() << "(void)" << id << ";\n";
-    }
+    // Print out the value
+    print_expr(op->value);
 }
 
-void CodeGen_C::visit(const Shuffle *op) {
+void CodeGen_Clear_C::visit(const Shuffle *op) {
     internal_assert(!op->vectors.empty());
     internal_assert(op->vectors[0].type().is_vector());
     for (size_t i = 1; i < op->vectors.size(); i++) {
@@ -3051,7 +3152,7 @@ void CodeGen_C::visit(const Shuffle *op) {
         stream << get_indent() << "const " << print_type(op->vectors[0].type()) << " " << storage_name << "[] = { " << with_commas(vecs) << " };\n";
 
         rhs << print_type(op->type) << "::concat(" << op->vectors.size() << ", " << storage_name << ")";
-        src = print_assignment(op->type, rhs.str());
+        src = set_latest_expr(op->type, rhs.str());
     }
     ostringstream rhs;
     if (op->type.is_scalar()) {
@@ -3061,10 +3162,10 @@ void CodeGen_C::visit(const Shuffle *op) {
         stream << get_indent() << "const int32_t " << indices_name << "[" << op->indices.size() << "] = { " << with_commas(op->indices) << " };\n";
         rhs << print_type(op->type) << "::shuffle(" << src << ", " << indices_name << ")";
     }
-    print_assignment(op->type, rhs.str());
+    set_latest_expr(op->type, rhs.str());
 }
 
-void CodeGen_C::test() {
+void CodeGen_Clear_C::test() {
     LoweredArgument buffer_arg("buf", Argument::OutputBuffer, Int(32), 3, ArgumentEstimates{});
     LoweredArgument float_arg("alpha", Argument::InputScalar, Float(32), 0, ArgumentEstimates{});
     LoweredArgument int_arg("beta", Argument::InputScalar, Int(32), 0, ArgumentEstimates{});
@@ -3089,7 +3190,7 @@ void CodeGen_C::test() {
     ostringstream source;
     ostringstream macros;
     {
-        CodeGen_C cg(source, Target("host"), CodeGen_C::CImplementation);
+        CodeGen_Clear_C cg(source, Target("host"), CodeGen_Clear_C::CImplementation);
         cg.compile(m);
         cg.add_common_macros(macros);
     }
@@ -3190,7 +3291,7 @@ int test1(struct halide_buffer_t *_buf_buffer, float _alpha, int32_t _beta, void
             << "Actual: " << src.substr(diff, diff_end - diff) << "\n";
     }
 
-    std::cout << "CodeGen_C test passed\n";
+    std::cout << "CodeGen_Clear_C test passed\n";
 }
 
 }  // namespace Internal

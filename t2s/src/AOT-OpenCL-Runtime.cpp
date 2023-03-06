@@ -104,10 +104,28 @@ WEAK int halide_device_malloc(void *user_context, struct halide_buffer_t *buf,
 
     device_handle *dev_handle = (device_handle *)malloc(sizeof(device_handle));
     if (dev_handle == NULL) {
-        return CL_OUT_OF_HOST_MEMORY;
+    return CL_OUT_OF_HOST_MEMORY;
     }
 
-    cl_mem dev_ptr = clCreateBuffer(context, CL_MEM_READ_WRITE, size, NULL, &status);
+    uint64_t flag = CL_MEM_READ_WRITE;
+    if (buf->get_flag(halide_buffer_flag_channel_1)) {
+        std::cout << "device_malloc: explicitly allocate the buffer in channel 1\n";
+        flag |= CL_CHANNEL_1_INTELFPGA;
+    }
+    if (buf->get_flag(halide_buffer_flag_channel_2)) {
+        std::cout << "device_malloc: explicitly allocate the buffer in channel 2\n";
+        flag |= CL_CHANNEL_2_INTELFPGA;
+    }
+    if (buf->get_flag(halide_buffer_flag_channel_3)) {
+        std::cout << "device_malloc: explicitly allocate the buffer in channel 3\n";
+        flag |= CL_CHANNEL_3_INTELFPGA;
+    }
+    if (buf->get_flag(halide_buffer_flag_channel_4)) {
+        std::cout << "device_malloc: explicitly allocate the buffer in channel 4\n";
+        flag |= CL_CHANNEL_4_INTELFPGA;
+    }
+
+    cl_mem dev_ptr = clCreateBuffer(context, flag, size, NULL, &status);
     CHECK(status);
     dev_handle->mem = dev_ptr;
     dev_handle->offset = 0;
@@ -410,6 +428,11 @@ WEAK int halide_opencl_buffer_copy(void *user_context, struct halide_buffer_t *s
                                      0, NULL, NULL);
         std::cout << "Done.\n";
     } else if (from_host && !to_host) {
+        if (dst->device == 0) {
+            // Allocate a buffer on device
+            int status = halide_device_malloc(user_context, dst, NULL);
+            CHECK(status);
+        }
         std::cout << "Command queue " << current_kernel << ": copying " << src->size_in_bytes() << " bytes data from host to device. ";
         status = clEnqueueWriteBuffer(cmdQueue[current_kernel], ((device_handle *)dst->device)->mem,
                                       CL_TRUE, 0, src->size_in_bytes(), (void *)(src->host),

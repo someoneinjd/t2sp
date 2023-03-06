@@ -20,6 +20,7 @@
 #define AOT_OPENCL_RUNTIME_H
 #include "AOCLUtils/aocl_utils.h"
 #include "CL/opencl.h"
+#include "CL/cl_ext_intelfpga.h"
 #include <iostream>
 #include <math.h>
 #include <float.h>
@@ -1563,7 +1564,11 @@ typedef struct halide_dimension_t {
 #endif
 
 typedef enum {halide_buffer_flag_host_dirty = 1,
-              halide_buffer_flag_device_dirty = 2} halide_buffer_flags;
+              halide_buffer_flag_device_dirty = 2,
+              halide_buffer_flag_channel_1 = 4,
+              halide_buffer_flag_channel_2 = 8,
+              halide_buffer_flag_channel_3 = 16,
+              halide_buffer_flag_channel_4 = 32} halide_buffer_flags;
 
 /**
  * The raw representation of an image passed around by generated

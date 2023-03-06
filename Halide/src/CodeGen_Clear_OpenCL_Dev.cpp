@@ -4,7 +4,7 @@
 
 #include "CSE.h"
 #include "CodeGen_Internal.h"
-#include "CodeGen_OpenCL_Dev.h"
+#include "CodeGen_Clear_OpenCL_Dev.h"
 #include "Debug.h"
 #include "EliminateBoolVectors.h"
 #include "EmulateFloat16Math.h"
@@ -24,11 +24,11 @@ using std::sort;
 using std::string;
 using std::vector;
 
-CodeGen_OpenCL_Dev::CodeGen_OpenCL_Dev(Target t)
+CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_Dev(Target t)
     : clc(src_stream, t) {
 }
 
-std::string CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::vector_index_to_string(int idx) {
+std::string CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::vector_index_to_string(int idx) {
     std::ostringstream oss;
     if (idx >= 10 && idx < 16) {
         char c = idx - 10 + 'a';
@@ -39,7 +39,7 @@ std::string CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::vector_index_to_string(int idx
     return std::move(oss.str());
 }
 
-bool CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::is_standard_opencl_type(Type type) {
+bool CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::is_standard_opencl_type(Type type) {
     int bits = type.bits();
     int lanes = type.lanes();
     bool standard_bits = false;
@@ -51,7 +51,7 @@ bool CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::is_standard_opencl_type(Type type) {
         }
     } else {
         if ((bits == 1 && lanes == 1) || (bits == 8) ||
-            (bits == 16) || (bits == 32) || (bits == 64) || (bits == 128)) {
+            (bits == 16) || (bits == 32) || (bits == 64)) {
             standard_bits = true;
         }
     }
@@ -62,14 +62,14 @@ bool CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::is_standard_opencl_type(Type type) {
     return standard_bits && standard_lanes;
 }
 
-string CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::print_type(Type type, AppendSpaceIfNeeded space) {
+string CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::print_type(Type type, AppendSpaceIfNeeded space) {
     ostringstream oss;
     if (type.is_generated_struct()) {
         int type_id = type.bits();
         const std::pair<std::string, std::vector<Type>> &entry = GeneratedStructType::structs[type_id];
         string struct_name = entry.first;
         oss << struct_name;
-    } else if (type.is_generated_array()) {
+    }  else if (type.is_generated_array()) {
         int type_id = type.bits();
         const std::tuple<std::string, Type, Region> &entry = GeneratedArrayType::arrays[type_id];
         string array_name = std::get<0>(entry);
@@ -140,10 +140,10 @@ string CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::print_type(Type type, AppendSpaceIf
 }
 
 // These are built-in types in OpenCL
-void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::add_vector_typedefs(const std::set<Type> &vector_types) {
+void CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::add_vector_typedefs(const std::set<Type> &vector_types) {
 }
 
-Expr CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::DefineVectorStructTypes::mutate(const Expr &op) {
+Expr CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::DefineVectorStructTypes::mutate(const Expr &op) {
     Type type = op.type();
 
     if (type.lanes() > 1 && !parent->is_standard_opencl_type(type)) {
@@ -189,11 +189,11 @@ Expr CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::DefineVectorStructTypes::mutate(const
     return IRMutator::mutate(op);
 }
 
-Stmt CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::DefineVectorStructTypes::mutate(const Stmt &op) {
+Stmt CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::DefineVectorStructTypes::mutate(const Stmt &op) {
     return IRMutator::mutate(op);
 }
 
-Expr CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::DefineArrayTypes::mutate(const Expr &op) {
+Expr CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::DefineArrayTypes::mutate(const Expr &op) {
     Type type = op.type();
 
     if (type.is_generated_array()) {
@@ -215,11 +215,11 @@ Expr CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::DefineArrayTypes::mutate(const Expr &
     return IRMutator::mutate(op);
 }
 
-Stmt CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::DefineArrayTypes::mutate(const Stmt &op) {
+Stmt CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::DefineArrayTypes::mutate(const Stmt &op) {
     return IRMutator::mutate(op);
 }
 
-string CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::print_reinterpret(Type type, Expr e) {
+string CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::print_reinterpret(Type type, Expr e) {
     ostringstream oss;
     oss << "as_" << print_type(type) << "(" << print_expr(e) << ")";
     return oss.str();
@@ -249,7 +249,12 @@ string simt_intrinsic(const string &name) {
 }
 }  // namespace
 
-void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const For *loop) {
+void CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::visit(const For *loop) {
+    if (!ends_with(loop->name, ".run_on_device")) {
+        string stripped = extract_after_tokens(loop->name, 2); // Remove function and stage prefix
+        map_verbose_to_succinct_locally(loop->name, CodeGen_Clear_C::print_name(stripped));
+    } // Otherwise, the loop is dummy
+
     if (is_gpu_var(loop->name)) {
         internal_assert((loop->for_type == ForType::GPUBlock) ||
                         (loop->for_type == ForType::GPUThread))
@@ -278,7 +283,7 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const For *loop) {
         }
         loop->body.accept(this);
     } else if(ends_with(loop->name, ".infinite")){
-        stream << get_indent() << "while(1)\n";
+        stream << get_indent() << "while(1) ";
         open_scope();
         loop->body.accept(this);
         close_scope("while "+print_name(loop->name));
@@ -302,7 +307,7 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const For *loop) {
         }
     } else if (loop->for_type == ForType::PragmaUnrolled) {
         stream << get_indent() << "#pragma unroll\n";
-        CodeGen_C::visit(loop);
+        CodeGen_Clear_C::visit(loop);
     } else {
         /*
         If not explicitly define a env variable(DELAYUNROLL or PRAGMAUNROLL), the unrolling strategy will be automatically
@@ -350,20 +355,23 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const For *loop) {
 
                 Stmt iters;
                 for (int i = 0; i < e->value; i++) {
-                    Stmt iter = simplify(substitute(loop->name, loop->min + i, body));
+                    Stmt iter = simplify(substitute(loop->name, simplify(loop->min + i), body));
                     iter.accept(this);
                 }
             } else {
                 stream << get_indent() << "#pragma unroll\n";
-                CodeGen_C::visit(loop);
+                CodeGen_Clear_C::visit(loop);
             }
         } else {
-            CodeGen_C::visit(loop);
+            CodeGen_Clear_C::visit(loop);
         }
     }
+
+    // The loop scope ends and its name is dead
+    kernel_name_map.erase(loop->name);
 }
 
-void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::CheckConditionalChannelAccess::visit(const IfThenElse *op) {
+void CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::CheckConditionalChannelAccess::visit(const IfThenElse *op) {
     bool old_cond = in_if_then_else;
     in_if_then_else = true;
     op->then_case.accept(this);
@@ -375,7 +383,7 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::CheckConditionalChannelAccess::visit(
     in_if_then_else = old_cond;
 }
 
-void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::CheckConditionalChannelAccess::visit(const Call *op) {
+void CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::CheckConditionalChannelAccess::visit(const Call *op) {
     if (op->is_intrinsic(Call::read_channel) || op->is_intrinsic(Call::write_channel) ||
         op->is_intrinsic(Call::read_channel_nb) || op->is_intrinsic(Call::write_channel_nb)) {
         conditional_access |= in_if_then_else;
@@ -383,7 +391,7 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::CheckConditionalChannelAccess::visit(
     IRVisitor::visit(op);
 }
 
-void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::CheckConditionalChannelAccess::visit(const For *op) {
+void CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::CheckConditionalChannelAccess::visit(const For *op) {
     if (op->for_type == ForType::Serial || op->for_type == ForType::Unrolled) {
         if (!is_const(op->min)) {
             irregular_loop_dep = true;
@@ -400,7 +408,7 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::CheckConditionalChannelAccess::visit(
     IRVisitor::visit(op);
 }
 
-void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Ramp *op) {
+void CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::visit(const Ramp *op) {
     string id_base = print_expr(op->base);
     string id_stride = print_expr(op->stride);
 
@@ -420,13 +428,15 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Ramp *op) {
         }
         rhs << ")";
     }
-    print_assignment(op->type.with_lanes(op->lanes), rhs.str());
+    set_latest_expr(op->type.with_lanes(op->lanes), rhs.str());
 }
 
-void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Broadcast *op) {
+void CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::visit(const Broadcast *op) {
     string id_value = print_expr(op->value);
-    if (op->type.is_complex() || !is_standard_opencl_type(op->type)) {
-        string s = "{";
+    if (is_standard_opencl_type(op->type)) {
+        set_latest_expr(op->type.with_lanes(op->lanes), id_value);
+    } else {
+        string s = "(" + print_type(op->type) + ") {";
         for (int i = 0; i < op->lanes; i++) {
             s += ((i == 0) ? "" : ", ") + id_value;
         }
@@ -438,9 +448,7 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Broadcast *op) {
                 s = "(" + print_type(op->type.with_lanes(op->lanes)) + ")(double" + std::to_string(2 * op->lanes) + ")" + s;
             }
         }
-        print_assignment(op->type.with_lanes(op->lanes), s);
-    } else{
-        print_assignment(op->type.with_lanes(op->lanes), id_value);
+        set_latest_expr(op->type.with_lanes(op->lanes), s);
     }
 }
 
@@ -450,11 +458,24 @@ const char *vector_elements = "0123456789ABCDEF";
 
 }  // namespace
 
-string CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::get_memory_space(const string &buf) {
+string CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::get_memory_space(const string &buf) {
     return "__address_space_" + print_name(buf);
 }
 
-void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Call *op) {
+void CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::visit(const Let *op) {
+    map_verbose_to_succinct_locally(op->name, CodeGen_Clear_C::print_name(op->name));
+    CodeGen_Clear_C::visit(op);
+    kernel_name_map.erase(op->name);
+}
+
+void CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::visit(const LetStmt *op) {
+    map_verbose_to_succinct_locally(op->name, CodeGen_Clear_C::print_name(op->name));
+    CodeGen_Clear_C::visit(op);
+    kernel_name_map.erase(op->name);
+}
+
+
+void CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::visit(const Call *op) {
     if (op->is_intrinsic(Call::bool_to_mask)) {
         if (op->args[0].type().is_vector()) {
             // The argument is already a mask of the right width. Just
@@ -481,34 +502,26 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Call *op) {
         // 'select(false_case, true_case, condition)'.
         ostringstream rhs;
         rhs << "select(" << false_val << ", " << true_val << ", " << cond << ")";
-        print_assignment(op->type, rhs.str());
+        set_latest_expr(op->type, rhs.str());
     } else if (op->is_intrinsic(Call::abs)) {
         if (op->type.is_float()) {
             ostringstream rhs;
             rhs << "abs_f" << op->type.bits() << "(" << print_expr(op->args[0]) << ")";
-            print_assignment(op->type, rhs.str());
+            set_latest_expr(op->type, rhs.str());
         } else {
             ostringstream rhs;
             rhs << "abs(" << print_expr(op->args[0]) << ")";
-            print_assignment(op->type, rhs.str());
+            set_latest_expr(op->type, rhs.str());
         }
     } else if (op->is_intrinsic(Call::absd)) {
         ostringstream rhs;
         rhs << "abs_diff(" << print_expr(op->args[0]) << ", " << print_expr(op->args[1]) << ")";
-        print_assignment(op->type, rhs.str());
+        set_latest_expr(op->type, rhs.str());
     } else if (op->is_intrinsic(Call::gpu_thread_barrier)) {
         stream << get_indent() << "barrier(CLK_LOCAL_MEM_FENCE);\n";
-        print_assignment(op->type, "0");
+        set_latest_expr(op->type, "0");
     } else if (op->is_intrinsic(Call::shift_left) || op->is_intrinsic(Call::shift_right)) {
-        // Some OpenCL implementations forbid mixing signed-and-unsigned shift values;
-        // if the RHS is uint, quietly cast it back to int if the LHS is int
-        if (op->args[0].type().is_int() && op->args[1].type().is_uint()) {
-            Type t = op->args[0].type().with_code(halide_type_int);
-            Expr e = Call::make(op->type, op->name, {op->args[0], cast(t, op->args[1])}, op->call_type);
-            e.accept(this);
-        } else {
-            CodeGen_C::visit(op);
-        }
+        CodeGen_Clear_C::visit(op);
     } else if (op->is_intrinsic(Call::read_channel)) {
         std::string string_channel_index;
         const StringImm *v = op->args[0].as<StringImm>();
@@ -519,7 +532,7 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Call *op) {
             assert(!sindex.empty());
             string_channel_index += "["+sindex+"]";
         }
-        id = '_' + unique_name('_');
+        latest_expr = '_' + unique_name('_');
         int size = (v->value).rfind(".");
         std::string channel_name = v->value;
         debug(4) << "channel name: " << channel_name << "\n";
@@ -541,8 +554,7 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Call *op) {
         }
         debug(4) << "modified channel name: " << channel_name << "\n";
         string type = print_type(op->type);
-        string read_call = "read_channel_intel(" + print_name(channel_name) + string_channel_index + ")";
-        stream << get_indent() << type << " " << id << " = " << read_call << ";\n";
+        latest_expr = "read_channel_intel(" + print_name(channel_name) + string_channel_index + ")";
     } else if (op->is_intrinsic(Call::read_channel_nb)) {
         std::string string_channel_index;
         const StringImm *v = op->args[0].as<StringImm>();
@@ -554,7 +566,7 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Call *op) {
             assert(!sindex.empty());
             string_channel_index += "["+sindex+"]";
         }
-        id = '_' + unique_name('_');
+        latest_expr = '_' + unique_name('_');
         int size = (v->value).rfind(".");
         std::string channel_name = v->value;
         debug(4) << "channel name: " << channel_name << "\n";
@@ -578,7 +590,7 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Call *op) {
         // if ((int)suffix.size() > 0 && suffix[0] >= '0' && suffix[0] <= '9') {
         //     channel_name = (v->value).substr(0, size);
         // }
-        stream << get_indent() << print_type(op->type) << " " << id << " = read_channel_nb_intel("
+        stream << get_indent() << print_type(op->type) << " " << latest_expr << " = read_channel_nb_intel("
                 << print_name(channel_name) << string_channel_index << ", &" << print_name(read_success->value) << ");\n";
     } else if (op->is_intrinsic(Call::write_channel)) {
         const StringImm *v = op->args[0].as<StringImm>();
@@ -660,14 +672,13 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Call *op) {
         // read the entire array as a whole
         if (op->args.size() == 1) {
             std::string string_index = op->type.is_handle() ? "" : ".s";
-            id = arr_name + string_index;
+            latest_expr = print_name(arr_name) + string_index;
         } else {
             std::string string_index = ".s";
-            for (size_t i = 1; i < op->args.size(); i++)
+            for (size_t i = 1; i < op->args.size(); i++) {
                 string_index += "[" + print_expr(op->args[i]) + "]";
-            id = '_' + unique_name('_');
-            stream << get_indent() << print_type(op->type) << " " << id
-                   <<" = " << arr_name << string_index << ";\n";
+            }
+            latest_expr = print_name(arr_name) + string_index;
         }
     } else if (op->is_intrinsic(Call::write_array)) {
         std::string arr_name = op->args[0].as<StringImm>()->value;
@@ -707,7 +718,7 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Call *op) {
                     string_index += "["+sindex+"]";
                 }
             }
-            id = '_' + unique_name('_');
+            latest_expr = '_' + unique_name('_');
             ostringstream rhs;
 
             int size = (v->value).rfind(".");
@@ -732,7 +743,7 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Call *op) {
             debug(4) << "modified shreg name: " << shreg_name << "\n";
 
             rhs << print_name(shreg_name) << string_index;
-            print_assignment(op->type, rhs.str());
+            set_latest_expr(op->type, rhs.str());
         } else {
             auto vars = space_vars.at(reg_name);
             // print irregular space loop index
@@ -786,7 +797,7 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Call *op) {
             debug(4) << "modified shreg name: " << shreg_name << "\n";
 
             rhs << print_name(shreg_name) << suffix_index << string_index;
-            print_assignment(op->type, rhs.str());
+            set_latest_expr(op->type, rhs.str());
         }
     } else if (op->is_intrinsic(Call::write_shift_reg)) {
         const StringImm *v = op->args[0].as<StringImm>();
@@ -837,12 +848,6 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Call *op) {
                 }
             }
             std::string write_data = print_expr(op->args[op->args.size()-1]);
-
-            // After writing to a shift register, the original cached value is no longer valid.
-            auto cached = cache.find(rhs.str());
-            if (cached != cache.end()) {
-                cache.erase(cached);
-            }
             stream << get_indent() << rhs.str() << " = " << write_data << ";\n";
         } else {
             ostringstream rhs;
@@ -899,58 +904,41 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Call *op) {
             stream << get_indent() << rhs.str() << " = " << write_data << ";\n";
         }
     } else if (ends_with(op->name, ".ibuffer")) {
-        std::string name = op->name.substr(0, op->name.length()-std::string(".ibuffer").size());
-        string buffer_name = name + '.' + std::to_string(op->value_index) + ".ibuffer";
-        // Do not directly print to stream: there might have been a cached value useable.
         ostringstream rhs;
-        rhs << print_name(buffer_name);
+        rhs << print_name(op->name + '.' + std::to_string(op->value_index));
         for(size_t i = 0; i < op->args.size(); i++) {
             rhs << "[";
             rhs << print_expr(op->args[i]);
             rhs << "]";
         }
-        print_assignment(op->type, rhs.str());
+        set_latest_expr(op->type, rhs.str());
     } else if (ends_with(op->name, ".temp")) {
         std::string name = op->name;
         // Do not directly print to stream: there might have been a cached value useable.
         ostringstream rhs;
         rhs << print_name(name);
         for(size_t i = 0; i < op->args.size(); i++) {
-            if (i == op->args.size() - 1 && (temp_regs_bounds.find(name) != temp_regs_bounds.end())) {
-                internal_assert(temp_regs_bounds[name] == op->args.size() || // this last arg is indexing a vector
-                                temp_regs_bounds[name] == op->args.size() - 1);  // this last arg is indexing a vector element
-                if (temp_regs_bounds[name] == op->args.size()) {
-                    rhs << "[";
-                    rhs << print_expr(op->args[i]);
-                    rhs << "]";
-                } else {
-                    rhs << ".s[";
-                    rhs << print_expr(op->args[i]);
-                    rhs << "]";
-                }
-            } else {
-                rhs << "[";
-                rhs << print_expr(op->args[i]);
-                rhs << "]";
-            }
+            rhs << "[";
+            rhs << print_expr(op->args[i]);
+            rhs << "]";
         }
-        print_assignment(op->type, rhs.str());
+        set_latest_expr(op->type, rhs.str());
     } else if (op->is_intrinsic(Call::make_struct)) {
         vector<string> values;
         for (size_t i = 0; i < op->args.size(); i++) {
             values.push_back(print_expr(op->args[i]));
         }
         ostringstream rhs;
-        rhs << "{";
+        rhs << "(" << print_type(op->type) + "){";
         for (size_t i = 0; i < op->args.size(); i++) {
-            rhs << get_indent() << values[i];
+            rhs << values[i];
             if (i < op->args.size() - 1) rhs << ", ";
         }
         rhs << "}";
-        print_assignment(op->type, rhs.str());
+        set_latest_expr(op->type, rhs.str());
     } else if (op->is_intrinsic(Call::postincrement)) {
         // Args: an expression e, Expr(offset), Expr("addr.temp"), indexes of addr.temp
-        // Print: id = expression e
+        // Print: latest_expr = expression e
         //        addr.temp[indexes] = addr.temp[indexes] + offset
         string offset = print_expr(op->args[1]);
         string addr_temp = print_name(op->args[2].as<StringImm>()->value);
@@ -979,7 +967,7 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Call *op) {
         for (int i = 0; i < times; i++) {
             rhs << ")";
         }
-        print_assignment(op->type, rhs.str());
+        set_latest_expr(op->type, rhs.str());
     } else if (op->is_intrinsic(Call::annotate)) {
         if (op->args[0].as<StringImm>()->value == "Pragma") {
             stream << get_indent() << "#pragma " << op->args[1].as<StringImm>()->value;
@@ -997,7 +985,7 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Call *op) {
         if (type == "before_switch") {
             ostringstream rhs;
             rhs << "0";
-            print_assignment(op->type, rhs.str());
+            set_latest_expr(op->type, rhs.str());
 
             stream << get_indent() << "index_t index = {0, {";
             for (unsigned int k = 1; k < op->args.size(); k++) {
@@ -1015,7 +1003,7 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Call *op) {
         } else if (type == "kernel_begin") {
             ostringstream rhs;
             rhs << "0";
-            print_assignment(op->type, rhs.str());
+            set_latest_expr(op->type, rhs.str());
 
             internal_assert(op->args.size() > 1);
             internal_assert(op->args[1].as<IntImm>());
@@ -1027,7 +1015,7 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Call *op) {
         } else if (type == "kernel_end") {
             ostringstream rhs;
             rhs << "0";
-            print_assignment(op->type, rhs.str());
+            set_latest_expr(op->type, rhs.str());
 
             internal_assert(op->args.size() > 1);
             internal_assert(op->args[1].as<IntImm>());
@@ -1044,24 +1032,24 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Call *op) {
             ostringstream rhs;
             internal_assert(op->args[1].as<StringImm>());
             rhs << op->args[1].as<StringImm>()->value;
-            print_assignment(op->type, rhs.str());
+            set_latest_expr(op->type, rhs.str());
 
         } else if (type == "end_signal") {
             ostringstream rhs;
             rhs << "0";
-            print_assignment(op->type, rhs.str());
+            set_latest_expr(op->type, rhs.str());
             stream << get_indent() << "push_end = true;\n";
 
         } else if (type == "before_main_body") {
             ostringstream rhs;
             rhs << "0";
-            print_assignment(op->type, rhs.str());
+            set_latest_expr(op->type, rhs.str());
             stream << get_indent() << "bool push_end = false;\n";
 
         } else if (type == "after_main_body") {
             ostringstream rhs;
             rhs << "0";
-            print_assignment(op->type, rhs.str());
+            set_latest_expr(op->type, rhs.str());
             stream << R"(
  if (push_end) {
     task_t end;
@@ -1084,7 +1072,7 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Call *op) {
         internal_assert(op->args.size() > 0);
         ostringstream rhs;
         rhs << "0";
-        print_assignment(op->type, rhs.str());
+        set_latest_expr(op->type, rhs.str());
 
         struct status {
             vector<Expr> iter_vars;
@@ -1116,8 +1104,9 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Call *op) {
                     string delimiter = "::";
                     size_t pos = arg_name.find(delimiter);
                     string id = arg_name.substr(0, pos);
-
-                    string value = arg_name.substr(pos + delimiter.length()) + " + " + print_expr(op->args[k+1]);
+                    // arg_name is like inputs.args0::b1. Look up the declared name  without the arg index, i.e. inputs.args::b1.
+                    string printed_arg_name = print_name("inputs.args::" + arg_name.substr(pos + 2, arg_name.size()));
+                    string value = printed_arg_name + " + " + print_expr(op->args[k+1]);
                     input entry = {id, value};
                     k++;
                     inputs.push_back(entry);
@@ -1206,20 +1195,19 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Call *op) {
         stream << get_indent() << "inputs.finish = task.index;\n";
         for (auto& input : inputs) {
             string name = input.name;
-            string prefix = (starts_with(name, "inputs.args")) ? "_" : "";
             stream << get_indent() << input.name << " = "
-                << prefix << input.value << ";\n";
+                << input.value << ";\n";
         }
         stream << get_indent() << "task.inputs = inputs;\n";
         stream << get_indent() << "write_channel_intel(qt, task);\n";
         stream << get_indent() << "mem_fence(CLK_CHANNEL_MEM_FENCE);\n\n";
     } else {
         // Other intrinsics
-        CodeGen_C::visit(op);
+        CodeGen_Clear_C::visit(op);
     }
 }
 
-string CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::print_extern_call(const Call *op) {
+string CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::print_extern_call(const Call *op) {
     internal_assert(!function_takes_user_context(op->name));
     vector<string> args(op->args.size());
     for (size_t i = 0; i < op->args.size(); i++) {
@@ -1230,7 +1218,7 @@ string CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::print_extern_call(const Call *op) {
     return rhs.str();
 }
 
-void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Load *op) {
+void CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::visit(const Load *op) {
     user_assert(is_one(op->predicate)) << "Predicated load is not supported inside OpenCL kernel.\n";
 
     // If we're loading a contiguous ramp into a vector, use vload instead.
@@ -1266,7 +1254,7 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Load *op) {
                 << print_type(op->type.element_of()) << "*)"
                 << print_name(op->name) << " + " << id_ramp_base << ")";
         }
-        print_assignment(op->type, rhs.str());
+        set_latest_expr(op->type, rhs.str());
         return;
     }
 
@@ -1287,38 +1275,29 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Load *op) {
         rhs << print_name(op->name);
     }
     rhs << "[" << id_index << "]";
-
-    std::map<string, string>::iterator cached = cache.find(rhs.str());
-    if (cached != cache.end()) {
-        id = cached->second;
-        return;
-    }
-
     if (op->index.type().is_vector()) {
         // If index is a vector, gather vector elements.
         internal_assert(op->type.is_vector());
 
-        id = "_" + unique_name('V');
-        cache[rhs.str()] = id;
-
+        latest_expr = "_" + unique_name('V');
         stream << get_indent() << print_type(op->type)
-               << " " << id << ";\n";
+               << " " << latest_expr << ";\n";
 
         for (int i = 0; i < op->type.lanes(); ++i) {
             stream << get_indent();
             stream
-                << id << ".s" << vector_elements[i]
+                << latest_expr << ".s" << vector_elements[i]
                 << " = ((" << get_memory_space(op->name) << " "
                 << print_type(op->type.element_of()) << "*)"
                 << print_name(op->name) << ")"
                 << "[" << id_index << ".s" << vector_elements[i] << "];\n";
         }
     } else {
-        print_assignment(op->type, rhs.str());
+        set_latest_expr(op->type, rhs.str());
     }
 }
 
-void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Store *op) {
+void CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::visit(const Store *op) {
     user_assert(is_one(op->predicate)) << "Predicated store is not supported inside OpenCL kernel.\n";
 
     if (emit_atomic_stores) {
@@ -1420,7 +1399,6 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Store *op) {
                    << get_indent() << "}\n";
             indent -= 2;
         }
-        cache.clear();
         return;
     }
 
@@ -1502,78 +1480,54 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Store *op) {
         stream << "[" << id_index << "] = "
                << id_value << ";\n";
     }
-
-    cache.clear();
 }
 
 namespace {
 }
 
-// In the following logic operations, we specially handle the non-standard bool vector
-// like this:
-//      int16  x = y == z;                   // y and z are int16
-//      bool16 b = {x.s0, x.s1, ..., x.s15}; // convert from int16 to bool16
-void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::cast_to_bool_vector(Type bool_type, Type other_type, string other_var) {
-    if (bool_type.is_vector() && bool_type.bits() == 1 && other_type.bits() != 1) {
-        internal_assert(other_type.is_vector() && other_type.lanes() == bool_type.lanes());
-        std::ostringstream oss;
-        for (int i = 0; i < bool_type.lanes(); i++) {
-            oss << (i == 0 ? "{" : ", ") << "(bool)" << other_var << ".s" << vector_index_to_string(i);
-        }
-        oss << "};\n";
-        print_assignment(bool_type, oss.str());
-    }
-}
-
-void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit_binop(Type t, Expr a, Expr b, const char *op) {
-    string sa = print_expr(a);
-    string sb = print_expr(b);
+void CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::visit_binop(Type t, Expr a, Expr b, const char *op) {
     if (is_standard_opencl_type(t) && is_standard_opencl_type(a.type())) {
-        print_assignment(t, sa + " " + op + " " + sb);
+        CodeGen_Clear_C::visit_binop(t, a, b, op);
     } else {
         // Output something like bool16 x = {a.s0 op b.s0, a.s1 op b.s0, ...}
         internal_assert(t.is_vector() && a.type().is_vector() && t.lanes() == a.type().lanes());
         std::ostringstream oss;
+        string sa = print_expr(a);
+        string sb = print_expr(b);
         for (int i = 0; i < t.lanes(); i++) {
-            oss << ((i == 0) ? "{" : ", ") << sa << ".s" << vector_index_to_string(i) << op
+            oss << ((i == 0) ? "(" + print_type(t) + ") {" : ", ") << sa << ".s" << vector_index_to_string(i) << op
                 << sb << ".s" << vector_index_to_string(i);
         }
-        oss << "};\n";
-        print_assignment(t, oss.str());
+        oss << "}";
+        set_latest_expr(t, oss.str());
     }
 }
 
-void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const EQ *op) {
-    visit_binop(eliminated_bool_type(op->type, op->a.type()), op->a, op->b, "==");
-    cast_to_bool_vector(op->type, op->a.type(), id);
+void CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::visit(const EQ *op) {
+    visit_binop(op->type, op->a, op->b, "==");
 }
 
-void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const NE *op) {
-    visit_binop(eliminated_bool_type(op->type, op->a.type()), op->a, op->b, "!=");
-    cast_to_bool_vector(op->type, op->a.type(), id);
+void CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::visit(const NE *op) {
+    visit_binop(op->type, op->a, op->b, "!=");
 }
 
-void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const LT *op) {
-    visit_binop(eliminated_bool_type(op->type, op->a.type()), op->a, op->b, "<");
-    cast_to_bool_vector(op->type, op->a.type(), id);
+void CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::visit(const LT *op) {
+    visit_binop(op->type, op->a, op->b, "<");
 }
 
-void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const LE *op) {
-    visit_binop(eliminated_bool_type(op->type, op->a.type()), op->a, op->b, "<=");
-    cast_to_bool_vector(op->type, op->a.type(), id);
+void CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::visit(const LE *op) {
+    visit_binop(op->type, op->a, op->b, "<=");
 }
 
-void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const GT *op) {
-    visit_binop(eliminated_bool_type(op->type, op->a.type()), op->a, op->b, ">");
-    cast_to_bool_vector(op->type, op->a.type(), id);
+void CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::visit(const GT *op) {
+    visit_binop(op->type, op->a, op->b, ">");
 }
 
-void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const GE *op) {
-    visit_binop(eliminated_bool_type(op->type, op->a.type()), op->a, op->b, ">=");
-    cast_to_bool_vector(op->type, op->a.type(), id);
+void CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::visit(const GE *op) {
+    visit_binop(op->type, op->a, op->b, ">=");
 }
 
-void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Cast *op) {
+void CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::visit(const Cast *op) {
     if (!target.has_feature(Target::CLHalf) &&
         ((op->type.is_float() && op->type.bits() < 32) ||
          (op->value.type().is_float() && op->value.type().bits() < 32))) {
@@ -1583,41 +1537,74 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Cast *op) {
     }
 
     if (op->type.is_vector()) {
-        print_assignment(op->type, "convert_" + print_type(op->type) + "(" + print_expr(op->value) + ")");
+        string value = print_expr(op->value);
+        if (op->type.is_bool()) {
+            // We have standardized the IR so that op value must be a viriable.
+            internal_assert(op->value.as<Variable>());
+            std::ostringstream oss;
+            for (int i = 0; i < op->type.lanes(); i++) {
+                oss << (i == 0 ? "{" : ", ") << "(bool)" << value << ".s" << vector_index_to_string(i);
+            }
+            oss << "}";
+            set_latest_expr(op->type, oss.str());
+        } else {
+            set_latest_expr(op->type, "convert_" + print_type(op->type) + "(" + print_expr(op->value) + ")");
+        }
     } else {
-        CodeGen_C::visit(op);
+        CodeGen_Clear_C::visit(op);
     }
 }
 
-void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Select *op) {
+void CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::visit(const Select *op) {
     // The branch(es) might contain actions with side effects like a channel read.
     // Thus we must guard the branch(es).
     // So first convert to if_then_else.
     user_assert(op->condition.type().is_scalar())
         << "The OpenCL does not support branch divergence. "
         << "Please do not perform vectorization if the value of a URE depends on the incoming data.\n";
+    if (op->false_value.defined()) {
+        string cond_id = print_expr(op->condition);
+        string true_value = print_expr(op->true_value);
+        string false_value = print_expr(op->false_value);
+
+        char select_op[3];
+        select_op[0] = '?';
+        select_op[1] = ':';
+        select_op[2] = '\0';
+
+        string cond_id1 = (precedence_of_op(select_op) <= precedence_of_expr(op->condition)) ? "(" + cond_id + ")" : cond_id;
+        string true_value1 = (precedence_of_op(select_op) <= precedence_of_expr(op->true_value)) ? "(" + true_value + ")" : true_value;
+        string false_value1 = (precedence_of_op(select_op) <= precedence_of_expr(op->false_value)) ? "(" + false_value + ")" : false_value;
+        set_latest_expr(op->type,  cond_id1 + " ? " + true_value1 + " : " + false_value1);
+        return;
+    }
+
     Expr c = Call::make(op->type, Call::if_then_else, {op->condition, op->true_value, op->false_value}, Call::PureIntrinsic);
     c.accept(this);
+
+
 }
 
-void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const IfThenElse *op) {
+void CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::visit(const IfThenElse *op) {
     string cond_id = print_expr(op->condition);
-    stream << get_indent() << "if (" << cond_id << ")\n";
+    stream << get_indent() << "if (" << cond_id << ") ";
     open_scope();
     op->then_case.accept(this);
     close_scope("if " + cond_id);
 
     if (op->else_case.defined()) {
-        stream << get_indent() << "else\n";
+        stream << get_indent() << "else ";
         open_scope();
         op->else_case.accept(this);
         close_scope("if " + cond_id + " else");
     }
 }
 
-void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Allocate *op) {
+void CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::visit(const Allocate *op) {
     user_assert(!op->new_expr.defined()) << "Allocate node inside OpenCL kernel has custom new expression.\n"
                                          << "(Memoization is not supported inside GPU kernels at present.)\n";
+
+    map_verbose_to_succinct_globally(op->name, CodeGen_Clear_C::print_name(op->name));
 
     if (op->name == "__shared") {
         // Already handled
@@ -1632,41 +1619,40 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Allocate *op) {
             debug(2) << "Found pointer arg " << op->name << "... \n";
 
             op->body.accept(this);
-            return;
+        } else {
+            open_scope();
+
+            debug(2) << "Allocate " << op->name << " on device\n";
+
+            debug(3) << "Pushing allocation called " << op->name << " onto the symbol table\n";
+
+            // Allocation is not a shared memory allocation, just make a local declaration.
+            // It must have a constant size.
+            int32_t size = op->constant_allocation_size();
+            user_assert(size > 0)
+                << "Allocation " << op->name << " has a dynamic size. "
+                << "Only fixed-size allocations are supported on the gpu. "
+                << "Try storing into shared memory instead.";
+
+            stream << get_indent() << print_type(op->type) << ' '
+                   << print_name(op->name) << "[" << size << "];\n";
+            stream << get_indent() << "#define " << get_memory_space(op->name) << " __private\n";
+
+            Allocation alloc;
+            alloc.type = op->type;
+            allocations.push(op->name, alloc);
+
+            op->body.accept(this);
+
+            // Should have been freed internally
+            internal_assert(!allocations.contains(op->name));
+
+            close_scope("alloc " + print_name(op->name));
         }
-
-        open_scope();
-
-        debug(2) << "Allocate " << op->name << " on device\n";
-
-        debug(3) << "Pushing allocation called " << op->name << " onto the symbol table\n";
-
-        // Allocation is not a shared memory allocation, just make a local declaration.
-        // It must have a constant size.
-        int32_t size = op->constant_allocation_size();
-        user_assert(size > 0)
-            << "Allocation " << op->name << " has a dynamic size. "
-            << "Only fixed-size allocations are supported on the gpu. "
-            << "Try storing into shared memory instead.";
-
-        stream << get_indent() << print_type(op->type) << ' '
-               << print_name(op->name) << "[" << size << "];\n";
-        stream << get_indent() << "#define " << get_memory_space(op->name) << " __private\n";
-
-        Allocation alloc;
-        alloc.type = op->type;
-        allocations.push(op->name, alloc);
-
-        op->body.accept(this);
-
-        // Should have been freed internally
-        internal_assert(!allocations.contains(op->name));
-
-        close_scope("alloc " + print_name(op->name));
     }
 }
 
-void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Free *op) {
+void CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::visit(const Free *op) {
     if (op->name == "__shared") {
         return;
     } else {
@@ -1677,11 +1663,11 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Free *op) {
     }
 }
 
-void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const AssertStmt *op) {
+void CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::visit(const AssertStmt *op) {
     user_warning << "Ignoring assertion inside OpenCL kernel: " << op->condition << "\n";
 }
 
-void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Shuffle *op) {
+void CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::visit(const Shuffle *op) {
     int op_lanes = op->type.lanes();
     internal_assert(!op->vectors.empty());
     int arg_lanes = op->vectors[0].type().lanes();
@@ -1690,7 +1676,7 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Shuffle *op) {
         if (op->vectors.size() == 1) {
             // 1 argument, just do a simple assignment
             internal_assert(op_lanes == arg_lanes);
-            print_assignment(op->type, print_expr(op->vectors[0]));
+            set_latest_expr(op->type, print_expr(op->vectors[0]));
         } else if (op->vectors.size() == 2) {
             // 2 arguments, set the .even to the first arg and the
             // .odd to the second arg
@@ -1698,10 +1684,10 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Shuffle *op) {
             internal_assert(op_lanes / 2 == arg_lanes);
             string a1 = print_expr(op->vectors[0]);
             string a2 = print_expr(op->vectors[1]);
-            id = unique_name('_');
-            stream << get_indent() << print_type(op->type) << " " << id << ";\n";
-            stream << get_indent() << id << ".even = " << a1 << ";\n";
-            stream << get_indent() << id << ".odd = " << a2 << ";\n";
+            latest_expr = unique_name('_');
+            stream << get_indent() << print_type(op->type) << " " << latest_expr << ";\n";
+            stream << get_indent() << latest_expr << ".even = " << a1 << ";\n";
+            stream << get_indent() << latest_expr << ".odd = " << a2 << ";\n";
         } else {
             // 3+ arguments, interleave via a vector literal
             // selecting the appropriate elements of the vectors
@@ -1714,8 +1700,8 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Shuffle *op) {
                 arg_exprs[i] = print_expr(op->vectors[i]);
             }
             internal_assert(num_vectors * arg_lanes >= dest_lanes);
-            id = unique_name('_');
-            stream << get_indent() << print_type(op->type) << " " << id;
+            latest_expr = unique_name('_');
+            stream << get_indent() << print_type(op->type) << " " << latest_expr;
             stream << " = (" << print_type(op->type) << ")(";
             for (int i = 0; i < dest_lanes; i++) {
                 int arg = i % num_vectors;
@@ -1757,8 +1743,8 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Shuffle *op) {
         }
         internal_assert(total_lanes >= op_lanes) << "No enough source lanes for shuffle\n";
         // name for result
-        id = unique_name('_');
-        stream << get_indent() << print_type(op->type) << " " << id;
+        latest_expr = unique_name('_');
+        stream << get_indent() << print_type(op->type) << " " << latest_expr;
         stream << " = (" << print_type(op->type) << ")";
         if (!is_standard_opencl_type(op->type)) {
             stream << "{";
@@ -1790,15 +1776,19 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Shuffle *op) {
     }
 }
 
-void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Max *op) {
-    print_expr(Call::make(op->type, "max", {op->a, op->b}, Call::Extern));
+void CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::visit(const Max *op) {
+    ostringstream rhs;
+    rhs << "max(" << print_expr(op->a) << ", " << print_expr(op->b) << ")";
+    set_latest_expr(op->type, rhs.str());
 }
 
-void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Min *op) {
-    print_expr(Call::make(op->type, "min", {op->a, op->b}, Call::Extern));
+void CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::visit(const Min *op) {
+    ostringstream rhs;
+    rhs << "min(" << print_expr(op->a) << ", " << print_expr(op->b) << ")";
+    set_latest_expr(op->type, rhs.str());
 }
 
-void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Atomic *op) {
+void CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::visit(const Atomic *op) {
     // Most GPUs require all the threads in a warp to perform the same operations,
     // which means our mutex will lead to deadlock.
     user_assert(op->mutex_name.empty())
@@ -1809,10 +1799,10 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Atomic *op) {
     IRVisitor::visit(op);
 }
 
-void CodeGen_OpenCL_Dev::add_kernel(Stmt s,
+void CodeGen_Clear_OpenCL_Dev::add_kernel(Stmt s,
                                     const string &name,
                                     const vector<DeviceArgument> &args) {
-    debug(2) << "CodeGen_OpenCL_Dev::compile " << name << "\n";
+    debug(2) << "CodeGen_Clear_OpenCL_Dev::compile " << name << "\n";
 
     // TODO: do we have to uniquify these names, or can we trust that they are safe?
     cur_kernel_name = name;
@@ -1852,16 +1842,58 @@ class IsAutorun : public IRVisitor {
         IsAutorun() : is_autorun(false) {}
 };
 
-void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::add_kernel(Stmt s,
+bool CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::succinct_name_is_unique(const string &verbose, const string &succinct) {
+    for (auto &n : global_name_map) {
+        if (n.second == succinct && n.first != verbose) {
+            return false;
+        }
+    }
+    for (auto &n : kernel_name_map) {
+        if (n.second == succinct && n.first != verbose) {
+            return false;
+        }
+    }
+    return true;
+}
+
+string CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::print_name(const std::string &name) {
+    auto it = global_name_map.find(name);
+    if (it != global_name_map.end()) {
+        return it->second;
+    } else {
+        auto it1 = kernel_name_map.find(name);
+        if (it1 != kernel_name_map.end()) {
+            return it1->second;
+        }
+        return CodeGen_Clear_C::print_name(name);
+    }
+}
+
+void CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::map_verbose_to_succinct_globally(const string &verbose, const string &succinct) {
+    // Make sure the succinct name corresponds to only one verbose name
+    string succ = succinct;
+    while (!succinct_name_is_unique(verbose, succ)) {
+        succ += "_";
+    }
+    global_name_map[verbose] = succ;
+}
+
+void CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::map_verbose_to_succinct_locally(const string &verbose, const string &succinct) {
+    // Make sure the succinct name corresponds to only one verbose name
+    string succ = succinct;
+    while (!succinct_name_is_unique(verbose, succ)) {
+        succ += "_";
+    }
+    kernel_name_map[verbose] = succ;
+}
+
+void CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::add_kernel(Stmt s,
                                                       const string &name,
                                                       const vector<DeviceArgument> &args) {
+    // No name seen for this kernel yet
+    kernel_name_map.clear();
 
     debug(2) << "Adding OpenCL kernel " << name << "\n";
-
-    //debug(2) << "Eliminating bool vectors\n";
-    //s = eliminate_bool_vectors(s);
-    //debug(2) << "After eliminating bool vectors:\n"
-    //         << s << "\n";
 
     // Figure out which arguments should be passed in __constant.
     // Such arguments should be:
@@ -1894,7 +1926,7 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::add_kernel(Stmt s,
 
 
     // Create preprocessor replacements for the address spaces of all our buffers.
-    stream << "// Address spaces for " << name << "\n";
+    stream << "\n";
     for (size_t i = 0; i < args.size(); i++) {
         if (args[i].is_buffer) {
             vector<BufferSize>::iterator constant = constants.begin();
@@ -1932,9 +1964,11 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::add_kernel(Stmt s,
             // TODO: Update buffer attributes if written in kernel ip
             char *overlay_num = getenv("HL_OVERLAY_NUM");
             if (!args[i].write && overlay_num == NULL) stream << "const ";
+            string printed_name = print_name(args[i].name);
+            map_verbose_to_succinct_locally("inputs.args::" + args[i].name, printed_name);
             stream << print_type(args[i].type) << " *"
                    << "restrict "
-                   << print_name(args[i].name);
+                   << printed_name;
             Allocation alloc;
             alloc.type = args[i].type;
             allocations.push(args[i].name, alloc);
@@ -1948,10 +1982,11 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::add_kernel(Stmt s,
                 t = t.with_code(halide_type_uint);
                 name += "_bits";
             }
+            string printed_name = print_name(name);
             stream << " const "
                    << print_type(t)
                    << " "
-                   << print_name(name);
+                   << printed_name;
         }
 
         if (i < args.size() - 1) stream << ",\n";
@@ -1961,7 +1996,7 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::add_kernel(Stmt s,
         stream << ",\n"
                << " __address_space___shared int16* __shared";
     }
-    stream << ")\n";
+    stream << ") ";
 
     open_scope();
 
@@ -1994,7 +2029,7 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::add_kernel(Stmt s,
     }
 }
 
-void CodeGen_OpenCL_Dev::init_module() {
+void CodeGen_Clear_OpenCL_Dev::init_module() {
     debug(2) << "OpenCL device codegen init_module\n";
 
     // wipe the internal kernel source
@@ -2010,8 +2045,7 @@ void CodeGen_OpenCL_Dev::init_module() {
     // This identifies the program as OpenCL C (as opposed to SPIR).
     src_stream << "/*OpenCL C " << target.to_string() << "*/\n";
 
-    src_stream << "#pragma OPENCL FP_CONTRACT ON\n"
-               << "#pragma OPENCL EXTENSION cl_khr_fp64 : enable\n";
+    src_stream << "#pragma OPENCL FP_CONTRACT ON\n";
 
     // Write out the Halide math functions.
     src_stream << "#define float_from_bits(x) as_float(x)\n"
@@ -2044,23 +2078,7 @@ void CodeGen_OpenCL_Dev::init_module() {
                << "#define tanh_f32 tanh \n"
                << "#define atanh_f32 atanh \n"
                << "#define fast_inverse_f32 native_recip \n"
-               << "#define fast_inverse_sqrt_f32 native_rsqrt \n"
-               << "typedef float2 complex;\n"
-               << "typedef union { float4 t; float2 s[2]; } complex2;\n"
-               << "typedef union { float8 t; float2 s[4]; } complex4;\n"
-               << "typedef union { float16 t; float2 s[8]; } complex8;\n"
-               << "inline float2 conjugate_c32(float2 x) {return (float2)(x.s0, -x.s1); }\n"
-               << "inline float2 sqrt_c32(float2 x) {return (float2)(sqrt_f32(x.s0), 0.0f); }\n"
-               << "inline float2 fast_inverse_c32(float2 x) {return (float2)(fast_inverse_f32(x.s0), 0.0f); }\n"
-               << "inline float2 fast_inverse_sqrt_c32(float2 x) {return (float2)(fast_inverse_sqrt_f32(x.s0), 0.0f); }\n"
-               << "typedef double2 complexd;\n"
-               << "typedef union { double4 t; double2 s[2]; } complexd2;\n"
-               << "typedef union { double8 t; double2 s[4]; } complexd4;\n"
-               << "typedef union { double16 t; double2 s[8]; } complexd8;\n"
-               << "inline double2 conjugate_c64(double2 x) {return (double2)(x.s0, -x.s1); }\n";
-//               << "inline double2 sqrt_c64(double2 x) {return (double2)(sqrt_f64(x.s0), 0.0f); }\n"
-//               << "inline double2 fast_inverse_c64(double2 x) {return (double2)(fast_inverse_f64(x.s0), 0.0f); }\n"
-//               << "inline double2 fast_inverse_sqrt_c64(double2 x) {return (double2)(fast_inverse_sqrt_f64(x.s0), 0.0f); }\n";
+               << "#define fast_inverse_sqrt_f32 native_rsqrt \n";
 
     // __shared always has address space __local.
     src_stream << "#define __address_space___shared __local\n";
@@ -2376,7 +2394,7 @@ __kernel void scheduler() {
     cur_kernel_name = "";
 }
 
-vector<char> CodeGen_OpenCL_Dev::compile_to_src() {
+vector<char> CodeGen_Clear_OpenCL_Dev::compile_to_src() {
     const Target &target = clc.get_target();
     if (target.has_feature(Target::IntelFPGA)) {
         compile_to_aocx(src_stream);
@@ -2390,20 +2408,20 @@ vector<char> CodeGen_OpenCL_Dev::compile_to_src() {
     return buffer;
 }
 
-string CodeGen_OpenCL_Dev::get_current_kernel_name() {
+string CodeGen_Clear_OpenCL_Dev::get_current_kernel_name() {
     return cur_kernel_name;
 }
 
-void CodeGen_OpenCL_Dev::dump() {
+void CodeGen_Clear_OpenCL_Dev::dump() {
     std::cerr << src_stream.str() << std::endl;
 }
 
-std::string CodeGen_OpenCL_Dev::print_gpu_name(const std::string &name) {
+std::string CodeGen_Clear_OpenCL_Dev::print_gpu_name(const std::string &name) {
     return name;
 }
 
 /* Methods only for generating OpenCL code for Intel FPGAs */
-void CodeGen_OpenCL_Dev::compile_to_aocx(std::ostringstream &src_stream) {
+void CodeGen_Clear_OpenCL_Dev::compile_to_aocx(std::ostringstream &src_stream) {
     // If BITSTREAM env var or $HOME/tmp/a.aocx indicates an existing file, do nothing.
     // Otherwise, dump the source code to ~/tmp/a.cl and compile it to ~/tmp/a.aocx.
     char *aocx_name = getenv("BITSTREAM");
@@ -2468,11 +2486,11 @@ void CodeGen_OpenCL_Dev::compile_to_aocx(std::ostringstream &src_stream) {
     user_assert(ret != -1) << "Failed in compiling " << cl_name;
 }
 
-void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::print_global_data_structures_before_kernel(const Stmt *op) {
+void CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::print_global_data_structures_before_kernel(const Stmt *op) {
     // Define the compiler-generated vector and struct types.
-    DefineVectorStructTypes def_vs(this);
-    def_vs.mutate(*op);
-    stream << def_vs.vectors + def_vs.structs;
+    DefineVectorStructTypes def(this);
+    def.mutate(*op);
+    stream << def.vectors + def.structs;
 
     // Define the compiler-generated arrays
     DefineArrayTypes def_ar(this);
@@ -2485,7 +2503,7 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::print_global_data_structures_before_k
     stream << decl.channels;
 }
 
-void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::DeclareChannels::visit(const Realize *op) {
+void CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::DeclareChannels::visit(const Realize *op) {
     if (ends_with(op->name, ".channel")) {
         // Get the bounds in which all bounds are for the dimensions of the channel array, except the last one is for the min depth.
         Region bounds = op->bounds;
@@ -2508,16 +2526,11 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::DeclareChannels::visit(const Realize 
 
         std::ostringstream oss;
         if (ends_with(op->name, ".channel")) {
+               parent->map_verbose_to_succinct_globally(op->name, parent->print_name(op->name));
             oss << "channel " << type << " " << parent->print_name(op->name) << bounds_str << attributes << ";\n";
             channels += oss.str();
         } else {
-            string printed_name = parent->print_name(op->name);
-            string type_name = printed_name + "_t";
-            size_t pos_last_token = printed_name.rfind('_');
-            string channel_name = printed_name.substr(0, pos_last_token);
-            oss << "typedef struct { " << type << " s" << bounds_str << "; } " << type_name << ";\n";
-            oss << "channel " << type_name << " " << channel_name << attributes << ";\n";
-            channels += oss.str();
+            internal_error;
         }
     }
     IRVisitor::visit(op);
@@ -2532,7 +2545,7 @@ e.g.    realize shift regs [k, J-k] [0, K] [0, T]
                 ...
 The corresponding systolic array of above case is triangular in shape.
 */
-bool CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::is_irregular(Region &bounds) {
+bool CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::is_irregular(Region &bounds) {
     bool irregular_bounds = false;
     for (int i = bounds.size()-1; i >= 0; i--) {
         Expr extent = bounds[i].extent;
@@ -2544,12 +2557,12 @@ bool CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::is_irregular(Region &bounds) {
     return irregular_bounds;
 }
 
-void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::gather_shift_regs_allocates(const Stmt *op) {
-    GatherShiftRegsAllocates gatherer(this, shift_regs_allocates, shift_regs_bounds, temp_regs_bounds, space_vars);
+void CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::gather_shift_regs_allocates(const Stmt *op) {
+    GatherShiftRegsAllocates gatherer(this, shift_regs_allocates, shift_regs_bounds, space_vars);
     op->accept(&gatherer);
 }
 
-void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::GatherShiftRegsAllocates::print_irregular_bounds_allocates(std::string reg_name, std::string type, std::string name, Region space_bounds, Region time_bounds, int space_bound_level) {
+void CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::GatherShiftRegsAllocates::print_irregular_bounds_allocates(std::string reg_name, std::string type, std::string name, Region space_bounds, Region time_bounds, int space_bound_level) {
     Expr min = space_bounds[space_bound_level].min;
     Expr extent = space_bounds[space_bound_level].extent;
     const IntImm *e_min = min.as<IntImm>();
@@ -2586,9 +2599,10 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::GatherShiftRegsAllocates::print_irreg
 
         for (int i = 0; i < e_extent->value; i++) {
             std::string new_name = name + "_" + std::to_string(e_min->value + i);
+            parent->map_verbose_to_succinct_globally(new_name, parent->print_name(new_name)); // Record as a global variable name
             debug(3) << "allocate shift regs " << type << " " << new_name << bounds_str << ";\n";
             ostringstream rhs;
-            rhs << type << " " << new_name << bounds_str << ";\n";
+            rhs << type << " " << parent->print_name(new_name) << bounds_str << ";\n";
             shift_regs_allocates[reg_name].push_back(rhs.str());
         }
 
@@ -2596,7 +2610,7 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::GatherShiftRegsAllocates::print_irreg
 }
 
 // gather loop info from the annotation
-void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::GatherShiftRegsAllocates::visit(const Call *op) {
+void CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::GatherShiftRegsAllocates::visit(const Call *op) {
     if (op->is_intrinsic(Call::annotate) && op->args[0].as<StringImm>()->value == "Bounds") {
         std::string reg_name = op->args[1].as<StringImm>()->value;
         std::vector<Expr> vars(op->args.begin() + 2, op->args.end());
@@ -2606,8 +2620,8 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::GatherShiftRegsAllocates::visit(const
     }
 }
 
-void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::GatherShiftRegsAllocates::visit(const Realize *op) {
-    if (ends_with(op->name, ".channel") || ends_with(op->name, ".array")) {
+void CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::GatherShiftRegsAllocates::visit(const Realize *op) {
+    if (ends_with(op->name, ".channel") || ends_with(op->name, ".channel.array")) {
     } else if (ends_with(op->name, ".shreg")) {
         ostringstream rhs;
         Region bounds = op->bounds;
@@ -2651,6 +2665,7 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::GatherShiftRegsAllocates::visit(const
             // debug(3) << shift_regs_allocates[reg_name];
 
         } else {
+            parent->map_verbose_to_succinct_globally(op->name, parent->print_name(op->name)); // Record as a global variable name
             for (int i = bounds.size()-1; i >= 0; i--) {
                 Range b = bounds[i];
                 Expr extent = b.extent;
@@ -2673,12 +2688,8 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::GatherShiftRegsAllocates::visit(const
             shift_regs_bounds[op->name] = bounds.size();
         }
     } else if(ends_with(op->name,".temp")){
-        if (op->types[0].is_complex()) {
-            Region bounds = op->bounds;
-            temp_regs_bounds[op->name] = bounds.size();
-        }
     } else if(ends_with(op->name,".ibuffer")){
-    } else if (ends_with(op->name,".break")){
+    } else if(ends_with(op->name,".break")){
     } else {
         // Not really shift registers. But we can allocate them as shift regs as well.
         ostringstream rhs;
@@ -2705,7 +2716,7 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::GatherShiftRegsAllocates::visit(const
     IRVisitor::visit(op);
 }
 
-void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Realize *op) {
+void CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::visit(const Realize *op) {
     if (ends_with(op->name, ".channel")) {
         // We have already declared the channel before the kernel with print_global_data_structures_before_kernel().
         // Just skip it and get into the body.
@@ -2729,7 +2740,10 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Realize *op) {
         // Just skip it and get into the body.
         print_stmt(op->body);
     } else if(ends_with(op->name,".temp")){
-        std::string string_bound = "";
+        string stripped = remove_postfix(op->name, ".temp");
+        map_verbose_to_succinct_locally(op->name, CodeGen_Clear_C::print_name(stripped));
+
+        std::string string_bound = "" ;
         std::vector<std::string> access_exprs;
         for (Range b : op->bounds) {
             access_exprs.push_back(print_expr(b.extent));
@@ -2747,7 +2761,10 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Realize *op) {
             stream << print_name(name) << string_bound << ";\n";
         }
         print_stmt(op->body);
-    } else if (ends_with(op->name,".ibuffer")) {
+
+        // The Realize scope ends and its name is dead
+        kernel_name_map.erase(op->name);
+    } else if(ends_with(op->name,".ibuffer")){
         std::string string_bound = "" ;
         std::vector<std::string> access_exprs;
         for (Range b : op->bounds) {
@@ -2756,13 +2773,20 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Realize *op) {
         for (std::string ae : access_exprs) {
             string_bound += "[" + ae + "]";
         }
-        // for (size_t i=0; i<op->types.size(); i++) {
-            std::string name = op->name.substr(0, op->name.length()-std::string(".ibuffer").size());
-            string buffer_name = name + '.' + std::to_string(0) + ".ibuffer";
-            internal_assert(op->types.size() == 2);
-            stream << get_indent() << print_type(op->types[0]) << " ";
-            auto num_banks = op->types[1].lanes();
-            auto bank_bits = op->types[1].bits();
+        // First type records bank information
+        internal_assert(op->types.size() >= 2);
+        bool multi_values = op->types.size() > 2;
+        for (size_t i=0; i<op->types.size()-1; i++) {
+            string stripped = remove_postfix(op->name, ".ibuffer");
+            stripped = extract_after_tokens(stripped, 1); // Remove the function prefix
+            if (multi_values) {
+                stripped += '.' + std::to_string(i);
+            }
+            string buffer_name = op->name + '.' + std::to_string(i);
+            map_verbose_to_succinct_locally(buffer_name, print_name(stripped));
+            stream << get_indent() << print_type(op->types[i+1]) << " ";
+            auto num_banks = op->types[0].lanes();
+            auto bank_bits = op->types[0].bits();
             string bank_str;
             if (bank_bits == 0) bank_str = "numbanks(" + to_string(num_banks) + ")";
             else {
@@ -2775,8 +2799,19 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Realize *op) {
             }
             stream << "__attribute__((memory, " << bank_str << ", singlepump)) "
                    << print_name(buffer_name) << string_bound << ";\n";
-        // }
+        //     stream << get_indent() << print_type(op->types[i]) << " ";
+        //     stream << "__attribute__((memory, numbanks("
+        //            << access_exprs.back()
+        //            << "), singlepump, numwriteports(1), numreadports(1))) "
+        //            << print_name(buffer_name) << string_bound << ";\n";
+        }
         print_stmt(op->body);
+
+        // The Realize scope ends and its name is dead
+        for(size_t i=0;i<op->types.size();i++) {
+            string buffer_name = op->name + '.' + std::to_string(i);
+            kernel_name_map.erase(buffer_name);
+        }
     } else if (ends_with(op->name,".break")){
         print_stmt(op->body);
     } else {
@@ -2786,16 +2821,15 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Realize *op) {
     }
 }
 
-void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Provide *op){
+void CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::visit(const Provide *op){
     if (ends_with(op->name, ".ibuffer")) {
         internal_assert(op->values.size() == 1);
         string id_value = print_expr(op->values[0]);
-        std::string name = op->name.substr(0, op->name.length()-std::string(".ibuffer").size());
         std::vector<std::string> access_exprs;
         for(size_t i = 0; i < op->args.size(); i++) {
             access_exprs.push_back(print_expr(op->args[i]));
         }
-        string buffer_name = name + '.' + std::to_string(0) + ".ibuffer";
+        string buffer_name = op->name + '.' + std::to_string(0);
         stream << get_indent() << print_name(buffer_name);
         for(size_t i = 0; i < op->args.size(); i++) {
             stream << "[";
@@ -2803,7 +2837,6 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Provide *op){
             stream << "]";
         }
         stream << " = " << id_value << ";\n";
-        cache.clear();
     } else if (ends_with(op->name, ".temp")) {
         internal_assert(op->values.size() == 1);
         string id_value = print_expr(op->values[0]);
@@ -2815,32 +2848,17 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Provide *op){
         stream << get_indent() << print_name(name);
         // do_indent();
         for(size_t i = 0; i < op->args.size(); i++) {
-            if (i == op->args.size() - 1 && (temp_regs_bounds.find(name) != temp_regs_bounds.end())) {
-                internal_assert(temp_regs_bounds[name] == op->args.size() || // this last arg is indexing a vector
-                                temp_regs_bounds[name] == op->args.size() - 1);  // this last arg is indexing a vector element
-                if (temp_regs_bounds[name] == op->args.size()) {
-                    stream << "[";
-                    stream << access_exprs[i];
-                    stream << "]";
-                } else {
-                    stream << ".s[";
-                    stream << access_exprs[i];
-                    stream << "]";
-                }
-            } else {
-                stream << "[";
-                stream << access_exprs[i];
-                stream << "]";
-            }
+            stream << "[";
+            stream << access_exprs[i];
+            stream << "]";
         }
         stream << " = " << id_value ;
         stream<< ";\n";
-        cache.clear();
     }else if(ends_with(op->name,".break")){
         stream<<"break;\n";
     }
     else {
-        CodeGen_C::visit(op);
+        CodeGen_Clear_C::visit(op);
     }
 }
 

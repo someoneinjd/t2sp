@@ -98,6 +98,9 @@ void check_space_time_transform(Func &func, Target target) {
                 Expr extent = func.function().get_bounds(func_dims[i].var).second;
                 global_max[func_dims[i].var] = simplify(min+extent-1);
                 global_min[func_dims[i].var] = simplify(min);
+                debug(4) << "global bound of " << func_dims[i].var
+                         << "\n\t Max: " << global_max[func_dims[i].var]
+                         << "\n\t Min: " << global_min[func_dims[i].var] << "\n";
             }
 
             // the original time loop bound
@@ -127,6 +130,8 @@ void check_space_time_transform(Func &func, Target target) {
                     auto extent = func.function().get_bounds(cur_dim).second;
                     auto expr = simplify(Max::make(substitute(global_max, extent), substitute(global_min, extent)));
                     loop_bound = simplify(loop_bound * expr);
+                    debug(4) << "Extending stt with loop " << cur_dim
+                             << " of bound " << loop_bound << "\n";
                 }
             }
         }

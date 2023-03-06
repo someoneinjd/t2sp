@@ -16,21 +16,25 @@
 *
 * SPDX-License-Identifier: BSD-2-Clause-Patent
 *******************************************************************************/
-#ifndef T2S_PATTERN_MATCHER_H
-#define T2S_PATTERN_MATCHER_H
+#ifndef T2S_STANDARDIZE_IR_FOR_OPENCL_H
+#define T2S_STANDARDIZE_IR_FOR_OPENCL_H
+
+/** \file
+ * Standardize the IR so that later it is straightforward to generate OpenCL code
+ */
 
 #include "../../Halide/src/IR.h"
 
 namespace Halide {
 namespace Internal {
 
-using std::string;
-
-Stmt match_patterns(Stmt s);
-Stmt rewrite_memory_partition(Stmt s, const std::map<string, Function> &env);
+/* Standardize IR so that generating OpenCL code is straightforward: the code generator
+ * simply prints whatever the IR is, without doing any smart tricks. Not only this simplifies
+ * the code generator, but also improves code readability, as no immediate variable would be
+ * blindly generated. */
+extern Stmt standardize_ir_for_opencl_code_gen(Stmt s);
 
 }
 }
-
 
 #endif

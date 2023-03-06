@@ -37,7 +37,6 @@ using std::set;
 namespace Halide {
 namespace Internal {
 
-
 /* Wrap the Producer body of a Func (which must have only one and only Definition) with a unit-trip-count
  * loop that is marked a postfix ".run_on_device", which tells CodeGen_LLVM and CodeGen_GPU_Host to offload
  * the entire loop body to the device.
