@@ -1985,7 +1985,7 @@ void CodeGen_C::visit(const Mul *op) {
         string sb = print_expr(op->b);
         if (op->type.lanes() > 1) {
             string expr{};
-            for (size_t i = 0; i < op->type.lanes(); i++) {
+            for (int i = 0; i < op->type.lanes(); i++) {
                 auto sa_re = sa + ".s[" + std::to_string(i) + "].s0";
                 auto sa_im = sa + ".s[" + std::to_string(i) + "].s1";
                 auto sb_re = sb + ".s[" + std::to_string(i) + "].s0";
