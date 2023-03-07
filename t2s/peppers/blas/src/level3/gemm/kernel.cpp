@@ -53,10 +53,10 @@ int main()
     // UREs
     Var kkk("kkk"), jjj("jjj"), iii("iii"), jj("jj"), ii("ii"), kk("kk"), k("k"), j("j"), i("i");
     URE X("X", TTYPE, {P}), Y("Y", TTYPE, {P}), Z("Z", TTYPE, {P}), Product("Product");
-    URE Add("Add", TTYPE, {P_Out}), Out("Out", TTYPE, {P_Out});
+    URE Add("Add", TTYPE, {P_reorder}), Out("Out", TTYPE, {P_reorder});
 
-    Expr Check_Load_A = select(addr_A_in_range, A(select(!TransA, total_i, total_k), select(!TransA, total_k, total_i)), ZERO);
-    Expr Check_Load_B = select(addr_B_in_range, B(select(!TransB, total_k, total_j), select(!TransB, total_j, total_k)), ZERO);
+    Expr Check_Load_A = select(addr_A_in_range, A(select(!TransA, total_k, total_i), select(!TransA, total_i, total_k)), ZERO);
+    Expr Check_Load_B = select(addr_B_in_range, B(select(!TransB, total_j, total_k), select(!TransB, total_k, total_j)), ZERO);
     
     X(P) = select(jjj == 0, Check_Load_A, X(P_jjj_minus_1));
     Y(P) = select(iii == 0, Check_Load_B, Y(P_iii_minus_1));
@@ -68,8 +68,8 @@ int main()
     // Output, which is actually connected to C. So we read C(i,j) and then overwrite it. There should be no worry of data race.
     // Note that in this URE, the select does not have a false branch. So only when address of matrix C is within range,
     // we will overwrite C.
-    Add(P_Out) = alpha * Product(P_Out) + select(beta == 0, ZERO, beta * C(total_i, total_j));
-    Out(P_Out) = select(addr_C_in_range, Add(P_Out));
+    Add(P_reorder) = alpha * Product(P_reorder) + select(beta == ZERO, ZERO, beta * C(total_j, total_i));
+    Out(P_reorder) = select(addr_C_in_range, Add(P_reorder));
 
     // Put the UREs that compute A*B (i.e. X, Y, Z and Product) inside the same loop nest.
     X.merge_ures(Y, Z, Product);
@@ -90,12 +90,13 @@ int main()
 
     // I/O network
     Stensor DA("aLoader", DRAM), SA("aFeeder", SRAM), DB("bLoader", DRAM), SB("bFeeder", SRAM), DC("cLoader", DRAM);
-    Stensor POut("collector", REG), DOut("unloader", DRAM), Output("Output");
+    Stensor POut("collector", REG), PR("reorder", SRAM), DOut("unloader", DRAM), Output("Output");
     A   >> DA.out(kkk).apply_transform(Check_Load_A)              >> FIFO(256) >> SA.scope(k).out(kkk, iii) >> FIFO(256);
     B   >> DB.out(kkk).apply_transform(Check_Load_B)              >> FIFO(256) >> SB.scope(k).out(kkk, jjj) >> FIFO(256);
     C   >> DC.out(jjj)              >> FIFO(256);
-    Product >> POut.scope(iii).out(jjj) >> FIFO(256);
-    Out >> FIFO(256) >> DOut >> Output(total_i, total_j);
+    Product >> POut.scope(iii).out(jjj) >> FIFO(256)
+            >> PR >> FIFO(256); 
+    Out >> FIFO(256) >> DOut >> Output(total_j, total_i);
 
     // Compile the kernel to an FPGA bitstream, and expose a C interface for the host to invoke
     Output.compile_to_host(INTERFACE_FILE, { TransA, TransB, alpha, beta, A, B, C }, KERNEL, IntelFPGA);
