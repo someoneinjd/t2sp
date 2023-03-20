@@ -95,44 +95,43 @@ if [ "$1" = "local" -a "$2" = "opencl" -a "$3" = "fpga" ]; then
     export HW_LIBHALIDE_TO_LINK="-lHalide"
 fi
 
-    if [ "$1" = "devcloud" -a "$2" = "opencl" -a "$3" = "fpga" ]; then
-        if [ -f /data/intel_fpga/devcloudLoginToolSetup.sh ]; then
-            source /data/intel_fpga/devcloudLoginToolSetup.sh
-        fi
-        pbsnodes $(hostname) >& tmp.txt
-        if grep "fpga,arria10" tmp.txt; then
-            if grep "fpga_opencl" tmp.txt; then
-                tools_setup -t A10DS 1.2.1
-            fi
-            export FPGA_BOARD=pac_a10
-        else
-            if grep "fpga,stratix10" tmp.txt; then
-                if grep "fpga_opencl" tmp.txt; then
-                    tools_setup -t S10DS
-                fi
-                export FPGA_BOARD=pac_s10_dc
-            else
-                echo The current compute node does not have either an A10 or an S10 card with it.
-                echo Please choose another compute node from 'Nodes with Arria 10 Release 1.2.1',
-                echo or 'Nodes with Stratix 10', without OneAPI
-                return
-            fi
-        fi
-        export AOCL_SO=$ALTERAOCLSDKROOT/host/linux64/lib/libalteracl.so
-        export AOCL_BOARD_SO=$AOCL_BOARD_PACKAGE_ROOT/linux64/lib/libintel_opae_mmd.so
-        #export AOCL_LIBS="-L$INTELFPGAOCLSDKROOT/linux64/lib -L$AOCL_BOARD_PACKAGE_ROOT/linux64/lib -L$INTELFPGAOCLSDKROOT/host/linux64/lib -Wl,--no-as-needed -lalteracl  -lintel_opae_mmd"
-        export AOCL_LIBS="$(aocl link-config)"
-
-        # The aoc on DevCloud has an LLVM whose version is different from that of the LLVM libHalide.so has linked with. Consequently, calling
-        # aoc dynamically will have two LLVMs messed up: the aoc has some LLVM calls to some symbols that are not resolved to be in the aoc linked
-        # LLVM, but instead the libHalide.so linked LLVM, because libHalide.so was loaded the first.
-        # Using the static libHalide.a instead of th dynamic libHalide.so is the only solution we found so far.
-        export EMULATOR_LIBHALIDE_TO_LINK="$T2S_PATH/Halide/lib/libHalide.a"
-        export HW_LIBHALIDE_TO_LINK="$T2S_PATH/Halide/lib/libHalide.a $AOCL_LIBS"
-
-        source  /glob/development-tools/versions/intel-parallel-studio-2019/debugger_2019/bin/debuggervars.sh
-        alias gdb='gdb-ia'
+if [ "$1" = "devcloud" -a "$2" = "opencl" -a "$3" = "fpga" ]; then
+    if [ -f /data/intel_fpga/devcloudLoginToolSetup.sh ]; then
+        source /data/intel_fpga/devcloudLoginToolSetup.sh
     fi
+    pbsnodes $(hostname) >& tmp.txt
+    if grep "fpga,arria10" tmp.txt; then
+        if grep "fpga_opencl" tmp.txt; then
+            tools_setup -t A10DS 1.2.1
+        fi
+        export FPGA_BOARD=pac_a10
+    else
+        if grep "fpga,stratix10" tmp.txt; then
+            if grep "fpga_opencl" tmp.txt; then
+                tools_setup -t S10DS
+            fi
+            export FPGA_BOARD=pac_s10_dc
+        else
+            echo The current compute node does not have either an A10 or an S10 card with it.
+            echo Please choose another compute node from 'Nodes with Arria 10 Release 1.2.1',
+            echo or 'Nodes with Stratix 10', without OneAPI
+            return
+        fi
+    fi
+    export AOCL_SO=$ALTERAOCLSDKROOT/host/linux64/lib/libalteracl.so
+    export AOCL_BOARD_SO=$AOCL_BOARD_PACKAGE_ROOT/linux64/lib/libintel_opae_mmd.so
+    #export AOCL_LIBS="-L$INTELFPGAOCLSDKROOT/linux64/lib -L$AOCL_BOARD_PACKAGE_ROOT/linux64/lib -L$INTELFPGAOCLSDKROOT/host/linux64/lib -Wl,--no-as-needed -lalteracl  -lintel_opae_mmd"
+    export AOCL_LIBS="$(aocl link-config)"
+
+    # The aoc on DevCloud has an LLVM whose version is different from that of the LLVM libHalide.so has linked with. Consequently, calling
+    # aoc dynamically will have two LLVMs messed up: the aoc has some LLVM calls to some symbols that are not resolved to be in the aoc linked
+    # LLVM, but instead the libHalide.so linked LLVM, because libHalide.so was loaded the first.
+    # Using the static libHalide.a instead of th dynamic libHalide.so is the only solution we found so far.
+    export EMULATOR_LIBHALIDE_TO_LINK="$T2S_PATH/Halide/lib/libHalide.a"
+    export HW_LIBHALIDE_TO_LINK="$T2S_PATH/Halide/lib/libHalide.a $AOCL_LIBS"
+
+    source  /glob/development-tools/versions/intel-parallel-studio-2019/debugger_2019/bin/debuggervars.sh
+    alias gdb='gdb-ia'
     export AOCL_SO=$ALTERAOCLSDKROOT/host/linux64/lib/libalteracl.so
     export AOCL_BOARD_SO=$AOCL_BOARD_PACKAGE_ROOT/linux64/lib/libintel_opae_mmd.so
     export AOCL_LIBS="-L$INTELFPGAOCLSDKROOT/linux64/lib -L$AOCL_BOARD_PACKAGE_ROOT/linux64/lib -L$INTELFPGAOCLSDKROOT/host/linux64/lib -Wl,--no-as-needed -lalteracl  -lintel_opae_mmd"
