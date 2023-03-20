@@ -483,6 +483,7 @@ SOURCE_FILES = \
   CodeGen_DPC_Dev.cpp \
   CodeGen_C.cpp \
   CodeGen_Clear_C.cpp \
+  CodeGen_Clear_OneAPI_Dev.cpp \
   CodeGen_Clear_OpenCL_Dev.cpp \
   CodeGen_D3D12Compute_Dev.cpp \
   CodeGen_GPU_Dev.cpp \
@@ -659,6 +660,7 @@ HEADER_FILES = \
   CodeGen_DPC_Dev.h \
   CodeGen_C.h \
   CodeGen_Clear_C.h \
+  CodeGen_Clear_OneAPI_Dev.h \
   CodeGen_Clear_OpenCL_Dev.h \
   CodeGen_D3D12Compute_Dev.h \
   CodeGen_GPU_Dev.h \
