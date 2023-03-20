@@ -105,6 +105,8 @@ uint32_t closest_power_of_two(uint32_t n);
 // Extract the loop name (must ended with ".run_on_device") and create a kernel name
 std::string create_kernel_name(const For *op);
 
+// Generate an empty statement
+Stmt make_empty_stmt();
 } // namespace Internal
 } // namespace Halide
 

@@ -17,25 +17,26 @@
 * SPDX-License-Identifier: BSD-2-Clause-Patent
 *******************************************************************************/
 #include "Halide.h"
-#include "util.h"
 
-#include "const-parameters.h"
+#define KKK 8
+#define KK  64
 
 using namespace Halide;
 
 int main()
 {
     // Dependences
-    #define P_1             kk,      k,     b
-    #define P_kk_minus_1    kk-1,    k,     b
-    #define P_2                      k,     b
-    #define P_k_minus_1              k-1,   b
-    #define P_out                           b
+    #define P_1             kkk,             kk,      k,     b
+    #define P_1_k_minus_1   kkk + KKK - 1,   kk,      k - 1, b
+    #define P_1_kkk_minus_1 kkk - 1,         kk,      k,     b
+    #define P_2                              kk,             b
+    #define P_2_kk_minus_1                   kk - 1,         b
+    #define P_out                                            b
     // Linearized addresses
-    #define total_k         (kk + KK * k)
+    #define total_k         (kkk + KKK * kk + KKK * KK * k)
 
     // Outer loop bounds, which are determined by input sizes
-    #define K (X.dim(0).extent() / KK)
+    #define K (X.dim(0).extent() / (KK * KKK))
     #define B (X.dim(1).extent())
 
     // Type of the data to process in C and T2S
@@ -47,33 +48,30 @@ int main()
     ImageParam Y("Y", TTYPE, 2);
 
     // UREs
-    Var kk("kk"), ll("ll"), k("k"), l("l"), b("b");
+    Var kkk("kkk"), kk("kk"), k("k"), b("b");
     URE uY("uY", TTYPE, {P_1}), uX("uX", TTYPE, {P_1}), uZ_1("uZ_1", TTYPE, {P_1}), Z("Z");
     URE uZ_2("uZ_2", TTYPE, {P_2}), Out("Out");
     uX(P_1) = X(total_k, b);
     uY(P_1) = Y(total_k, b);
-    uZ_1(P_1) = select(kk == 0, 0, uZ_1(P_kk_minus_1)) + uX(P_1) * uY(P_1);
-    Z(P_2) = select(kk == KK-1, uZ_1(P_1));
+    uZ_1(P_1) = select(k == 0 && kkk == 0, 0, select(kkk == 0, uZ_1(P_1_k_minus_1), uZ_1(P_1_kkk_minus_1))) + uX(P_1) * uY(P_1);
+    Z(P_2) = select(k == K - 1 && kkk == KKK - 1, uZ_1(P_1));
 
-    uZ_2(P_2) = select(k == 0, 0, uZ_2(P_k_minus_1)) + Z(P_2);
-    Out(P_out) = select(k == K-1, uZ_2(P_2));
+    uZ_2(P_2) = select(kk == 0, 0, uZ_2(P_2_kk_minus_1)) + Z(P_2);
+    Out(P_out) = select(kk == KK - 1, uZ_2(P_2));
 
     // Put all the UREs inside the same loop nest of X.
     uX.merge_ures(uY, uZ_1, Z);
     uZ_2.merge_ures(Out);
+    uX.late_fuse(uZ_2, b);
 
     // Explicitly set the loop bounds
-    uX.set_bounds(kk,  0, KK,  k,  0, K)
-      .set_bounds(b,   0, B);
-    uZ_2.set_bounds(k, 0, K)
-      .set_bounds(b, 0, B);
-    uX.space_time_transform(kk);
-    uZ_2.space_time_transform(k);
-
-    // GPU can have many threads running in parallel.
-#ifdef GPU
-    uA.gpu_blocks(k, i).gpu_threads(kk, ii);
-#endif
+    uX.set_bounds(kkk,  0, KKK, kk,  0, KK,  k,  0, K)
+      .set_bounds(b,    0, B);
+    uZ_2.set_bounds(kk,  0, KK)
+        .set_bounds(b,   0, B);
+    uX.space_time_transform(kkk);
+    uX.vectorize(kkk);
+    uZ_2.unroll(kk);
 
     // I/O network
     Func xLoader(Place::Device), yLoader(Place::Device);

@@ -295,5 +295,9 @@ string create_kernel_name(const For *op) {
     return kernel_name;
 }
 
+Stmt make_empty_stmt() {
+    return AssertStmt::make(true, 0);
+}
+
 } // namespace Internal
 } // namespace Halide

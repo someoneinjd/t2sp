@@ -575,6 +575,11 @@ Module lower(const vector<Function> &output_funcs,
     debug(1) << "Lowering after final simplification:\n"
              << s << "\n\n";
 
+    debug(1) << "Late fuse...\n";
+    s = do_late_fuse(s, env);
+    debug(2) << "Lowering after late fuse:\n"
+             << s << "\n\n";
+
     debug(1) << "Promoting channels...\n";
     s = channel_promotion(s, env);
     debug(2) << "Lowering after channel promotion:\n"
@@ -591,11 +596,6 @@ Module lower(const vector<Function> &output_funcs,
     debug(1) << "Flatten triangular loop...\n";
     s = flatten_tirangualr_loop_nest(s, env);
     debug(2) << "Lowering after triangular loop optimizing:\n" << s << "\n\n";
-
-    debug(1) << "Late fuse...\n";
-    s = do_late_fuse(s, env);
-    debug(2) << "Lowering after late fuse:\n"
-             << s << "\n\n";
 
     if (getenv("DISABLE_AUTORUN") == NULL) {
         if (t.has_feature(Target::IntelFPGA)) {
