@@ -2039,7 +2039,7 @@ public:
                 for (size_t i = 1; i < loops.size(); i++) {
                     Expr loop_var = Variable::make(Int(32), loops[i]);
                     cond2 = cond2 && (loop_var == mins[i]);
-                    if (loops[i] == buffer_loop) {
+                    if (ends_with(loops[i], "." + buffer_loop)) {
                         break;
                     }
                 }
