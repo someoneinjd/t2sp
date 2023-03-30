@@ -19,12 +19,13 @@ class CodeGen_Clear_OneAPI_Dev : public CodeGen_GPU_Dev {
 public:
     CodeGen_Clear_OneAPI_Dev(Target target);
 
-    /** Compile a GPU kernel into the module. This may be called many times
-     * with different kernels, which will all be accumulated into a single
-     * source module shared by a given Halide pipeline. */
-    void add_kernel(Stmt stmt,
-                    const std::string &name,
-                    const std::vector<DeviceArgument> &args) override;
+    // Even though these functions are not used,
+    // they are pure virtual functions in CodeGen GPU Dev,
+    // so we need to provide their implementation
+    void add_kernel(Stmt, const std::string &,
+                    const std::vector<DeviceArgument> &) override {};
+    void init_module() override {};
+    std::vector<char> compile_to_src() override { return {}; };
 
     // Only for Intel FPGAs: declare compiler-generated vectors/structs, and channels,
     // before the kernel code.
@@ -34,13 +35,6 @@ public:
     void gather_shift_regs_allocates(const Stmt *op) {
         clc.gather_shift_regs_allocates(op);
     }
-
-    /** (Re)initialize the GPU kernel module. This is separate from compile,
-     * since a GPU device module will often have many kernels compiled into it
-     * for a single pipeline. */
-    void init_module() override;
-
-    std::vector<char> compile_to_src() override;
 
     std::string get_current_kernel_name() override;
 
@@ -66,13 +60,11 @@ protected:
         CodeGen_Clear_OneAPI_C(std::ostream &s, Target t)
             : CodeGen_Clear_C(s, t) {
         }
-        void add_kernel(Stmt stmt,
-                        const std::string &name,
-                        const std::vector<DeviceArgument> &args);
         void print_global_data_structures_before_kernel(const Stmt *op);
         void gather_shift_regs_allocates(const Stmt *op);
 
     protected:
+        constexpr static auto INDENT = 2;
         using CodeGen_Clear_C::visit;
         bool is_standard_opencl_type(Type type);
         bool is_irregular(Region &bounds);
@@ -180,7 +172,10 @@ protected:
         const std::string OneAPIDefineVectorStructTypes = "\n// CodeGen_OneAPI DefineVectorStructTypes \n";
         const std::string OneAPIDeclareChannels = "\n// CodeGen_OneAPI DeclareChannels \n";
 
-        void visit(const For *) override;
+        // Override these functions to control indentation
+        void open_scope() override;
+        void close_scope(const std::string &) override;
+
         void visit(const Ramp *op) override;
         void visit(const Broadcast *op) override;
         void visit(const Call *op) override;
@@ -196,14 +191,12 @@ protected:
         void visit(const LE *) override;
         void visit(const GT *) override;
         void visit(const GE *) override;
-        void visit(const Allocate *op) override;
-        void visit(const Free *op) override;
-        void visit(const AssertStmt *op) override;
         void visit(const LetStmt *) override;
         void visit(const Shuffle *op) override;
         void visit(const Min *op) override;
         void visit(const Max *op) override;
         void visit(const Atomic *op) override;
+        void visit(const ProducerConsumer *) override;
         // Only meaningful for Intel FPGAs.
         void visit(const Realize *op) override;
         void visit(const Provide *op) override;
