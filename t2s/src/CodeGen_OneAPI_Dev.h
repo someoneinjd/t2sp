@@ -262,7 +262,7 @@ protected:
         std::set<std::string> UnImplementedExternFuncs;
 
 
-        typedef struct {
+        struct ExternCallFuncs {
 
             EmitOneAPIFunc *p;
 
@@ -460,7 +460,7 @@ protected:
                 return rhs.str();
             }
 
-        } ExternCallFuncs;
+        };
 
         ExternCallFuncs ext_funcs;
 
