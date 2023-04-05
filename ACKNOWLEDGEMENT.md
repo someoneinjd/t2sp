@@ -6,7 +6,7 @@ Many academic researchers have contributed to the project:
 
 + Prof. Zhiru Zhang's group (Cornell): Yi-Hsiang Lai, Shaojie Xiang, Nitish Srivastava, Brendan Sullivan
 
-+ Prof. Wenguang Chen and Youhui Zhang's group (THU), and Prof. Yu Zhang's group (USTC): Mingzhe Zhang, Weihao Zhang, Guanyu Feng, Huanqi Cao
++ Prof. Wenguang Chen and Youhui Zhang's group (THU), and Prof. Yu Zhang's group (USTC): Mingzhe Zhang, Weihao Zhang, Guanyu Feng, Huanqi Cao, Zelin Tan, Ce Sun
 
 + Prof. Jason Cong's group (UCLA): Jie Wang
 
@@ -14,10 +14,13 @@ Many academic researchers have contributed to the project:
 
 + Prof. Huiyang Zhou's group (NCSU): Abdullah-Al Kafi
 
++ Prof. Lei He's group (UCLA): Derek Tao
+
++ Prof. Hung-Wei Tseng's group (UCR): Abenezer Wudenhe
 
 Many Intel people have helped enabling the technology:
 
-+ System Software Group: Geoff Lowney, John C. Kreatsoulas, Nithin George, Paul Petersen, Gorge Powley, Carmen Badea, Daya Khudia, Adam Herr, Charlotte Dryden, Pablo Reble, Vishakha Agrawal, Mike Voss, Vasanth Tovinkere
++ System Software Group: Geoff Lowney, John C. Kreatsoulas, Eric Petit, Nithin George, Paul Petersen, Gorge Powley, Carmen Badea, Daya Khudia, Adam Herr, Charlotte Dryden, Pablo Reble, Vishakha Agrawal, Mike Voss, Vasanth Tovinkere
 
 + Intel Labs: Christopher J. Hughes, Pradeep Dubey, Jim Held, Timothy Mattson, Sanket Tavarageri,  Kunal Banerjee, Bharat Kaul, Justin Gottschlich, Todd A. Anderson, Michael Beale
 

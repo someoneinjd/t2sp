@@ -230,9 +230,6 @@ protected:
         // using CodeGen_OneAPI_C::print_type;
         using CodeGen_C::compile;
     protected:
-        // From CodeGen_GPU_Host
-        std::string create_kernel_name(const For *op);
-        
         // Form CodeGen_OneAPI_C
         void visit(const For *) override;
         void visit(const Allocate *) override;    

@@ -22,12 +22,67 @@
 #include "DebugPrint.h"
 #include "LateFuse.h"
 #include "Utilities.h"
+#include "BuildCallRelation.h"
 
 #include "../../Halide/src/Substitute.h"
 #include "../../Halide/src/Simplify.h"
 
 namespace Halide {
 namespace Internal {
+
+// Get the channel to be replaced by the registers
+class GetReplacedChannel : public IRVisitor {
+    using IRVisitor::visit;
+    set<string> producers;
+    string consumer;
+    set<string> read_channels;
+    set<string> write_channels;
+    bool is_in_producer;
+    bool is_in_merged_func;
+public:
+    GetReplacedChannel(const string &producer, const string &consumer, const std::map<std::string, Function> &env)
+        : consumer{consumer}, is_in_producer{false}, is_in_merged_func{false} {
+            producers.insert(producer);
+            if (env.at(producer).has_merged_defs())
+                for (const auto &name : env.at(producer).merged_func_names())
+                    producers.insert(name);
+        }
+    void visit(const ProducerConsumer *op) override {
+        if (producers.find(op->name) != producers.end() && not op->is_producer) {
+            is_in_producer = true;
+        } else if (op->name == consumer && op->is_producer && is_in_producer) {
+            is_in_merged_func = true;
+        } else if (op->name == consumer && not op->is_producer) {
+            is_in_merged_func = false;
+        }
+        op->body.accept(this);
+    }
+    void visit(const Call *op) override {
+        if (is_in_merged_func) {
+            if (op->is_intrinsic(Call::read_channel)) { 
+                internal_assert(op->args[0].as<StringImm>());
+                read_channels.insert(op->args[0].as<StringImm>()->value);
+            } else if (op->is_intrinsic(Call::write_channel)) {
+                internal_assert(op->args[0].as<StringImm>());
+                write_channels.insert(op->args[0].as<StringImm>()->value);
+            }
+            IRVisitor::visit(op);
+        }
+    }
+    string get_replaced_channel() const {
+        if (producers.size() == 1) {
+            return *producers.begin();
+        } else {
+            vector<string> res{};
+            std::set_intersection(
+                    write_channels.begin(), write_channels.end(), 
+                    read_channels.begin(), read_channels.end(),
+                    std::back_inserter(res));
+            internal_assert(res.size() == 1) << "There is one and only one channel that can be replaced";
+            return remove_postfix(res[0], ".channel");
+        }
+    }
+};
 
 class ReplaceChannelsWithRegs: public IRMutator {
     using IRMutator::visit;
@@ -168,6 +223,7 @@ class PreprocessBeforeFusing: public IRMutator {
 public:
     Stmt fused_body;
     Stmt buffer_stmt;
+
     PreprocessBeforeFusing(Function f, std::string v, std::map<std::string, Range> &loop_info) 
                            : fuse_func(f), fuse_level(v), loop_info(loop_info) {
     }
@@ -176,7 +232,7 @@ public:
         if (op->name == fuse_func.name()) {
             if (op->is_producer) {
                 mutate(op->body);
-                return Stmt();
+                return make_empty_stmt();
             } else {
                 return mutate(op->body);
             }
@@ -204,6 +260,161 @@ public:
     }
 }; 
 
+
+// Get the shift registers' name
+class GetRegName : public IRVisitor {
+    using IRVisitor::visit;
+    string channel_name;
+public:
+    string reg_name;
+
+    GetRegName(const string& name) : channel_name{name}, reg_name{} {}
+
+    void visit(const Call *op) override {
+        if (op->is_intrinsic(Call::write_channel)) {
+            internal_assert(op->args[0].as<StringImm>());
+            string name = op->args[0].as<StringImm>()->value;
+            if (name == channel_name + ".channel") {
+                const auto *func_call = op->args[1].as<Call>();
+                if (func_call != nullptr && func_call->is_intrinsic(Call::read_shift_reg)) {
+                    internal_assert(func_call->args[0].as<StringImm>());
+                    reg_name = func_call->args[0].as<StringImm>()->value;
+                } 
+            }
+        }
+        IRVisitor::visit(op);
+    }
+};
+
+class ReplaceChannelsWithFlattenedRegs : public IRMutator {
+    using IRMutator::visit;
+    string reg_name;
+    string channel_name;
+    string consumer_name;
+    bool contain_write_or_read_regs;
+
+    struct kernel_info {
+        string name;
+        Expr min;
+        Expr extent;
+        ForType for_type;
+        DeviceAPI device_api;
+    };
+
+    vector<kernel_info> kernel_infos;
+
+    struct GetAllMergedKernels : public IRVisitor {
+        using IRVisitor::visit;
+        vector<kernel_info> &kernel_infos;
+        GetAllMergedKernels(vector<kernel_info> &kernel_infos)
+            : kernel_infos{kernel_infos} {}
+        void visit(const For *op) override {
+            if (ends_with(op->name, ".run_on_device")) {
+                kernel_info k = {op->name, op->min, op->extent, op->for_type, op->device_api};
+                kernel_infos.emplace_back(std::move(k));
+            }
+            op->body.accept(this);
+        }
+    };
+
+public:
+    ReplaceChannelsWithFlattenedRegs(const string &reg_name, const string &channel_name, const string &consumer_name)
+        : reg_name{reg_name}, channel_name{channel_name},
+          consumer_name{consumer_name}, contain_write_or_read_regs{false}, 
+          kernel_infos{} {}
+
+    Stmt visit(const Realize *op) override {
+        if (op->name == reg_name) {
+            auto body = mutate(op->body);
+            body = Realize::make(channel_name + "_temp.shreg", op->types,
+                    op->memory_type, op->bounds, op->condition, body);
+            body = Realize::make(reg_name, op->types,
+                    op->memory_type, op->bounds, op->condition, body);
+            return Realize::make("addr.temp", {Int(32)}, MemoryType::Auto, {}, op->condition, std::move(body));
+        } 
+        return IRMutator::visit(op);
+    }
+
+    Expr visit(const Call *op) override {
+        if (op->is_intrinsic(Call::write_channel)) {
+            internal_assert(op->args[0].as<StringImm>());
+            string name = op->args[0].as<StringImm>()->value;
+            if (name == channel_name + ".channel") {
+                contain_write_or_read_regs = true;
+                return Call::make(
+                        op->type, Call::write_shift_reg,
+                        {StringImm::make(channel_name + "_temp.shreg"), Call::make(Int(32), "addr.temp", {}, Call::CallType::Halide), op->args[1]},
+                        op->call_type, op->func, op->value_index, op->image, op->param);
+            }
+            return IRMutator::visit(op);
+        }
+        if (op->is_intrinsic(Call::read_channel)) {
+            internal_assert(op->args[0].as<StringImm>());
+            string name = op->args[0].as<StringImm>()->value;
+            if (name == channel_name + ".channel") {
+                contain_write_or_read_regs = true;
+                return Call::make(
+                        op->type, Call::read_shift_reg,
+                        {StringImm::make(channel_name + "_temp.shreg"), Call::make(Int(32), "addr.temp", {}, Call::CallType::Halide)},
+                        op->call_type, op->func, op->value_index, op->image, op->param);
+            }
+            return IRMutator::visit(op);
+        }
+        return IRMutator::visit(op);
+    }
+
+    Stmt visit(const ProducerConsumer *op) override {
+        if (op->is_producer && op->name == channel_name) {
+            GetAllMergedKernels finder{kernel_infos};
+            finder.visit(op);
+            mutate(op->body);
+            return make_empty_stmt(); 
+        } else {
+            return IRMutator::visit(op);
+        }
+    }
+
+    Stmt visit(const For *op) override {
+        if (starts_with(op->name, consumer_name) and ends_with(op->name, ".run_on_device")) {
+            auto body = mutate(op->body);
+            for (auto iter = kernel_infos.rbegin(); iter != kernel_infos.rend(); iter++) {
+                body = For::make(iter->name, iter->min,
+                        iter->extent, iter->for_type, iter->device_api, std::move(body));
+            }
+            return For::make(op->name, op->min, op->extent, op->for_type, op->device_api, std::move(body));
+        }
+        const bool before_val = contain_write_or_read_regs;
+        auto res = IRMutator::visit(op);
+        if (not before_val && contain_write_or_read_regs) {
+            auto *for_node = res.as<For>();
+            contain_write_or_read_regs = false;
+            return For::make(for_node->name, for_node->min, for_node->extent,
+                    for_node->for_type, for_node->device_api,
+                    Block::make(for_node->body, 
+                        Provide::make("addr.temp", {Add::make(Call::make(Int(32), "addr.temp", {}, Call::CallType::Halide), IntImm::make(Int(32), 1))}, {})));
+        }
+        return res;
+    }
+
+    Stmt visit(const IfThenElse *op) override {
+        const bool before_val = contain_write_or_read_regs;
+        Expr condition = mutate(op->condition);
+        Stmt then_case = mutate(op->then_case);
+        if (not before_val && contain_write_or_read_regs) {
+            then_case = Block::make(then_case,
+                    Provide::make("addr.temp", {Add::make(Call::make(Int(32), "addr.temp", {}, Call::CallType::Halide), IntImm::make(Int(32), 1))}, {}));
+            contain_write_or_read_regs = false;
+        }
+        Stmt else_case = mutate(op->else_case);
+        if (not before_val &&  contain_write_or_read_regs) {
+            else_case = Block::make(else_case,
+                    Provide::make("addr.temp", {Add::make(Call::make(Int(32), "addr.temp", {}, Call::CallType::Halide), IntImm::make(Int(32), 1))}, {}));
+            contain_write_or_read_regs = false;
+        }
+        return IfThenElse::make(std::move(condition), std::move(then_case), std::move(else_case));
+    }
+};
+
 class LateFuse: public IRMutator {
     using IRMutator::visit;
 
@@ -218,7 +429,8 @@ public:
 
     Stmt visit(const For *op) override {
         if (starts_with(op->name, fuse_level)) {
-            Stmt body_s = mutate(op->body);
+            Stmt body_s = Block::make(Provide::make("addr.temp", {IntImm::make(Int(32), 0)}, {}), mutate(op->body));
+            fused_body = Block::make(Provide::make("addr.temp", {IntImm::make(Int(32), 0)}, {}), fused_body);
             Stmt block_s;
             if (fuse_flag) {
                 block_s = Block::make(body_s, fused_body);
@@ -339,6 +551,7 @@ public:
 }; 
 
 Stmt do_late_fuse(Stmt stmt, const std::map<std::string, Function> &env) {
+    const auto call_graph = build_call_graph(env, true, true);
     for (auto &pair : env) {
         const std::string late_fuse_level = pair.second.schedule().late_fuse_params().late_fuse_level;
         if (!late_fuse_level.empty()) {
@@ -362,21 +575,24 @@ Stmt do_late_fuse(Stmt stmt, const std::map<std::string, Function> &env) {
             Stmt fused_body;
             PreprocessBeforeFusing processor(pair.second, late_fuse_level, loop_info);
             stmt = processor.mutate(stmt);
-            bool fuse_flag;
+            const auto original_name = extract_first_token(late_fuse_level);
+            const auto producers = call_graph.at(original_name);
+            bool fuse_flag = not (std::find(producers.begin(), producers.end(), pair.first) != producers.end()
+                          || pair.second.isolated_from_as_producer() == original_name);
             
-            if (pair.second.isolated_from_as_producer() == extract_first_token(late_fuse_level)) {
-                fuse_flag = false;
+            if (!fuse_flag) {
                 debug(3) << "Fuse producer " << pair.first << " with consumer " << extract_first_token(late_fuse_level) <<"\n";
             } else {
-                fuse_flag = true;
                 debug(3) << "Fuse producer " << extract_first_token(late_fuse_level) << " with consumer " << pair.first <<"\n";
             }
+
             Region bounds;                   // bounds for realize of the registers
             std::vector<string> access_args; // args for accessing registers
             for (auto kv : loop_info) {
                 bounds.push_back(kv.second);
                 access_args.push_back(kv.first);
             }
+
 
             LateFuse fuse(fuse_flag, late_fuse_level, processor.fused_body);
             stmt = fuse.mutate(stmt);
@@ -391,14 +607,29 @@ Stmt do_late_fuse(Stmt stmt, const std::map<std::string, Function> &env) {
                 }
             }
             */
+
+            string channel_name{};
             if (!fuse_flag) {
-                ReplaceChannelsWithRegs replacer(pair.second.name(), bounds, access_args, processor.buffer_stmt);
+                GetReplacedChannel finder{pair.second.name(), original_name, env};
+                stmt.accept(&finder);
+                channel_name = finder.get_replaced_channel();
+            } else {
+                GetReplacedChannel finder{pair.second.isolated_from_as_consumer(), pair.first, env};
+                stmt.accept(&finder);
+                channel_name = finder.get_replaced_channel();
+            }
+
+            GetRegName finder{channel_name};
+            stmt.accept(&finder);
+
+            if (finder.reg_name.empty()) {
+                ReplaceChannelsWithRegs replacer(channel_name, bounds, access_args, processor.buffer_stmt);
                 stmt = replacer.mutate(stmt);
             } else {
-                ReplaceChannelsWithRegs replacer(pair.second.isolated_from_as_consumer(), bounds, access_args, processor.buffer_stmt);
+                ReplaceChannelsWithFlattenedRegs replacer(finder.reg_name, channel_name, fuse_flag ? pair.first : original_name);
                 stmt = replacer.mutate(stmt);
             }
-            
+
             /*
             realize shreg r[][] {
                 producer B {

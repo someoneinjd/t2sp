@@ -129,6 +129,7 @@ WITH_PTX ?= $(findstring nvptx, $(LLVM_COMPONENTS))
 WITH_AMDGPU ?= $(findstring amdgpu, $(LLVM_COMPONENTS))
 WITH_WEBASSEMBLY ?= $(findstring webassembly, $(LLVM_COMPONENTS))
 WITH_OPENCL ?= not-empty
+WITH_ONEAPI ?= not-empty
 WITH_METAL ?= not-empty
 WITH_OPENGL ?= not-empty
 WITH_D3D12 ?= not-empty
@@ -193,6 +194,9 @@ AMDGPU_LLVM_CONFIG_LIB=$(if $(WITH_AMDGPU), amdgpu, )
 OPENCL_CXX_FLAGS=$(if $(WITH_OPENCL), -DWITH_OPENCL, )
 OPENCL_LLVM_CONFIG_LIB=$(if $(WITH_OPENCL), , )
 
+ONEAPI_CXX_FLAGS=$(if $(WITH_ONEAPI), -DWITH_OPENCL, )
+ONEAPI_LLVM_CONFIG_LIB=$(if $(WITH_ONEAPI), , )
+
 METAL_CXX_FLAGS=$(if $(WITH_METAL), -DWITH_METAL, )
 METAL_LLVM_CONFIG_LIB=$(if $(WITH_METAL), , )
 
@@ -249,6 +253,7 @@ CXX_FLAGS += $(HEXAGON_CXX_FLAGS)
 CXX_FLAGS += $(AARCH64_CXX_FLAGS)
 CXX_FLAGS += $(X86_CXX_FLAGS)
 CXX_FLAGS += $(OPENCL_CXX_FLAGS)
+CXX_FLAGS += $(ONEAPI_CXX_FLAGS)
 CXX_FLAGS += $(METAL_CXX_FLAGS)
 CXX_FLAGS += $(OPENGL_CXX_FLAGS)
 CXX_FLAGS += $(D3D12_CXX_FLAGS)
@@ -281,6 +286,7 @@ LLVM_STATIC_LIBFILES = \
 	$(X86_LLVM_CONFIG_LIB) \
 	$(ARM_LLVM_CONFIG_LIB) \
 	$(OPENCL_LLVM_CONFIG_LIB) \
+	$(ONEAPI_LLVM_CONFIG_LIB) \
 	$(METAL_LLVM_CONFIG_LIB) \
 	$(PTX_LLVM_CONFIG_LIB) \
 	$(AARCH64_LLVM_CONFIG_LIB) \
@@ -474,6 +480,7 @@ SOURCE_FILES = \
   CanonicalizeGPUVars.cpp \
   Closure.cpp \
   CodeGen_ARM.cpp \
+  CodeGen_DPC_Dev.cpp \
   CodeGen_C.cpp \
   CodeGen_Clear_C.cpp \
   CodeGen_Clear_OneAPI_Dev.cpp \
@@ -650,6 +657,7 @@ HEADER_FILES = \
   CanonicalizeGPUVars.h \
   Closure.h \
   CodeGen_ARM.h \
+  CodeGen_DPC_Dev.h \
   CodeGen_C.h \
   CodeGen_Clear_C.h \
   CodeGen_Clear_OneAPI_Dev.h \
@@ -671,6 +679,7 @@ HEADER_FILES = \
   CodeGen_RISCV.h \
   CodeGen_WebAssembly.h \
   CodeGen_X86.h \
+  Complex.h \
   ConciseCasts.h \
   CPlusPlusMangle.h \
   CSE.h \

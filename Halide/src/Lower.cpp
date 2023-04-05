@@ -259,6 +259,7 @@ Module lower(const vector<Function> &output_funcs,
     debug(2) << "Lowering after placing device functions:\n" << s << "\n\n";
 
     debug(1) << "Replacing references with channels and shift registers...\n";
+    add_reference_names(s, env, reg_size_map);
     s = replace_references_with_channels(s, env, global_bounds);
     s = replace_references_with_shift_registers(s, env, reg_size_map);
     debug(2) << "Lowering after replacing references with channels and shift registers:\n" << s << "\n\n";
@@ -402,10 +403,10 @@ Module lower(const vector<Function> &output_funcs,
     s = combine_channels(s);
     debug(2) << "Lowering after combining channels:\n" << s << "\n\n";
 
-    debug(1) << "Trimming loops to the region over which they do something...\n";
-    s = trim_no_ops(s);
-    debug(2) << "Lowering after loop trimming:\n"
-             << s << "\n\n";
+    // debug(1) << "Trimming loops to the region over which they do something...\n";
+    // s = trim_no_ops(s);
+    // debug(2) << "Lowering after loop trimming:\n"
+    //          << s << "\n\n";
 
     debug(1) << "Remove Lets and LetStmts in funcs with buffering or scattering...\n";
     {
@@ -574,8 +575,13 @@ Module lower(const vector<Function> &output_funcs,
     debug(1) << "Lowering after final simplification:\n"
              << s << "\n\n";
 
+    debug(1) << "Late fuse...\n";
+    s = do_late_fuse(s, env);
+    debug(2) << "Lowering after late fuse:\n"
+             << s << "\n\n";
+
     debug(1) << "Promoting channels...\n";
-    s = channel_promotion(s);
+    s = channel_promotion(s, env);
     debug(2) << "Lowering after channel promotion:\n"
              << s << "\n\n";
 
@@ -590,11 +596,6 @@ Module lower(const vector<Function> &output_funcs,
     debug(1) << "Flatten triangular loop...\n";
     s = flatten_tirangualr_loop_nest(s, env);
     debug(2) << "Lowering after triangular loop optimizing:\n" << s << "\n\n";
-
-    debug(1) << "Late fuse...\n";
-    s = do_late_fuse(s, env);
-    debug(2) << "Lowering after late fuse:\n"
-             << s << "\n\n";
 
     if (getenv("DISABLE_AUTORUN") == NULL) {
         if (t.has_feature(Target::IntelFPGA)) {

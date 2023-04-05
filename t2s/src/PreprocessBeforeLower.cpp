@@ -142,11 +142,11 @@ void convert_removed_loops_to_unit_loops(Func &func) {
     debug(4) << "Remove loops " << to_string<string>(remove_params) << " from Func " << func.name() << "\n";
     for (auto &r: remove_params) {
         auto original_bounds = func.function().get_bounds(r);
-        if (original_bounds.first.defined()) {
-            func.function().set_bounds({r}, {original_bounds.first}, {Expr(1)});
-        } else {
+        // if (original_bounds.first.defined()) {
+        //     func.function().set_bounds({r}, {original_bounds.first}, {Expr(1)});
+        // } else {
             func.function().set_bounds({r}, {Expr(0)}, {Expr(1)});
-        }
+        // }
     }
 }
 

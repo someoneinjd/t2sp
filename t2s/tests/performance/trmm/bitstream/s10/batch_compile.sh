@@ -1,0 +1,5 @@
+source /data/intel_fpga/devcloudLoginToolSetup.sh
+tools_setup -t S10OAPI
+cd /home/u146242/trmm_lab/s10
+aoc -profile -v -report -fpc -fp-relaxed a.cl -o a.aocx -board=pac_s10 -board-package=/glob/development-tools/versions/oneapi/2022.2/oneapi/intelfpgadpcpp/2022.1.0/board/intel_s10sx_pac
+cd -

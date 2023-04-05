@@ -1,0 +1,266 @@
+{
+  "nodes":
+  [
+    {
+      "name":"kernel_xLoader_1"
+      , "id":310
+      , "type":"kernel"
+      , "children":
+      [
+        {
+          "name":"On-chip Memory"
+          , "id":311
+          , "type":"memtype"
+          , "children":
+          [
+            {
+              "name":"_temp"
+              , "id":312
+              , "details":
+              [
+                {
+                  "type":"table"
+                  , "Declared at":
+                  [
+                    {
+                      "type":"text"
+                      , "text":"%L"
+                      , "links":
+                      [
+                        {
+                          "filename":"/home/u146718/dot_lab/s10/a.cl"
+                          , "line":"75"
+                        }
+                      ]
+                    }
+                  ]
+                  , "Additional information":"This variable is carried through the pipeline in registers (rather than being stored in RAM)"
+                }
+              ]
+              , "debug":
+              [
+                [
+                  {
+                    "filename":"/home/u146718/dot_lab/s10/a.cl"
+                    , "line":75
+                  }
+                ]
+              ]
+              , "type":"reg"
+            }
+          ]
+        }
+      ]
+    }
+    , {
+      "name":"kernel_yLoader_1"
+      , "id":313
+      , "type":"kernel"
+      , "children":
+      [
+        {
+          "name":"On-chip Memory"
+          , "id":314
+          , "type":"memtype"
+          , "children":
+          [
+            {
+              "name":"_temp"
+              , "id":315
+              , "details":
+              [
+                {
+                  "type":"table"
+                  , "Declared at":
+                  [
+                    {
+                      "type":"text"
+                      , "text":"%L"
+                      , "links":
+                      [
+                        {
+                          "filename":"/home/u146718/dot_lab/s10/a.cl"
+                          , "line":"100"
+                        }
+                      ]
+                    }
+                  ]
+                  , "Additional information":"This variable is carried through the pipeline in registers (rather than being stored in RAM)"
+                }
+              ]
+              , "debug":
+              [
+                [
+                  {
+                    "filename":"/home/u146718/dot_lab/s10/a.cl"
+                    , "line":100
+                  }
+                ]
+              ]
+              , "type":"reg"
+            }
+          ]
+        }
+      ]
+    }
+    , {
+      "name":"kernel_Z"
+      , "id":316
+      , "type":"kernel"
+      , "children":
+      [
+        {
+          "name":"On-chip Memory"
+          , "id":317
+          , "type":"memtype"
+          , "children":
+          [
+            {
+              "name":"_yLoader__1_channel_array"
+              , "id":318
+              , "details":
+              [
+                {
+                  "type":"table"
+                  , "Declared at":
+                  [
+                    {
+                      "type":"text"
+                      , "text":"%L"
+                      , "links":
+                      [
+                        {
+                          "filename":"/home/u146718/dot_lab/s10/a.cl"
+                          , "line":"116"
+                        }
+                      ]
+                    }
+                  ]
+                  , "Additional information":"This variable is carried through the pipeline in registers (rather than being stored in RAM)"
+                }
+              ]
+              , "debug":
+              [
+                [
+                  {
+                    "filename":"/home/u146718/dot_lab/s10/a.cl"
+                    , "line":116
+                  }
+                ]
+              ]
+              , "type":"reg"
+            }
+            , {
+              "name":"_xLoader__1_channel_array"
+              , "id":319
+              , "details":
+              [
+                {
+                  "type":"table"
+                  , "Declared at":
+                  [
+                    {
+                      "type":"text"
+                      , "text":"%L"
+                      , "links":
+                      [
+                        {
+                          "filename":"/home/u146718/dot_lab/s10/a.cl"
+                          , "line":"117"
+                        }
+                      ]
+                    }
+                  ]
+                  , "Additional information":"This variable is carried through the pipeline in registers (rather than being stored in RAM)"
+                }
+              ]
+              , "debug":
+              [
+                [
+                  {
+                    "filename":"/home/u146718/dot_lab/s10/a.cl"
+                    , "line":117
+                  }
+                ]
+              ]
+              , "type":"reg"
+            }
+            , {
+              "name":"__17"
+              , "id":320
+              , "details":
+              [
+                {
+                  "type":"table"
+                  , "Declared at":
+                  [
+                    {
+                      "type":"text"
+                      , "text":"%L"
+                      , "links":
+                      [
+                        {
+                          "filename":"/home/u146718/dot_lab/s10/a.cl"
+                          , "line":"124"
+                        }
+                      ]
+                    }
+                  ]
+                  , "Additional information":"This variable is carried through the pipeline in registers (rather than being stored in RAM)"
+                }
+              ]
+              , "debug":
+              [
+                [
+                  {
+                    "filename":"/home/u146718/dot_lab/s10/a.cl"
+                    , "line":124
+                  }
+                ]
+              ]
+              , "type":"reg"
+            }
+            , {
+              "name":"__18"
+              , "id":321
+              , "details":
+              [
+                {
+                  "type":"table"
+                  , "Declared at":
+                  [
+                    {
+                      "type":"text"
+                      , "text":"%L"
+                      , "links":
+                      [
+                        {
+                          "filename":"/home/u146718/dot_lab/s10/a.cl"
+                          , "line":"126"
+                        }
+                      ]
+                    }
+                  ]
+                  , "Additional information":"This variable is carried through the pipeline in registers (rather than being stored in RAM)"
+                }
+              ]
+              , "debug":
+              [
+                [
+                  {
+                    "filename":"/home/u146718/dot_lab/s10/a.cl"
+                    , "line":126
+                  }
+                ]
+              ]
+              , "type":"reg"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+  , "links":
+  [
+  ]
+}

@@ -1,0 +1,98 @@
+{
+    "quartusFitClockSummary"         : {
+        "nodes" : [{
+            "name"              : "Quartus Fitter: Clock Frequency (MHz)",
+            "kernel clock"      : "292.00",
+            "kernel clock fmax" : "292.00",
+            "clock1x"           : "292.00",
+            "clock2x"           : "584.00",
+            "details"           : [{
+                "text" : "The actual frequency of kernel clock is 292.00 MHz after platform PLL adjustment. The maximum frequency for kernel clock is 292.00 MHz. "
+            }],
+            "type"              : "system"
+        }]
+    },
+    "quartusFitResourceUsageSummary" : {
+        "nodes" : [{
+            "type" : "system",
+            "id"   : "1000",
+            "name" : "Quartus Fitter: Kernel System",
+            "alm"  : "63308.7",
+            "reg"  : "148204",
+            "dsp"  : "64",
+            "ram"  : "596",
+            "mlab" : "602"
+        },{
+            "type" : "kernel",
+            "id"   : "1010",
+            "name" : "Intel_Internal_Collect_Autorun_Profiling",
+            "alm"  : "84.3",
+            "reg"  : "145",
+            "dsp"  : "0",
+            "ram"  : "0",
+            "mlab" : "0"
+        },{
+            "type" : "kernel",
+            "id"   : "1010",
+            "name" : "kernel_V_1",
+            "alm"  : "17789.1",
+            "reg"  : "41551",
+            "dsp"  : "64",
+            "ram"  : "207",
+            "mlab" : "189"
+        },{
+            "type" : "kernel",
+            "id"   : "1010",
+            "name" : "kernel_aLoader",
+            "alm"  : "8506.6",
+            "reg"  : "17817",
+            "dsp"  : "0",
+            "ram"  : "118",
+            "mlab" : "118"
+        },{
+            "type" : "kernel",
+            "id"   : "1010",
+            "name" : "kernel_unloader_1",
+            "alm"  : "4881.0",
+            "reg"  : "9679",
+            "dsp"  : "0",
+            "ram"  : "0",
+            "mlab" : "44"
+        },{
+            "type" : "kernel",
+            "id"   : "1010",
+            "name" : "kernel_unloader_2",
+            "alm"  : "11234.9",
+            "reg"  : "30123",
+            "dsp"  : "0",
+            "ram"  : "0",
+            "mlab" : "232"
+        },{
+            "type" : "kernel",
+            "id"   : "1010",
+            "name" : "kernel_xFeeder",
+            "alm"  : "1884.5",
+            "reg"  : "3390",
+            "dsp"  : "0",
+            "ram"  : "32",
+            "mlab" : "7"
+        },{
+            "type" : "kernel",
+            "id"   : "1010",
+            "name" : "kernel_xLoader",
+            "alm"  : "4163.8",
+            "reg"  : "7091",
+            "dsp"  : "0",
+            "ram"  : "58",
+            "mlab" : "7"
+        },{
+            "type" : "aclsystem",
+            "id"   : "1001",
+            "name" : "Quartus Fitter: Total Used (Entire System)",
+            "alm"  : "256,408",
+            "reg"  : "432,448",
+            "dsp"  : "64",
+            "ram"  : "1,027"
+        }]
+    }
+}

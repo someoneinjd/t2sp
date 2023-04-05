@@ -1,0 +1,1441 @@
+/*OpenCL C x86-64-linux-avx-avx2-enable_synthesis-f16c-fma-intel_fpga-opencl-sse41*/
+#pragma OPENCL FP_CONTRACT ON
+#define float_from_bits(x) as_float(x)
+inline float nan_f32() { return NAN; }
+inline float neg_inf_f32() { return -INFINITY; }
+inline float inf_f32() { return INFINITY; }
+inline bool is_nan_f32(float x) {return isnan(x); }
+inline bool is_inf_f32(float x) {return isinf(x); }
+inline bool is_finite_f32(float x) {return isfinite(x); }
+#define sqrt_f32 sqrt 
+#define sin_f32 sin 
+#define cos_f32 cos 
+#define exp_f32 exp 
+#define log_f32 log 
+#define abs_f32 fabs 
+#define floor_f32 floor 
+#define ceil_f32 ceil 
+#define round_f32 round 
+#define trunc_f32 trunc 
+#define pow_f32 pow
+#define asin_f32 asin 
+#define acos_f32 acos 
+#define tan_f32 tan 
+#define atan_f32 atan 
+#define atan2_f32 atan2
+#define sinh_f32 sinh 
+#define asinh_f32 asinh 
+#define cosh_f32 cosh 
+#define acosh_f32 acosh 
+#define tanh_f32 tanh 
+#define atanh_f32 atanh 
+#define fast_inverse_f32 native_recip 
+#define fast_inverse_sqrt_f32 native_rsqrt 
+#define __address_space___shared __local
+
+
+// ll suffix in OpenCL is reserved for 128-bit integers.
+#if defined __OPENCL_VERSION__
+#define ADD_INT64_T_SUFFIX(x) x##l
+#define ADD_UINT64_T_SUFFIX(x) x##ul
+// HLSL doesn't have any suffixes.
+#elif defined HLSL_VERSION
+#define ADD_INT64_T_SUFFIX(x) x
+#define ADD_UINT64_T_SUFFIX(x) x
+#else
+#define ADD_INT64_T_SUFFIX(x) x##ll
+#define ADD_UINT64_T_SUFFIX(x) x##ull
+#endif
+#pragma OPENCL EXTENSION cl_intel_channels : enable
+typedef union {
+bool __attribute__ ((aligned(8))) s[8];
+struct {bool s0,  s1,  s2,  s3,  s4,  s5,  s6,  s7;};
+} bool8;
+channel float8 _ALoader_channel __attribute__((depth(256))) ;
+typedef struct { float8 s[8]; } _AFeeder_channel_array_t;
+channel _AFeeder_channel_array_t _AFeeder_channel __attribute__((depth(256))) ;
+channel float8 _BLoader_channel __attribute__((depth(256))) ;
+typedef struct { float8 s[8]; } _BFeeder_channel_array_t;
+channel _BFeeder_channel_array_t _BFeeder_channel __attribute__((depth(256))) ;
+channel float8 _Out_channel __attribute__((depth(256))) ;
+
+channel float8 _ALoader_T_channel __attribute__((depth(256))) ;
+typedef struct { float8 s[8]; } _AFeeder_T_channel_array_t;
+channel _AFeeder_T_channel_array_t _AFeeder_T_channel __attribute__((depth(256))) ;
+channel float8 _BLoader_T_channel __attribute__((depth(256))) ;
+typedef struct { float8 s[8]; } _BFeeder_T_channel_array_t;
+channel _BFeeder_T_channel_array_t _BFeeder_T_channel __attribute__((depth(256))) ;
+channel float8 _Out_T_channel __attribute__((depth(256))) ;
+
+channel float8 _E_channel __attribute__((depth(256))) ;
+// Address spaces for kernel_ALoader
+#define __address_space__ASerializer_mem_channel __global
+__kernel void kernel_ALoader(
+ const int _A_extent_0,
+ const int _A_extent_1,
+ const int _B_extent_0,
+ __address_space__ASerializer_mem_channel const float *restrict _ASerializer_mem_channel)
+{
+ int _0 = _A_extent_1 >> 7;
+ int _1 = _0 + 1;
+ for (int _ALoader_s0_i = 0; _ALoader_s0_i < 0 + _1; _ALoader_s0_i++)
+ {
+  int _2 = _B_extent_0 >> 7;
+  int _3 = _2 - _ALoader_s0_i + ((_ALoader_s0_i < _0) ? 0 : 1);
+  for (int _ALoader_s0_j = _ALoader_s0_i; _ALoader_s0_j < _ALoader_s0_i + _3; _ALoader_s0_j++)
+  {
+   int _4 = _A_extent_0 >> 7;
+   for (int _ALoader_s0_k = 0; _ALoader_s0_k < 0 + _4; _ALoader_s0_k++)
+   {
+    #pragma loop_coalesce 3
+    for (int _ALoader_s0_kk = 0; _ALoader_s0_kk < 0 + 16; _ALoader_s0_kk++)
+    {
+     for (int _ALoader_s0_ii = 0; _ALoader_s0_ii < 0 + 16; _ALoader_s0_ii++)
+     {
+      for (int _ALoader_s0_iii = 0; _ALoader_s0_iii < 0 + 8; _ALoader_s0_iii++)
+      {
+       bool _5 = _ALoader_s0_j == _ALoader_s0_i;
+       bool _6 = _ALoader_s0_k == 0;
+       bool _7 = _5 && _6;
+       int _8 = _A_extent_1 >> 7;
+       bool _9 = _ALoader_s0_i < _8;
+       bool _10 = _7 || _9;
+       if (_10)
+       {
+        float8 _18;
+        int _19 = _A_extent_1 >> 7;
+        bool _20 = _ALoader_s0_i < _19;
+        if (_20)
+        {
+         int _21 = _ALoader_s0_iii*8 + _ALoader_s0_ii*64 + _ALoader_s0_kk*1024;
+         int _22 = _21 + _ALoader_s0_k*16384;
+         int _23 = _22 + _ALoader_s0_i*16384*_4;
+         float8 _33 = vload8(0, (__address_space__ASerializer_mem_channel float*)_ASerializer_mem_channel + _23);
+         _18 = _33;
+        } // if _20
+        else
+        {
+         float _34 = float_from_bits(0 /* 0 */);
+         float8 _35 = _34;
+         _18 = _35;
+        } // if _20 else
+        float8 _36 = _18;
+        write_channel_intel(_ALoader_channel, _36);
+        (void)_36;
+       } // if _16
+      } // for _ALoader_s0_iii
+     } // for _ALoader_s0_ii
+    } // for _ALoader_s0_kk
+   } // for _ALoader_s0_k
+  } // for _ALoader_s0_j
+ } // for _ALoader_s0_i
+} // kernel kernel_ALoader
+#undef __address_space__ASerializer_mem_channel
+// Address spaces for kernel_AFeeder
+__attribute__((max_global_work_dim(0)))
+__attribute__((autorun))
+__kernel void kernel_AFeeder(
+)
+{
+ _AFeeder_channel_array_t _AFeeder_channel_array;
+ float8 _AFeeder_value_shreg;
+ uint _AFeeder_time_stamp_shreg;
+ float8 _AFeeder_in_v_temp;
+ uint _AFeeder_cycle_temp;
+ float8 __attribute__((memory, numbanks(8), singlepump, numwriteports(1), numreadports(1))) _AFeeder_DB_0_ibuffer[2][16][16][8];
+ #pragma unroll
+ for (int _AFeeder_s0_jjj_init = 0; _AFeeder_s0_jjj_init < 0 + 8; _AFeeder_s0_jjj_init++)
+ {
+  bool _39 = _AFeeder_s0_jjj_init == 0;
+  if (_39)
+  {
+   uint _40 = (uint)(ADD_UINT64_T_SUFFIX(2048));
+   _AFeeder_cycle_temp = _40;
+  } // if _39
+ } // for _AFeeder_s0_jjj_init
+ while(1)
+ {
+  uint _41 = (uint)(ADD_UINT64_T_SUFFIX(2048));
+  uint _42 = _AFeeder_cycle_temp;
+  uint _43 = (uint)(ADD_UINT64_T_SUFFIX(4095));
+  uint _44 = _42 & _43;
+  bool _45 = _41 <= _44;
+  if (_45)
+  {
+   float8 __46 = read_channel_intel(_ALoader_channel);
+   _AFeeder_in_v_temp = __46;
+  } // if _45
+  #pragma unroll
+  for (int _AFeeder_s0_buf = 0; _AFeeder_s0_buf < 0 + 8; _AFeeder_s0_buf++)
+  {
+   bool _47 = _AFeeder_s0_buf == 0;
+   if (_47)
+   {
+    float8 _48 = _AFeeder_in_v_temp;
+    _AFeeder_value_shreg = _48;
+    (void)_48;
+    uint _49 = _AFeeder_cycle_temp;
+    _AFeeder_time_stamp_shreg = _49;
+    (void)_49;
+   } // if _47
+   else
+   {
+    float8 _51 = _AFeeder_value_shreg;
+    _AFeeder_value_shreg = _51;
+    (void)_51;
+    uint _53 = _AFeeder_time_stamp_shreg;
+    _AFeeder_time_stamp_shreg = _53;
+    (void)_53;
+   } // if _47 else
+   float8 _55 = _AFeeder_value_shreg;
+   float8 _56 = __fpga_reg(__fpga_reg(_55));
+   _AFeeder_value_shreg = _56;
+   (void)_56;
+   uint _58 = _AFeeder_time_stamp_shreg;
+   uint _59 = __fpga_reg(__fpga_reg(_58));
+   _AFeeder_time_stamp_shreg = _59;
+   (void)_59;
+   uint _60 = (uint)(ADD_UINT64_T_SUFFIX(2048));
+   uint _62 = _AFeeder_time_stamp_shreg;
+   uint _63 = (uint)(ADD_UINT64_T_SUFFIX(4095));
+   uint _64 = _62 & _63;
+   bool _65 = _60 <= _64;
+   if (_65)
+   {
+    uint _67 = _AFeeder_time_stamp_shreg;
+    uint _68 = (uint)(ADD_UINT64_T_SUFFIX(4095));
+    uint _69 = _67 & _68;
+    uint _70 = (uint)(ADD_UINT64_T_SUFFIX(2048));
+    uint _71 = _69 - _70;
+    uint _72 = (uint)(ADD_UINT64_T_SUFFIX(7));
+    uint _73 = _71 & _72;
+    int _74 = (int)(_73);
+    bool _75 = _AFeeder_s0_buf == _74;
+    if (_75)
+    {
+     float8 _77 = _AFeeder_value_shreg;
+     uint _79 = _AFeeder_time_stamp_shreg;
+     uint _80 = (uint)(ADD_UINT64_T_SUFFIX(12));
+     uint _81 = _79 >> _80;
+     uint _82 = (uint)(ADD_UINT64_T_SUFFIX(1));
+     uint _83 = _81 & _82;
+     bool _84 = (bool)(_83);
+     uint _86 = (uint)(ADD_UINT64_T_SUFFIX(4095));
+     uint _87 = _79 & _86;
+     uint _88 = (uint)(ADD_UINT64_T_SUFFIX(2048));
+     uint _89 = _87 - _88;
+     int _90 = (int)(_89);
+     int _91 = _90 >> 7;
+     int _93 = _90 >> 3;
+     int _94 = _93 & 15;
+     _AFeeder_DB_0_ibuffer[_84][_91][_94][_AFeeder_s0_buf] = _77;
+    } // if _75
+   } // if _65
+   uint _95 = (uint)(ADD_UINT64_T_SUFFIX(0));
+   uint _97 = _AFeeder_time_stamp_shreg;
+   uint _98 = (uint)(ADD_UINT64_T_SUFFIX(12));
+   uint _99 = _97 >> _98;
+   bool _100 = _95 < _99;
+   if (_100)
+   {
+    uint _102 = _AFeeder_time_stamp_shreg;
+    uint _103 = (uint)(ADD_UINT64_T_SUFFIX(4095));
+    uint _104 = _102 & _103;
+    int _105 = (int)(_104);
+    uint _106 = (uint)(ADD_UINT64_T_SUFFIX(12));
+    uint _107 = _102 >> _106;
+    uint _108 = (uint)(ADD_UINT64_T_SUFFIX(1));
+    uint _109 = _107 & _108;
+    bool _110 = (bool)(_109);
+    bool _111 = !(_110);
+    int _112 = _105 >> 8;
+    int _113 = _105 >> 4;
+    int _114 = _113 & 15;
+    float8 _115 = _AFeeder_DB_0_ibuffer[_111][_112][_114][_AFeeder_s0_buf];
+    _AFeeder_channel_array.s[_AFeeder_s0_buf] = _115;
+    (void)_AFeeder_s0_buf;
+   } // if _100
+  } // for _AFeeder_s0_buf
+  uint _116 = (uint)(ADD_UINT64_T_SUFFIX(0));
+  uint _118 = _AFeeder_time_stamp_shreg;
+  uint _119 = (uint)(ADD_UINT64_T_SUFFIX(12));
+  uint _120 = _118 >> _119;
+  bool _121 = _116 < _120;
+  if (_121)
+  {
+   write_channel_intel(_AFeeder_channel, _AFeeder_channel_array);
+   (void)_AFeeder_channel_array;
+  } // if _121
+  uint _122 = _AFeeder_cycle_temp;
+  uint _123 = (uint)(ADD_UINT64_T_SUFFIX(1));
+  uint _124 = _122 + _123;
+  _AFeeder_cycle_temp = _124;
+ } // while _AFeeder_s0_outermost_loop_infinite
+} // kernel kernel_AFeeder
+// Address spaces for kernel_BLoader
+#define __address_space__BSerializer_mem_channel __global
+__kernel void kernel_BLoader(
+ const int _A_extent_0,
+ const int _A_extent_1,
+ const int _B_extent_0,
+ __address_space__BSerializer_mem_channel const float *restrict _BSerializer_mem_channel)
+{
+ int _125 = _A_extent_1 >> 7;
+ int _126 = _125 + 1;
+ for (int _BLoader_s0_i = 0; _BLoader_s0_i < 0 + _126; _BLoader_s0_i++)
+ {
+  int _127 = _B_extent_0 >> 7;
+  int _128 = _127 - _BLoader_s0_i + ((_BLoader_s0_i < _125) ? 0 : 1);
+  for (int _BLoader_s0_j = _BLoader_s0_i; _BLoader_s0_j < _BLoader_s0_i + _128; _BLoader_s0_j++)
+  {
+   int _129 = _A_extent_0 >> 7;
+   for (int _BLoader_s0_k = 0; _BLoader_s0_k < 0 + _129; _BLoader_s0_k++)
+   {
+    #pragma loop_coalesce 3
+    for (int _BLoader_s0_kk = 0; _BLoader_s0_kk < 0 + 16; _BLoader_s0_kk++)
+    {
+     for (int _BLoader_s0_jj = 0; _BLoader_s0_jj < 0 + 16; _BLoader_s0_jj++)
+     {
+      for (int _BLoader_s0_jjj = 0; _BLoader_s0_jjj < 0 + 8; _BLoader_s0_jjj++)
+      {
+       bool _130 = _BLoader_s0_j == _BLoader_s0_i;
+       bool _131 = _BLoader_s0_k == 0;
+       bool _132 = _130 && _131;
+       int _139 = _A_extent_1 >> 7;
+       bool _140 = _BLoader_s0_i < _139;
+       bool _141 = _132 || _140;
+       if (_141)
+       {
+        float8 _142;
+        int _143 = _A_extent_1 >> 7;
+        bool _144 = _BLoader_s0_i < _143;
+        if (_144)
+        {
+         int _18 = _BLoader_s0_jjj*8 + _BLoader_s0_jj*64 + _BLoader_s0_kk*1024;
+         int _19 = _18 + _BLoader_s0_k*16384;
+         int _20 = _19 + _BLoader_s0_j*16384*_129;
+         float8 _153 = vload8(0, (__address_space__BSerializer_mem_channel float*)_BSerializer_mem_channel + _20);
+         _142 = _153;
+        } // if _144
+        else
+        {
+         float _154 = float_from_bits(0 /* 0 */);
+         float8 _155 = _154;
+         _142 = _155;
+        } // if _144 else
+        float8 _156 = _142;
+        write_channel_intel(_BLoader_channel, _156);
+        (void)_156;
+       } // if _141
+      } // for _BLoader_s0_jjj
+     } // for _BLoader_s0_jj
+    } // for _BLoader_s0_kk
+   } // for _BLoader_s0_k
+  } // for _BLoader_s0_j
+ } // for _BLoader_s0_i
+} // kernel kernel_BLoader
+#undef __address_space__BSerializer_mem_channel
+// Address spaces for kernel_BFeeder
+__attribute__((max_global_work_dim(0)))
+__attribute__((autorun))
+__kernel void kernel_BFeeder(
+)
+{
+ _BFeeder_channel_array_t _BFeeder_channel_array;
+ float8 _BFeeder_value_shreg;
+ uint _BFeeder_time_stamp_shreg;
+ float8 _BFeeder_in_v_temp;
+ uint _BFeeder_cycle_temp;
+ float8 __attribute__((memory, numbanks(8), singlepump, numwriteports(1), numreadports(1))) _BFeeder_DB_0_ibuffer[2][16][16][8];
+ #pragma unroll
+ for (int _BFeeder_s0_iii_init = 0; _BFeeder_s0_iii_init < 0 + 8; _BFeeder_s0_iii_init++)
+ {
+  bool _159 = _BFeeder_s0_iii_init == 0;
+  if (_159)
+  {
+   uint _160 = (uint)(ADD_UINT64_T_SUFFIX(2048));
+   _BFeeder_cycle_temp = _160;
+  } // if _159
+ } // for _BFeeder_s0_iii_init
+ while(1)
+ {
+  uint _161 = (uint)(ADD_UINT64_T_SUFFIX(2048));
+  uint _162 = _BFeeder_cycle_temp;
+  uint _163 = (uint)(ADD_UINT64_T_SUFFIX(4095));
+  uint _164 = _162 & _163;
+  bool _165 = _161 <= _164;
+  if (_165)
+  {
+   float8 __166 = read_channel_intel(_BLoader_channel);
+   _BFeeder_in_v_temp = __166;
+  } // if _165
+  #pragma unroll
+  for (int _BFeeder_s0_buf = 0; _BFeeder_s0_buf < 0 + 8; _BFeeder_s0_buf++)
+  {
+   bool _167 = _BFeeder_s0_buf == 0;
+   if (_167)
+   {
+    float8 _168 = _BFeeder_in_v_temp;
+    _BFeeder_value_shreg = _168;
+    (void)_168;
+    uint _169 = _BFeeder_cycle_temp;
+    _BFeeder_time_stamp_shreg = _169;
+    (void)_169;
+   } // if _167
+   else
+   {
+    float8 _171 = _BFeeder_value_shreg;
+    _BFeeder_value_shreg = _171;
+    (void)_171;
+    uint _173 = _BFeeder_time_stamp_shreg;
+    _BFeeder_time_stamp_shreg = _173;
+    (void)_173;
+   } // if _167 else
+   float8 _175 = _BFeeder_value_shreg;
+   float8 _176 = __fpga_reg(__fpga_reg(_175));
+   _BFeeder_value_shreg = _176;
+   (void)_176;
+   uint _178 = _BFeeder_time_stamp_shreg;
+   uint _179 = __fpga_reg(__fpga_reg(_178));
+   _BFeeder_time_stamp_shreg = _179;
+   (void)_179;
+   uint _180 = (uint)(ADD_UINT64_T_SUFFIX(2048));
+   uint _182 = _BFeeder_time_stamp_shreg;
+   uint _183 = (uint)(ADD_UINT64_T_SUFFIX(4095));
+   uint _184 = _182 & _183;
+   bool _185 = _180 <= _184;
+   if (_185)
+   {
+    uint _187 = _BFeeder_time_stamp_shreg;
+    uint _188 = (uint)(ADD_UINT64_T_SUFFIX(4095));
+    uint _189 = _187 & _188;
+    uint _190 = (uint)(ADD_UINT64_T_SUFFIX(2048));
+    uint _191 = _189 - _190;
+    uint _192 = (uint)(ADD_UINT64_T_SUFFIX(7));
+    uint _193 = _191 & _192;
+    int _194 = (int)(_193);
+    bool _195 = _BFeeder_s0_buf == _194;
+    if (_195)
+    {
+     float8 _197 = _BFeeder_value_shreg;
+     uint _199 = _BFeeder_time_stamp_shreg;
+     uint _200 = (uint)(ADD_UINT64_T_SUFFIX(12));
+     uint _201 = _199 >> _200;
+     uint _202 = (uint)(ADD_UINT64_T_SUFFIX(1));
+     uint _203 = _201 & _202;
+     bool _204 = (bool)(_203);
+     uint _206 = (uint)(ADD_UINT64_T_SUFFIX(4095));
+     uint _207 = _199 & _206;
+     uint _208 = (uint)(ADD_UINT64_T_SUFFIX(2048));
+     uint _209 = _207 - _208;
+     int _210 = (int)(_209);
+     int _211 = _210 >> 7;
+     int _213 = _210 >> 3;
+     int _214 = _213 & 15;
+     _BFeeder_DB_0_ibuffer[_204][_211][_214][_BFeeder_s0_buf] = _197;
+    } // if _195
+   } // if _185
+   uint _215 = (uint)(ADD_UINT64_T_SUFFIX(0));
+   uint _217 = _BFeeder_time_stamp_shreg;
+   uint _218 = (uint)(ADD_UINT64_T_SUFFIX(12));
+   uint _219 = _217 >> _218;
+   bool _220 = _215 < _219;
+   if (_220)
+   {
+    uint _222 = _BFeeder_time_stamp_shreg;
+    uint _223 = (uint)(ADD_UINT64_T_SUFFIX(4095));
+    uint _224 = _222 & _223;
+    int _225 = (int)(_224);
+    uint _226 = (uint)(ADD_UINT64_T_SUFFIX(12));
+    uint _227 = _222 >> _226;
+    uint _228 = (uint)(ADD_UINT64_T_SUFFIX(1));
+    uint _229 = _227 & _228;
+    bool _230 = (bool)(_229);
+    bool _231 = !(_230);
+    int _232 = _225 >> 8;
+    int _233 = _225 & 15;
+    float8 _234 = _BFeeder_DB_0_ibuffer[_231][_232][_233][_BFeeder_s0_buf];
+    _BFeeder_channel_array.s[_BFeeder_s0_buf] = _234;
+    (void)_BFeeder_s0_buf;
+   } // if _220
+  } // for _BFeeder_s0_buf
+  uint _235 = (uint)(ADD_UINT64_T_SUFFIX(0));
+  uint _237 = _BFeeder_time_stamp_shreg;
+  uint _238 = (uint)(ADD_UINT64_T_SUFFIX(12));
+  uint _239 = _237 >> _238;
+  bool _240 = _235 < _239;
+  if (_240)
+  {
+   write_channel_intel(_BFeeder_channel, _BFeeder_channel_array);
+   (void)_BFeeder_channel_array;
+  } // if _240
+  uint _241 = _BFeeder_cycle_temp;
+  uint _242 = (uint)(ADD_UINT64_T_SUFFIX(1));
+  uint _243 = _241 + _242;
+  _BFeeder_cycle_temp = _243;
+ } // while _BFeeder_s0_outermost_loop_infinite
+} // kernel kernel_BFeeder
+// Address spaces for kernel_Out
+__kernel void kernel_Out(
+ const int _A_extent_0,
+ const int _A_extent_1,
+ const int _B_extent_0)
+{
+ _BFeeder_channel_array_t _BFeeder_channel_array;
+ _AFeeder_channel_array_t _AFeeder_channel_array;
+ // produce Z
+ float _Z_shreg[256][8][8];
+ float _Z_pipe_shreg[8][1793];
+ // produce Y
+ float8 _Y_shreg[8];
+ float _Z_temp[8][8];
+ // produce X
+ float8 _X_shreg[8];
+ float _Z_shreg_temp;
+ int _Z_pipe_iter_temp;
+ int _Z_pipe_base_temp;
+ _Z_pipe_iter_temp = 2048;
+ _Z_pipe_base_temp = 0;
+ int _244 = _A_extent_1 >> 7;
+ int _246 = _B_extent_0 >> 7;
+ int _243 = (2 * _246 - _244 + 1) * _244 / 2;
+ int _245 = _243 + 1;
+ for (int _X_s0_i_j = 0; _X_s0_i_j < 0 + _245; _X_s0_i_j++)
+ {
+   int _248 = _A_extent_0 >> 7;
+   for (int _X_s0_k = 0; _X_s0_k < 0 + _248; _X_s0_k++)
+   {
+    #pragma loop_coalesce 3
+    for (int _X_s0_kk = 0; _X_s0_kk < 0 + 16; _X_s0_kk++)
+    {
+     for (int _X_s0_ii = 0; _X_s0_ii < 0 + 16; _X_s0_ii++)
+     {
+      for (int _X_s0_jj = 0; _X_s0_jj < 0 + 16; _X_s0_jj++)
+      {
+       #pragma unroll
+       for (int _dummy__1_s0_iii = 0; _dummy__1_s0_iii < 0 + 8; _dummy__1_s0_iii++)
+       {
+        #pragma unroll
+        for (int _dummy_s0_jjj = 0; _dummy_s0_jjj < 0 + 8; _dummy_s0_jjj++)
+        {
+         float _250 = _Z_shreg[255][_dummy_s0_jjj][_dummy__1_s0_iii];
+         _Z_temp[_dummy_s0_jjj][_dummy__1_s0_iii] = _250;
+         #pragma unroll
+         for (int _dummy__2_s0_l1 = 0; _dummy__2_s0_l1 < 0 + 255; _dummy__2_s0_l1++)
+         {
+          int _251 = 255 - _dummy__2_s0_l1;
+          int _252 = 254 - _dummy__2_s0_l1;
+          float _254 = _Z_shreg[_252][_dummy_s0_jjj][_dummy__1_s0_iii];
+          _Z_shreg[_251][_dummy_s0_jjj][_dummy__1_s0_iii] = _254;
+          (void)_254;
+         } // for _dummy__2_s0_l1
+         float _255 = _Z_temp[_dummy_s0_jjj][_dummy__1_s0_iii];
+         _Z_shreg[0][_dummy_s0_jjj][_dummy__1_s0_iii] = _255;
+         (void)_255;
+        } // for _dummy_s0_jjj
+       } // for _dummy__1_s0_iii
+       bool _257 = _X_s0_i_j < _243;
+       if (_257)
+       {
+        _BFeeder_channel_array_t __258 = read_channel_intel(_BFeeder_channel);
+        _BFeeder_channel_array = __258;
+        (void)__258;
+        _AFeeder_channel_array_t __259 = read_channel_intel(_AFeeder_channel);
+        _AFeeder_channel_array = __259;
+        (void)__259;
+       } // if _257
+       #pragma unroll
+       for (int _X_s0_iii = 0; _X_s0_iii < 0 + 8; _X_s0_iii++)
+       {
+        #pragma unroll
+        for (int _X_s0_jjj = 0; _X_s0_jjj < 0 + 8; _X_s0_jjj++)
+        {
+         float8 _260;
+         bool _261 = _X_s0_jjj == 0;
+         if (_261)
+         {
+          float8 __262 = _AFeeder_channel_array.s[_X_s0_iii];
+          _260 = __262;
+         } // if _261
+         else
+         {
+          float8 _264 = _X_shreg[_X_s0_iii];
+          _260 = _264;
+         } // if _261 else
+         float8 _265 = _260;
+         _X_shreg[_X_s0_iii] = _265;
+         (void)_265;
+         float8 _267 = _X_shreg[_X_s0_iii];
+         float8 _268 = __fpga_reg(__fpga_reg(_267));
+         _X_shreg[_X_s0_iii] = _268;
+         (void)_268;
+         float8 _269;
+         bool _270 = _X_s0_iii == 0;
+         if (_270)
+         {
+          float8 __271 = _BFeeder_channel_array.s[_X_s0_jjj];
+          _269 = __271;
+         } // if _270
+         else
+         {
+          float8 _273 = _Y_shreg[_X_s0_jjj];
+          _269 = _273;
+         } // if _270 else
+         float8 _274 = _269;
+         _Y_shreg[_X_s0_jjj] = _274;
+         (void)_274;
+         float8 _276 = _Y_shreg[_X_s0_jjj];
+         float8 _277 = __fpga_reg(__fpga_reg(_276));
+         _Y_shreg[_X_s0_jjj] = _277;
+         (void)_277;
+         float _278;
+         bool _279 = _X_s0_k == 0;
+         bool _280 = _X_s0_kk == 0;
+         bool _281 = _279 && _280;
+         if (_281)
+         {
+          float _282 = float_from_bits(0 /* 0 */);
+          _278 = _282;
+         } // if _281
+         else
+         {
+          float _284 = _Z_shreg[0][_X_s0_jjj][_X_s0_iii];
+          float _285 = __fpga_reg(_284);
+          _278 = _285;
+         } // if _281 else
+         float _286 = _278;
+         _Z_shreg_temp = _286;
+         #pragma unroll
+         for (int _X_s0_kkk = 0; _X_s0_kkk < 0 + 8; _X_s0_kkk++)
+         {
+          float _287 = _Z_shreg_temp;
+          float _289 = _X_shreg[_X_s0_iii][_X_s0_kkk];
+          float _291 = _Y_shreg[_X_s0_jjj][_X_s0_kkk];
+          float _292 = _289 * _291;
+          float _293 = _287 + _292;
+          _Z_shreg_temp = _293;
+          int _294 = _X_s0_kkk & 3;
+          bool _295 = _294 == 3;
+          if (_295)
+          {
+           float _296 = _Z_shreg_temp;
+           float _297 = __fpga_reg(_296);
+           _Z_shreg_temp = _297;
+          } // if _295
+         } // for _X_s0_kkk
+         float _298 = _Z_shreg_temp;
+         _Z_shreg[0][_X_s0_jjj][_X_s0_iii] = _298;
+         (void)_298;
+         #pragma unroll
+         for (int _X_s0_kkk = 0; _X_s0_kkk < 0 + 8; _X_s0_kkk++)
+         {
+          bool _299 = _X_s0_kkk == 7;
+          bool _300 = _X_s0_kk == 15;
+          bool _301 = _299 && _300;
+          int _302 = _A_extent_0 >> 7;
+          int _303 = _302 + -1;
+          bool _304 = _X_s0_k == _303;
+          bool _305 = _301 && _304;
+          if (_305)
+          {
+           int _306 = _X_s0_iii * 256;
+           float _308 = _Z_shreg[0][_X_s0_jjj][_X_s0_iii];
+           _Z_pipe_shreg[_X_s0_jjj][_306] = _308;
+           (void)_308;
+          } // if _305
+         } // for _X_s0_kkk
+        } // for _X_s0_jjj
+       } // for _X_s0_iii
+       bool _309 = _X_s0_jj == 0;
+       bool _310 = _X_s0_ii == 0;
+       bool _311 = _309 && _310;
+       int _312 = _A_extent_0 >> 7;
+       int _313 = _312 + -1;
+       bool _314 = _X_s0_k == _313;
+       bool _315 = _311 && _314;
+       bool _316 = _X_s0_kk == 15;
+       bool _317 = _315 && _316;
+       bool _319 = _X_s0_i_j < _243;
+       bool _320 = _317 && _319;
+       if (_320)
+       {
+        int _321 = _Z_pipe_iter_temp;
+        _Z_pipe_base_temp = _321;
+       } // if _320
+       float8 _Out_channel_temp;
+       #pragma unroll
+       for (int _Z_pipe_b__62 = 0; _Z_pipe_b__62 < 0 + 8; _Z_pipe_b__62++)
+       {
+        float _323 = _Z_pipe_shreg[_Z_pipe_b__62][0];
+        _Out_channel_temp[_Z_pipe_b__62] = _323;
+        #pragma unroll
+        for (int _Z_pipe_b__62_dummy = 0; _Z_pipe_b__62_dummy < 0 + 8; _Z_pipe_b__62_dummy++)
+        {
+         float _324 = _Out_channel_temp[_Z_pipe_b__62_dummy];
+         float _325 = __fpga_reg(__fpga_reg(_324));
+         _Out_channel_temp[_Z_pipe_b__62_dummy] = _325;
+        } // for _Z_pipe_b__62_dummy
+       } // for _Z_pipe_b__62
+       int _326 = _Z_pipe_iter_temp;
+       int _327 = _Z_pipe_base_temp;
+       int _328 = _327 + 2048;
+       bool _329 = _326 < _328;
+       if (_329)
+       {
+        float8 _330 = _Out_channel_temp;
+        write_channel_intel(_Out_channel, _330);
+        (void)_330;
+       } // if _329
+       #pragma unroll
+       for (int _Z_pipe_b__63 = 0; _Z_pipe_b__63 < 0 + 8; _Z_pipe_b__63++)
+       {
+        #pragma unroll
+        for (int _Z_pipe_p__31 = 0; _Z_pipe_p__31 < 0 + 7; _Z_pipe_p__31++)
+        {
+         #pragma unroll
+         for (int _Z_pipe_l__31 = 0; _Z_pipe_l__31 < 0 + 255; _Z_pipe_l__31++)
+         {
+          int _331 = _Z_pipe_p__31 * 256;
+          int _332 = _331 + _Z_pipe_l__31;
+          int _333 = _332 + 1;
+          float _335 = _Z_pipe_shreg[_Z_pipe_b__63][_333];
+          _Z_pipe_shreg[_Z_pipe_b__63][_332] = _335;
+          (void)_335;
+         } // for _Z_pipe_l__31
+         int _336 = _Z_pipe_p__31 * 256;
+         int _337 = _336 + 255;
+         int _338 = _336 + 256;
+         float _340 = _Z_pipe_shreg[_Z_pipe_b__63][_338];
+         float _341 = __fpga_reg(__fpga_reg(_340));
+         _Z_pipe_shreg[_Z_pipe_b__63][_337] = _341;
+         (void)_341;
+        } // for _Z_pipe_p__31
+       } // for _Z_pipe_b__63
+       int _342 = _Z_pipe_iter_temp;
+       int _343 = _342 + 1;
+       _Z_pipe_iter_temp = _343;
+      } // for _X_s0_jj
+     } // for _X_s0_ii
+    } // for _X_s0_kk
+   } // for _X_s0_k
+ } // for _X_s0_i_j
+} // kernel kernel_Out
+// Address spaces for kernel_ALoader_T
+#define __address_space__ASerializer_T_mem_channel __global
+__kernel void kernel_ALoader_T(
+ const int _A_extent_0,
+ const int _A_extent_1,
+ const int _B_extent_0,
+ __address_space__ASerializer_T_mem_channel const float *restrict _ASerializer_T_mem_channel)
+{
+ int _344 = _B_extent_0 >> 7;
+ int _345 = _344 + 1;
+ for (int _ALoader_T_s0_j = 0; _ALoader_T_s0_j < 0 + _345; _ALoader_T_s0_j++)
+ {
+  int _346 = _A_extent_1 >> 7;
+  int _347 = _346 - _ALoader_T_s0_j + ((_ALoader_T_s0_j < _344) ? 0 : 1);
+  for (int _ALoader_T_s0_i = _ALoader_T_s0_j; _ALoader_T_s0_i < _ALoader_T_s0_j + _347; _ALoader_T_s0_i++)
+  {
+   int _348 = _A_extent_0 >> 7;
+   for (int _ALoader_T_s0_k = 0; _ALoader_T_s0_k < 0 + _348; _ALoader_T_s0_k++)
+   {
+    #pragma loop_coalesce 3
+    for (int _ALoader_T_s0_kk = 0; _ALoader_T_s0_kk < 0 + 16; _ALoader_T_s0_kk++)
+    {
+     for (int _ALoader_T_s0_ii = 0; _ALoader_T_s0_ii < 0 + 16; _ALoader_T_s0_ii++)
+     {
+      for (int _ALoader_T_s0_iii = 0; _ALoader_T_s0_iii < 0 + 8; _ALoader_T_s0_iii++)
+      {
+       bool _349 = _ALoader_T_s0_i == _ALoader_T_s0_j;
+       bool _350 = _ALoader_T_s0_k == 0;
+       bool _351 = _349 && _350;
+       int _358 = _B_extent_0 >> 7;
+       bool _359 = _ALoader_T_s0_j < _358;
+       bool _360 = _351 || _359;
+       if (_360)
+       {
+        float8 _361;
+        int _362 = _B_extent_0 >> 7;
+        bool _363 = _ALoader_T_s0_j < _362;
+        if (_363)
+        {
+         int _18 = _ALoader_T_s0_iii*8 + _ALoader_T_s0_ii*64 + _ALoader_T_s0_kk*1024;
+         int _19 = _18 + _ALoader_T_s0_k*16384;
+         int _20 = _19 + _ALoader_T_s0_i*16384*_348;
+         float8 _372 = vload8(0, (__address_space__ASerializer_T_mem_channel float*)_ASerializer_T_mem_channel + _20);
+         _361 = _372;
+        } // if _363
+        else
+        {
+         float _373 = float_from_bits(0 /* 0 */);
+         float8 _374 = _373;
+         _361 = _374;
+        } // if _363 else
+        float8 _375 = _361;
+        write_channel_intel(_ALoader_T_channel, _375);
+        (void)_375;
+       } // if _360
+      } // for _ALoader_T_s0_iii
+     } // for _ALoader_T_s0_ii
+    } // for _ALoader_T_s0_kk
+   } // for _ALoader_T_s0_k
+  } // for _ALoader_T_s0_i
+ } // for _ALoader_T_s0_j
+} // kernel kernel_ALoader_T
+#undef __address_space__ASerializer_T_mem_channel
+// Address spaces for kernel_AFeeder_T
+__attribute__((max_global_work_dim(0)))
+__attribute__((autorun))
+__kernel void kernel_AFeeder_T(
+)
+{
+ _AFeeder_T_channel_array_t _AFeeder_T_channel_array;
+ float8 _AFeeder_T_value_shreg;
+ uint _AFeeder_T_time_stamp_shreg;
+ float8 _AFeeder_T_in_v_temp;
+ uint _AFeeder_T_cycle_temp;
+ float8 __attribute__((memory, numbanks(8), singlepump, numwriteports(1), numreadports(1))) _AFeeder_T_DB_0_ibuffer[2][16][16][8];
+ #pragma unroll
+ for (int _AFeeder_T_s0_jjj_init = 0; _AFeeder_T_s0_jjj_init < 0 + 8; _AFeeder_T_s0_jjj_init++)
+ {
+  bool _378 = _AFeeder_T_s0_jjj_init == 0;
+  if (_378)
+  {
+   uint _379 = (uint)(ADD_UINT64_T_SUFFIX(2048));
+   _AFeeder_T_cycle_temp = _379;
+  } // if _378
+ } // for _AFeeder_T_s0_jjj_init
+ while(1)
+ {
+  uint _380 = (uint)(ADD_UINT64_T_SUFFIX(2048));
+  uint _381 = _AFeeder_T_cycle_temp;
+  uint _382 = (uint)(ADD_UINT64_T_SUFFIX(4095));
+  uint _383 = _381 & _382;
+  bool _384 = _380 <= _383;
+  if (_384)
+  {
+   float8 __385 = read_channel_intel(_ALoader_T_channel);
+   _AFeeder_T_in_v_temp = __385;
+  } // if _384
+  #pragma unroll
+  for (int _AFeeder_T_s0_buf = 0; _AFeeder_T_s0_buf < 0 + 8; _AFeeder_T_s0_buf++)
+  {
+   bool _386 = _AFeeder_T_s0_buf == 0;
+   if (_386)
+   {
+    float8 _387 = _AFeeder_T_in_v_temp;
+    _AFeeder_T_value_shreg = _387;
+    (void)_387;
+    uint _388 = _AFeeder_T_cycle_temp;
+    _AFeeder_T_time_stamp_shreg = _388;
+    (void)_388;
+   } // if _386
+   else
+   {
+    float8 _390 = _AFeeder_T_value_shreg;
+    _AFeeder_T_value_shreg = _390;
+    (void)_390;
+    uint _392 = _AFeeder_T_time_stamp_shreg;
+    _AFeeder_T_time_stamp_shreg = _392;
+    (void)_392;
+   } // if _386 else
+   float8 _394 = _AFeeder_T_value_shreg;
+   float8 _395 = __fpga_reg(__fpga_reg(_394));
+   _AFeeder_T_value_shreg = _395;
+   (void)_395;
+   uint _397 = _AFeeder_T_time_stamp_shreg;
+   uint _398 = __fpga_reg(__fpga_reg(_397));
+   _AFeeder_T_time_stamp_shreg = _398;
+   (void)_398;
+   uint _399 = (uint)(ADD_UINT64_T_SUFFIX(2048));
+   uint _401 = _AFeeder_T_time_stamp_shreg;
+   uint _402 = (uint)(ADD_UINT64_T_SUFFIX(4095));
+   uint _403 = _401 & _402;
+   bool _404 = _399 <= _403;
+   if (_404)
+   {
+    uint _406 = _AFeeder_T_time_stamp_shreg;
+    uint _407 = (uint)(ADD_UINT64_T_SUFFIX(4095));
+    uint _408 = _406 & _407;
+    uint _409 = (uint)(ADD_UINT64_T_SUFFIX(2048));
+    uint _410 = _408 - _409;
+    uint _411 = (uint)(ADD_UINT64_T_SUFFIX(7));
+    uint _412 = _410 & _411;
+    int _413 = (int)(_412);
+    bool _414 = _AFeeder_T_s0_buf == _413;
+    if (_414)
+    {
+     float8 _416 = _AFeeder_T_value_shreg;
+     uint _418 = _AFeeder_T_time_stamp_shreg;
+     uint _419 = (uint)(ADD_UINT64_T_SUFFIX(12));
+     uint _420 = _418 >> _419;
+     uint _421 = (uint)(ADD_UINT64_T_SUFFIX(1));
+     uint _422 = _420 & _421;
+     bool _423 = (bool)(_422);
+     uint _425 = (uint)(ADD_UINT64_T_SUFFIX(4095));
+     uint _426 = _418 & _425;
+     uint _427 = (uint)(ADD_UINT64_T_SUFFIX(2048));
+     uint _428 = _426 - _427;
+     int _429 = (int)(_428);
+     int _430 = _429 >> 7;
+     int _432 = _429 >> 3;
+     int _433 = _432 & 15;
+     _AFeeder_T_DB_0_ibuffer[_423][_430][_433][_AFeeder_T_s0_buf] = _416;
+    } // if _414
+   } // if _404
+   uint _434 = (uint)(ADD_UINT64_T_SUFFIX(0));
+   uint _436 = _AFeeder_T_time_stamp_shreg;
+   uint _437 = (uint)(ADD_UINT64_T_SUFFIX(12));
+   uint _438 = _436 >> _437;
+   bool _439 = _434 < _438;
+   if (_439)
+   {
+    uint _441 = _AFeeder_T_time_stamp_shreg;
+    uint _442 = (uint)(ADD_UINT64_T_SUFFIX(4095));
+    uint _443 = _441 & _442;
+    int _444 = (int)(_443);
+    uint _445 = (uint)(ADD_UINT64_T_SUFFIX(12));
+    uint _446 = _441 >> _445;
+    uint _447 = (uint)(ADD_UINT64_T_SUFFIX(1));
+    uint _448 = _446 & _447;
+    bool _449 = (bool)(_448);
+    bool _450 = !(_449);
+    int _451 = _444 >> 8;
+    int _452 = _444 & 15;
+    float8 _453 = _AFeeder_T_DB_0_ibuffer[_450][_451][_452][_AFeeder_T_s0_buf];
+    _AFeeder_T_channel_array.s[_AFeeder_T_s0_buf] = _453;
+    (void)_AFeeder_T_s0_buf;
+   } // if _439
+  } // for _AFeeder_T_s0_buf
+  uint _455 = (uint)(ADD_UINT64_T_SUFFIX(0));
+  uint _457 = _AFeeder_T_time_stamp_shreg;
+  uint _458 = (uint)(ADD_UINT64_T_SUFFIX(12));
+  uint _459 = _457 >> _458;
+  bool _460 = _455 < _459;
+  if (_460)
+  {
+   write_channel_intel(_AFeeder_T_channel, _AFeeder_T_channel_array);
+   (void)_AFeeder_T_channel_array;
+  } // if _460
+  uint _461 = _AFeeder_T_cycle_temp;
+  uint _462 = (uint)(ADD_UINT64_T_SUFFIX(1));
+  uint _463 = _461 + _462;
+  _AFeeder_T_cycle_temp = _463;
+ } // while _AFeeder_T_s0_outermost_loop_infinite
+} // kernel kernel_AFeeder_T
+// Address spaces for kernel_BLoader_T
+#define __address_space__BSerializer_T_mem_channel __global
+__kernel void kernel_BLoader_T(
+ const int _A_extent_0,
+ const int _A_extent_1,
+ const int _B_extent_0,
+ __address_space__BSerializer_T_mem_channel const float *restrict _BSerializer_T_mem_channel)
+{
+ int _464 = _B_extent_0 >> 7;
+ int _465 = _464 + 1;
+ for (int _BLoader_T_s0_j = 0; _BLoader_T_s0_j < 0 + _465; _BLoader_T_s0_j++)
+ {
+  int _466 = _A_extent_1 >> 7;
+  int _467 = _466 - _BLoader_T_s0_j + ((_BLoader_T_s0_j < _464) ? 0 : 1);
+  for (int _BLoader_T_s0_i = _BLoader_T_s0_j; _BLoader_T_s0_i < _BLoader_T_s0_j + _467; _BLoader_T_s0_i++)
+  {
+   int _468 = _A_extent_0 >> 7;
+   for (int _BLoader_T_s0_k = 0; _BLoader_T_s0_k < 0 + _468; _BLoader_T_s0_k++)
+   {
+    #pragma loop_coalesce 3
+    for (int _BLoader_T_s0_kk = 0; _BLoader_T_s0_kk < 0 + 16; _BLoader_T_s0_kk++)
+    {
+     for (int _BLoader_T_s0_jj = 0; _BLoader_T_s0_jj < 0 + 16; _BLoader_T_s0_jj++)
+     {
+      for (int _BLoader_T_s0_jjj = 0; _BLoader_T_s0_jjj < 0 + 8; _BLoader_T_s0_jjj++)
+      {
+       bool _469 = _BLoader_T_s0_i == _BLoader_T_s0_j;
+       bool _470 = _BLoader_T_s0_k == 0;
+       bool _471 = _469 && _470;
+       int _478 = _B_extent_0 >> 7;
+       bool _479 = _BLoader_T_s0_j < _478;
+       bool _480 = _471 || _479;
+       if (_480)
+       {
+        float8 _482;
+        int _483 = _B_extent_0 >> 7;
+        bool _484 = _BLoader_T_s0_j < _483;
+        if (_484)
+        {
+         int _18 = _BLoader_T_s0_jjj*8 + _BLoader_T_s0_jj*64 + _BLoader_T_s0_kk*1024;
+         int _19 = _18 + _BLoader_T_s0_k*16384;
+         int _20 = _19 + _BLoader_T_s0_j*16384*_468;
+         float8 _497 = vload8(0, (__address_space__BSerializer_T_mem_channel float*)_BSerializer_T_mem_channel + _20);
+         _482 = _497;
+        } // if _484
+        else
+        {
+         float _498 = float_from_bits(0 /* 0 */);
+         float8 _499 = _498;
+         _482 = _499;
+        } // if _484 else
+        float8 _500 = _482;
+        write_channel_intel(_BLoader_T_channel, _500);
+        (void)_500;
+       } // if _480
+      } // for _BLoader_T_s0_jjj
+     } // for _BLoader_T_s0_jj
+    } // for _BLoader_T_s0_kk
+   } // for _BLoader_T_s0_k
+  } // for _BLoader_T_s0_i
+ } // for _BLoader_T_s0_j
+} // kernel kernel_BLoader_T
+#undef __address_space__BSerializer_T_mem_channel
+// Address spaces for kernel_BFeeder_T
+__attribute__((max_global_work_dim(0)))
+__attribute__((autorun))
+__kernel void kernel_BFeeder_T(
+)
+{
+ _BFeeder_T_channel_array_t _BFeeder_T_channel_array;
+ float8 _BFeeder_T_value_shreg;
+ uint _BFeeder_T_time_stamp_shreg;
+ float8 _BFeeder_T_in_v_temp;
+ uint _BFeeder_T_cycle_temp;
+ float8 __attribute__((memory, numbanks(8), singlepump, numwriteports(1), numreadports(1))) _BFeeder_T_DB_0_ibuffer[2][16][16][8];
+ #pragma unroll
+ for (int _BFeeder_T_s0_iii_init = 0; _BFeeder_T_s0_iii_init < 0 + 8; _BFeeder_T_s0_iii_init++)
+ {
+  bool _503 = _BFeeder_T_s0_iii_init == 0;
+  if (_503)
+  {
+   uint _504 = (uint)(ADD_UINT64_T_SUFFIX(2048));
+   _BFeeder_T_cycle_temp = _504;
+  } // if _503
+ } // for _BFeeder_T_s0_iii_init
+ while(1)
+ {
+  uint _505 = (uint)(ADD_UINT64_T_SUFFIX(2048));
+  uint _506 = _BFeeder_T_cycle_temp;
+  uint _507 = (uint)(ADD_UINT64_T_SUFFIX(4095));
+  uint _508 = _506 & _507;
+  bool _509 = _505 <= _508;
+  if (_509)
+  {
+   float8 __510 = read_channel_intel(_BLoader_T_channel);
+   _BFeeder_T_in_v_temp = __510;
+  } // if _509
+  #pragma unroll
+  for (int _BFeeder_T_s0_buf = 0; _BFeeder_T_s0_buf < 0 + 8; _BFeeder_T_s0_buf++)
+  {
+   bool _511 = _BFeeder_T_s0_buf == 0;
+   if (_511)
+   {
+    float8 _512 = _BFeeder_T_in_v_temp;
+    _BFeeder_T_value_shreg = _512;
+    (void)_512;
+    uint _513 = _BFeeder_T_cycle_temp;
+    _BFeeder_T_time_stamp_shreg = _513;
+    (void)_513;
+   } // if _511
+   else
+   {
+    float8 _515 = _BFeeder_T_value_shreg;
+    _BFeeder_T_value_shreg = _515;
+    (void)_515;
+    uint _517 = _BFeeder_T_time_stamp_shreg;
+    _BFeeder_T_time_stamp_shreg = _517;
+    (void)_517;
+   } // if _511 else
+   float8 _519 = _BFeeder_T_value_shreg;
+   float8 _520 = __fpga_reg(__fpga_reg(_519));
+   _BFeeder_T_value_shreg = _520;
+   (void)_520;
+   uint _522 = _BFeeder_T_time_stamp_shreg;
+   uint _523 = __fpga_reg(__fpga_reg(_522));
+   _BFeeder_T_time_stamp_shreg = _523;
+   (void)_523;
+   uint _524 = (uint)(ADD_UINT64_T_SUFFIX(2048));
+   uint _526 = _BFeeder_T_time_stamp_shreg;
+   uint _527 = (uint)(ADD_UINT64_T_SUFFIX(4095));
+   uint _528 = _526 & _527;
+   bool _529 = _524 <= _528;
+   if (_529)
+   {
+    uint _531 = _BFeeder_T_time_stamp_shreg;
+    uint _532 = (uint)(ADD_UINT64_T_SUFFIX(4095));
+    uint _533 = _531 & _532;
+    uint _534 = (uint)(ADD_UINT64_T_SUFFIX(2048));
+    uint _535 = _533 - _534;
+    uint _536 = (uint)(ADD_UINT64_T_SUFFIX(7));
+    uint _537 = _535 & _536;
+    int _538 = (int)(_537);
+    bool _539 = _BFeeder_T_s0_buf == _538;
+    if (_539)
+    {
+     float8 _541 = _BFeeder_T_value_shreg;
+     uint _543 = _BFeeder_T_time_stamp_shreg;
+     uint _544 = (uint)(ADD_UINT64_T_SUFFIX(12));
+     uint _545 = _543 >> _544;
+     uint _546 = (uint)(ADD_UINT64_T_SUFFIX(1));
+     uint _547 = _545 & _546;
+     bool _548 = (bool)(_547);
+     uint _550 = (uint)(ADD_UINT64_T_SUFFIX(4095));
+     uint _551 = _543 & _550;
+     uint _552 = (uint)(ADD_UINT64_T_SUFFIX(2048));
+     uint _553 = _551 - _552;
+     int _554 = (int)(_553);
+     int _555 = _554 >> 7;
+     int _557 = _554 >> 3;
+     int _558 = _557 & 15;
+     _BFeeder_T_DB_0_ibuffer[_548][_555][_558][_BFeeder_T_s0_buf] = _541;
+    } // if _539
+   } // if _529
+   uint _559 = (uint)(ADD_UINT64_T_SUFFIX(0));
+   uint _561 = _BFeeder_T_time_stamp_shreg;
+   uint _562 = (uint)(ADD_UINT64_T_SUFFIX(12));
+   uint _563 = _561 >> _562;
+   bool _564 = _559 < _563;
+   if (_564)
+   {
+    uint _566 = _BFeeder_T_time_stamp_shreg;
+    uint _567 = (uint)(ADD_UINT64_T_SUFFIX(4095));
+    uint _568 = _566 & _567;
+    int _569 = (int)(_568);
+    uint _570 = (uint)(ADD_UINT64_T_SUFFIX(12));
+    uint _571 = _566 >> _570;
+    uint _572 = (uint)(ADD_UINT64_T_SUFFIX(1));
+    uint _573 = _571 & _572;
+    bool _574 = (bool)(_573);
+    bool _575 = !(_574);
+    int _576 = _569 >> 8;
+    int _577 = (_569 >> 4) & 15;
+    float8 _578 = _BFeeder_T_DB_0_ibuffer[_575][_576][_577][_BFeeder_T_s0_buf];
+    _BFeeder_T_channel_array.s[_BFeeder_T_s0_buf] = _578;
+    (void)_BFeeder_T_s0_buf;
+   } // if _564
+  } // for _BFeeder_T_s0_buf
+  uint _579 = (uint)(ADD_UINT64_T_SUFFIX(0));
+  uint _581 = _BFeeder_T_time_stamp_shreg;
+  uint _582 = (uint)(ADD_UINT64_T_SUFFIX(12));
+  uint _583 = _581 >> _582;
+  bool _584 = _579 < _583;
+  if (_584)
+  {
+   write_channel_intel(_BFeeder_T_channel, _BFeeder_T_channel_array);
+   (void)_BFeeder_T_channel_array;
+  } // if _584
+  uint _585 = _BFeeder_T_cycle_temp;
+  uint _586 = (uint)(ADD_UINT64_T_SUFFIX(1));
+  uint _587 = _585 + _586;
+  _BFeeder_T_cycle_temp = _587;
+ } // while _BFeeder_T_s0_outermost_loop_infinite
+} // kernel kernel_BFeeder_T
+// Address spaces for kernel_Out_T
+__kernel void kernel_Out_T(
+ const int _A_extent_0,
+ const int _A_extent_1,
+ const int _B_extent_0)
+{
+ _BFeeder_T_channel_array_t _BFeeder_T_channel_array;
+ _AFeeder_T_channel_array_t _AFeeder_T_channel_array;
+ // produce Z_T
+ float _Z_T_shreg[256][8][8];
+ float _Z_T_pipe_shreg[8][1793];
+ // produce Y_T
+ float8 _Y_T_shreg[8];
+ float _Z_T_temp[8][8];
+ float _Z_temp[8][8];
+ // produce X_T
+ float8 _X_T_shreg[8];
+ float _Z_T_shreg_temp;
+ int _Z_T_pipe_iter_temp;
+ int _Z_T_pipe_base_temp;
+ _Z_T_pipe_iter_temp = 2048;
+ _Z_T_pipe_base_temp = 0;
+ int _588 = _B_extent_0 >> 7;
+ int _590 = _A_extent_1 >> 7;
+ int _591 = (2 * _588 - _590 + 1) * _590 / 2;
+ int _589 = _591 + 1;
+ for (int _X_T_s0_j_i = 0; _X_T_s0_j_i < 0 + _589; _X_T_s0_j_i++)
+ {
+   int _592 = _A_extent_0 >> 7;
+   for (int _X_T_s0_k = 0; _X_T_s0_k < 0 + _592; _X_T_s0_k++)
+   {
+    #pragma loop_coalesce 3
+    for (int _X_T_s0_kk = 0; _X_T_s0_kk < 0 + 16; _X_T_s0_kk++)
+    {
+     for (int _X_T_s0_jj = 0; _X_T_s0_jj < 0 + 16; _X_T_s0_jj++)
+     {
+      for (int _X_T_s0_ii = 0; _X_T_s0_ii < 0 + 16; _X_T_s0_ii++)
+      {
+       #pragma unroll
+       for (int _dummy__4_s0_jjj = 0; _dummy__4_s0_jjj < 0 + 8; _dummy__4_s0_jjj++)
+       {
+        #pragma unroll
+        for (int _dummy__3_s0_iii = 0; _dummy__3_s0_iii < 0 + 8; _dummy__3_s0_iii++)
+        {
+         float _594 = _Z_T_shreg[255][_dummy__3_s0_iii][_dummy__4_s0_jjj];
+         _Z_T_temp[_dummy__3_s0_iii][_dummy__4_s0_jjj] = _594;
+         #pragma unroll
+         for (int _dummy__5_s0_l1 = 0; _dummy__5_s0_l1 < 0 + 255; _dummy__5_s0_l1++)
+         {
+          int _595 = 255 - _dummy__5_s0_l1;
+          int _596 = 254 - _dummy__5_s0_l1;
+          float _598 = _Z_T_shreg[_596][_dummy__3_s0_iii][_dummy__4_s0_jjj];
+          _Z_T_shreg[_595][_dummy__3_s0_iii][_dummy__4_s0_jjj] = _598;
+          (void)_598;
+         } // for _dummy__5_s0_l1
+         float _599 = _Z_T_temp[_dummy__3_s0_iii][_dummy__4_s0_jjj];
+         _Z_T_shreg[0][_dummy__3_s0_iii][_dummy__4_s0_jjj] = _599;
+         (void)_599;
+        } // for _dummy__3_s0_iii
+       } // for _dummy__4_s0_jjj
+       bool _601 = _X_T_s0_j_i < _591;
+       if (_601)
+       {
+        _BFeeder_T_channel_array_t __602 = read_channel_intel(_BFeeder_T_channel);
+        _BFeeder_T_channel_array = __602;
+        (void)__602;
+        _AFeeder_T_channel_array_t __603 = read_channel_intel(_AFeeder_T_channel);
+        _AFeeder_T_channel_array = __603;
+        (void)__603;
+       } // if _601
+       #pragma unroll
+       for (int _X_T_s0_jjj = 0; _X_T_s0_jjj < 0 + 8; _X_T_s0_jjj++)
+       {
+        #pragma unroll
+        for (int _X_T_s0_iii = 0; _X_T_s0_iii < 0 + 8; _X_T_s0_iii++)
+        {
+         float8 _604;
+         bool _605 = _X_T_s0_jjj == 0;
+         if (_605)
+         {
+          float8 __606 = _AFeeder_T_channel_array.s[_X_T_s0_iii];
+          _604 = __606;
+         } // if _605
+         else
+         {
+          float8 _608 = _X_T_shreg[_X_T_s0_iii];
+          _604 = _608;
+         } // if _605 else
+         float8 _609 = _604;
+         _X_T_shreg[_X_T_s0_iii] = _609;
+         (void)_609;
+         float8 _611 = _X_T_shreg[_X_T_s0_iii];
+         float8 _612 = __fpga_reg(__fpga_reg(_611));
+         _X_T_shreg[_X_T_s0_iii] = _612;
+         (void)_612;
+         float8 _613;
+         bool _614 = _X_T_s0_iii == 0;
+         if (_614)
+         {
+          float8 __615 = _BFeeder_T_channel_array.s[_X_T_s0_jjj];
+          _613 = __615;
+         } // if _614
+         else
+         {
+          float8 _617 = _Y_T_shreg[_X_T_s0_jjj];
+          _613 = _617;
+         } // if _614 else
+         float8 _618 = _613;
+         _Y_T_shreg[_X_T_s0_jjj] = _618;
+         (void)_618;
+         float8 _620 = _Y_T_shreg[_X_T_s0_jjj];
+         float8 _621 = __fpga_reg(__fpga_reg(_620));
+         _Y_T_shreg[_X_T_s0_jjj] = _621;
+         (void)_621;
+         float _622;
+         bool _623 = _X_T_s0_k == 0;
+         bool _624 = _X_T_s0_kk == 0;
+         bool _625 = _623 && _624;
+         if (_625)
+         {
+          float _626 = float_from_bits(0 /* 0 */);
+          _622 = _626;
+         } // if _625
+         else
+         {
+          float _628 = _Z_T_shreg[0][_X_T_s0_iii][_X_T_s0_jjj];
+          float _629 = __fpga_reg(_628);
+          _622 = _629;
+         } // if _625 else
+         float _630 = _622;
+         _Z_T_shreg_temp = _630;
+         #pragma unroll
+         for (int _X_T_s0_kkk = 0; _X_T_s0_kkk < 0 + 8; _X_T_s0_kkk++)
+         {
+          float _631 = _Z_T_shreg_temp;
+          float _633 = _X_T_shreg[_X_T_s0_iii][_X_T_s0_kkk];
+          float _635 = _Y_T_shreg[_X_T_s0_jjj][_X_T_s0_kkk];
+          float _636 = _633 * _635;
+          float _637 = _631 + _636;
+          _Z_T_shreg_temp = _637;
+          int _638 = _X_T_s0_kkk & 3;
+          bool _639 = _638 == 3;
+          if (_639)
+          {
+           float _640 = _Z_T_shreg_temp;
+           float _641 = __fpga_reg(_640);
+           _Z_T_shreg_temp = _641;
+          } // if _639
+         } // for _X_T_s0_kkk
+         float _642 = _Z_T_shreg_temp;
+         _Z_T_shreg[0][_X_T_s0_iii][_X_T_s0_jjj] = _642;
+         (void)_642;
+         #pragma unroll
+         for (int _X_T_s0_kkk = 0; _X_T_s0_kkk < 0 + 8; _X_T_s0_kkk++)
+         {
+          bool _643 = _X_T_s0_kkk == 7;
+          bool _644 = _X_T_s0_kk == 15;
+          bool _645 = _643 && _644;
+          int _646 = _A_extent_0 >> 7;
+          int _647 = _646 + -1;
+          bool _648 = _X_T_s0_k == _647;
+          bool _649 = _645 && _648;
+          if (_649)
+          {
+           int _650 = _X_T_s0_jjj * 256;
+           float _652 = _Z_T_shreg[0][_X_T_s0_iii][_X_T_s0_jjj];
+           _Z_T_pipe_shreg[_X_T_s0_iii][_650] = _652;
+           (void)_652;
+          } // if _649
+         } // for _X_T_s0_kkk
+        } // for _X_T_s0_iii
+       } // for _X_T_s0_jjj
+       bool _653 = _X_T_s0_ii == 0;
+       bool _654 = _X_T_s0_jj == 0;
+       bool _655 = _653 && _654;
+       int _656 = _A_extent_0 >> 7;
+       int _657 = _656 + -1;
+       bool _658 = _X_T_s0_k == _657;
+       bool _659 = _655 && _658;
+       bool _660 = _X_T_s0_kk == 15;
+       bool _661 = _659 && _660;
+       bool _663 = _X_T_s0_j_i < _591;
+       bool _664 = _661 && _663;
+       if (_664)
+       {
+        int _665 = _Z_T_pipe_iter_temp;
+        _Z_T_pipe_base_temp = _665;
+       } // if _664
+       float8 _Out_T_channel_temp;
+       #pragma unroll
+       for (int _Z_T_pipe_b__62 = 0; _Z_T_pipe_b__62 < 0 + 8; _Z_T_pipe_b__62++)
+       {
+        float _667 = _Z_T_pipe_shreg[_Z_T_pipe_b__62][0];
+        _Out_T_channel_temp[_Z_T_pipe_b__62] = _667;
+        #pragma unroll
+        for (int _Z_T_pipe_b__62_dummy = 0; _Z_T_pipe_b__62_dummy < 0 + 8; _Z_T_pipe_b__62_dummy++)
+        {
+         float _668 = _Out_T_channel_temp[_Z_T_pipe_b__62_dummy];
+         float _669 = __fpga_reg(__fpga_reg(_668));
+         _Out_T_channel_temp[_Z_T_pipe_b__62_dummy] = _669;
+        } // for _Z_T_pipe_b__62_dummy
+       } // for _Z_T_pipe_b__62
+       int _670 = _Z_T_pipe_iter_temp;
+       int _671 = _Z_T_pipe_base_temp;
+       int _672 = _671 + 2048;
+       bool _673 = _670 < _672;
+       if (_673)
+       {
+        float8 _674 = _Out_T_channel_temp;
+        write_channel_intel(_Out_T_channel, _674);
+        (void)_674;
+       } // if _673
+       #pragma unroll
+       for (int _Z_T_pipe_b__63 = 0; _Z_T_pipe_b__63 < 0 + 8; _Z_T_pipe_b__63++)
+       {
+        #pragma unroll
+        for (int _Z_T_pipe_p__31 = 0; _Z_T_pipe_p__31 < 0 + 7; _Z_T_pipe_p__31++)
+        {
+         #pragma unroll
+         for (int _Z_T_pipe_l__31 = 0; _Z_T_pipe_l__31 < 0 + 255; _Z_T_pipe_l__31++)
+         {
+          int _675 = _Z_T_pipe_p__31 * 256;
+          int _676 = _675 + _Z_T_pipe_l__31;
+          int _677 = _676 + 1;
+          float _679 = _Z_T_pipe_shreg[_Z_T_pipe_b__63][_677];
+          _Z_T_pipe_shreg[_Z_T_pipe_b__63][_676] = _679;
+          (void)_679;
+         } // for _Z_T_pipe_l__31
+         int _680 = _Z_T_pipe_p__31 * 256;
+         int _681 = _680 + 255;
+         int _682 = _680 + 256;
+         float _684 = _Z_T_pipe_shreg[_Z_T_pipe_b__63][_682];
+         float _685 = __fpga_reg(__fpga_reg(_684));
+         _Z_T_pipe_shreg[_Z_T_pipe_b__63][_681] = _685;
+         (void)_685;
+        } // for _Z_T_pipe_p__31
+       } // for _Z_T_pipe_b__63
+       int _686 = _Z_T_pipe_iter_temp;
+       int _687 = _686 + 1;
+       _Z_T_pipe_iter_temp = _687;
+      } // for _X_T_s0_ii
+     } // for _X_T_s0_jj
+    } // for _X_T_s0_kk
+   } // for _X_T_s0_k
+ } // for _X_T_s0_j_i
+} // kernel kernel_Out_T
+// Address spaces for kernel_E
+__kernel void kernel_E(
+ const int _A_extent_1,
+ const int _B_extent_0)
+{
+ int _688 = _A_extent_1 >> 7;
+ for (int _E_s0_i = 0; _E_s0_i < 0 + _688; _E_s0_i++)
+ {
+  int _689 = _B_extent_0 >> 7;
+  int _690 = _689 - _E_s0_i;
+  for (int _E_s0_j = _E_s0_i; _E_s0_j < _E_s0_i + _690; _E_s0_j++)
+  {
+   #pragma loop_coalesce 3
+   for (int _E_s0_iii = 0; _E_s0_iii < 0 + 8; _E_s0_iii++)
+   {
+    for (int _E_s0_ii = 0; _E_s0_ii < 0 + 16; _E_s0_ii++)
+    {
+     for (int _E_s0_jj = 0; _E_s0_jj < 0 + 16; _E_s0_jj++)
+     {
+      float8 __691 = read_channel_intel(_Out_channel);
+      float8 __692 = read_channel_intel(_Out_T_channel);
+      float8 _693 = __691 + __692;
+      write_channel_intel(_E_channel, _693);
+      (void)_693;
+     } // for _E_s0_iii
+    } // for _E_s0_jj
+   } // for _E_s0_ii
+  } // for _E_s0_j
+ } // for _E_s0_i
+} // kernel kernel_E
+// Address spaces for kernel_unloader
+#define __address_space__unloader_mem_channel __global
+__kernel void kernel_unloader(
+ const int _A_extent_1,
+ const int _B_extent_0,
+ __address_space__unloader_mem_channel float *restrict _unloader_mem_channel)
+{
+ int _addr_temp;
+ _addr_temp = 0;
+ int _694 = _A_extent_1 >> 7;
+ for (int _unloader_s0_i = 0; _unloader_s0_i < 0 + _694; _unloader_s0_i++)
+ {
+  int _695 = _B_extent_0 >> 7;
+  int _696 = _695 - _unloader_s0_i;
+  for (int _unloader_s0_j = _unloader_s0_i; _unloader_s0_j < _unloader_s0_i + _696; _unloader_s0_j++)
+  {
+   #pragma loop_coalesce 3
+   for (int _unloader_s0_iii = 0; _unloader_s0_iii < 0 + 8; _unloader_s0_iii++)
+   {
+    for (int _unloader_s0_ii = 0; _unloader_s0_ii < 0 + 16; _unloader_s0_ii++)
+    {
+     for (int _unloader_s0_jj = 0; _unloader_s0_jj < 0 + 16; _unloader_s0_jj++)
+     {
+      float8 __697 = read_channel_intel(_E_channel);
+      int _698 = _addr_temp;
+      int _699 = _698 * 8;
+      vstore8(__697, 0, (__address_space__unloader_mem_channel float*)_unloader_mem_channel + _699);
+      int _700 = _addr_temp;
+      int _701 = _700 + 1;
+      _addr_temp = _701;
+     } // for _unloader_s0_iii
+    } // for _unloader_s0_jj
+   } // for _unloader_s0_ii
+  } // for _unloader_s0_j
+ } // for _unloader_s0_i
+} // kernel kernel_unloader
+#undef __address_space__unloader_mem_channel

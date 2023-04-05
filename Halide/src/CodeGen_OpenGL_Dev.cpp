@@ -195,7 +195,9 @@ void CodeGen_GLSLBase::visit(const IntImm *op) {
 }
 
 void CodeGen_GLSLBase::visit(const UIntImm *op) {
-    id = print_type(op->type) + "(" + std::to_string(op->value) + ")";
+    // Complex is saved as UInt. But we never use complex beyond OpenCL
+    internal_assert(!op->type.is_complex());
+    id = print_type(op->type) + "(" + std::to_string((uint64_t)op->value) + ")";
 }
 
 void CodeGen_GLSLBase::visit(const Max *op) {

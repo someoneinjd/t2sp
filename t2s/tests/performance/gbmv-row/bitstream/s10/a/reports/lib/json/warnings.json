@@ -1,0 +1,3 @@
+{"nodes":[
+{"debug":[[{"filename":"/home/u146242/gbmv_lab/s10/a.cl","line":"132"}]],"details":[{"text":"/home/u146242/gbmv_lab/s10/a.cl:132:71: warning: unknown attribute 'numwriteports' ignored [-Wunknown-attributes]"}],"name":"unknown attribute 'numwriteports' ignored [-Wunknown-attributes]"}
+]}

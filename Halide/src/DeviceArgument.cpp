@@ -49,7 +49,14 @@ void HostClosure::visit(const Call *op) {
         internal_assert(string_imm);
 
         std::string bufname = string_imm->value;
-        Buffer &ref = buffers[bufname];
+        auto iter = std::find_if(buffers.begin(), buffers.end(),
+                [&](const std::pair<std::string, Buffer>&i){
+                    return i.first == bufname;
+                });
+        bool not_in_buffers = iter == buffers.end();
+        if (not_in_buffers)
+            buffers.emplace_back(bufname, Buffer{});
+        Buffer &ref = not_in_buffers ? buffers.back().second : iter->second;
         ref.type = op->type;
         // TODO: do we need to set ref.dimensions?
 

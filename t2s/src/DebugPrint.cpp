@@ -208,6 +208,20 @@ string names_to_string(const vector<ImageParam> &im) {
     return s.str();
 }
 
+string names_to_string(const vector<FuncOrExpr> &v) {
+    std::ostringstream s;
+    for (size_t i = 0; i < v.size(); i++) {
+        s << ((i==0) ? "" : ", ");
+        if (v[i].is_expr)
+            s << v[i].expr;
+        else if (v[i].is_image)
+            s << v[i].image->name();
+        else
+            s << v[i].func->name();
+    }
+    return s.str();
+}
+
 string to_string(const map<string, Box> &boxes) {
     std::ostringstream s;
     for (auto b: boxes) {

@@ -788,7 +788,14 @@ class InjectHexagonRpc : public IRMutator {
             scalars_buffer.dimensions = 1;
             scalars_buffer.read = true;
             scalars_buffer.write = false;
-            c.buffers[scalars_buffer_name] = scalars_buffer;
+            auto iter = std::find_if(c.buffers.begin(), c.buffers.end(),
+                    [&](const std::pair<std::string, Closure::Buffer>&i){
+                        return i.first == scalars_buffer_name;
+                    });
+            if (iter == c.buffers.end())
+                c.buffers.emplace_back(scalars_buffer_name, scalars_buffer);
+            else
+                iter->second = scalars_buffer;
         }
         int scalars_buffer_extent = scalars_buffer_init.size();
 

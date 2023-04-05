@@ -6,6 +6,8 @@
 namespace Halide {
 namespace Internal {
 
+namespace {
+
 class EliminateBoolVectors : public IRMutator {
 private:
     using IRMutator::visit;
@@ -134,6 +136,8 @@ private:
         }
     }
 
+    // FIXME: what about Reinterpret?
+
     Stmt visit(const Store *op) override {
         Expr predicate = op->predicate;
         if (!is_one(predicate)) {
@@ -192,11 +196,11 @@ private:
 
     Expr visit(const Call *op) override {
         if (op->is_intrinsic(Call::if_then_else)) {
-            internal_assert(op->args.size() == 3);
+            internal_assert(op->args.size() == 2 || op->args.size() == 3);
             if (op->args[0].type().is_vector()) {
                 Expr cond = mutate(op->args[0]);
                 Expr true_value = mutate(op->args[1]);
-                Expr false_value = mutate(op->args[2]);
+                Expr false_value = mutate(op->args.size() == 3 ? op->args[2] : make_zero(op->type));
                 Type cond_ty = cond.type();
 
                 // If the condition is a vector, it should be a vector of ints.
@@ -249,15 +253,6 @@ private:
                 cond = Call::make(cond_ty, Call::cast_mask, {cond}, Call::PureIntrinsic);
             }
 
-            return Call::make(true_value.type(), Call::select_mask, {cond, true_value, false_value}, Call::PureIntrinsic);
-        } else if (true_value.type().is_vector()) {
-            internal_assert(false_value.type().is_vector());
-            // select_mask requires that all 3 operands have the same
-            // width.
-            unify_bool_vector_types(true_value, false_value);
-            internal_assert(true_value.type().bits() == false_value.type().bits());
-            cond_ty = cond_ty.with_bits(true_value.type().bits());
-            cond = Call::make(cond_ty, Call::cast_mask, {cond}, Call::PureIntrinsic);
             return Call::make(true_value.type(), Call::select_mask, {cond, true_value, false_value}, Call::PureIntrinsic);
         } else if (!cond.same_as(op->condition) ||
                    !true_value.same_as(op->true_value) ||
@@ -323,11 +318,13 @@ private:
     }
 };
 
-Stmt eliminate_bool_vectors(Stmt s) {
+} // namespace
+
+Stmt eliminate_bool_vectors(const Stmt &s) {
     return EliminateBoolVectors().mutate(s);
 }
 
-Expr eliminate_bool_vectors(Expr e) {
+Expr eliminate_bool_vectors(const Expr &e) {
     return EliminateBoolVectors().mutate(e);
 }
 

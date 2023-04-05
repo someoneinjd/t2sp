@@ -115,6 +115,14 @@ public:
         if (should_be_filtered(op)) {
             if (expr.type().is_handle()) {
                 expr = cast(expr.type(), reinterpret(Handle(), cast<uint64_t>(0)));
+            } else if (expr.type().is_complex()) {
+                if (expr.type().bits() == 64) {
+                    complex32_t zero = complex32_t(0.0f, 0.0f);
+                    expr = cast(expr.type(), Expr(zero.to_bits()));
+                } else {
+                    complex64_t zero = complex64_t(0.0, 0.0);
+                    expr = cast(expr.type(), Expr(zero.to_bits()));
+                }
             } else {
                 expr = cast(expr.type(), Expr(0));
             }

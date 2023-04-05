@@ -1,0 +1,34 @@
+{
+"quartusFitClockSummary":
+{
+  "name":"Quartus Fit Clock Summary"
+  ,"columns":["", "Kernel fmax", "2x clock fmax"]  ,"children":[
+  {
+    "name":"Frequency (MHz)","data":["Kernel fmax": 254.00 ,"2x clock fmax": 508.00]
+  }
+]}
+,"quartusFitResourceUsageSummary":
+{
+  "name":"Quartus Fit Resource Utilization Summary"
+  ,"columns":["", "ALMs", "FFs", "RAMs", "DSPs", "MLABs"]  ,"children":[
+  {"name":"Full design (all kernels)","data":["ALMs": 28732.7 ,"FFs": 62201 ,"RAMs": 179 ,"DSPs": 34 ,"MLABs": 430  ]
+  }
+,
+  {"name":"Intel_Internal_Collect_Autorun_Profiling","data":["ALMs": 65.6 ,"FFs": 151 ,"RAMs": 0 ,"DSPs": 0 ,"MLABs": 0]
+  }
+,
+  {"name":"kernel_ALoader","data":["ALMs": 2195.6 ,"FFs": 4723 ,"RAMs": 30 ,"DSPs": 2 ,"MLABs": 21]
+  }
+,
+  {"name":"kernel_V","data":["ALMs": 20086.1 ,"FFs": 44542 ,"RAMs": 133 ,"DSPs": 32 ,"MLABs": 323]
+  }
+,
+  {"name":"kernel_XFeeder","data":["ALMs": 901.0 ,"FFs": 2028 ,"RAMs": 1 ,"DSPs": 0 ,"MLABs": 4]
+  }
+,
+  {"name":"kernel_XLoader","data":["ALMs": 1769.2 ,"FFs": 3010 ,"RAMs": 15 ,"DSPs": 0 ,"MLABs": 16]
+  }
+,
+  {"name":"kernel_unloader","data":["ALMs": 3715.2 ,"FFs": 7747 ,"RAMs": 0 ,"DSPs": 0 ,"MLABs": 66]
+  }
+]}}

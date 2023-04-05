@@ -54,7 +54,7 @@ std::map<Output, OutputInfo> get_output_info(const Target &target) {
         {Output::featurization, {"featurization", ".featurization"}},
         {Output::llvm_assembly, {"llvm_assembly", ".ll"}},
         {Output::object, {"object", is_windows_coff ? ".obj" : ".o"}},
-        {Output::oneapi, {"c_header", ".sycl.h"}},
+        {Output::oneapi_fpga, {"c_header", ".sycl.h"}},
         {Output::python_extension, {"python_extension", ".py.cpp"}},
         {Output::pytorch_wrapper, {"pytorch_wrapper", ".pytorch.h"}},
         {Output::registration, {"registration", ".registration.cpp"}},
@@ -64,7 +64,8 @@ std::map<Output, OutputInfo> get_output_info(const Target &target) {
         {Output::stmt_html, {"stmt_html", ".stmt.html"}},
         {Output::dev_src, {"dev_src", "_genx.cpp"}},
         {Output::host_header, {"host_header", ".h"}},
-        {Output::host_src, {"host_src", ".cpp"}}
+        {Output::host_src, {"host_src", ".cpp"}},
+        {Output::oneapi_gpu, {"oneapi_gpu", "_genx.cpp"}},
     };
     return ext;
 }
@@ -594,7 +595,14 @@ void Module::compile(const std::map<Output, std::string> &output_files) const {
         ret->compile_to_devsrc(*this);
         delete ret;
     }
-
+    if (contains(output_files, Output::oneapi_gpu)) {
+        debug(1) << "Module.compile(): oneapi_src " << output_files.at(Output::oneapi_gpu) << "\n";
+        llvm::LLVMContext context;
+        CodeGen_LLVM *ret = new CodeGen_GPU_Host<CodeGen_X86>(this->target());
+        ret->set_context(context);
+        ret->compile_to_devsrc(*this);
+        delete ret;
+    }
     if (contains(output_files, Output::object) || contains(output_files, Output::assembly) ||
         contains(output_files, Output::bitcode) || contains(output_files, Output::llvm_assembly) ||
         contains(output_files, Output::static_library)) {
@@ -657,8 +665,8 @@ void Module::compile(const std::map<Output, std::string> &output_files) const {
                                target().has_feature(Target::CPlusPlusMangling) ? Internal::CodeGen_C::CPlusPlusImplementation : Internal::CodeGen_C::CImplementation);
         cg.compile(*this);
     }
-    if (contains(output_files, Output::oneapi)) {
-        debug(1) << "Module.compile(): oneapi " << output_files.at(Output::oneapi) << "\n";
+    if (contains(output_files, Output::oneapi_fpga)) {
+        debug(1) << "Module.compile(): oneapi " << output_files.at(Output::oneapi_fpga) << "\n";
         auto t = target();
         t.set_feature(Target::OpenCL, false);
 
@@ -667,7 +675,7 @@ void Module::compile(const std::map<Output, std::string> &output_files) const {
 
         // We invoke compile() like method using the OneAPI CodeGenerator much like CodeGen_C. We output both host and device source code in a file,
         // and thus this is different from outputting device source code only as done in Output::cm_devsrc with CodeGen_GPU_Host.
-        std::ofstream file(output_files.at(Output::oneapi));
+        std::ofstream file(output_files.at(Output::oneapi_fpga));
         if (getenv("CLEARCODE") != NULL) {
             Internal::CodeGen_Clear_OneAPI_Dev cg(t);
             std::string out_str = cg.compile(*this);

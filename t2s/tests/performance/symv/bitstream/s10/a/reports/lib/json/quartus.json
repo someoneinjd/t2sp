@@ -1,0 +1,134 @@
+{
+    "quartusFitClockSummary"         : {
+        "nodes" : [{
+            "name"              : "Quartus Fitter: Clock Frequency (MHz)",
+            "kernel clock"      : "247.00",
+            "kernel clock fmax" : "247.00",
+            "clock1x"           : "247.00",
+            "clock2x"           : "494.00",
+            "details"           : [{
+                "text" : "The actual frequency of kernel clock is 247.00 MHz after platform PLL adjustment. The maximum frequency for kernel clock is 247.00 MHz. "
+            }],
+            "type"              : "system"
+        }]
+    },
+    "quartusFitResourceUsageSummary" : {
+        "nodes" : [{
+            "type" : "system",
+            "id"   : "1000",
+            "name" : "Quartus Fitter: Kernel System",
+            "alm"  : "327347.6",
+            "reg"  : "849907",
+            "dsp"  : "130",
+            "ram"  : "5460",
+            "mlab" : "2389"
+        },{
+            "type" : "kernel",
+            "id"   : "1010",
+            "name" : "Intel_Internal_Collect_Autorun_Profiling",
+            "alm"  : "83.5",
+            "reg"  : "145",
+            "dsp"  : "0",
+            "ram"  : "0",
+            "mlab" : "0"
+        },{
+            "type" : "kernel",
+            "id"   : "1010",
+            "name" : "kernel_AFeeder_T",
+            "alm"  : "152275.6",
+            "reg"  : "389017",
+            "dsp"  : "0",
+            "ram"  : "4192",
+            "mlab" : "40"
+        },{
+            "type" : "kernel",
+            "id"   : "1010",
+            "name" : "kernel_ALoader",
+            "alm"  : "11333.8",
+            "reg"  : "33241",
+            "dsp"  : "2",
+            "ram"  : "119",
+            "mlab" : "243"
+        },{
+            "type" : "kernel",
+            "id"   : "1010",
+            "name" : "kernel_V",
+            "alm"  : "53780.6",
+            "reg"  : "144480",
+            "dsp"  : "64",
+            "ram"  : "313",
+            "mlab" : "854"
+        },{
+            "type" : "kernel",
+            "id"   : "1010",
+            "name" : "kernel_V_T",
+            "alm"  : "52024.4",
+            "reg"  : "142874",
+            "dsp"  : "64",
+            "ram"  : "340",
+            "mlab" : "749"
+        },{
+            "type" : "kernel",
+            "id"   : "1010",
+            "name" : "kernel_XFeeder",
+            "alm"  : "1805.7",
+            "reg"  : "3237",
+            "dsp"  : "0",
+            "ram"  : "4",
+            "mlab" : "7"
+        },{
+            "type" : "kernel",
+            "id"   : "1010",
+            "name" : "kernel_XFeeder_T",
+            "alm"  : "1806.8",
+            "reg"  : "3363",
+            "dsp"  : "0",
+            "ram"  : "4",
+            "mlab" : "7"
+        },{
+            "type" : "kernel",
+            "id"   : "1010",
+            "name" : "kernel_XLoader",
+            "alm"  : "4108.8",
+            "reg"  : "7368",
+            "dsp"  : "0",
+            "ram"  : "31",
+            "mlab" : "10"
+        },{
+            "type" : "kernel",
+            "id"   : "1010",
+            "name" : "kernel_XLoader_T",
+            "alm"  : "4492.5",
+            "reg"  : "9114",
+            "dsp"  : "0",
+            "ram"  : "58",
+            "mlab" : "14"
+        },{
+            "type" : "kernel",
+            "id"   : "1010",
+            "name" : "kernel_unloader",
+            "alm"  : "10877.8",
+            "reg"  : "28838",
+            "dsp"  : "0",
+            "ram"  : "0",
+            "mlab" : "228"
+        },{
+            "type" : "kernel",
+            "id"   : "1010",
+            "name" : "kernel_unloader_T",
+            "alm"  : "15795.5",
+            "reg"  : "28602",
+            "dsp"  : "0",
+            "ram"  : "61",
+            "mlab" : "232"
+        },{
+            "type" : "aclsystem",
+            "id"   : "1001",
+            "name" : "Quartus Fitter: Total Used (Entire System)",
+            "alm"  : "522,966",
+            "reg"  : "1,134,421",
+            "dsp"  : "130",
+            "ram"  : "5,891"
+        }]
+    }
+}

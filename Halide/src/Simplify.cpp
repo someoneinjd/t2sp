@@ -93,10 +93,10 @@ bool Simplify::const_int(const Expr &e, int64_t *i) {
     }
 }
 
-bool Simplify::const_uint(const Expr &e, uint64_t *u) {
+bool Simplify::const_uint(const Expr &e, __uint128_t *u) {
     if (e.type().is_vector()) {
         return false;
-    } else if (const uint64_t *p = as_const_uint(e)) {
+    } else if (const __uint128_t *p = as_const_uint(e)) {
         *u = *p;
         return true;
     } else {

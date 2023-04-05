@@ -41,6 +41,7 @@ struct Stensor
     std::string name;
     SMemType position;
     Var v_scope;
+    vector<FuncOrExpr> operations;
     vector<Var> v_width;
     vector<Var> v_banks;
     vector<Var> v_outs;
@@ -63,6 +64,14 @@ struct Stensor
     Stensor &scope(Var v);
     Stensor &banks(const std::vector<Var> &banks);
     Stensor &out(const std::vector<Var> &bankwidth_and_banks);
+    Stensor &apply_transform(const std::vector<Expr> &exprs);
+    template <typename... Args>
+    HALIDE_NO_USER_CODE_INLINE typename std::enable_if<Internal::all_are_convertible<Expr, Args...>::value, Stensor &>::type
+    apply_transform(Expr e, Args &&... args) {
+        std::vector<Expr> collected_args{e, std::forward<Args>(args)...};
+        return this->apply_transform(collected_args);
+    }
+
     Stensor &operator()(const std::vector<Expr> &dims);
 
     template<typename... Args>

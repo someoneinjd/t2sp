@@ -154,7 +154,7 @@ bool Type::can_represent(int64_t x) const {
     }
 }
 
-bool Type::can_represent(uint64_t x) const {
+bool Type::can_represent(__uint128_t x) const {
     if (is_int()) {
         return x <= (uint64_t)(max_int(bits()));
     } else if (is_uint()) {
@@ -324,6 +324,10 @@ std::string type_to_c_type(Type type, bool include_space, bool c_plus_plus) {
         case 16:
         case 32:
         case 64:
+        case 128:
+            if (type.bits() == 128) {
+                oss << "__";
+            }
             if (type.is_uint()) {
                 oss << 'u';
             }

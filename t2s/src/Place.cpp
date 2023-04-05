@@ -49,7 +49,7 @@ private:
                 << "Device Func " << op->name << " is expected to have one and only one definition\n";
             Stmt body = mutate(op->body);
             Stmt new_body;
-            if( target.has_feature(Target::OneAPI) ){
+            if( target.has_feature(Target::OneAPI) && !target.has_feature(Target::IntelGPU)){
                 new_body = For::make(op->name + ".s0.run_on_device",
                                         0,
                                         1,
@@ -992,6 +992,18 @@ public:
     }
 };
 
+class GetAllRealize : public IRVisitor {
+  public:
+    vector<string> realizes;
+    GetAllRealize() : realizes{} {}
+  private:
+    using IRVisitor::visit;
+    void visit(const Realize* op) override {
+        realizes.push_back(op->name);
+        op->body.accept(this);
+    }
+};
+
 Stmt replace_references_with_channels(Stmt s, const map<string, Function> &env) {
     LoopBounds global_bounds;
     return replace_references_with_channels(s, env, global_bounds);
@@ -1046,6 +1058,23 @@ Stmt replace_references_with_shift_registers(Stmt s, const map<string, Function>
     ReplaceReferencesWithShiftRegisters replacer(reg_size_map);
     s = replacer.mutate(s);
     return s;
+}
+
+void add_reference_names(const Stmt &s, const map<string, Function> &env, std::map<std::string, RegBound> &reg_size_map) {
+    GetAllRealize visitor{};
+    s.accept(&visitor);
+
+    for (const auto &merged_func_name : visitor.realizes) {
+        Function merged_func;
+        if (function_is_in_environment(merged_func_name, env, merged_func)
+            && (merged_func.definition().schedule().is_merged() || merged_func.has_merged_defs())
+            && !merged_func.definition().schedule().is_output()
+            && !merged_func.definition().schedule().is_input()
+            && merged_func.place() == Place::Device
+            && reg_size_map.find(merged_func_name) == reg_size_map.end()) {
+            reg_size_map.emplace(merged_func_name, RegBound{});
+        }
+    }
 }
 
 Stmt insert_fpga_reg(Stmt s, const map<string, Function> &env) {
