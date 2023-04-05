@@ -68,10 +68,7 @@ protected:
         using CodeGen_Clear_C::visit;
         bool is_standard_opencl_type(Type type);
         bool is_irregular(Region &bounds);
-        std::string print_type(Type type, AppendSpaceIfNeeded append_space = DoNotAppendSpace) override;
-        std::string print_reinterpret(Type type, Expr e) override;
-        std::string print_extern_call(const Call *op) override;
-        void add_vector_typedefs(const std::set<Type> &vector_types) override;
+        void add_vector_typedefs(const std::set<Type> &vector_types) override {};
         std::string print_name(const std::string &name) override;
         bool succinct_name_is_unique(const std::string &verbose, const std::string &succinct);
         void map_verbose_to_succinct_globally(const std::string &verbose, const std::string &succinct);
@@ -300,7 +297,7 @@ protected:
                         const std::vector<DeviceArgument> &args);
         std::string get_str();
         void clean_stream();
-        void write_runtime_headers(); 
+        void write_runtime_headers(const std::string &func_name); 
     };
 };
 
