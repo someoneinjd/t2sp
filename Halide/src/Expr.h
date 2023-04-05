@@ -362,10 +362,10 @@ struct Expr : public Internal::IRHandle {
         : IRHandle(Internal::FloatImm::make(Float(64), x)) {
     }
     Expr(complex32_t x)
-        : IRHandle(Internal::UIntImm::make(Complex(32), x.to_bits())) {
+        : IRHandle(Internal::UIntImm::make(Complex(32), complex_to_bits(x))) {
     }
     Expr(complex64_t x)
-        : IRHandle(Internal::UIntImm::make(Complex(64), x.to_bits())) {
+        : IRHandle(Internal::UIntImm::make(Complex(64), complex_to_bits(x))) {
     }
     // @}
 

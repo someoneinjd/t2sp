@@ -336,9 +336,9 @@ public:
             if (inside_pipe) {
                 if (op->type.is_complex()) {
                     if (op->type.bits() == 64) {
-                        return Select::make(pipe_alloc.valid_cond, op, UIntImm::make(Complex(32), complex32_t(0, 0).to_bits()));
+                        return Select::make(pipe_alloc.valid_cond, op, UIntImm::make(Complex(32), complex_to_bits(complex32_t(0, 0))));
                     } else {
-                        return Select::make(pipe_alloc.valid_cond, op, UIntImm::make(Complex(64), complex64_t(0, 0).to_bits()));
+                        return Select::make(pipe_alloc.valid_cond, op, UIntImm::make(Complex(64), complex_to_bits(complex64_t(0, 0))));
                     }
                 } else
                     return Select::make(pipe_alloc.valid_cond, op, FloatImm::make(op->type, 0));
