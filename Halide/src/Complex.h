@@ -150,12 +150,12 @@ static_assert(sizeof(complex64_t) == 16, "complex64_t should occupy sixteen byte
 }  // namespace Halide
 
 template<>
-HALIDE_ALWAYS_INLINE halide_type_t halide_type_of<std::complex<float>>() {
+HALIDE_ALWAYS_INLINE halide_type_t halide_type_of<Halide::complex32_t>() {
     return halide_type_t(halide_type_complex, 64);
 }
 
 template<>
-HALIDE_ALWAYS_INLINE halide_type_t halide_type_of<std::complex<double>>() {
+HALIDE_ALWAYS_INLINE halide_type_t halide_type_of<Halide::complex64_t>() {
     return halide_type_t(halide_type_complex, 128);
 }
 
