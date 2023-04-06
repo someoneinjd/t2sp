@@ -308,7 +308,7 @@ class BufferInserter: public IRMutator{
         debug(4) << "inserting buffer: "<<op->name<<"\n";
         string cycle_name = caller_name + ".cycle.temp";
         if(this_level == loop_level){
-            string buffer_name = caller_name + "_buffer_.ibuffer";
+            string buffer_name = caller_name + ".DB.ibuffer";
             Expr original_condition = Expr();
             {//find the original_condition and data type of the data
                 const Call * read_channel = iter->second.read_node.as<Call>();
@@ -1050,7 +1050,7 @@ private:
         return true;
     }
 
-    void intialize_common_constants() {
+    void initialize_common_constants() {
         internal_assert(original_read_node.defined());
         TYPE = original_read_node.type();
         WRITES = 1, READS = 1, PERIODS = 1;
@@ -1249,7 +1249,7 @@ private:
                 // internal_assert(opnd.type() == entry.second[i]);
                 buffer_info buf;
                 buf.type = entry.second[i];
-                buf.name = func_name + "_DB_f" + std::to_string(i) + ".ibuffer";
+                buf.name = func_name + ".DB_f" + std::to_string(i) + ".ibuffer";
                 calculate_buffer_dims_args(opnd, buf);
                 buffers_info.push_back(buf);
             }
@@ -1257,14 +1257,14 @@ private:
             internal_assert(isolated_operands.size() == 1);
             buffer_info buf;
             buf.type = original_read_node.type();
-            buf.name = func_name + "_DB.ibuffer";
+            buf.name = func_name + ".DB.ibuffer";
             calculate_buffer_dims_args(isolated_operands[0], buf);
             buffers_info.push_back(buf);
         }
     }
 
     void initialize_common_constants_vars() {
-        intialize_common_constants();
+        initialize_common_constants();
 
         value = Variable::make(TYPE, func_name + "_value.shreg");
         time_stamp = Variable::make(UInt(32), func_name + "_time_stamp.shreg");
@@ -2039,7 +2039,7 @@ public:
                 for (size_t i = 1; i < loops.size(); i++) {
                     Expr loop_var = Variable::make(Int(32), loops[i]);
                     cond2 = cond2 && (loop_var == mins[i]);
-                    if (loops[i] == buffer_loop) {
+                    if (ends_with(loops[i], "." + buffer_loop)) {
                         break;
                     }
                 }

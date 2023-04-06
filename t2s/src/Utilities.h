@@ -48,6 +48,9 @@ std::string extract_before_tokens(const std::string &str, int num_tokens);
 // Return the substring after the given number of `.`. Error if the number of `.` are less than expected.
 std::string extract_after_tokens(const std::string &str, int num_tokens);
 
+// Remove the given prefix. Error if the original string does not start with that prefix.
+std::string remove_prefix(const std::string &str, const std::string &prefix);
+
 // Remove the given postfix. Error if the original string does not end with that postfix.
 std::string remove_postfix(const std::string &str, const std::string &postfix);
 
@@ -102,6 +105,8 @@ uint32_t closest_power_of_two(uint32_t n);
 // Extract the loop name (must ended with ".run_on_device") and create a kernel name
 std::string create_kernel_name(const For *op);
 
+// Generate an empty statement
+Stmt make_empty_stmt();
 } // namespace Internal
 } // namespace Halide
 

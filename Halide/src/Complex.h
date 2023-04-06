@@ -4,6 +4,7 @@
 #include "runtime/HalideRuntime.h"
 #include <stdint.h>
 #include <string>
+#include <complex>
 
 namespace Halide {
 
@@ -31,6 +32,18 @@ T im_part(CType data) {
     *p = data;
     return farray[1];
 }
+
+HALIDE_ALWAYS_INLINE uint64_t complex_to_bits(std::complex<float> x) {
+    uint64_t ret{};
+    memcpy(&ret, &x, sizeof(std::complex<float>));
+    return ret;
+}
+
+HALIDE_ALWAYS_INLINE __uint128_t complex_to_bits(std::complex<double> x) {
+    __uint128_t ret{};
+    memcpy(&ret, &x, sizeof(std::complex<double>));
+    return ret;
+} 
 }  // namespace Internal
 
 using namespace Internal;
@@ -130,8 +143,8 @@ private:
     CType data = 0;
 };
 
-typedef complex_t<float, uint64_t> complex32_t;
-typedef complex_t<double, __uint128_t> complex64_t;
+typedef std::complex<float> complex32_t;
+typedef std::complex<double> complex64_t;
 static_assert(sizeof(complex32_t) == 8, "complex32_t should occupy eight bytes");
 static_assert(sizeof(complex64_t) == 16, "complex64_t should occupy sixteen bytes");
 

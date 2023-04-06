@@ -36,7 +36,14 @@ void Closure::found_buffer_ref(const string &name, Type type,
                                bool read, bool written, Halide::Buffer<> image) {
     if (!ignore.contains(name)) {
         debug(3) << "Adding buffer " << name << " to closure\n";
-        Buffer &ref = buffers[name];
+        auto iter = std::find_if(buffers.begin(), buffers.end(),
+                [&](const std::pair<std::string, Buffer> &i){
+                    return i.first == name;
+                });
+        bool not_in_buffers = iter == buffers.end();
+        if (not_in_buffers)
+            buffers.emplace_back(name, Buffer{});
+        Buffer &ref = not_in_buffers ? buffers.back().second : iter->second;
         ref.type = type.element_of();  // TODO: Validate type is the same as existing refs?
         ref.read = ref.read || read;
         ref.write = ref.write || written;
@@ -95,7 +102,14 @@ void Closure::visit(const Variable *op) {
         debug(3) << "Not adding " << op->name << " to closure\n";
     } else {
         debug(3) << "Adding " << op->name << " to closure\n";
-        vars[op->name] = op->type;
+        auto iter = std::find_if(vars.begin(), vars.end(),
+                [&](const std::pair<std::string, Type> &i){
+                    return i.first == op->name;
+                });
+        if (iter == vars.end())
+            vars.emplace_back(op->name, op->type);
+        else
+            iter->second = op->type;
     }
 }
 

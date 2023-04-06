@@ -410,16 +410,16 @@ class ChannelPromotor : public IRMutator {
             Expr write = Call::make(Handle(), "write_channel", { c.name, read_array }, Call::PureIntrinsic);
             Stmt write_stmt = Evaluate::make(write);
             if (!c.safe_promotion) {
-                Expr get_flag = Call::make(Bool(), c.name+".temp", {}, Call::Intrinsic);
+                Expr get_flag = Call::make(Bool(), c.name+".cond.temp", {}, Call::Intrinsic);
                 write_stmt = IfThenElse::make(get_flag == 1, write_stmt);
             } else if (!is_one(c.guarding_cond)) {
                 write_stmt = IfThenElse::make(c.guarding_cond, write_stmt);
             }
             body = Block::make(body, write_stmt);
             if (!c.safe_promotion) {
-                Stmt init_flag = Provide::make(c.name+".temp", {0}, {});
+                Stmt init_flag = Provide::make(c.name+".cond.temp", {0}, {});
                 body = Block::make(init_flag, body);
-                body = Realize::make(c.name+".temp", { Bool() }, MemoryType::Auto, {}, const_true(), body);
+                body = Realize::make(c.name+".cond.temp", { Bool() }, MemoryType::Auto, {}, const_true(), body);
             }
         } else {
             /* Transform the IR like this:
@@ -536,7 +536,7 @@ class ChannelPromotor : public IRMutator {
             auto it = get_promoted_channel(channels, chn_name, true);
 
             if (!it->safe_promotion) {
-                string name = chn_name + ".temp";
+                string name = chn_name + ".cond.temp";
                 Stmt set_flag = Provide::make(name, {1}, {});
                 ret = Block::make(ret, set_flag);
             }
@@ -545,11 +545,15 @@ class ChannelPromotor : public IRMutator {
     }
 };
 
-Stmt channel_promotion(Stmt s) {
+Stmt channel_promotion(Stmt s, const std::map<std::string, Function> &env) {
     VarsFinder vf;
     ChannelVisitor cv(vf);
     ChannelPromotor cp(cv);
-    s = remove_lets(s, true, false, false, false, {});
+    std::set<std::string> funcs{};
+    for (const auto &t : env)
+        if (t.second.place() == Place::Device)
+            funcs.insert(t.first);
+    s = remove_lets(s, true, true, true, false, funcs);
     s.accept(&vf);
     s.accept(&cv);
     s = cp.mutate(s);

@@ -93,7 +93,7 @@
 #include "../../t2s/src/RemoveDeadDimensions.h"
 #include "../../t2s/src/ScatterAndBuffer.h"
 #include "../../t2s/src/SpaceTimeTransform.h"
-#include "../../t2s/src/ScatterAndBuffer.h"
+#include "../../t2s/src/StandardizeIRForOpenCL.h"
 #include "../../t2s/src/TriangularLoopOptimize.h"
 
 namespace Halide {
@@ -259,6 +259,7 @@ Module lower(const vector<Function> &output_funcs,
     debug(2) << "Lowering after placing device functions:\n" << s << "\n\n";
 
     debug(1) << "Replacing references with channels and shift registers...\n";
+    add_reference_names(s, env, reg_size_map);
     s = replace_references_with_channels(s, env, global_bounds);
     s = replace_references_with_shift_registers(s, env, reg_size_map);
     debug(2) << "Lowering after replacing references with channels and shift registers:\n" << s << "\n\n";
@@ -402,10 +403,10 @@ Module lower(const vector<Function> &output_funcs,
     s = combine_channels(s);
     debug(2) << "Lowering after combining channels:\n" << s << "\n\n";
 
-    debug(1) << "Trimming loops to the region over which they do something...\n";
-    s = trim_no_ops(s);
-    debug(2) << "Lowering after loop trimming:\n"
-             << s << "\n\n";
+    // debug(1) << "Trimming loops to the region over which they do something...\n";
+    // s = trim_no_ops(s);
+    // debug(2) << "Lowering after loop trimming:\n"
+    //          << s << "\n\n";
 
     debug(1) << "Remove Lets and LetStmts in funcs with buffering or scattering...\n";
     {
@@ -574,8 +575,13 @@ Module lower(const vector<Function> &output_funcs,
     debug(1) << "Lowering after final simplification:\n"
              << s << "\n\n";
 
+    debug(1) << "Late fuse...\n";
+    s = do_late_fuse(s, env);
+    debug(2) << "Lowering after late fuse:\n"
+             << s << "\n\n";
+
     debug(1) << "Promoting channels...\n";
-    s = channel_promotion(s);
+    s = channel_promotion(s, env);
     debug(2) << "Lowering after channel promotion:\n"
              << s << "\n\n";
 
@@ -590,11 +596,6 @@ Module lower(const vector<Function> &output_funcs,
     debug(1) << "Flatten triangular loop...\n";
     s = flatten_tirangualr_loop_nest(s, env);
     debug(2) << "Lowering after triangular loop optimizing:\n" << s << "\n\n";
-
-    debug(1) << "Late fuse...\n";
-    s = do_late_fuse(s, env);
-    debug(2) << "Lowering after late fuse:\n"
-             << s << "\n\n";
 
     if (getenv("DISABLE_AUTORUN") == NULL) {
         if (t.has_feature(Target::IntelFPGA)) {
@@ -621,6 +622,16 @@ Module lower(const vector<Function> &output_funcs,
     s = remove_lets(s, true, false, false, false, {});
     debug(2) << "Lowering after removing lets:\n"
             << s << '\n';
+
+    // The code generator should blindly generate code according to the IR, without tricks if possible.
+    // So here standardize the IR to make it have the same abstraction level as the target language to generate.
+    // Although below it is done only for OpenCL and clear code gen only, ideally it should be done for any target
+    // HW and language, and any code generator.
+    if (t.features_any_of({Target::OpenCL}) && (getenv("CLEARCODE") != NULL)) {
+        debug(1) << "Standardize IR for generating OpenCL code...\n";
+        s = standardize_ir_for_opencl_code_gen(s);
+        debug(2) << "Lowering after standardizing IR for generating OpenCL code:\n" << s << "\n\n";
+    }
 
     if (!custom_passes.empty()) {
         for (size_t i = 0; i < custom_passes.size(); i++) {

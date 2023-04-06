@@ -20,31 +20,31 @@
 #define GEMM_CONST_PARAMS_H
 
 // Inner loop bounds, which are static constant parameters of the design
-#if (SIZE == TINY) // For verifying correctness only
+#ifdef TINY // For verifying correctness only
     #define KKK         4
     #define JJJ         4
     #define III         4
     #define JJ          4
     #define II          4
     #define KK          4
-#else // SIZE == LARGE
-    #if (TARGET == GPU)
+#else // LARGE
+    #ifdef GPU
         #define KKK         8
         #define JJJ         8
         #define III         32
         #define JJ          8
         #define II          2
         #define KK          1
-    #elif (TARGET == S10)
-        #if (PREFIXES == "S")
+    #elif defined(S10)
+        #ifdef SGEMM
             #define KKK         16
             #define JJJ         16
             #define III         14
             #define JJ          32
             #define II          32
             #define KK          32
-        #elif (PREFIXES == "D")
-        #elif (PREFIXES == "C")
+        #elif defined(DGEMM)
+        #elif defined(CGEMM)
             #define KKK         16
             #define JJJ         16
             #define III         14
@@ -60,15 +60,21 @@
             #define KK          32
         #endif
     #else   // TARGET == A10
-        #if (PREFIXES == "S")
+        #ifdef SGEMM
             #define KKK         16
             #define JJJ         8
             #define III         10
             #define JJ          32
             #define II          32
             #define KK          32
-        #elif (PREFIXES == "D")
-        #elif (PREFIXES == "C")
+        #elif defined(DGEMM)
+            #define KKK         8
+            #define JJJ         4
+            #define III         8
+            #define JJ          32
+            #define II          32
+            #define KK          32
+        #elif defined(CGEMM)
             #define KKK         8
             #define JJJ         4
             #define III         10
@@ -78,7 +84,7 @@
         #else
             #define KKK         4
             #define JJJ         4
-            #define III         5
+            #define III         4
             #define JJ          32
             #define II          32
             #define KK          32        

@@ -390,7 +390,8 @@ private:
         decltype(expr_replacements) tmp;
         tmp.swap(expr_replacements);
         ScopedBinding<Expr> bind(scope, name, new_value);
-        ScopedBinding<Expr> bind1(conditions, name, new_value_condition);
+        if (select != nullptr && !select->false_value.defined())
+            ScopedBinding<Expr> bind1(conditions, name, new_value_condition);
         if (is_let) {
             new_let = mutate(let->body);
         } else {
@@ -403,11 +404,12 @@ private:
     Expr visit(const Variable *op) override {
         if (scope.contains(op->name)) {
             Expr value = scope.get(op->name);
-            Expr condition = conditions.get(op->name);
-            // debug(4) << " Var: " << op->name << "\n"
-            //         << "   condition: " << condition << "\n"
-            //         << "   path condition: " << path_condition << "\n";
-            internal_assert(condition_holds(condition));
+            if (conditions.contains(op->name)) {
+                Expr condition = conditions.get(op->name);
+                user_assert(condition_holds(condition))
+                    << "Variable " << op->name << " is defined in the form of `select(cond, true_value, undefined)`, "
+                    << "but `cond` is false in the current context.";
+            }
             return value;
         }
         return op;

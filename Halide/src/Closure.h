@@ -76,10 +76,10 @@ public:
     Closure(Stmt s, const std::string &loop_variable = "");
 
     /** External variables referenced. */
-    std::map<std::string, Type> vars;
+    std::vector<std::pair<std::string, Type>> vars;
 
     /** External allocations referenced. */
-    std::map<std::string, Buffer> buffers;
+    std::vector<std::pair<std::string, Buffer>> buffers;
 };
 
 }  // namespace Internal

@@ -16,19 +16,11 @@
 *
 * SPDX-License-Identifier: BSD-2-Clause-Patent
 *******************************************************************************/
-#ifndef T2S_CHANNEL_PROMOTION_H
-#define T2S_CHANNEL_PROMOTION_H
+#ifndef T2S_STANDARDIZE_IR_FOR_OPENCL_H
+#define T2S_STANDARDIZE_IR_FOR_OPENCL_H
 
 /** \file
- *
- * Defines a pass to move a channel read/write above a loop to convert "an array of channels" into
- * "a channel of array", since too many asynchronous channels may consume resources and lower frequency.
- * For example, channel float A[I] is converted into channel float[I] A, and transform code into:
- * float[I] arrA = read_channel("A")
- * unrolled for (i, 0, I) {
- *   // original: float a = read_channel("A", i)
- *   float a = arrA[i]
- * }
+ * Standardize the IR so that later it is straightforward to generate OpenCL code
  */
 
 #include "../../Halide/src/IR.h"
@@ -36,8 +28,11 @@
 namespace Halide {
 namespace Internal {
 
-/* Promote channels */
-extern Stmt channel_promotion(Stmt s, const std::map<std::string, Function>& env);
+/* Standardize IR so that generating OpenCL code is straightforward: the code generator
+ * simply prints whatever the IR is, without doing any smart tricks. Not only this simplifies
+ * the code generator, but also improves code readability, as no immediate variable would be
+ * blindly generated. */
+extern Stmt standardize_ir_for_opencl_code_gen(Stmt s);
 
 }
 }

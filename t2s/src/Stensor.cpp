@@ -20,6 +20,7 @@
 #include "./Utilities.h"
 #include "./PreprocessBeforeLower.h"
 #include "./Stensor.h"
+#include "./BuildCallRelation.h"
 
 namespace Halide {
 
@@ -33,6 +34,7 @@ using std::set;
 class Schain {
 public:
     bool is_output;                     // Is this chain for output? An output chain needs different primitives
+    bool write_to_host;
     // Starting point(s) of the chain
     Func outf;                          // Valid only if is_output is true. An output chain starts from a function
     vector<ImageParam> imp;              // Valid only if is_output is false. An input chain starts from external inputs (image params, i.e. tensors)
@@ -50,7 +52,7 @@ public:
     }
 
     bool exists(const vector<Var> &vars) {
-        for (auto &v : vars) {
+        for (const auto &v : vars) {
             if (var_index(v) == -1) {
                 return false;
             }
@@ -64,12 +66,12 @@ public:
 
     vector<VarOrRVar> find_reuse_vars(string imp, Var scope) {
         vector<VarOrRVar> reuse_vars;
-        for (Var v : free_vars) {
+        for (const auto &v : free_vars) {
             if (v.same_as(scope)) {
                 break;
             }
             if (used_vars[imp].count(v.name()) == 0) {
-                reuse_vars.push_back(Var(v));
+                reuse_vars.push_back(v);
             }
         }
         return reuse_vars;
@@ -113,6 +115,13 @@ Stensor &Stensor::out(const vector<Var> &v) {
     return *this;
 }
 
+Stensor &Stensor::apply_transform(const std::vector<Expr> &exprs) {
+    if (exprs.empty())
+        return *this;
+    std::copy(exprs.begin(), exprs.end(), back_inserter(operations));
+    return *this;
+}
+
 Stensor &Stensor::operator()(const vector<Expr> &d) {
     if (d.empty()) {
         // By default, this stensor will use the original layout.
@@ -134,6 +143,7 @@ Stensor &operator>>(const vector<ImageParam> &im, Stensor &s) {
     Schain tmp;
     s.schain_idx = schains.size();
     tmp.is_output = false;
+    tmp.write_to_host = false;
     tmp.imp = im;
     tmp.stensors.push_back(s);
     schains.push_back(std::move(tmp));
@@ -183,10 +193,10 @@ struct FindVars
     } fuv;
 
     Func control_ure_of_func(const map<string, Func> &env, const Func &func) {
-        for (auto entry : env) {
+        for (const auto &entry : env) {
             const Func& f = entry.second;
             if (f.function().has_merged_defs()) {
-                for (string name : f.function().merged_func_names()) {
+                for (const auto &name : f.function().merged_func_names()) {
                     if (func.name() == name)
                         return std::move(Func(f));
                 }
@@ -204,15 +214,16 @@ struct FindVars
     // Find out which function references which image param, and the variables used in referencing an image param
     void find_image_param_references(const map<string, Func> &env, vector<ImageParamReferencesInAFunc> &references) {
         vector<string> visited_image_params;
-        for (auto entry : env) {
+        for (const auto &entry : env) {
             const Func& f = entry.second;
+            fuv.used_vars.clear();
             f.value().accept(&fuv);
             if (!fuv.used_vars.empty()) {
                 ImageParamReferencesInAFunc reference;
                 reference.func = f;
                 reference.used_vars = fuv.used_vars;
                 references.push_back(reference);
-                for (auto v : reference.used_vars) {
+                for (const auto &v : reference.used_vars) {
                     user_assert(std::find(visited_image_params.begin(), visited_image_params.end(), v.first) == visited_image_params.end()) << "Error: ImageParam " << v.first << " is referenced more than once.";
                     visited_image_params.push_back(v.first);
                 }
@@ -226,19 +237,21 @@ struct FindVars
         find_image_param_references(env, references);
 
         // Find control_ure, free_vars and used_vars for each stensor chain
-        for (auto chain : schains) {
+        for (auto &chain : schains) {
             if (chain.is_output) {
                 chain.control_ure = control_ure_of_func(env, chain.outf);
             } else {
-                for (auto i : chain.imp) {
-                    string image_param = remove_postfix(i.name(), "_im");
-                    for (auto refs_in_a_func : references) {
-                        for (auto ref : refs_in_a_func.used_vars) {
+                for (const auto &i : chain.imp) {
+                    auto image_param = ends_with(i.name(), "_im") ? remove_postfix(i.name(), "_im") : i.name();
+                    for (const auto &refs_in_a_func : references) {
+                        for (const auto &ref : refs_in_a_func.used_vars) {
                             if (image_param == ref.first) {
                                 Func control_ure = control_ure_of_func(env, refs_in_a_func.func);
                                 user_assert(!chain.control_ure.defined() or chain.control_ure.function().name() == control_ure.function().name()) << "Error: ImageParams " << to_string(chain.imp) << " are not from the same group of merged UREs";
                                 chain.control_ure = control_ure;
                                 chain.used_vars[ref.first] = ref.second;
+                                for (const auto &d : control_ure.function().definition().schedule().dims())
+                                    chain.free_vars.push_back(d.var);
                             }
                         }
                     }
@@ -282,22 +295,37 @@ class RealizeOnFPGA
         if (c.stensors[0].position != HOST) {
             // The device stensors needs serialized inputs
             // If the host stensor is not specified, we automatically generate it
-            string host_name = c.imp[0].name() + "_serializer";
+            string name = "";
+            for (const auto &chain_imp : c.imp)
+                name += chain_imp.name() + "_";
+            string host_name = name + "serializer";
             Stensor s_host(host_name);
             s_host.schain_idx = c.stensors[0].schain_idx;
             c.stensors.insert(c.stensors.begin(), s_host);
         }
-        vector<Func> producers;
-        for (auto &s : c.stensors) {
+        std::copy(c.imp.begin(), c.imp.end(), back_inserter(c.stensors[0].operations));
+        vector<size_t> fs_idxs{};
+        vector<Func> producers{};
+        size_t idx = 0;
+        for (const auto &s : c.stensors) {
             Place place = s.position == SMemType::HOST ? Place::Host : Place::Device;
             Func isolated_func(s.name, place);
             producers.push_back(std::move(isolated_func));
+            if (!s.operations.empty())
+                fs_idxs.push_back(idx);
+            idx++;
         }
-        vector<FuncOrExpr> imp;
-        std::copy(c.imp.begin(), c.imp.end(), std::back_inserter(imp));
+        vector<Func> _producers(producers.begin() + fs_idxs.back(), producers.end());
+        c.control_ure.isolate_producer_chain(c.stensors[fs_idxs.back()].operations, _producers);
         debug(1) << "T2X emits: " << c.control_ure.name() << ".isolate_producer_chain({"
-                 << names_to_string(c.imp) << "}, " << names_to_string(producers) << ");\n";
-        c.control_ure.isolate_producer_chain(imp, producers);
+                 << names_to_string(c.stensors[fs_idxs.back()].operations) << "}, " << names_to_string(_producers) << ");\n";
+        for (int i = fs_idxs.size() - 2; i >= 0; i--) {
+            _producers.clear();
+            _producers.insert(_producers.end(), producers.begin() + fs_idxs[i], producers.begin() + fs_idxs[i + 1]);
+            producers[fs_idxs[i + 1]].isolate_producer_chain(c.stensors[fs_idxs[i]].operations, _producers);
+            debug(1) << "T2X emits: " << producers[fs_idxs[i + 1]].name() << ".isolate_producer_chain({"
+                     << names_to_string(c.stensors[fs_idxs[i]].operations) << "}, " << names_to_string(_producers) << ");\n";
+        }
         return producers;
     }
 
@@ -322,7 +350,7 @@ class RealizeOnFPGA
 
     vector<Func> isolate_consumer(Schain &c) {
         vector<Func> consumers;
-        if (c.stensors.back().position != HOST) {
+        if (c.stensors.back().position != HOST && c.write_to_host) {
             // If the host stensor is not specified, we automatically generate it
             string host_name = c.outf.name() + "_deserializer";
             Stensor s_host(host_name);
@@ -338,7 +366,7 @@ class RealizeOnFPGA
         }
         if (c.stensors[0].v_banks.size() == 1) {
             // This is a special case where the single dimension banks are inside systolic array
-            user_assert(c.stensors[1].position == SMemType::DRAM);
+            user_assert(!c.write_to_host ||  c.stensors[1].position == SMemType::DRAM);
             Var bank = c.stensors[0].v_banks[0];
             c.outf.value().accept(&fpo);
             debug(1) << "T2X emits: " << c.outf.name() << ".relay("
@@ -351,14 +379,16 @@ class RealizeOnFPGA
             // Remove the first stensor as it is inside systolic array
             c.stensors.erase(c.stensors.begin());
             consumers.erase(consumers.begin());
-            // Vectorize all the subsequent stensors
-            debug(1) << "T2X emits: " << c.outf.name() << ".isolate_consumer_chain("
-                     << names_to_string(consumers) << ");\n";
-            c.outf.isolate_consumer_chain(consumers);
-            for (auto &f : consumers) {
-                debug(1) << "T2X emits: " << f.name() << ".vectorize("
-                         << bank.name() << ");\n";
-                f.vectorize(bank);
+            if (!consumers.empty()) {
+                // Vectorize all the subsequent stensors
+                debug(1) << "T2X emits: " << c.outf.name() << ".isolate_consumer_chain("
+                         << names_to_string(consumers) << ");\n";
+                c.outf.isolate_consumer_chain(consumers);
+                for (auto &f : consumers) {
+                    debug(1) << "T2X emits: " << f.name() << ".vectorize("
+                             << bank.name() << ");\n";
+                    f.vectorize(bank);
+                }
             }
         } else if (c.stensors[0].v_banks.size() == 2) {
             // The output stensor inherits loops of the output URE, generally less than that of systolic array
@@ -399,9 +429,9 @@ class RealizeOnFPGA
     }
 
     Var find_differences(vector<Var> set_a, vector<Var> set_b) {
-        for (auto &a : set_a) {
+        for (const auto &a : set_a) {
             bool found = false;
-            for (auto &b : set_b)
+            for (const auto &b : set_b)
                 if (a.name() == b.name()) found = true;
             if (!found) return a;
         }
@@ -537,12 +567,15 @@ class RealizeOnFPGA
     }
 
     void find_banks(Schain &c) {
+        // No space-time transformation, no need to allocate banks
+        if (c.control_ure.function().definition().schedule().transform_params().empty())
+            return;
         // The dst_vars includes space loops plus one time loop
-        auto dst_vars = c.control_ure.function().definition().schedule().transform_params()[0].dst_vars;
+        const auto &dst_vars = c.control_ure.function().definition().schedule().transform_params()[0].dst_vars;
         for (auto &s : c.stensors) {
-            for (auto &v : s.v_outs) {
+            for (const auto &v : s.v_outs) {
                 auto p = std::find_if(dst_vars.begin(), dst_vars.end()-1,
-                                    [&](string &n){ return v.name() == n; });
+                                    [&](const string &n){ return v.name() == n; });
                 if (p != dst_vars.end()-1) {
                     // Find it is in space loops, so we view it as a bank
                     s.v_banks.push_back(Var(*p));
@@ -577,7 +610,8 @@ public:
                 gather(c, consumers);
                 vectorize(c, consumers);
                 min_depth(c, consumers);
-                out = consumers.back();
+                if (c.write_to_host)
+                    out = consumers.back();
             }
         }
         internal_assert(out.defined());
@@ -686,6 +720,21 @@ Func Stensor::stensor_realize_wrapper(Starget t) {
         FindVars fv(env);
         FindProducerForOutput fpo(env);
         RealizeOnFPGA fpga(fv, fpo);
+        std::map<string, Function> new_env{};
+        for (const auto &p : env)
+            new_env.emplace(p.first, p.second.function());
+        const auto call_graph = build_reverse_call_graph(build_call_graph(new_env));
+        for (auto &c : schains)
+            if (c.is_output) {
+                const auto outf_name = c.outf.function().name();
+                c.write_to_host = call_graph.at(outf_name).empty() ||
+                    std::any_of(
+                        call_graph.at(outf_name).begin(),
+                        call_graph.at(outf_name).end(),
+                        [&](const string &func_name) {
+                            return new_env[func_name].place() == Place::Host;
+                        });
+            }
         f = fpga.realize();
         internal_assert(f.function().place() == Place::Host);
     }

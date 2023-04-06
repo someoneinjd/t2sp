@@ -1,3 +1,4 @@
+#!/bin/sh
 set -x
 
 # BASH_SOURCE is this script

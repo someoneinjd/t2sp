@@ -118,10 +118,10 @@ public:
             } else if (expr.type().is_complex()) {
                 if (expr.type().bits() == 64) {
                     complex32_t zero = complex32_t(0.0f, 0.0f);
-                    expr = cast(expr.type(), Expr(zero.to_bits()));
+                    expr = cast(expr.type(), Expr(complex_to_bits(zero)));
                 } else {
                     complex64_t zero = complex64_t(0.0, 0.0);
-                    expr = cast(expr.type(), Expr(zero.to_bits()));
+                    expr = cast(expr.type(), Expr(complex_to_bits(zero)));
                 }
             } else {
                 expr = cast(expr.type(), Expr(0));
