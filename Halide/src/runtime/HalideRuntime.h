@@ -1,7 +1,6 @@
 #ifndef HALIDE_HALIDERUNTIME_H
 #define HALIDE_HALIDERUNTIME_H
 
-#include <complex>
 #ifndef COMPILING_HALIDE_RUNTIME
 #include <stdbool.h>
 #include <stddef.h>
@@ -1978,16 +1977,6 @@ HALIDE_ALWAYS_INLINE halide_type_t halide_type_of<int32_t>() {
 template<>
 HALIDE_ALWAYS_INLINE halide_type_t halide_type_of<int64_t>() {
     return halide_type_t(halide_type_int, 64);
-}
-
-template<>
-HALIDE_ALWAYS_INLINE halide_type_t halide_type_of<std::complex<float>>() {
-    return halide_type_t(halide_type_complex, 64);
-}
-
-template<>
-HALIDE_ALWAYS_INLINE halide_type_t halide_type_of<std::complex<double>>() {
-    return halide_type_t(halide_type_complex, 128);
 }
 
 #endif

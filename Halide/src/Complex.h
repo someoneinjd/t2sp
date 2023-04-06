@@ -148,4 +148,15 @@ typedef std::complex<double> complex64_t;
 static_assert(sizeof(complex32_t) == 8, "complex32_t should occupy eight bytes");
 static_assert(sizeof(complex64_t) == 16, "complex64_t should occupy sixteen bytes");
 }  // namespace Halide
+
+template<>
+HALIDE_ALWAYS_INLINE halide_type_t halide_type_of<std::complex<float>>() {
+    return halide_type_t(halide_type_complex, 64);
+}
+
+template<>
+HALIDE_ALWAYS_INLINE halide_type_t halide_type_of<std::complex<double>>() {
+    return halide_type_t(halide_type_complex, 128);
+}
+
 #endif
