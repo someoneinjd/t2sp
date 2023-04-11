@@ -26,20 +26,20 @@ using namespace Halide;
 
 int main()
 {
-    // Dependences
-    #define P                         iii,       ii,      kk,      k,   i
-    #define P_iii_minus_1             iii-1,     ii,      kk,      k,   i
-    #define P_kk_minus_1_iii_plus_1   iii+1,     ii,      kk-1,    k,   i
-    #define P_kk_minus_1_ii_plus_1    iii-III+1, ii+1,    kk-1,    k,   i
-    #define P_Out_1                                       kk,      k,   i
-    #define P_Out_2                   iii,       ii,               k,   i
+    // Dependences for a single thread
+    #define P                         vi,       iii,    kkk,    ii,  kk,  i,  k
+    #define P_vi_minus_1              vi-1,     iii,    kkk,    ii,  kk,  i,  k
+    #define P_kkk_minus_1_vi_plus_1   vi+1,     iii,    kkk-1,  ii,  kk,  i,  k
+    #define P_kkk_minus_1_iii_plus_1  vi-VI+1,  iii+1,  kkk-1,  ii,  kk,  i,  k
+    #define P_top                                       kkk,    ii,  kk,  i,  k
+    #define P_right                   vi,       iii,            ii,  kk,  i,  k
 
     // Linearized addresses
-    #define total_i         (iii + III * ii + III * II * i)
-    #define total_k         (kk + KK * k)
+    #define total_i           (vi + VI*iii + VI*III*ii + VI*III*II*i)
+    #define total_k           (kkk + KKK*kk + KKK*KK*k)
 
     // Outer loop bounds, which are determined by input sizes
-    #define I               (A.dim(1).extent() / (III * II))
+    #define I               (A.dim(1).extent() / (VI * III * II))
     #define K               (A.dim(0).extent() / (KKK * KK))
 
     // Type of the data to process in C and T2S
@@ -47,55 +47,77 @@ int main()
     #define TTYPE Float(32)
 
     // Inputs
-    Param<float> Alpha, Beta;
-    ImageParam A("A", TTYPE, 2), X("X", TTYPE, 1), Y("Y", TTYPE, 1);
+    ImageParam A("A", TTYPE, 2), X("X", TTYPE, 1);
 
-    // UREs
-    Var iii("iii"), kk("kk"), ii("ii"), k("k"), i("i");
-    URE uA("uA", TTYPE, {P}), uX("uX", TTYPE, {P}), uY("uY", TTYPE, {P}), uZ("uZ", TTYPE, {P});
-    URE V_1("V_1"), V_2("V_2"), Out("Out");
-    uA(P) = A(total_k, total_i);
-    uX(P) = select(iii == 0, X(total_k), uX(P_iii_minus_1));
-    uZ(P) = select(kk == 0 || (iii == III-1 && ii == II-1), 0,
-                    select(iii == III-1, uZ(P_kk_minus_1_ii_plus_1),
-                                         uZ(P_kk_minus_1_iii_plus_1))
-                  ) + uA(P) * uX(P);
-    V_1(P_Out_1) = select(iii == 0 && ii == 0, uZ(P));
-    // V_2(P_Out_2) = select(kk == KK-1, uZ(P));
+    // UREs for MV
+    Var vi("vi"), iii("iii"), kkk("kkk"), kk("kk"), ii("ii"), k("k"), i("i");
+    URE fX("fX", TTYPE, {P}), MV("MV", TTYPE, {P});
+    URE TopOut("TopOut"), RightOut("RightOut");
+    fX(P) = select(vi == 0, X(total_k), fX(P_vi_minus_1));
+    MV(P) = select(kkk == 0 || (vi == VI-1 && iii == III-1), 0,
+                    select(vi == VI-1, MV(P_kkk_minus_1_iii_plus_1),
+                                       MV(P_kkk_minus_1_vi_plus_1))
+                  ) + A(total_k, total_i) * fX(P);
+    TopOut(P_top) = select(vi == 0 && iii == 0, MV(P));
+    RightOut(P_right) = select(kkk == KKK-1, select(vi == 0 && iii == 0, 0, MV(P)));
 
-    // Put all the UREs inside the same loop nest of X.
-    uA.merge_ures(uX, uZ, V_1);
-
-    // Explicitly set the loop bounds
-    uA.set_bounds(iii, 0, III)
+    fX.merge_ures(MV, TopOut, RightOut);
+    fX.set_bounds(iii, 0, III, kkk, 0, KKK)
       .set_bounds(ii,  0, II,  kk,  0, KK)
-      .set_bounds(i,   0, I,   k,   0, K);
-    V_1.set_bounds(kk, 0, KK);
+      .set_bounds(i,   0, I,   k,   0, K)
+      .set_bounds(vi,  0, VI);
+    fX.space_time_transform(vi);
+    // fX.blocks(i, k).threads(ii, kk);
 
-    // Create a systolic array
-    uA.space_time_transform(iii);
+    Var lin_k("lin_k"), lin_i("lin_i"), blk_i("blk_i"), all_i("all_i");
+    Func Scol("Scol", Place::Device), Srow("Srow", Place::Device);
+    Scol(lin_i, kk, i, k) = RightOut(lin_i % VI, (lin_i/VI) % III, lin_k/(VI*III), kk, i, k);
+    Srow(lin_k, ii, i, k) = TopOut(lin_k % KKK, ii, lin_k / KKK, i, k);
+    Scol.set_bounds(lin_i, 0, VI*III*II, i, 0, I)
+        .set_bounds(kk, 0, KK, k, 0, K);
+    Srow.set_bounds(lin_k, 0, KKK*K, k, 0, K)
+        .set_bounds(ii, 0, II, i, 0, I);
 
-    // GPU can have many threads running in parallel.
-#ifdef GPU
-    uA.gpu_blocks(j, i).gpu_threads(jj, ii);
-#endif
+    Func blkReduce("blkReduce", Place::Device);
+    RDom blkRow(0, KKK*KK, 0, II), blkCol(0, VI*III*II, 0, KK);
+    blkReduce(blk_i, i, k) = 0.0f;
+    blkReduce(blkCol.x + blkCol.y*KKK, i, k) += Scol(blkCol.x, blkCol.y, i, k);
+    blkReduce(blkRow.x + blkRow.y*III*VI, i, k) += Srow(blkRow.x, blkRow.y, i, k);
+    blkReduce.set_bounds(blk_i, 0, VI*III*II+KKK*KK-1)
+             .set_bounds(i, 0, I, k, 0, K);
+    // blkReduce.blocks(i, k);
 
     // I/O network
-    Stensor aLoader("aLoader", DRAM);
-    A >> aLoader >> FIFO(256);
+    // Stensor DA(DRAM), DX(DRAM), SA(SRAM), SX(SRAM);
+    // Stensor ST(SRAM), SR(SRAM), DP(DRAM), psum, Y;
+    // A >> DA.out(vi) >> SA.scope(i).out(vi) >> fX;
+    // X >> DX.out(vi) >> SX.scope(i).out(vi) >> fX;
+    // TopOut >> Srow(kkk+KKK*kk, ii).scope(i) >> blkReduce;
+    // RightOut >> Scol(vi+VI*iii+VI*III*ii, kk).scope(i) >> blkReduce;
+    // blkReduce >> Dpsum >> allReduce >> Y(all_i-Ku);
+    Func A_serializer("A_serializer", Place::Host), DA("DA", Place::Device);
+    fX.isolate_producer_chain(A, A_serializer, DA);
 
-    Stensor xLoader("xLoader", DRAM), xFeeder("xFeeder", SRAM);
-    X >> xLoader >> FIFO(256)
-      >> xFeeder.scope(k) >> FIFO(256);
+    Func X_serializer("X_serializer", Place::Host), DX("DX", Place::Device), SX("SX", Place::Device);
+    fX.isolate_producer_chain(X, X_serializer, DX, SX);
+    DX.remove(vi, iii, ii);
+    X_serializer.remove(vi, iii, ii, i);
+    SX.buffer(DX, i);
 
-    Stensor unloader_1("unloader_1", DRAM), deserializer_1("deserializer_1");
-    V_1 >> FIFO(256) >> unloader_1 >> deserializer_1(total_i);
+    Func Dpsum("Dpsum", Place::Device);
+    blkReduce.isolate_consumer_chain(Dpsum);
 
-    // Stensor unloader_2("unloader_2", DRAM), deserializer_2("deserializer_2");
-    // V_2 >> FIFO(256) >> unloader_2 >> deserializer_2(total_i);
+    Func allReduce("allReduce", Place::Host);
+    RDom blkDim(0, VI*III*II+KKK*KK-1, 0, I, 0, K);
+    allReduce(all_i) = 0.0f;
+    allReduce(blkDim.x + VI*III*II*blkDim.y + KKK*KK*blkDim.z) += Dpsum(blkDim.x, blkDim.y, blkDim.z);
+    allReduce.set_bounds(all_i, 0, VI*III*II*I+KKK*KK*K-1);
 
     // Compile the kernel to an FPGA bitstream, and expose a C interface for the host to invoke
-    deserializer_1.compile_to_host("gbmv-interface", { A, X }, "gbmv", IntelFPGA);
+    Target acc = get_host_target();
+    acc.set_feature(Target::IntelFPGA);
+    acc.set_feature(Target::EnableSynthesis);
+    allReduce.compile_to_host("gbmv-interface", { A, X }, "gbmv", acc);
     printf("Success\n");
 
     return 0;

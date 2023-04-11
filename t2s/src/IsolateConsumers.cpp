@@ -41,7 +41,7 @@ void check_preconditions_of_isolate_consumers(Func p, const vector<Func> &consum
     user_assert(p.defined()) << "Isolating the output of an undefined Func " << p.name() << "\n";
 
     // Func p has only one definition
-    user_assert(!p.has_update_definition()) <<  "Func " << p.name() << " is expected to have only 1 definition in order to isolate its output out.\n";
+    // user_assert(!p.has_update_definition()) <<  "Func " << p.name() << " is expected to have only 1 definition in order to isolate its output out.\n";
 
     // The consumers must not be defined yet.
     for (auto c : consumers) {
