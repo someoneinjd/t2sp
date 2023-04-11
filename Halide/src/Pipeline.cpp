@@ -355,7 +355,7 @@ void Pipeline::compile_to_oneapi(const vector<Argument> &args,
     }
     else if (target.has_feature(Target::IntelFPGA)) {
         auto ext = get_output_info(target);
-        m.compile(single_output( fn_name + ext.at(Output::oneapi_fpga).extension, m, Output::oneapi_fpga));
+        m.compile(single_output( fn_name + ext.at(Output::oneapi).extension, m, Output::oneapi));
     }
 }
 
