@@ -72,9 +72,39 @@ Func &Func::merge_ures(std::vector<Func> &ures, bool isolate) {
     }
     this->compute_root();
 
-    for (auto it = ures.rbegin(); it != ures.rend() - 1; it++) {
+    const vector<Dim> &all_dims = func.definition().schedule().dims();
+    size_t num_outputs = 0;
+    for (auto f : ures) {
+        // Set the URE with incomplete arguments to be the output
+        const auto &cur_dims = f.func.definition().schedule().dims();
+        if (cur_dims.size() == all_dims.size()) {
+            f.func.definition().schedule().is_output() = false;
+            user_assert(num_outputs == 0)
+                << "Funcs with incomplete arguments should be put at the end of merge_ures\n";
+        } else {
+            f.func.definition().schedule().is_output() = true;
+            f.func.definition().schedule().is_extended_ure() = true;
+            num_outputs += 1;
+        }
+    }
+    // If no URE has incomplete arguments, treat the last one to be the output
+    if (!num_outputs) {
+        ures.back().func.definition().schedule().is_output() = true;
+    }
+
+    Func last_non_output_func = *this;
+    if (ures.size() > num_outputs) {
+        last_non_output_func = *(ures.rbegin() + num_outputs);
+    }
+    // Merge output Func to the last non-output URE
+    for (auto it = ures.rbegin(); it != ures.rbegin()+num_outputs; it++) {
+        it->compute_with(last_non_output_func, innermost_loop);
+    }
+    if (ures.size() > num_outputs) {
         // Use compute_with iteratively to achieve merge_ure
-        it->compute_with(*(it + 1), innermost_loop);
+        for (auto it = ures.rbegin()+num_outputs; it != ures.rend()-1; it++) {
+            it->compute_with(*(it + 1), innermost_loop);
+        }
     }
 
     Func& first = ures[0];
@@ -93,20 +123,13 @@ Func &Func::merge_ures(std::vector<Func> &ures, bool isolate) {
     }
 
     // Set the last URE to be the output
-    for (auto f : merge_ures_vector) {
-        f.func.definition().schedule().is_output() = false;
-    }
-    ures.back().func.definition().schedule().is_output() = true;
-
-    const vector<Dim> &output_dims = ures.back().func.definition().schedule().dims();
-    const vector<Dim> &all_dims = func.definition().schedule().dims();
-    // Exetended ure syntax
-    if (output_dims.size() != all_dims.size()) {
-        ures.back().function().definition().schedule().is_extended_ure() = true;
-    }
-    if (!isolate)
+    // for (auto f : merge_ures_vector) {
+    //     f.func.definition().schedule().is_output() = false;
+    // }
+    // ures.back().func.definition().schedule().is_output() = true;
+    if (!isolate) {
         CheckFuncConstraints::check_merge_ures(*this, ures);
-
+    }
     debug(4) << "After merging " << this->name() << " with " << names_to_string(ures)   << ":\n"
              << to_string(*this, false, true) << "\n";
 
