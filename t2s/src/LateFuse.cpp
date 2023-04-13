@@ -33,32 +33,24 @@ namespace Internal {
 // Get the channel to be replaced by the registers
 class GetReplacedChannel : public IRVisitor {
     using IRVisitor::visit;
-    set<string> producers;
-    string consumer;
+    string result_func_name;
     set<string> read_channels;
     set<string> write_channels;
-    bool is_in_producer;
-    bool is_in_merged_func;
+    bool is_in_result_func;
 public:
-    GetReplacedChannel(const string &producer, const string &consumer, const std::map<std::string, Function> &env)
-        : consumer{consumer}, is_in_producer{false}, is_in_merged_func{false} {
-            producers.insert(producer);
-            if (env.at(producer).has_merged_defs())
-                for (const auto &name : env.at(producer).merged_func_names())
-                    producers.insert(name);
-        }
+    GetReplacedChannel(const string &result_func_name)
+        :result_func_name{result_func_name}, read_channels{}, write_channels{}, is_in_result_func{false} {}
     void visit(const ProducerConsumer *op) override {
-        if (producers.find(op->name) != producers.end() && not op->is_producer) {
-            is_in_producer = true;
-        } else if (op->name == consumer && op->is_producer && is_in_producer) {
-            is_in_merged_func = true;
-        } else if (op->name == consumer && not op->is_producer) {
-            is_in_merged_func = false;
+        if (op->name == result_func_name && op->is_producer) {
+            is_in_result_func = true;
+            op->body.accept(this);
+            is_in_result_func = false;
+        } else {
+            IRVisitor::visit(op);
         }
-        op->body.accept(this);
     }
     void visit(const Call *op) override {
-        if (is_in_merged_func) {
+        if (is_in_result_func) {
             if (op->is_intrinsic(Call::read_channel)) { 
                 internal_assert(op->args[0].as<StringImm>());
                 read_channels.insert(op->args[0].as<StringImm>()->value);
@@ -70,17 +62,13 @@ public:
         }
     }
     string get_replaced_channel() const {
-        if (producers.size() == 1) {
-            return *producers.begin();
-        } else {
-            vector<string> res{};
-            std::set_intersection(
-                    write_channels.begin(), write_channels.end(), 
-                    read_channels.begin(), read_channels.end(),
-                    std::back_inserter(res));
-            internal_assert(res.size() == 1) << "There is one and only one channel that can be replaced";
-            return remove_postfix(res[0], ".channel");
-        }
+        vector<string> res{};
+        std::set_intersection(
+                write_channels.begin(), write_channels.end(), 
+                read_channels.begin(), read_channels.end(),
+                std::back_inserter(res));
+        internal_assert(res.size() == 1) << "There is one and only one channel that can be replaced";
+        return remove_postfix(res[0], ".channel");
     }
 };
 
@@ -223,7 +211,6 @@ class PreprocessBeforeFusing: public IRMutator {
 public:
     Stmt fused_body;
     Stmt buffer_stmt;
-
     PreprocessBeforeFusing(Function f, std::string v, std::map<std::string, Range> &loop_info) 
                            : fuse_func(f), fuse_level(v), loop_info(loop_info) {
     }
@@ -261,7 +248,7 @@ public:
 }; 
 
 
-// Get the shift registers' name
+// Get the shift registers' name. 
 class GetRegName : public IRVisitor {
     using IRVisitor::visit;
     string channel_name;
@@ -290,7 +277,7 @@ class ReplaceChannelsWithFlattenedRegs : public IRMutator {
     using IRMutator::visit;
     string reg_name;
     string channel_name;
-    string consumer_name;
+    string result_func_name;
     bool contain_write_or_read_regs;
 
     struct kernel_info {
@@ -318,10 +305,11 @@ class ReplaceChannelsWithFlattenedRegs : public IRMutator {
     };
 
 public:
-    ReplaceChannelsWithFlattenedRegs(const string &reg_name, const string &channel_name, const string &consumer_name)
+    ReplaceChannelsWithFlattenedRegs(const string &reg_name, const string &channel_name,
+                                     const string &result_func_name)
         : reg_name{reg_name}, channel_name{channel_name},
-          consumer_name{consumer_name}, contain_write_or_read_regs{false}, 
-          kernel_infos{} {}
+          result_func_name{result_func_name},
+          contain_write_or_read_regs{false}, kernel_infos{} {}
 
     Stmt visit(const Realize *op) override {
         if (op->name == reg_name) {
@@ -330,7 +318,7 @@ public:
                     op->memory_type, op->bounds, op->condition, body);
             body = Realize::make(reg_name, op->types,
                     op->memory_type, op->bounds, op->condition, body);
-            return Realize::make("addr.temp", {Int(32)}, MemoryType::Auto, {}, op->condition, std::move(body));
+            return body; 
         } 
         return IRMutator::visit(op);
     }
@@ -375,7 +363,7 @@ public:
     }
 
     Stmt visit(const For *op) override {
-        if (starts_with(op->name, consumer_name) and ends_with(op->name, ".run_on_device")) {
+        if (starts_with(op->name, result_func_name) and ends_with(op->name, ".run_on_device")) {
             auto body = mutate(op->body);
             for (auto iter = kernel_infos.rbegin(); iter != kernel_infos.rend(); iter++) {
                 body = For::make(iter->name, iter->min,
@@ -421,22 +409,30 @@ class LateFuse: public IRMutator {
     bool fuse_flag;
     std::string fuse_level;
     Stmt fused_body;
+    bool add_addr_temp;
 
 public:
-    LateFuse(bool fuse_flag, std::string v, Stmt fused_body) 
-             : fuse_flag(fuse_flag), fuse_level(v), fused_body(fused_body) {
+    LateFuse(bool fuse_flag, std::string v, Stmt fused_body, bool add_addr_temp) 
+             : fuse_flag(fuse_flag), fuse_level(v), fused_body(fused_body), add_addr_temp(add_addr_temp) {
     }
 
     Stmt visit(const For *op) override {
         if (starts_with(op->name, fuse_level)) {
-            Stmt body_s = Block::make(Provide::make("addr.temp", {IntImm::make(Int(32), 0)}, {}), mutate(op->body));
-            fused_body = Block::make(Provide::make("addr.temp", {IntImm::make(Int(32), 0)}, {}), fused_body);
+            Stmt body_s;
+            if (add_addr_temp) {
+                body_s = Block::make(Provide::make("addr.temp", {IntImm::make(Int(32), 0)}, {}), mutate(op->body));
+                fused_body = Block::make(Provide::make("addr.temp", {IntImm::make(Int(32), 0)}, {}), fused_body);
+            } else {
+                body_s = mutate(op->body);
+            }
             Stmt block_s;
             if (fuse_flag) {
                 block_s = Block::make(body_s, fused_body);
             } else {
                 block_s = Block::make(fused_body, body_s);
             }
+            if (add_addr_temp)
+                block_s = Realize::make("addr.temp", {Int(32)}, MemoryType::Auto, {}, const_true(), std::move(block_s));
             Stmt for_s = For::make(op->name, op->min, op->extent,
                                    op->for_type, op->device_api, block_s);
             return for_s;
@@ -555,35 +551,68 @@ Stmt do_late_fuse(Stmt stmt, const std::map<std::string, Function> &env) {
     for (auto &pair : env) {
         const std::string late_fuse_level = pair.second.schedule().late_fuse_params().late_fuse_level;
         if (!late_fuse_level.empty()) {
-            /* A.late_fuse(B, i) */
-            /* original IR */
-            /* 
-            realize channel ch[] {
-                producer A {                  // kernel A
-                    for  i, j, k
-                        write channel ch[]
-                }
-                consumer A {
-                    producer B {              // kernel B
-                        for i, j, k
-                            read channel ch[]
-                    }
-                }
-            }
-            */
+            /*
+             * Take this as an example
+             *     A.late_fuse(B, i)
+             * In the current implementation we can only handle two cases:
+             * 
+             *     1: one kernel is isolated from the other as producer / consumer.
+             *     2: A and B are all URE, none of them are generate by
+             *        isolate_consumer / isolate_producer. In addition,
+             *        we require that the value written to the channel 
+             *        in the producer kernel must come from a shift register
+             *
+             * Original IR for Case 1                   Orginial IR for Case 2
+             *
+             * realize channel ch[] {                   realize channel ch[], shreg a_reg[dim] {
+             *     producer A {                             produce A {
+             *         for i, j, k                              for i, j, k
+             *             write channel ch[]                       write a_reg[] to channel ch[]
+             *     }                                        }
+             *     consumer A {                             consumer A {
+             *         producer B {                             producer B {
+             *             for i, j, k                              for i, j, k
+             *                 read channel ch[]                        read channel ch[]
+             *         }                                        }
+             *     }                                        }
+             * }                                        }
+             */
             std::map<std::string, Range> loop_info;
             Stmt fused_body;
             PreprocessBeforeFusing processor(pair.second, late_fuse_level, loop_info);
             stmt = processor.mutate(stmt);
-            const auto original_name = extract_first_token(late_fuse_level);
-            const auto producers = call_graph.at(original_name);
-            bool fuse_flag = not (std::find(producers.begin(), producers.end(), pair.first) != producers.end()
-                          || pair.second.isolated_from_as_producer() == original_name);
+            const auto extract_late_fuse_name = extract_first_token(late_fuse_level);
+
+            const auto contains = [](const std::vector<std::string> &i, const std::string &v) {
+                return std::find(i.begin(), i.end(), v) != i.end();
+            };
+            // Case 2: The kernels to be merged are all URE.
+            //         None of them are generated by isolate_consumer / isolate_producer.
+            // In this case, producer_first and consumer_first should be one true and one false.
+            // If they are all false, it indicates that we are dealing with case 1.
+
+            // producer.late_fuse(consumer)
+            const bool producer_first = contains(call_graph.at(extract_late_fuse_name), pair.first) &&
+                                        pair.second.isolated_from_as_producer() != extract_late_fuse_name &&
+                                         (!env.at(extract_late_fuse_name).has_merged_defs() ||
+                                          !contains(env.at(extract_late_fuse_name).merged_func_names(),
+                                                    pair.second.isolated_from_as_producer()));
+
+            // consumer.late_fuse(producer)
+            const bool consumer_first = contains(call_graph.at(pair.first), extract_late_fuse_name) &&
+                                        pair.second.isolated_from_as_consumer() != extract_late_fuse_name &&
+                                        (!env.at(extract_late_fuse_name).has_merged_defs() ||
+                                         !contains(env.at(extract_late_fuse_name).merged_func_names(),
+                                                   pair.second.isolated_from_as_consumer()));
+
+            // Case 1: At least one of the kernels to be merged is not a URE,
+            //         it is generated by isolate_consumer / isolate_producer
+            const bool fuse_flag = pair.second.isolated_from_as_producer() != extract_late_fuse_name;
             
-            if (!fuse_flag) {
-                debug(3) << "Fuse producer " << pair.first << " with consumer " << extract_first_token(late_fuse_level) <<"\n";
+            if (producer_first || (!consumer_first && !fuse_flag)) {
+                debug(3) << "Fuse producer " << pair.first << " with consumer " << extract_late_fuse_name << "\n";
             } else {
-                debug(3) << "Fuse producer " << extract_first_token(late_fuse_level) << " with consumer " << pair.first <<"\n";
+                debug(3) << "Fuse producer " << extract_late_fuse_name << " with consumer " << pair.first <<"\n";
             }
 
             Region bounds;                   // bounds for realize of the registers
@@ -594,53 +623,76 @@ Stmt do_late_fuse(Stmt stmt, const std::map<std::string, Function> &env) {
             }
 
 
-            LateFuse fuse(fuse_flag, late_fuse_level, processor.fused_body);
-            stmt = fuse.mutate(stmt);
-            /*
-            realize channel ch[] {
-                producer B {
-                    for i
-                        for j, k
-                            write channel ch[]
-                        for j, k
-                            read channel ch[]
-                }
+            if (producer_first || consumer_first) { // Case 2
+                LateFuse fuse(consumer_first, late_fuse_level, processor.fused_body, true);
+                stmt = fuse.mutate(stmt);
+            } else { // Case 1
+                LateFuse fuse(fuse_flag, late_fuse_level, processor.fused_body, false);
+                stmt = fuse.mutate(stmt);
             }
-            */
+            /*
+             * After merging
+             *
+             * IR for Case 1                            IR for Case 2
+             *
+             * realize channel ch[] {                   realize channel ch[], shreg a_reg[dim] {
+             *     producer B {                             produce B {
+             *         for i                                    for i
+             *             for j, k                                 int addr
+             *                 write channel ch[]                   addr = 0
+             *             for j, k                                 for j, k
+             *                 read channel ch[]                        write a_reg[] to channel ch[]
+             *     }                                                addr = 0
+             * }                                                    for j, k
+             *                                                          read channel ch[]
+             *                                              }
+             *                                          }
+             */
 
             string channel_name{};
-            if (!fuse_flag) {
-                GetReplacedChannel finder{pair.second.name(), original_name, env};
+            if (producer_first || consumer_first) { // Case 2
+                // In this case, the channel name may not be either A or B,
+                // but the channel should be both written and read in the merged kernel B.
+                GetReplacedChannel finder{extract_late_fuse_name};
                 stmt.accept(&finder);
                 channel_name = finder.get_replaced_channel();
-            } else {
-                GetReplacedChannel finder{pair.second.isolated_from_as_consumer(), pair.first, env};
-                stmt.accept(&finder);
-                channel_name = finder.get_replaced_channel();
+            } else { // Case 1
+                channel_name = fuse_flag ? pair.second.isolated_from_as_consumer() : pair.first; 
             }
 
+            // Find the shift reg a_reg in Case 2
             GetRegName finder{channel_name};
             stmt.accept(&finder);
 
-            if (finder.reg_name.empty()) {
+            if (finder.reg_name.empty()) { // Case 1
                 ReplaceChannelsWithRegs replacer(channel_name, bounds, access_args, processor.buffer_stmt);
                 stmt = replacer.mutate(stmt);
-            } else {
-                ReplaceChannelsWithFlattenedRegs replacer(finder.reg_name, channel_name, fuse_flag ? pair.first : original_name);
+            } else if (producer_first || consumer_first){ // Case 2
+                ReplaceChannelsWithFlattenedRegs replacer(finder.reg_name, channel_name, extract_late_fuse_name);
+                stmt = replacer.mutate(stmt);
+            } else { // Case 1
+                ReplaceChannelsWithRegs replacer(channel_name, bounds, access_args, processor.buffer_stmt);
                 stmt = replacer.mutate(stmt);
             }
 
             /*
-            realize shreg r[][] {
-                producer B {
-                    for i
-                        for j, k
-                            write reg r[][]
-                        for j, k
-                            read reg r[][]
-                }
-            }
-            */
+             * After replacing channel
+             * 
+             * IR for Case 1                            IR for Case 2 
+             *
+             * realize shreg r[] {                      realize shreg a_channel_reg[dim], shreg a_reg[dim] {  
+             *     producer B {                             producer B {
+             *         for i                                    for i
+             *             for j, k                                 int addr
+             *                 write reg r[]                        addr = 0
+             *             for j, k                                 for j, k
+             *                 read reg r[]                             write a_reg[] to a_channel_reg[addr++]
+             *     }                                                addr = 0
+             * }                                                    for j, k
+             *                                                          read a_channel_reg[addr++]
+             *                                              }
+             *                                          }
+             */
             int v_outs = pair.second.schedule().late_fuse_params().v_outs;
 
             if (v_outs > 1) {
