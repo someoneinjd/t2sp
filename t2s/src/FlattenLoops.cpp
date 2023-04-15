@@ -1101,6 +1101,7 @@ public:
             if (!loop_enclosing_mem_channel_access.empty() && !on_device) {
                 // Allocate the counter for host function
                 loop_enclosing_mem_channel_access.clear();
+                body = Block::make(Provide::make("addr.temp", {0}, {}), body); // set the counter to zero
                 body = Allocate::make("addr.temp", Int(32), MemoryType::Auto, {}, const_true(), body);
             }
         }
@@ -1166,6 +1167,7 @@ public:
 
         if (ends_with(op->name, ".run_on_device") && !loop_enclosing_mem_channel_access.empty()) {
             // For device function, allocate the counter inside the run_on_device loop
+            body = Block::make(Provide::make("addr.temp", {0}, {}), body); // set the counter to zero
             body = Realize::make("addr.temp", {Int(32)}, MemoryType::Auto, {}, const_true(), body);
         }
         Stmt s = For::make(op->name, op->min, op->extent, op->for_type, op->device_api, body);
