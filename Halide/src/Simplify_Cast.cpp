@@ -16,7 +16,7 @@ Expr Simplify::visit(const Cast *op, ExprInfo *bounds) {
         const Ramp *ramp_value = value.as<Ramp>();
         double f = 0.0;
         int64_t i = 0;
-        uint64_t u = 0;
+        __uint128_t u = 0;
         if (call && (call->is_intrinsic(Call::indeterminate_expression) ||
                      call->is_intrinsic(Call::signed_integer_overflow))) {
             if (call->is_intrinsic(Call::indeterminate_expression)) {
@@ -55,18 +55,20 @@ Expr Simplify::visit(const Cast *op, ExprInfo *bounds) {
             // int -> float
             return FloatImm::make(op->type, safe_numeric_cast<double>(i));
         } else if (op->type.is_int() &&
-                   const_uint(value, (__uint128_t *)&u)) {
+                   const_uint(value, &u)) {
             // uint -> int
             // Recursively call mutate just to set the bounds
-            return mutate(IntImm::make(op->type, safe_numeric_cast<int64_t>(u)), bounds);
+            auto tmp_u = static_cast<uint64_t>(u);
+            return mutate(IntImm::make(op->type, safe_numeric_cast<int64_t>(tmp_u)), bounds);
         } else if (op->type.is_uint() &&
-                   const_uint(value, (__uint128_t *)&u)) {
+                   const_uint(value, &u)) {
             // uint -> uint
             return UIntImm::make(op->type, u);
         } else if (op->type.is_float() &&
-                   const_uint(value, (__uint128_t *)&u)) {
+                   const_uint(value, &u)) {
             // uint -> float
-            return FloatImm::make(op->type, safe_numeric_cast<double>(u));
+            auto tmp_u = static_cast<uint64_t>(u);
+            return FloatImm::make(op->type, safe_numeric_cast<double>(tmp_u));
         } else if (cast &&
                    op->type.code() == cast->type.code() &&
                    op->type.bits() < cast->type.bits()) {
