@@ -171,6 +171,13 @@ class DataRelaying : public IRMutator {
         return zero_dims;
     }
 
+    std::pair<Expr, Expr> get_arg_bound(Function func, size_t idx) {
+        auto var = alloc.args[idx].as<Variable>();
+        internal_assert(var);
+        string var_name = extract_last_token(var->name);
+        return func.get_bounds(var_name);;
+    }
+
     void get_flatten_loop_level() {
         Function func;
         internal_assert(function_is_in_environment(param.from_func, env, func));
@@ -178,18 +185,16 @@ class DataRelaying : public IRMutator {
         int loop_extents = 1;
         int required_extents = pipe_alloc.depth.as<IntImm>()->value - 1;
         // Find a loop level to flatten, under that loop there are sufficient cycles to drain all elements
-        for (size_t i = 0; i < alloc.args.size(); i++) {
-            auto var = alloc.args[i].as<Variable>();
-            internal_assert(var);
-            string var_name = extract_last_token(var->name);
+        size_t i = 0;
+        for (i = 0; i < alloc.args.size(); i++) {
             vector<int> all_zero_dims = get_zero_dims();
             bool is_zero_dims = std::find(all_zero_dims.begin(), all_zero_dims.end(), i) != all_zero_dims.end();
             // Only the zero_dims or the outermost const loops can be used to drain out elements
             if (is_zero_dims || int(i) > all_zero_dims.back()) {
-                auto ext_expr = func.get_bounds(var_name).second;
+                auto ext_expr = get_arg_bound(func, i).second;
                 user_assert(ext_expr.as<IntImm>())\
                     << "We need a loop with constant bound to find if there are enough cycles to drain the pipes. "
-                    << "Please set a constant bound for loop " << var_name << ".\n";
+                    << "Please set a constant bound instead of " << ext_expr << ".\n";
                 loop_extents *= ext_expr.as<IntImm>()->value;
                 if (loop_extents >= required_extents) {
                     internal_assert(i < alloc.args.size() -1);
@@ -198,6 +203,13 @@ class DataRelaying : public IRMutator {
                     flattened_loop = extract_last_token(loop_var->name);
                     break;
                 }
+            }
+        }
+        // For triangular loops, disable loop flattening
+        for (size_t j = i; j < alloc.args.size(); j++) {
+            auto min_expr = get_arg_bound(func, j).first;
+            if (!min_expr.as<IntImm>()) {
+                flattened_loop = "";
             }
         }
         user_assert(loop_extents >= required_extents)
@@ -432,7 +444,10 @@ public:
     Stmt visit(const ProducerConsumer *op) override {
         if (op->is_producer && op->name == param.from_func) {
             inside_pipe = true;
-            Stmt body = flatten_outer_loops(op->body, flattened_loop, env);
+            Stmt body = op->body;
+            if (!flattened_loop.empty()) {
+                body = flatten_outer_loops(op->body, flattened_loop, env);
+            }
             body = mutate(body);
             inside_pipe = false;
             return ProducerConsumer::make(op->name, op->is_producer, body);
@@ -623,6 +638,7 @@ Stmt relay_data(Stmt s, std::map<std::string, Function> &env, const map<string, 
 
             // The data layout is altered after data relaying, so we reorder loops in the consumer
             vector<string> loops = find_output_loops(relay_params[0].bank_loop, output_dims, alloc);
+
             // The unit loops are not accounted
             int num_unit_loops = 0;
             for (auto &a : dim_args) {

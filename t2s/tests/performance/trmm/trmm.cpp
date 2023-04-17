@@ -90,7 +90,8 @@ int main()
     // the producer can write the memory in any way, and the consumer can read the memory in any way, as long as the producer
     // has finished all its writing to the memory before the consumer starts reading the memory.
     // TODO: enable sending only the upper triangle
-    ASerializer.set_bounds(k, 0, K).remove(jjj, jj, j);
+    ASerializer.remove(jjj, jj, j);
+    ASerializer.bound_storage(k, 0, K/2+1);
     ALoader.remove(jjj, jj);
 
     // Input path of matrix B
