@@ -1331,11 +1331,39 @@ void CodeGen_Clear_OneAPI_Dev::CodeGen_Clear_OneAPI_C::visit(const Select *op) {
     // Thus we must guard the branch(es).
     // So first convert to if_then_else.
     user_assert(op->condition.type().is_scalar())
-        << "The OpenCL does not support branch divergence. "
+        << "The OneAPI does not support branch divergence. "
         << "Please do not perform vectorization if the value of a URE depends on the incoming data.\n";
+
     if (op->false_value.defined()) {
         string cond_id = print_expr(op->condition);
         string true_value = print_expr(op->true_value);
+
+        // select(iii == 0, read_channe(xxx), ...)
+        if (std::get<0>(in_unroll_loop)) {
+            if (const auto *e = op->condition.as<EQ>()) {
+                if (const auto *lhs = e->a.as<Variable>()) {
+                    if (lhs->name == std::get<1>(in_unroll_loop)
+                        && print_expr(e->b) == print_expr(std::get<2>(in_unroll_loop))) {
+                        if (const auto *call = op->true_value.as<Call>()) {
+                            if (call->is_intrinsic(Call::IntrinsicOp::read_channel)
+                                || call->is_intrinsic(Call::IntrinsicOp::read_channel_nb)) {
+                                auto *out = static_cast<std::ostringstream *>(&stream);
+                                user_warning << "Warning: We use static_cast instead of dynamic_cast "
+                                             << "to convert ostream to ostringstream due to no-rtti, "
+                                             << "make sure the conversion is legal\n";
+                                const auto str = out->str();
+                                out->seekp(std::get<3>(in_unroll_loop));
+                                const auto old_indent = indent;
+                                indent = std::get<4>(in_unroll_loop).indent;
+                                true_value = generate_intermediate_var(true_value);
+                                indent = old_indent;
+                                (*out) << str.substr(std::get<3>(in_unroll_loop));
+                            }
+                        }
+                    }
+                }
+            }
+        }
         string false_value = print_expr(op->false_value);
 
         char select_op[3];
@@ -2767,8 +2795,10 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::visit(const For *loop) {
                 iter.accept(this);
             }
         } else if (loop->for_type == ForType::PragmaUnrolled) {
+            in_unroll_loop = {true, loop->name, loop->min, stream.tellp(), get_indent()};
             stream << get_indent() << "#pragma unroll\n";
             CodeGen_Clear_C::visit(loop);
+            std::get<0>(in_unroll_loop) = false;
         } else {
             /*
             If not explicitly define a env variable(DELAYUNROLL or PRAGMAUNROLL), the unrolling strategy will be automatically
@@ -2789,7 +2819,7 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::visit(const For *loop) {
             For other cases, we simply insert the #pragma unroll directive before a loop. The offline compiler attempts to fully
             unroll the loop.
             */
-            user_assert(loop->for_type != ForType::Parallel) << "Cannot use parallel loops inside OpenCL kernel\n";
+            user_assert(loop->for_type != ForType::Parallel) << "Cannot use parallel loops inside OneAPI kernel\n";
             if (loop->for_type == ForType::Unrolled) {
                 CheckConditionalChannelAccess checker(this, loop->name);
                 loop->body.accept(&checker);
@@ -2820,8 +2850,10 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::visit(const For *loop) {
                         iter.accept(this);
                     }
                 } else {
+                    in_unroll_loop = {true, loop->name, loop->min, stream.tellp(), get_indent()};
                     stream << get_indent() << "#pragma unroll\n";
                     print_normal_loop(loop);
+                    std::get<0>(in_unroll_loop) = false;
                 }
             } else {
                 print_normal_loop(loop);
