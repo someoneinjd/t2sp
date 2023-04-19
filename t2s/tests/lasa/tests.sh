@@ -36,30 +36,15 @@ PATH_TO_SCRIPT="$( cd "$(dirname "$BASH_SOURCE" )" >/dev/null 2>&1 ; pwd -P )"
 cur_dir=$PWD
 cd $PATH_TO_SCRIPT
 
-if [ "$target" == "gen9" -o "$target" == "gen12" ]; then
-    # GPU: Verify correctness with ITER=1
-    ./test.sh $location gemm $target tiny hw
-    ./test.sh $location conv $target tiny hw
-    ./test.sh $location capsule $target tiny hw
-    ./test.sh $location pairhmm $target tiny hw
-    
-    # GPU: Test perf with ITER=100
-    ./test.sh $location gemm $target large hw
-    ./test.sh $location conv $target large hw
-    ./test.sh $location capsule $target large hw
-    ./test.sh $location pairhmm $target large hw
-elif [ "$target" == "a10" -o "$target" == "s10" ]; then
+if [ "$target" == "a10" -o "$target" == "s10" ]; then
     # FPGA: Verify correctness with tiny problem sizes and emulator
     ./test.sh $location gemm $target tiny emulator
-    ./test.sh $location conv $target tiny emulator
-    ./test.sh $location capsule $target tiny emulator
-    ./test.sh $location pairhmm $target tiny emulator
-    
-    # FPGA: Test perf with large matrices on real hardware
-    ./test.sh $location gemm $target large hw $3
-    ./test.sh $location conv $target large hw $3
-    ./test.sh $location capsule $target large hw $3
-    ./test.sh $location pairhmm $target large hw $3
+    ./test.sh $location trmm $target tiny emulator
+    ./test.sh $location syrk $target tiny emulator
+    ./test.sh $location syr2k $target tiny emulator
+    ./test.sh $location gemv $target tiny emulator
+    ./test.sh $location trmv $target tiny emulator
+    ./test.sh $location ger $target tiny emulator
 else
     echo "Performance testing on $target not supported yet in this release"
     exit

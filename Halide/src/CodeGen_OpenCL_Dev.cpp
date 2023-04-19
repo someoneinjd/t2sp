@@ -2758,7 +2758,8 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Realize *op) {
         }
         internal_assert(op->types.size() >= 2);
         for (size_t i=0; i<op->types.size()-1; i++) {
-            string buffer_name = op->name + '.' + std::to_string(i);
+            string name = op->name.substr(0, op->name.length()-std::string(".ibuffer").size());
+            string buffer_name = name + '.' + std::to_string(i) + ".ibuffer";
             stream << get_indent() << print_type(op->types[i+1]) << " ";
             auto num_banks = op->types[0].lanes();
             auto bank_bits = op->types[0].bits();
