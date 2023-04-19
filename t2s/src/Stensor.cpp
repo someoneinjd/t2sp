@@ -16,6 +16,7 @@
 *
 * SPDX-License-Identifier: BSD-2-Clause-Patent
 *******************************************************************************/
+#include "../../Halide/src/Simplify.h"
 #include "./DebugPrint.h"
 #include "./Utilities.h"
 #include "./PreprocessBeforeLower.h"
@@ -86,6 +87,13 @@ Stensor &operator>>(const vector<ImageParam> &im, Stensor &s) {
     return schains.back().stensors.back();
 }
 
+Stensor &operator>>(Stensor &s, Func &f) {
+    user_assert(s.schain_idx >= 0);
+    auto &sc = schains[s.schain_idx];
+    sc.outf = f;
+    return sc.stensors.back();
+}
+
 Stensor &operator>>(const ImageParam &im, Stensor &s) {
     return vector<ImageParam>{im} >> s;
 }
@@ -102,10 +110,12 @@ Stensor &operator>>(Func &f, Stensor &s) {
 
 struct FindVars
 {
-    Func ure;
-    vector<Var> free_vars;      // Variables appeared in the function definition
+    vector<Func> ures;
+    map<string, vector<Var>> all_free_vars;      // Variables appeared in the function definition
 
-    int var_index(Var v) {
+    int var_index(Var v, Func func = Func()) {
+        func = find_main_ure(func);
+        auto free_vars = all_free_vars[func.name()];
         for (size_t i = 0; i < free_vars.size(); i++) {
             if (v.same_as(free_vars[i]))
                 return i;
@@ -126,12 +136,12 @@ struct FindVars
         return this->exists(vector<Var>{v});
     }
 
-    vector<VarOrRVar> find_reuse_vars(string imp, Var scope) {
+    vector<VarOrRVar> find_reuse_vars(string imp, Var scope, Func func = Func()) {
         vector<VarOrRVar> reuse_vars;
         auto &used_vars = fuv.used_vars;
         internal_assert(used_vars.count(imp) > 0);
-
-        for (Var v : free_vars) {
+        func = find_main_ure(func);
+        for (Var v : all_free_vars[func.name()]) {
             if (v.same_as(scope)) {
                 break;
             }
@@ -143,14 +153,31 @@ struct FindVars
     }
 
     // Find the first var below/above the given var v whose extent is not 1
-    Var find_non_unit_var(Var v, bool above = true) {
-        size_t j = var_index(v);
+    Var find_non_unit_var(Var v, bool above = true, Func func = Func()) {
+        func = find_main_ure(func);
+        auto free_vars = all_free_vars[func.name()];
+        size_t j = var_index(v, func);
         while (j > 0 && j < free_vars.size()) {
-            auto bound = ure.function().get_bounds(free_vars[j].name());
+            auto bound = func.function().get_bounds(free_vars[j].name());
             if (!is_one(bound.second)) break;
             j = above ? j + 1 : j - 1;
         }
         return free_vars[j];
+    }
+
+    Func find_main_ure(Func func = Func()) {
+        if (!func.defined()) {
+            return ures[0];
+        }
+        for (auto u : ures) {
+            auto merged_funcs = u.function().definition().schedule().merged_funcs();
+            auto it = std::find_if(merged_funcs.begin(), merged_funcs.end(),
+                                   [&](Function &f){ return f.name() == func.name(); });
+            if (it != merged_funcs.end()) {
+                return u;
+            }
+        }
+        return func;
     }
 
     // Find variables appeared in the arguments of inputs
@@ -184,13 +211,13 @@ struct FindVars
             f.value().accept(&fuv);
             // UREs have the same iteration space, so we just check the one applied merge_ures
             if (f.function().has_merged_defs()) {
-                ure = f;
+                ures.push_back(f);
                 for (auto &d : f.function().definition().schedule().dims()) {
-                    free_vars.push_back(d.var);
+                    all_free_vars[f.name()].push_back(d.var);
                 }
             }
         }
-        user_assert(ure.defined())
+        user_assert(!ures.empty())
             << "Cannot find merged UREs. Do you forget to apply merge_ures?";
     }
 };
@@ -229,7 +256,7 @@ class RealizeOnFPGA
         if (c.stensors[0].position != HOST) {
             // The device stensors needs serialized inputs
             // If the host stensor is not specified, we automatically generate it
-            string host_name = c.imp[0].name() + "_serializer";
+            string host_name = c.imp[0].name() + (c.outf.defined() ? "_" + c.outf.name() : "") + "_serializer";
             Stensor s_host(host_name);
             s_host.schain_idx = c.stensors[0].schain_idx;
             c.stensors.insert(c.stensors.begin(), s_host);
@@ -243,9 +270,10 @@ class RealizeOnFPGA
                      << (place == Place::Host ? "Place::Host" : "Place::Device") << ");\n";
         }
         vector<FuncOrExpr> imp;
+        Func func = fv.find_main_ure(c.outf);
         std::copy(c.imp.begin(), c.imp.end(), std::back_inserter(imp));
-        fv.ure.isolate_producer_chain(imp, producers);
-        debug(1) << "T2X emits: " << fv.ure.name() << ".isolate_producer_chain("
+        func.isolate_producer_chain(imp, producers);
+        debug(1) << "T2X emits: " << func.name() << ".isolate_producer_chain("
                  << names_to_string(c.imp) << ", " << names_to_string(producers) << ");\n";
         return producers;
     }
@@ -271,7 +299,7 @@ class RealizeOnFPGA
 
     vector<Func> isolate_consumer(Schain &c) {
         vector<Func> consumers;
-        if (c.stensors.back().position != HOST) {
+        if (c.stensors.back().position == DRAM) {
             // If the host stensor is not specified, we automatically generate it
             string host_name = c.outf.name() + "_deserializer";
             Stensor s_host(host_name);
@@ -287,9 +315,8 @@ class RealizeOnFPGA
             debug(1) << "T2X emits: " << "Func " << s.name << "(\"" << s.name << "\", "
                      << (place == Place::Host ? "Place::Host" : "Place::Device") << ");\n";
         }
-        if (c.stensors[0].v_banks.size() == 1) {
+        if (c.stensors[0].v_banks.size() == 1 && c.stensors[0].position == REG) {
             // This is a special case where the single dimension banks are inside systolic array
-            user_assert(c.stensors[1].position == SMemType::DRAM);
             Var bank = c.stensors[0].v_banks[0];
             c.outf.value().accept(&fpo);
             c.outf.relay(fpo.producer, bank);
@@ -303,15 +330,17 @@ class RealizeOnFPGA
             c.stensors.erase(c.stensors.begin());
             consumers.erase(consumers.begin());
             // Vectorize all the subsequent stensors
-            c.outf.isolate_consumer_chain(consumers);
-            debug(1) << "T2X emits: " << c.outf.name() << ".isolate_consumer_chain("
-                     << names_to_string(consumers) << ");\n";
+            if (!consumers.empty()) {
+                c.outf.isolate_consumer_chain(consumers);
+                debug(1) << "T2X emits: " << c.outf.name() << ".isolate_consumer_chain("
+                        << names_to_string(consumers) << ");\n";
+            }
             for (auto &f : consumers) {
                 f.vectorize(bank);
                 debug(1) << "T2X emits: " << f.name() << ".vectorize("
                          << bank.name() << ");\n";
             }
-        } else if (c.stensors[0].v_banks.size() == 2) {
+        } else if (c.stensors[0].v_banks.size() == 2 && c.stensors[0].position == REG) {
             // The output stensor inherits loops of the output URE, generally less than that of systolic array
             // So we isolate the first consumer alone and apply space-time transform to regenerate loop structure,
             // then the subsequent stensors could be isolated based on that
@@ -328,6 +357,8 @@ class RealizeOnFPGA
             debug(1) << "T2X emits: " << first_func.name() << ".isolate_consumer_chain("
                      << names_to_string(other_cons) << ");\n";
         } else {
+            // Inherit the PE array
+            internal_assert(consumers.size() == c.stensors.size());
             c.outf.isolate_consumer_chain(consumers);
             debug(1) << "T2X emits: " << c.outf.name() << ".isolate_consumer_chain("
                      << names_to_string(consumers) << ");\n";
@@ -341,7 +372,7 @@ class RealizeOnFPGA
         Var scope = c.stensors.back().v_scope;
 
         for (int i = producers.size()-2; i >= 0; i--) {
-            loops = fv.find_reuse_vars(c.imp[0].name(), scope);
+            loops = fv.find_reuse_vars(c.imp[0].name(), scope, c.outf);
             producers[i].remove(loops);
             debug(1) << "T2X emits: " << producers[i].name() << ".remove("
                      << names_to_string(loops) << ");\n";
@@ -366,7 +397,8 @@ class RealizeOnFPGA
 
         for (size_t i = 1; i < c.stensors.size(); i++) {
             auto v_banks = c.stensors[i].v_banks;
-            if (v_banks.size() == prev_dims.size()+1) {
+            auto position = c.stensors[i].position;
+            if (position == SRAM && v_banks.size() == prev_dims.size()+1) {
                 Func prev = producers[i-1];
                 Var v_scatter = find_differences(v_banks, prev_dims);
                 producers[i].scatter(prev, v_scatter);
@@ -384,7 +416,8 @@ class RealizeOnFPGA
 
         for (size_t i = 1; i < c.stensors.size(); i++) {
             auto v_banks = c.stensors[i].v_banks;
-            if (v_banks.size() == prev_dims.size()-1) {
+            auto position = c.stensors[i].position;
+            if (position == REG && v_banks.size() == prev_dims.size()-1) {
                 Func prev_1 = consumers[i-1];
                 Func prev_2 = (i == 1) ? c.outf : consumers[i-2];
                 Var v_gather = find_differences(prev_dims, v_banks);
@@ -446,9 +479,38 @@ class RealizeOnFPGA
         auto &last_stensor = c.stensors.back();
         if (!c.is_output && last_stensor.v_width.size() > 0) {
             Var last_width = last_stensor.v_width[0];
-            fv.ure.vectorize(last_width);
-            debug(1) << "T2X emits: " << fv.ure.name() << ".vectorize("
+            Func main_func = fv.find_main_ure(c.outf);
+            main_func.vectorize(last_width);
+            debug(1) << "T2X emits: " << main_func.name() << ".vectorize("
                      << last_width << ");\n";
+        }
+    }
+
+    void partition(Schain &c, vector<Func> &funcs) {
+        internal_assert(c.stensors.size() == funcs.size());
+        for (size_t i = 0; i < c.stensors.size(); i++) {
+            if (c.stensors[i].v_outs.size() == 0)
+                continue;
+            if (c.stensors[i].position == DRAM) {
+                user_assert(c.stensors[i].v_outs.size() == 1)
+                    << "Currently we only support packing one dimension as a vector\n";
+                auto v_width = c.stensors[i].v_outs[0];
+                if (fv.exists(v_width)) {
+                    Func main_ure = fv.find_main_ure(c.outf);
+                    Type type = main_ure.output_types()[0];
+                    auto bound = main_ure.function().get_bounds(v_width.name());
+                    auto ext_node = bound.second.as<IntImm>();
+                    internal_assert(ext_node);
+                    int num_banks = (ext_node->value * type.bits()) / 512;
+                    if (num_banks > 1) {
+                        internal_assert(c.imp.size() == 1);
+                        funcs[i-1].partition(c.imp[0], funcs[i], v_width, num_banks);
+                        debug(1) << "T2X emits: " << funcs[i-1].name() << ".partition("
+                                << c.imp[0].name() << ", " << funcs[i].name() << ", "
+                                << v_width.name() << ", " << num_banks << ");\n";
+                    }
+                }
+            }
         }
     }
 
@@ -469,27 +531,78 @@ class RealizeOnFPGA
     // for output chain the scope of consumer cannot below its predecessor
     // If not specified, the scope is inherited
     void check_inclusiveness(Schain &c) {
+        Func func = fv.find_main_ure(c.outf);
         if (!c.is_output) {
             // start from the outermost loop
-            int i = fv.free_vars.size()-1;
+            int i = fv.all_free_vars[func.name()].size()-1;
             for (auto &s: c.stensors) {
                 if (!fv.exists(s.v_scope)) {
-                    s.v_scope = fv.free_vars[i];
+                    s.v_scope = fv.all_free_vars[func.name()][i];
                     continue;
                 }
-                int j = fv.var_index(s.v_scope);
+                int j = fv.var_index(s.v_scope, func);
                 user_assert(j > 0 && j <= i)
                     << "The scope of " << s.name << " is beyond its predecessor\n";
                 // Find a loop whose extent is not 1, otherwise this loop would be removed in lowering
-                s.v_scope = fv.find_non_unit_var(s.v_scope);
+                s.v_scope = fv.find_non_unit_var(s.v_scope, true, func);
                 i = j;
+            }
+        }
+    }
+
+    // Triangular loops often look like this:
+    // for (i, 0, I)
+    //   for (k, i, K-i)
+    // We set the storage bound of loop k as K/2+1
+    void set_triangular_bound(Schain &c, vector<Func> &funcs) {
+        // For producer, the buffer is allocated in the first host stensor (serializer), otherwise the last DRAM stensor
+        Func f;
+        if (!c.is_output) {
+            internal_assert(c.stensors[0].position == HOST);
+            f = funcs[0];
+        } else {
+            for (size_t i = 0; i < c.stensors.size(); i++) {
+                if (c.stensors[i].position == DRAM) {
+                    f = funcs[i];
+                    break;
+                }
+            }
+            if (!f.defined()) return;
+        }
+        auto dims = f.function().definition().schedule().dims();
+        for (size_t i = 0; i < dims.size()-1; i++) {
+            auto bound = f.function().get_bounds(dims[i].var);
+            if (!is_const(bound.first)) {
+                // We assume the outer triangular loop is at the outermost level
+                auto outermost_var = dims[dims.size()-2].var;
+                auto min_var = bound.first.as<Variable>();
+                internal_assert(min_var && min_var->name == outermost_var);
+                auto ori_ext = simplify(bound.second + bound.first);
+                auto remove_dims = f.function().definition().schedule().remove_params();
+                Var inner(dims[i].var);
+                if (std::find(remove_dims.begin(), remove_dims.end(), min_var->name) == remove_dims.end()) {
+                    // If the outer triangular loop is not removed, we set the storage bound as the half
+                    f.bound_storage(inner, 0, ori_ext/2+1);
+                    debug(1) << "T2X emits: " << f.name() << ".bound_storage("
+                             << inner.name() << ", 0, " << ori_ext << "/2+1);\n";
+                } else {
+                    // If the outer triangular loop is removed, we set the storage bound as its original bound
+                    f.bound_storage(inner, 0, ori_ext);
+                    debug(1) << "T2X emits: " << f.name() << ".bound_storage("
+                             << inner.name() << ", 0, " << ori_ext << ");\n";
+                }
             }
         }
     }
 
     void find_banks(Schain &c) {
         // The dst_vars includes space loops plus one time loop
-        auto dst_vars = fv.ure.function().definition().schedule().transform_params()[0].dst_vars;
+        Func func = fv.find_main_ure(c.outf);
+        auto stt_param = func.function().definition().schedule().transform_params();
+        if (stt_param.empty()) {
+            return;
+        }
+        auto dst_vars = stt_param[0].dst_vars;
         for (auto &s : c.stensors) {
             for (auto &v : s.v_outs) {
                 auto p = std::find_if(dst_vars.begin(), dst_vars.end()-1,
@@ -518,17 +631,24 @@ public:
                 vector<Func> producers;
                 producers = isolate_producer(c);
                 remove(c, producers);
+                set_triangular_bound(c, producers);
                 scatter(c, producers);
                 buffer(c, producers);
                 vectorize(c, producers);
+                partition(c, producers);
                 min_depth(c, producers);
             } else {
                 vector<Func> consumers;
                 consumers = isolate_consumer(c);
+                set_triangular_bound(c, consumers);
                 gather(c, consumers);
                 vectorize(c, consumers);
+                partition(c, consumers);
                 min_depth(c, consumers);
-                out = consumers.back();
+                // The last function is on host
+                if (!consumers.empty() && consumers.back().function().place() == Place::Host) {
+                    out = consumers.back();
+                }
             }
         }
         internal_assert(out.defined());
@@ -548,10 +668,12 @@ class RealizeOnGPU
     void check_inclusiveness(Schain &c) {
         if (!c.is_output) {
             // start from the outermost loop
-            int i = fv.free_vars.size()-1;
+            Func f = fv.ures[0];
+            auto free_vars = fv.all_free_vars[f.name()];
+            int i = free_vars.size()-1;
             for (auto &s: c.stensors) {
                 if (!fv.exists(s.v_scope)) {
-                    s.v_scope = fv.free_vars[i];
+                    s.v_scope = free_vars[i];
                     continue;
                 }
                 int j = fv.var_index(s.v_scope);
@@ -570,8 +692,10 @@ class RealizeOnGPU
             // throughout threads as an unified SRAM storage, to realize stensors on GPUs.
             if (s.position == SRAM) {
                 for (auto &p : c.imp) {
-                    int gpu_var_index = fv.free_vars.size() - num_gpu_vars -1;
-                    Var loop = fv.var_index(s.v_scope) < gpu_var_index ? s.v_scope : fv.free_vars[gpu_var_index];
+                    Func f = fv.ures[0];
+                    auto free_vars = fv.all_free_vars[f.name()];
+                    int gpu_var_index = free_vars.size() - num_gpu_vars -1;
+                    Var loop = fv.var_index(s.v_scope) < gpu_var_index ? s.v_scope : free_vars[gpu_var_index];
                     p.gpu_fetch(loop, MemoryType::Register, s.v_outs);
                     debug(1) << "T2X emits: " << p.name() << ".gpu_fetch("
                              << loop.name() << ", {" << names_to_string(s.v_outs) << "});\n";
