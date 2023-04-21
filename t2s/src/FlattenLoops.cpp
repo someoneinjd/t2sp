@@ -277,7 +277,7 @@ class ConstLoopFlattening : public IRMutator {
     }
 
     Stmt visit(const For* op) override {
-        if ((op->for_type != ForType::Serial || !is_open_cl) && 
+        if ((op->for_type != ForType::Serial || !is_open_cl) &&
             (op->device_api == DeviceAPI::OpenCL || op->device_api == DeviceAPI::OneAPI)) {
             is_open_cl = true;
             return IRMutator::visit(op);
@@ -830,7 +830,9 @@ public:
 
 private:
     Expr path_condition = const_true();
+    string loop_prefix;
     vector<string> loops;
+    vector<Expr> mins;
     vector<Expr> extents;
     map<string, vector<string>> producer_loops;
     map<string, Expr> &mem_addr;
@@ -839,7 +841,9 @@ private:
     void visit(const For *op) override {
         if (op->for_type == ForType::Serial || op->for_type == ForType::Unrolled) {
             std::string undecorated_loop_name = extract_after_tokens(op->name, 2); // remove func and stage from the name
+            loop_prefix = extract_before_tokens(op->name, 2);
             loops.push_back(undecorated_loop_name);
+            mins.push_back(op->min);
             extents.push_back(op->extent);
         }
 
@@ -847,6 +851,7 @@ private:
 
         if (op->for_type == ForType::Serial || op->for_type == ForType::Unrolled) {
             loops.pop_back();
+            mins.pop_back();
             extents.pop_back();
         }
     }
@@ -901,46 +906,96 @@ private:
             Expr inner_loops_extents_prod = Expr(1); // product of the extents of the non-reuse inner loops of the current loop level
             Expr reuse_loops_extents_prod = Expr(1); // product of the extents of contiguous reuse loops immediately enclosed by the current loop level
             Expr index = temp;
+
+            // First find out all reuse loops
+            vector<bool> is_reuse_loop(current_loops.size());
+            for (int j = current_loops.size()-1; j >= 0; j--) {
+                is_reuse_loop[j] = true;
+                for (auto loop_name : prod_loops) {
+                    if (loop_name == current_loops[j]) {
+                        is_reuse_loop[j] = false;
+                        break;
+                    }
+                }
+                if (j == (int)(current_loops.size() - 1) && is_reuse_loop[j]) {
+                    const vector<Dim> &dims = func.definition().schedule().dims();
+                    for (size_t i = 0; i < dims.size(); i++) {
+                        if (dims[i].for_type == ForType::Vectorized && dims[i].var == current_loops[j]) {
+                            is_reuse_loop[j] = false;
+                        }
+                    }
+                }
+            }
+            // Triangular loops often look like this:
+            // for (i, 0, I)
+            //   for (k, i, K-i)
+            // This loop can be flattened as (2*K-i+1)*i/2+(k-i)
             for (int j = current_loops.size() - 1; j >= 0; j--) {
                 if (is_trivial_loop(current_loops[j])) {
                     // This loop is enclosed by a condition
                     continue;
                 }
-                bool is_reuse_loop = true;
-                for (auto loop_name : prod_loops) {
-                    if (loop_name == current_loops[j]) {
-                        is_reuse_loop = false;
-                        break;
-                    }
-                }
-
-                if (j == (int)(current_loops.size() - 1) && is_reuse_loop) {
-                    const vector<Dim> &dims = func.definition().schedule().dims();
-                    for (size_t i = 0; i < dims.size(); i++) {
-                        if (dims[i].for_type == ForType::Vectorized && dims[i].var == current_loops[j]) {
-                            is_reuse_loop = false;
+                if (is_const(mins[j])) {
+                    if (is_reuse_loop[j]) {
+                        reuse_loops_extents_prod *= current_extents[j];
+                        debug(2) << "Reuse loop: " << current_loops[j]
+                                << ", extent: " << current_extents[j] << "\n";
+                    } else {
+                        if (!equal(reuse_loops_extents_prod, 1)) {
+                            // Remove the part of the index for the contiguous reuse loops under this non-reuse loop together
+                            index = (temp/(reuse_loops_extents_prod*inner_loops_extents_prod)) * inner_loops_extents_prod
+                                    + index % inner_loops_extents_prod;
+                            reuse_loops_extents_prod = Expr(1);
                         }
+                        inner_loops_extents_prod *= current_extents[j];
                     }
-                }
-                
-                if (is_reuse_loop) {
-                    reuse_loops_extents_prod *= current_extents[j];
-                    debug(2) << "Reuse loop: " << current_loops[j]
-                             << ", extent: " << current_extents[j] << "\n";
-                } else {
-                    if (!equal(reuse_loops_extents_prod, 1)) {
-                        // Remove the part of the index for the contiguous reuse loops under this non-reuse loop together
-                        index = (temp/(reuse_loops_extents_prod*inner_loops_extents_prod)) * inner_loops_extents_prod
-                                + index % inner_loops_extents_prod;
-                        reuse_loops_extents_prod = Expr(1);
-                    }
-                    inner_loops_extents_prod *= current_extents[j];
                     debug(2) << "Non-reuse loop: " << current_loops[j]
                              << ", extent: " << current_extents[j] << "\n";
+                } else {
+                    // Triangular loop.
+                    auto var = mins[j].as<Variable>();
+                    internal_assert(var);
+                    auto ori_bound = simplify(current_extents[j] + mins[j]);
+                    // Currently we assume the loop on which a triangular loop depends should at the outermost
+                    internal_assert(current_loops[0] == extract_last_token(var->name));
+                    bool has_reuse_loop = false;
+                    for (int k = j; k >= 0; k--) {
+                        if (is_reuse_loop[k]) has_reuse_loop = true;
+                    }
+                    if (!has_reuse_loop) {
+                        // No reuse loop. The producer and consumer have the same order.
+                        break;
+                    }
+                    // Use the original loop instead of addr.temp
+                    index = simplify(substitute(temp, temp % (reuse_loops_extents_prod*inner_loops_extents_prod), index));
+                    auto cur_loop = Variable::make(Int(32), loop_prefix + "." + current_loops[j]);
+                    if (is_reuse_loop[0] || is_reuse_loop[j]) {
+                        // Case 1: One of the two loops is reuse loop. Use the original bound.
+                        if (!is_reuse_loop[j]) {
+                            index = cur_loop*inner_loops_extents_prod + index;
+                            inner_loops_extents_prod *= ori_bound;
+                        }
+                        for (int k = j-1; k >= 0; k--) {
+                            if (!is_reuse_loop[k]) {
+                                cur_loop = Variable::make(Int(32), loop_prefix + "." + current_loops[k]);
+                                index = cur_loop*inner_loops_extents_prod + index;
+                                inner_loops_extents_prod *= current_extents[k];
+                            }
+                        }
+                    } else {
+                        // Case 2: The outer loop is not reuse loop. Flatten the triangular loop.
+                        auto flattened_iter = simplify((2*ori_bound-mins[j]+1)*mins[j]/2 + (cur_loop-mins[j]));
+                        index = flattened_iter*(reuse_loops_extents_prod*inner_loops_extents_prod) + index;
+                        debug(4) << "Flattening triangular loop " << mins[j] << " and " << cur_loop << " as " << flattened_iter << "\n";
+                        for (int k = j-1; k > 0; k--) {
+                            internal_assert(is_reuse_loop[k]);
+                        }
+                    }
+                    break;
                 }
             }
             if (!equal(reuse_loops_extents_prod, 1)) {
-                // Remove the part of the index for the contiguous reuse loops starting from the outermost level 
+                // Remove the part of the index for the contiguous reuse loops starting from the outermost level
                 index = index % inner_loops_extents_prod;
             }
             mem_addr[name] = simplify(index);

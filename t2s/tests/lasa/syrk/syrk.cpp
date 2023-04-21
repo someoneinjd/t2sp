@@ -50,7 +50,7 @@ int main()
     #define J (B.dim(0).extent() / (JJJ * JJ))
     #define K (A.dim(0).extent() / (KKK * KK))
 
-    // Type of the data to process in C and T2S
+    // Type of the data to process in C and T2S 
     #define CTYPE float
     #define TTYPE Float(32)
 
@@ -63,7 +63,7 @@ int main()
     // Expr AValue = select(total_k < total_i, 0,  A(total_k, total_i));
     X(P) = select(jjj == 0, A(total_k, total_i), X(P_jjj_minus_1));
     Y(P) = select(iii == 0, B(total_j, total_k), Y(P_iii_minus_1));
-    Z(P) = select(kkk == 0 && kk == 0 && k == i, 0,
+    Z(P) = select(kkk == 0 && kk == 0 && k == 0, 0,
                 select(kkk == 0, select(kk == 0, Z(P_k_minus_1), Z(P_kk_minus_1)), Z(P_kkk_minus_1)))
                 + X(P) * Y(P);
     Out(P_Out) = select(kkk == KKK-1 && kk == KK-1 && k == K-1, Z(P));
@@ -74,82 +74,23 @@ int main()
     // Explicitly set the loop bounds
     X.set_bounds(jjj, 0, JJJ, iii, 0, III, kkk, 0, KKK)
      .set_bounds(jj,  0, JJ,  ii,  0, II,  kk,  0, KK)
-     .set_bounds(j,   0, J,   i,   0, I,   k,   i, K - i);
+     .set_bounds(j,   i, J-i, i,   0, I,   k,   0, K);
 
     // Create a systolic array
     X.space_time_transform(jjj, iii);
 
-    // Input path of matrix A
-    Func ASerializer("ASerializer", Place::Host), ALoader("ALoader", Place::Device), AFeeder("AFeeder", Place::Device);
-    X.isolate_producer_chain(A, ASerializer, ALoader, AFeeder);
-    AFeeder.buffer(ALoader, k);
-    AFeeder.scatter(ALoader, iii);
-
-    // For simplicity, let ASerializer send the full matrix A, even though ALoader still reads just the upper part of A.
-    // That is, because the producer and consumer communicate through memory, instead of being directly connected by a channel,
-    // the producer can write the memory in any way, and the consumer can read the memory in any way, as long as the producer
-    // has finished all its writing to the memory before the consumer starts reading the memory.
-    // TODO: enable sending only the upper triangle
-    ASerializer.remove(jjj, jj, j);
-    ASerializer.bound_storage(k, 0, K/2+1);
-    ALoader.remove(jjj, jj);
-
-    // Input path of matrix B
-    Func BSerializer("BSerializer", Place::Host), BLoader("BLoader", Place::Device), BFeeder("BFeeder", Place::Device);
-    X.isolate_producer_chain(B, BSerializer, BLoader, BFeeder);
-    BFeeder.buffer(BLoader, k);
-    BFeeder.scatter(BLoader, jjj);
-
-    BSerializer.set_bounds(k, 0, K).remove(iii, ii, i);
-    BLoader.remove(iii, ii);
-
-    Func deserializer("deserializer", Place::Host), unloader("unloader", Place::Device);
-    Out.relay(Z, jjj);
-    Out.isolate_consumer_chain(unloader, deserializer);
-
-    // Note: ALoader cannot be vectorized, because different SIMD lanes are loading
-    // AValues, which are conditioned with different kkk. The compiler requires that
-    // all SIMD lanes have the same condition.
-    ALoader.vectorize(kkk);
-    AFeeder.vectorize(kkk);
-    BLoader.vectorize(kkk);
-    BFeeder.vectorize(kkk);
-    X.vectorize(kkk);
-    unloader.vectorize(jjj);
-    deserializer.vectorize(jjj);
-    /*
-     * T2X emits: X.isolate_producer_chain({A}, A_serializer, aLoader, aFeeder);
-   2 T2X emits: aLoader.remove(jjj, jj);
-   3 T2X emits: A_serializer.remove(jjj, jj, j);
-   4 T2X emits: aFeeder.scatter(aLoader, iii);
-   5 T2X emits: aFeeder.buffer(aLoader, k);
-   6 T2X emits: aLoader.vectorize(kkk);
-   7 T2X emits: aFeeder.vectorize(kkk);
-   8 T2X emits: X.vectorize(kkk);
-   9 T2X emits: aLoader.min_depth(256);
-  10 T2X emits: aFeeder.min_depth(256);
-  11 T2X emits: X.isolate_producer_chain({B}, B_serializer, bLoader, bFeeder);
-  12 T2X emits: bLoader.remove(iii, ii);
-  13 T2X emits: B_serializer.remove(iii, ii, i);
-  14 T2X emits: bFeeder.scatter(bLoader, jjj);
-  15 T2X emits: bFeeder.buffer(bLoader, k);
-  16 T2X emits: bLoader.vectorize(kkk);
-  17 T2X emits: bFeeder.vectorize(kkk);
-  18 T2X emits: X.vectorize(kkk);
-  19 T2X emits: bLoader.min_depth(256);
-  20 T2X emits: bFeeder.min_depth(256);
-  21 T2X emits: Out.relay(Z, jjj);
-  22 T2X emits: Out.isolate_consumer_chain(unloader, deserializer);
-  23 T2X emits: unloader.vectorize(jjj);
-  24 T2X emits: deserializer.vectorize(jjj);
-     *
-     */
+    // I/O network
+    Stensor DA("aLoader", DRAM), SA("aFeeder", SRAM), DB("bLoader", DRAM), SB("bFeeder", SRAM);
+    Stensor RC("collector", REG), DC("unloader", DRAM), C("deserializer");
+    A >> DA.out(kkk)                >> FIFO(256)
+      >> SA.scope(k).out(kkk, iii)  >> FIFO(256);
+    B >> DB.out(kkk)                >> FIFO(256)
+      >> SB.scope(k).out(kkk, jjj)  >> FIFO(256);
+    Out >> RC.scope(iii).out(jjj)   >> FIFO(256)
+        >> DC >> C(total_j, total_i);
 
     // Compile the kernel to an FPGA bitstream, and expose a C interface for the host to invoke
-    Target acc = get_host_target();
-    acc.set_feature(Target::IntelFPGA);
-    acc.set_feature(Target::EnableSynthesis);
-    deserializer.compile_to_host("trmm-interface", { A, B }, "trmm", acc);
+    C.compile_to_host("syrk-interface", { A, B }, "syrk", IntelFPGA);
 
     printf("Success\n");
     return 0;

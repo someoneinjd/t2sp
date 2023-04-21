@@ -2756,13 +2756,13 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Realize *op) {
         for (std::string ae : access_exprs) {
             string_bound += "[" + ae + "]";
         }
-        // for (size_t i=0; i<op->types.size(); i++) {
-            std::string name = op->name.substr(0, op->name.length()-std::string(".ibuffer").size());
-            string buffer_name = name + '.' + std::to_string(0) + ".ibuffer";
-            internal_assert(op->types.size() == 2);
-            stream << get_indent() << print_type(op->types[0]) << " ";
-            auto num_banks = op->types[1].lanes();
-            auto bank_bits = op->types[1].bits();
+        internal_assert(op->types.size() >= 2);
+        for (size_t i=0; i<op->types.size()-1; i++) {
+            string name = op->name.substr(0, op->name.length()-std::string(".ibuffer").size());
+            string buffer_name = name + '.' + std::to_string(i) + ".ibuffer";
+            stream << get_indent() << print_type(op->types[i+1]) << " ";
+            auto num_banks = op->types[0].lanes();
+            auto bank_bits = op->types[0].bits();
             string bank_str;
             if (bank_bits == 0) bank_str = "numbanks(" + to_string(num_banks) + ")";
             else {
@@ -2775,7 +2775,7 @@ void CodeGen_OpenCL_Dev::CodeGen_OpenCL_C::visit(const Realize *op) {
             }
             stream << "__attribute__((memory, " << bank_str << ", singlepump)) "
                    << print_name(buffer_name) << string_bound << ";\n";
-        // }
+        }
         print_stmt(op->body);
     } else if (ends_with(op->name,".break")){
         print_stmt(op->body);

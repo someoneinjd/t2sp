@@ -87,6 +87,7 @@ struct Stensor
     Stensor &operator>>(Stensor &s);
     friend Stensor &operator>>(const ImageParam &im, Stensor &s);
     friend Stensor &operator>>(const vector<ImageParam> &im, Stensor &s);
+    friend Stensor &operator>>(Stensor &s, Func &f);
     friend Stensor &operator>>(Func &f, Stensor &s);
 };
 
