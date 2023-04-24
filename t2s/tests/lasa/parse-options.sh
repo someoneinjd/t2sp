@@ -18,7 +18,7 @@ else
     location="$1"
 fi
 
-if [ "$2" != "gemm" -a "$2" != "trmm" -a "$2" != "syrk" -a "$2" != "syr2k" -a "$2" != "gemv" -a "$2" != "trmv" -a "$2" != "ger" ]; then
+if [ "$2" != "gemm" -a "$2" != "trmm" -a "$2" != "syrk" -a "$2" != "syr2k" -a "$2" != "gemv" -a "$2" != "trmv" -a "$2" != "ger" -a "$2" != "hemm" ]; then
     show_usage
     return
 else
