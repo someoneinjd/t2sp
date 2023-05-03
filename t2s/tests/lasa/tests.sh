@@ -44,6 +44,7 @@ if [ "$target" == "a10" -o "$target" == "s10" ]; then
     ./test.sh $location syr2k $target tiny emulator
     ./test.sh $location gemv $target tiny emulator
     ./test.sh $location trmv $target tiny emulator
+    ./test.sh $location symv $target tiny emulator
     ./test.sh $location ger $target tiny emulator
 else
     echo "Performance testing on $target not supported yet in this release"
