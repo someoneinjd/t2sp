@@ -302,7 +302,7 @@ class ReplaceChannelsWithFlattenedRegs : public IRMutator {
     struct GetAllMergedKernels : public IRVisitor {
         using IRVisitor::visit;
         vector<kernel_info> &kernel_infos;
-        vector<realize_info> realize_infos;
+        vector<realize_info> &realize_infos;
         GetAllMergedKernels(vector<kernel_info> &kernel_infos, vector<realize_info>& realize_infos)
             : kernel_infos{kernel_infos}, realize_infos{realize_infos} {}
         void visit(const For *op) override {
