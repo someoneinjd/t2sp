@@ -2801,11 +2801,11 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::visit(const For *loop) {
             in_unroll_loop = {true, loop->name, loop->min, stream.tellp(), get_indent()};
             //stream << get_indent() << "#pragma unroll\n";
             //CodeGen_Clear_C::visit(loop->body);
-            stream << get_indent() << "fpga_tools::UnrolledLoop<" << (!is_zero(loop->min) ? to_string(loop->min) + ", " : "") << simplify(loop->min + loop->extent) << ">([&](auto " << loop->name << ") {\n";
+            stream << get_indent() << "fpga_tools::UnrolledLoop<" << (!is_zero(loop->min) ? to_string(loop->min) + ", " : "") << simplify(loop->min + loop->extent) << ">([&](auto " << print_name(loop->name) << ") {\n";
             indent += INDENT;
             loop->body.accept(this);
+            indent -= INDENT;
             stream << get_indent() << "});\n";
-            close_scope("for "+print_name(loop->name));
             std::get<0>(in_unroll_loop) = false;
         } else {
             /*
@@ -2861,11 +2861,11 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::visit(const For *loop) {
                     in_unroll_loop = {true, loop->name, loop->min, stream.tellp(), get_indent()};
                     //stream << get_indent() << "#pragma unroll\n";
                     //print_normal_loop(loop);
-                    stream << get_indent() << "fpga_tools::UnrolledLoop<" << (!is_zero(loop->min) ? to_string(loop->min) + ", " : "") << simplify(loop->min + loop->extent) << ">([&](auto " << loop->name << ") {\n";
+                    stream << get_indent() << "fpga_tools::UnrolledLoop<" << (!is_zero(loop->min) ? to_string(loop->min) + ", " : "") << simplify(loop->min + loop->extent) << ">([&](auto " << print_name(loop->name) << ") {\n";
                     indent += INDENT;
                     loop->body.accept(this);
+                    indent -= INDENT;
                     stream << get_indent() << "});\n";
-                    close_scope("for "+print_name(loop->name));
                     std::get<0>(in_unroll_loop) = false;
                 }
             } else {
