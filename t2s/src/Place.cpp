@@ -1170,7 +1170,7 @@ void add_reference_names(const Stmt &s, const map<string, Function> &env, std::m
             && reg_size_map.find(merged_func_name) == reg_size_map.end()) {
             reg_size_map.emplace(merged_func_name, RegBound{});
         }
-
+    }
 }
 
 Stmt insert_fpga_reg(Stmt s, const map<string, Function> &env) {
