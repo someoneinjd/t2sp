@@ -61,11 +61,11 @@ constexpr int TOTAL_K = 64 * 1024 * 1024;
 
 int main()
 {
-    Halide::Runtime::Buffer<DATA_TYPE> x(TOTAL_K), y(TOTAL_K), o(1);
+    Halide::Runtime::Buffer<DATA_TYPE> x(TOTAL_K, 1), y(TOTAL_K, 1), o(1);
 
     for (size_t k = 0; k < TOTAL_K; k++) {
-        x(k) = INIT;
-        y(k) = INIT;
+        x(k, 0) = INIT;
+        y(k, 0) = INIT;
     }
 
     dot(x, y, o);
