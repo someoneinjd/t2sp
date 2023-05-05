@@ -288,17 +288,34 @@ class ReplaceChannelsWithFlattenedRegs : public IRMutator {
         DeviceAPI device_api;
     };
 
+    struct realize_info {
+        string name;
+        vector<Type> types;
+        MemoryType memory_type;
+        Region bounds;
+        Expr condition;
+    };
+
     vector<kernel_info> kernel_infos;
+    vector<realize_info> realize_infos;
 
     struct GetAllMergedKernels : public IRVisitor {
         using IRVisitor::visit;
         vector<kernel_info> &kernel_infos;
-        GetAllMergedKernels(vector<kernel_info> &kernel_infos)
-            : kernel_infos{kernel_infos} {}
+        vector<realize_info> realize_infos;
+        GetAllMergedKernels(vector<kernel_info> &kernel_infos, vector<realize_info>& realize_infos)
+            : kernel_infos{kernel_infos}, realize_infos{realize_infos} {}
         void visit(const For *op) override {
             if (ends_with(op->name, ".run_on_device")) {
                 kernel_info k = {op->name, op->min, op->extent, op->for_type, op->device_api};
                 kernel_infos.emplace_back(std::move(k));
+            }
+            op->body.accept(this);
+        }
+        void visit(const Realize *op) override {
+            if (ends_with(op->name, ".temp")) {
+                realize_info r = {op->name, op->types, op->memory_type, op->bounds, op->condition};
+                realize_infos.emplace_back(std::move(r));
             }
             op->body.accept(this);
         }
@@ -309,7 +326,7 @@ public:
                                      const string &result_func_name)
         : reg_name{reg_name}, channel_name{channel_name},
           result_func_name{result_func_name},
-          contain_write_or_read_regs{false}, kernel_infos{} {}
+          contain_write_or_read_regs{false}, kernel_infos{}, realize_infos{} {}
 
     Stmt visit(const Realize *op) override {
         if (op->name == reg_name) {
@@ -353,7 +370,7 @@ public:
 
     Stmt visit(const ProducerConsumer *op) override {
         if (op->is_producer && starts_with(channel_name, op->name)) {
-            GetAllMergedKernels finder{kernel_infos};
+            GetAllMergedKernels finder{kernel_infos, realize_infos};
             finder.visit(op);
             mutate(op->body);
             return Evaluate::make(0); 
@@ -368,6 +385,10 @@ public:
             for (auto iter = kernel_infos.rbegin(); iter != kernel_infos.rend(); iter++) {
                 body = For::make(iter->name, iter->min,
                         iter->extent, iter->for_type, iter->device_api, std::move(body));
+            }
+            for (auto iter = realize_infos.rbegin(); iter != realize_infos.rend(); iter++) {
+                body = Realize::make(iter->name, iter->types,
+                        iter->memory_type, iter->bounds, iter->condition, std::move(body));
             }
             return For::make(op->name, op->min, op->extent, op->for_type, op->device_api, std::move(body));
         }
