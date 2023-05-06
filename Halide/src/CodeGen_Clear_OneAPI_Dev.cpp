@@ -455,11 +455,17 @@ void CodeGen_Clear_OneAPI_Dev::CodeGen_Clear_OneAPI_C::visit(const Call *op) {
             string string_index = op->type.is_handle() ? "" : ".s";
             latest_expr = print_name(arr_name) + string_index;
         } else {
-            string string_index = ".s";
-            for (size_t i = 1; i < op->args.size(); i++) {
-                string_index += "[" + print_expr(op->args[i]) + "]";
+            if (op->args.size() == 2) {
+                // The channel array is 1 dimensional, and we have declared its type using fpga_tools::NTuple.
+                // Read it like F.template get<idx>()
+                latest_expr = print_name(arr_name) + ".template get<" + print_expr(op->args[1]) + ">()";
+            } else {
+                string string_index = ".s";
+                for (size_t i = 1; i < op->args.size(); i++) {
+                    string_index += "[" + print_expr(op->args[i]) + "]";
+                }
+                latest_expr = print_name(arr_name) + string_index;
             }
-            latest_expr = print_name(arr_name) + string_index;
         }
     } else if (op->is_intrinsic(Call::write_array)) {
         string arr_name = op->args[0].as<StringImm>()->value;
@@ -470,10 +476,16 @@ void CodeGen_Clear_OneAPI_Dev::CodeGen_Clear_OneAPI_C::visit(const Call *op) {
             stream << get_indent() << print_name(arr_name) << string_index << " = " << write_data << ";\n";
         } else {
             string write_data = print_expr(op->args[1]);
-            string string_index = ".s";
-            for (size_t i = 2; i < op->args.size(); i++)
-                string_index += "[" + print_expr(op->args[i]) + "]";
-            stream << get_indent() << print_name(arr_name) << string_index << " = " << write_data << ";\n";
+            if (op->args.size() == 3) {
+                // The channel array is 1 dimensional, and we have declared its type using fpga_tools::NTuple.
+                // Write it like F.template get<idx>() = ...
+                stream << get_indent() << print_name(arr_name) << ".template get<" << print_expr(op->args[2]) << ">() = " << write_data << ";\n";
+            } else {
+                string string_index = ".s";
+                for (size_t i = 2; i < op->args.size(); i++)
+                    string_index += "[" + print_expr(op->args[i]) + "]";
+                stream << get_indent() << print_name(arr_name) << string_index << " = " << write_data << ";\n";
+            }
         }
     } else if (op->is_intrinsic(Call::read_shift_reg)) {
         string string_index;
@@ -1872,21 +1884,26 @@ void CodeGen_Clear_OneAPI_Dev::CodeGen_Clear_OneAPI_C::DeclareChannels::visit(co
         string bounds_str{};
         string pipe_bounds{};
         string pipe_attributes{};
+        string first_bound;
         for (size_t i = 0; i < bounds.size(); i++) {
             Range b = bounds[i];
             Expr extent = b.extent;
             const IntImm *e_extent = extent.as<IntImm>();
             internal_assert(e_extent != nullptr);
+            string ext = std::to_string(e_extent->value);
             if (i < bounds.size() - 1) {
                 internal_assert(e_extent->value > 0);
-                bounds_str += "[" + std::to_string(e_extent->value) + "]";
-                pipe_bounds += std::to_string(e_extent->value) + ",";
+                bounds_str += "[" + ext + "]";
+                pipe_bounds += ext + ",";
             } else {
-                pipe_attributes = std::to_string(e_extent->value);
+                pipe_attributes = ext;
+            }
+            if (i == 0) {
+                first_bound = ext;
             }
         }
         if (pipe_bounds.back() == ',') pipe_bounds.pop_back();
-        internal_assert(op->types.size() == 1) << "In generating Intel OpenCL for FPGAs, a single type is expected for a channel.\n";
+        internal_assert(op->types.size() == 1) << "In generating OneAPI for FPGAs, a single type is expected for a channel.\n";
         string type = parent->print_type(op->types[0]);
 
         std::ostringstream oss;
@@ -1907,13 +1924,20 @@ void CodeGen_Clear_OneAPI_Dev::CodeGen_Clear_OneAPI_C::DeclareChannels::visit(co
             // And then in function F, generate a local channel array:
             //        F_channel_array_t F_channel_array;
             // Here we add the global channel. We will add the local channel array separately.
+            // Further improvement: to suite the OneAPI coding style, if the channel array is 1-dimensional, we could generate the type like this instead:
+            //        using F_channel_array_t = fpga_tools::NTuple<float4, 2>;
             string stripped = remove_postfix(op->name, ".array");
             string channel_name = parent->print_name(stripped);
             parent->map_verbose_to_succinct_globally(stripped, channel_name);
 
             string printed_name = parent->print_name(op->name);
             string type_name = printed_name + "_t";
-            oss << "struct " << type_name << " { " << type << " s" << bounds_str << "; };\n";
+            if (bounds.size() > 2) {
+                oss << "struct " << type_name << " { " << type << " s" << bounds_str << "; };\n";
+            } else {
+                internal_assert(bounds.size() == 2); // Note the second bound is actually the min depth.
+                oss << "using " << type_name << " = fpga_tools::NTuple<" << type << ", " << first_bound << ">;\n";
+            }
             oss << "using " << channel_name << " = pipe_wrapper<class "
                 << channel_name << "_pipe, " << type_name << ", " << pipe_attributes <<  ">;\n";
             channels += oss.str();
