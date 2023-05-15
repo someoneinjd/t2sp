@@ -625,9 +625,9 @@ Module lower(const vector<Function> &output_funcs,
 
     // The code generator should blindly generate code according to the IR, without tricks if possible.
     // So here standardize the IR to make it have the same abstraction level as the target language to generate.
-    // Although below it is done only for OpenCL and clear code gen only, ideally it should be done for any target
+    // Although below it is done only for OpenCL/OneAPI and clear code gen only, ideally it should be done for any target
     // HW and language, and any code generator.
-    if (t.features_any_of({Target::OpenCL}) && (getenv("CLEARCODE") != NULL)) {
+    if (t.features_any_of({Target::OpenCL, Target::OneAPI}) && (getenv("CLEARCODE") != NULL)) {
         debug(1) << "Standardize IR for generating OpenCL code...\n";
         s = standardize_ir_for_opencl_code_gen(s);
         debug(2) << "Lowering after standardizing IR for generating OpenCL code:\n" << s << "\n\n";

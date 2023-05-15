@@ -2067,8 +2067,8 @@ void CodeGen_Clear_OneAPI_Dev::CodeGen_Clear_OneAPI_C::GatherShiftRegsAllocates:
                                   float shreg_1_1[100]; float shreg_1_2[100];
                                                         float shreg_2_2[100];
             */
-
-            string reg_name = extract_first_token(op->name);
+            // We have some different shift registers (e.g. Z.shreg, Z.pipe.shreg) with the same first token. So the whole name needs be used.
+            string reg_name = op->name; // extract_first_token(op->name);
 
             internal_assert(space_vars.find(reg_name) != space_vars.end());
             size_t space_var_num = space_vars[reg_name].size();
@@ -2102,8 +2102,7 @@ void CodeGen_Clear_OneAPI_Dev::CodeGen_Clear_OneAPI_C::GatherShiftRegsAllocates:
                 bounds_str = "[" + std::to_string(e_extent->value) + "]" + bounds_str;
             }
             rhs << type << " " << parent->print_name(op->name) << bounds_str << ";\n";
-            vector<string> names = split_string(op->name, ".");
-            shift_regs_allocates[names[0]].push_back(rhs.str());
+            shift_regs_allocates[op->name].push_back(rhs.str());
         }
         if (!parent->is_standard_opencl_type(op->types[0]) && op->types[0].is_vector()) {
             // Remember the bounds of the shift registers.
@@ -2113,26 +2112,6 @@ void CodeGen_Clear_OneAPI_Dev::CodeGen_Clear_OneAPI_C::GatherShiftRegsAllocates:
     } else if (ends_with(op->name, ".ibuffer")) {
     } else if (ends_with(op->name, ".break")) {
     } else {
-        // Not really shift registers. But we can allocate them as shift regs as well.
-        ostringstream rhs;
-        Region bounds = op->bounds;
-        string bounds_str = "" ;
-        for (size_t i = 0; i < bounds.size(); i++) {
-            Range b = bounds[i];
-            Expr extent = b.extent;
-            const IntImm *e_extent = extent.as<IntImm>();
-            internal_assert(e_extent != NULL);
-            internal_assert(e_extent->value > 0);
-            bounds_str += "[" + std::to_string(e_extent->value) + "]";
-        }
-        string type = parent->print_type(op->types[0]);
-        rhs << type << " " << parent->print_name(op->name) << bounds_str << ";\n";
-        vector<string> names = split_string(op->name, ".");
-        shift_regs_allocates[names[0]].push_back(rhs.str());
-        if (!parent->is_standard_opencl_type(op->types[0]) && op->types[0].is_vector()) {
-            // Remember the bounds of the shift registers.
-            shift_regs_bounds[op->name] = bounds.size();
-        }
     }
     IRVisitor::visit(op);
 }
@@ -2143,8 +2122,13 @@ void CodeGen_Clear_OneAPI_Dev::CodeGen_Clear_OneAPI_C::visit(const Realize *op) 
         // Just skip it and get into the body.
         print_stmt(op->body);
     } else if (ends_with(op->name, ".shreg")) {
-        // We have already gathered shift regs allocates with gather_shift_regs_allocates().
-        // Just skip it and get into the body.
+        // We have already gathered the shift registers' info
+        internal_assert(shift_regs_allocates.find(op->name) != shift_regs_allocates.end());
+        for (size_t i = 0; i < shift_regs_allocates[op->name].size(); i++) {
+            stream << get_indent() << shift_regs_allocates[op->name][i];
+            debug(4) << shift_regs_allocates[op->name][i];
+        }
+        debug(4) << "\n";
         print_stmt(op->body);
     } else if (ends_with(op->name, ".temp")) {
         string stripped = remove_postfix(op->name, ".temp");
@@ -2206,9 +2190,22 @@ void CodeGen_Clear_OneAPI_Dev::CodeGen_Clear_OneAPI_C::visit(const Realize *op) 
     } else if (ends_with(op->name, ".break")) {
         print_stmt(op->body);
     } else {
-        // We have treated this case as shift regs allocates with gather_shift_regs_allocates().
-        // Just skip it and get into the body.
+        ostringstream rhs;
+        Region bounds = op->bounds;
+        string bounds_str = "" ;
+        for (size_t i = 0; i < bounds.size(); i++) {
+            Range b = bounds[i];
+            Expr extent = b.extent;
+            const IntImm *e_extent = extent.as<IntImm>();
+            internal_assert(e_extent != NULL);
+            internal_assert(e_extent->value > 0);
+            bounds_str += "[" + std::to_string(e_extent->value) + "]";
+        }
+        map_verbose_to_succinct_locally(op->name, print_name(op->name));
+        string type = print_type(op->types[0]);
+        stream << get_indent() << type << " " << print_name(op->name) << bounds_str << ";\n";
         print_stmt(op->body);
+        kernel_name_map.erase(op->name);
     }
 }
 
@@ -2785,18 +2782,6 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::visit(const For *loop) {
         } else if (ends_with(loop->name, ".run_on_device")) {
             // The loop just tells the compiler to generate an OpenCL kernel for
             // the loop body.
-            std::string name = extract_first_token(loop->name);
-            if (shift_regs_allocates.find(name) != shift_regs_allocates.end()) {
-                for (size_t i = 0; i < shift_regs_allocates[name].size(); i++) {
-                    stream << get_indent() << shift_regs_allocates[name][i];
-                }
-            }
-            name += "_temp";
-            if (shift_regs_allocates.find(name) != shift_regs_allocates.end()) {
-                for (size_t i = 0; i < shift_regs_allocates[name].size(); i++) {
-                    stream << get_indent() << shift_regs_allocates[name][i];
-                }
-            }
             loop->body.accept(this);
         } else if (ends_with(loop->name, ".infinite")) {
             stream << get_indent() << "while(1) {\n";

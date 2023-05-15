@@ -50,7 +50,6 @@ class InnerProductMatcher : public IRMutator
     };
     vector<string> loops;
     vector<InnerProduct> inner_products;
-    vector<std::pair<string, Type>> allocs;
     Stmt update;                // Stmt to replace write_shift_reg call (passed to enclosing Evaluate node)
 
     bool find_inner_product(string w_name, Expr w_value, vector<Expr> w_dims) {
@@ -171,13 +170,6 @@ public:
         Stmt body = mutate(op->body);
         loops.pop_back();
 
-        if (ends_with(op->name, "run_on_device")) {
-            for (auto &p : allocs) {
-                // The allocation of temporary variables is inserted at the top of a kernel
-                body = Realize::make(p.first, {p.second}, MemoryType::Auto, {}, const_true(), body);
-            }
-            allocs.clear();
-        }
         // Breaks up dot-8 and larger into dot-4s using fpga_reg
         for (auto it = inner_products.begin(); it != inner_products.end(); ++it) {
             if (it->sink_loop != op->name) continue;
@@ -205,8 +197,8 @@ public:
             call_args.push_back(Call::make(it->type, it->name, {}, Call::Intrinsic));
             Expr write_back = Call::make(call->type, Call::write_shift_reg, call_args, Call::Intrinsic);
             body = Block::make(body, Evaluate::make(write_back));
-            // Putting the allocation of temporary variables togther
-            allocs.push_back({ it->name, it->type });
+            // Declare the temporary variable right before the loop to minimize its scope
+            body = Realize::make(it->name, {it->type}, MemoryType::Auto, {}, const_true(), body);
             it = inner_products.erase(it);
         }
         inner_products.insert(inner_products.begin(), backup.begin(), backup.end());
