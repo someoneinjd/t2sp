@@ -2867,7 +2867,11 @@ public:
                                SpaceTimeTransform check=SpaceTimeTransform::NoCheckTime);
 
     /* Set the minimum depth of the output channel. This interface works only if this Func writes its output to a channel. */
-   void min_depth(int min_depth) { func.min_depth(min_depth); }
+   Func &min_depth(int min_depth) { func.min_depth(min_depth); return *this; }
+
+   /* Infinitize time loops by isolating out all computation related with them into a separate kernel.
+    * This feature is applicable only when all unrolled and vectorized loops are at the innermost levels. */
+   Func &run_forever() { func.run_forever(true); return *this; }
 };
 
 namespace Internal {

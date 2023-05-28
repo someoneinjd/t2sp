@@ -98,6 +98,9 @@ struct FunctionContents {
     // This value is 0 by default.
     int min_depth;
 
+    // The function will run forever.
+    bool run_forever;
+
     // Function-specific schedule. This schedule is applied to all stages
     // within the function.
     FuncSchedule func_schedule;
@@ -433,6 +436,7 @@ void Function::deep_copy(FunctionPtr copy, DeepCopyMap &copied_map) const {
     copy->isolated_operands_as_producer = contents->isolated_operands_as_producer;
     copy->isolated_from_as_consumer = contents->isolated_from_as_consumer;
     copy->min_depth = contents->min_depth;
+    copy->run_forever = contents->run_forever;
     copy->output_types = contents->output_types;
     copy->decl_args = contents->decl_args;
     copy->debug_file = contents->debug_file;
@@ -923,6 +927,14 @@ void Function::min_depth(int min_depth) {
 
 int Function::min_depth() const {
     return contents->min_depth;
+}
+
+void Function::run_forever(bool run_forever) {
+    contents->run_forever = run_forever;
+}
+
+bool Function::run_forever() const {
+    return contents->run_forever;
 }
 
 int Function::dimensions() const {

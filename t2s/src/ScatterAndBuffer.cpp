@@ -1388,7 +1388,6 @@ public:
 
         add_nonscatter_unroll_loops(op->device_api, new_body);
 
-        // TODO: change here into while(1)
         new_body = For::make(func_name + ".s0.outermost_loop.infinite", 0, 10, ForType::Serial, op->device_api, new_body);  
         // new_body = For::make(func_name + ".s0.outermost_loop", 0, Expr(PERIODS + 1) * Expr(CYCLES_PER_PERIOD), ForType::Serial, op->device_api, new_body);
 

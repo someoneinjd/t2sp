@@ -1652,6 +1652,10 @@ string CodeGen_Clear_OneAPI_Dev::compile(const Module &input) {
     runtime_file << em_visitor.get_str() + "\n";
     runtime_file << "void halide_device_and_host_free_as_destructor(void *user_context, void *obj) {\n";
     runtime_file << "}\n";
+    //runtime_file << "inline void DPRINT(const char *message) {\n";
+    //runtime_file << "#ifndef T2SP_NDEBUG\n";
+    //runtime_file << "    std::cout << message << \"\\n\";\n";
+    //runtime_file << "#endif\n";
 
     // Some helper classes (class pipe_wrapper / complexf2/4/8/16 / complexd2/4/8/16, etc.)
     // into a separate to avoid duplicate definition error
@@ -3408,7 +3412,12 @@ std::string CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::print_type(Type type, Appe
         bool include_space = space == AppendSpace;
         bool needs_space = true;
         bool c_plus_plus = true;
-        if (type.is_bfloat()) {
+        if (type.is_generated_struct()) {
+            int type_id = type.bits();
+            const std::pair<std::string, std::vector<Type>> &entry = GeneratedStructType::structs[type_id];
+            string struct_name = entry.first;
+            oss << struct_name;
+        } else if (type.is_bfloat()) {
             oss << "bfloat" << type.bits();
         } else if (type.is_float()) {
             if (type.bits() == 32) {

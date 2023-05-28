@@ -300,8 +300,8 @@ struct StageScheduleContents {
     bool is_param_func;
     bool is_extended_ure;
     bool is_merged;
-    bool is_input{false};
-    bool is_output{false};
+    bool is_input;
+    bool is_output;
     bool touched;
     bool allow_race_conditions;
     bool atomic;
@@ -309,7 +309,7 @@ struct StageScheduleContents {
 
     StageScheduleContents()
         : fuse_level(FuseLoopLevel()), is_remove(false), is_param_func(false), is_extended_ure(false), is_merged(false),
-          touched(false), allow_race_conditions(false), atomic(false),
+          is_input(false), is_output(false), touched(false), allow_race_conditions(false), atomic(false),
           override_atomic_associativity_test(false) {};
 
     // Pass an IRMutator through to all Exprs referenced in the StageScheduleContents

@@ -823,8 +823,9 @@ T2S_SOURCE_FILES = \
   Devectorize.cpp \
   FlattenLoops.cpp \
   Gather.cpp \
-  IsolateProducers.cpp \
   IsolateConsumers.cpp \
+  IsolateProducers.cpp \
+  IsolateSignals.cpp \
   LateFuse.cpp \
   LoopRemoval.cpp \
   Math.cpp \
@@ -861,6 +862,7 @@ T2S_HEADER_FILES = \
   Devectorize.h \
   FlattenLoops.h \
   Gather.h \
+  IsolateSignals.h \
   LateFuse.h \
   LoopRemoval.h \
   Math.h \

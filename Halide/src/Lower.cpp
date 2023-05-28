@@ -81,6 +81,7 @@
 #include "../../t2s/src/Devectorize.h"
 #include "../../t2s/src/FlattenLoops.h"
 #include "../../t2s/src/Gather.h"
+#include "../../t2s/src/IsolateSignals.h"
 #include "../../t2s/src/LateFuse.h"
 #include "../../t2s/src/LoopRemoval.h"
 #include "../../t2s/src/MemorySchedule.h"
@@ -596,6 +597,10 @@ Module lower(const vector<Function> &output_funcs,
     debug(1) << "Flatten triangular loop...\n";
     s = flatten_tirangualr_loop_nest(s, env);
     debug(2) << "Lowering after triangular loop optimizing:\n" << s << "\n\n";
+
+    debug(1) << "Isolate signals out of run_forever kernels ...\n";
+    s = isolate_signals(s, env);
+    debug(2) << "Lowering after isolating signals out of run_forever kernels:\n" << s << "\n\n";
 
     if (getenv("DISABLE_AUTORUN") == NULL) {
         if (t.has_feature(Target::IntelFPGA)) {
