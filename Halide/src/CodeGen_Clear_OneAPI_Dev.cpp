@@ -2812,13 +2812,19 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::visit(const For *loop) {
             }
         } else if (loop->for_type == ForType::PragmaUnrolled) {
             in_unroll_loop = {true, loop->name, loop->min, stream.tellp(), get_indent()};
-            //stream << get_indent() << "#pragma unroll\n";
-            //CodeGen_Clear_C::visit(loop->body);
-            stream << get_indent() << "fpga_tools::UnrolledLoop<" << (!is_zero(loop->min) ? to_string(loop->min) + ", " : "") << simplify(loop->min + loop->extent) << ">([&](auto " << print_name(loop->name) << ") {\n";
-            indent += INDENT;
-            loop->body.accept(this);
-            indent -= INDENT;
-            stream << get_indent() << "});\n";
+            internal_assert(loop->extent.as<IntImm>());
+            auto unroll_factor = loop->extent.as<IntImm>()->value;
+            if (unroll_factor <= 256) {
+                stream << get_indent() << "fpga_tools::UnrolledLoop<" << (!is_zero(loop->min) ? to_string(loop->min) + ", " : "") << simplify(loop->min + loop->extent) << ">([&](auto " << print_name(loop->name) << ") {\n";
+                indent += INDENT;
+                loop->body.accept(this);
+                indent -= INDENT;
+                stream << get_indent() << "});\n";
+            } else {
+                // To workaround an error when using fpga_tools::UnrolledLoop<1024>: instantiating fold expression with 1023 arguments exceeded expression nesting limit of 256
+                stream << get_indent() << "#pragma unroll\n";
+                loop->body.accept(this);
+            }
             std::get<0>(in_unroll_loop) = false;
         } else {
             /*
@@ -2872,13 +2878,18 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::visit(const For *loop) {
                     }
                 } else {
                     in_unroll_loop = {true, loop->name, loop->min, stream.tellp(), get_indent()};
-                    //stream << get_indent() << "#pragma unroll\n";
-                    //print_normal_loop(loop);
-                    stream << get_indent() << "fpga_tools::UnrolledLoop<" << (!is_zero(loop->min) ? to_string(loop->min) + ", " : "") << simplify(loop->min + loop->extent) << ">([&](auto " << print_name(loop->name) << ") {\n";
-                    indent += INDENT;
-                    loop->body.accept(this);
-                    indent -= INDENT;
-                    stream << get_indent() << "});\n";
+                    internal_assert(loop->extent.as<IntImm>());
+                    auto unroll_factor = loop->extent.as<IntImm>()->value;
+                    if (unroll_factor <= 256) {
+                        stream << get_indent() << "fpga_tools::UnrolledLoop<" << (!is_zero(loop->min) ? to_string(loop->min) + ", " : "") << simplify(loop->min + loop->extent) << ">([&](auto " << print_name(loop->name) << ") {\n";
+                        indent += INDENT;
+                        loop->body.accept(this);
+                        indent -= INDENT;
+                        stream << get_indent() << "});\n";
+                    } else {
+                        stream << get_indent() << "#pragma unroll\n";
+                        print_normal_loop(loop);
+                    }
                     std::get<0>(in_unroll_loop) = false;
                 }
             } else {
