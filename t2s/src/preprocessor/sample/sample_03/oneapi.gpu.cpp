@@ -123,9 +123,9 @@ int main(){
 
     // Compile the kernel to an FPGA bitstream, and expose a C interface for the host to invoke
 #ifdef GPU
-    V.compile_to_oneapi({ P, W }, "capsule", IntelGPU);
+    V.compile_to_oneapi("capsule.cpp", { P, W }, "capsule", IntelGPU);
 #else
-    V.compile_to_oneapi({ P, W }, "capsule", IntelFPGA);
+    V.compile_to_oneapi("capsule.cpp", { P, W }, "capsule", IntelFPGA);
 #endif
 
 #pragma t2s_spec_end
