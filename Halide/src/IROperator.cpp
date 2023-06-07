@@ -1848,6 +1848,19 @@ Expr conjugate(Expr x) {
     }
 }
 
+Expr conditional_conjugate(Expr condition, Expr x) {
+    Type t = x.type();
+    if (!t.is_complex()) {
+        return std::move(x);
+    } else {
+        if (t.bits() == 64) {
+            return Internal::Call::make(t, "conditional_conjugate_c64", {std::move(condition), std::move(x)}, Internal::Call::PureExtern);
+        } else {
+            return Internal::Call::make(t, "conditional_conjugate_c32", {std::move(condition), std::move(x)}, Internal::Call::PureExtern);
+        }
+    }
+}
+
 Expr floor(Expr x) {
     user_assert(x.defined()) << "floor of undefined Expr\n";
     Type t = x.type();

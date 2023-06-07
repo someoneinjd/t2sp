@@ -1651,11 +1651,13 @@ string CodeGen_Clear_OneAPI_Dev::compile(const Module &input) {
     runtime_file << "#pragma once\n";
     runtime_file << em_visitor.get_str() + "\n";
     runtime_file << "void halide_device_and_host_free_as_destructor(void *user_context, void *obj) {\n";
-    runtime_file << "}\n";
-    //runtime_file << "inline void DPRINT(const char *message) {\n";
-    //runtime_file << "#ifndef T2SP_NDEBUG\n";
-    //runtime_file << "    std::cout << message << \"\\n\";\n";
-    //runtime_file << "#endif\n";
+    runtime_file << "}\n\n";
+    runtime_file << "#ifndef T2SP_NDEBUG\n";
+    runtime_file << "#define DPRINT(action) action\n";
+    runtime_file << "#else\n";
+    runtime_file << "#define DPRINT(action) \n";
+    runtime_file << "#endif\n\n";
+    //runtime_file << "#define ASSERT(condition, action) if(!condition) { DPRINT(action); assert(false); }\n";
 
     // Some helper classes (class pipe_wrapper / complexf2/4/8/16 / complexd2/4/8/16, etc.)
     // into a separate to avoid duplicate definition error
@@ -1847,16 +1849,18 @@ using complexf16 = t2sp::detail::vec<complexf, 16>;
 using complexd2 = t2sp::detail::vec<complexd, 2>;
 using complexd4 = t2sp::detail::vec<complexd, 4>;
 using complexd8 = t2sp::detail::vec<complexd, 8>;
-using complexd16 = t2sp::detail::vec<complexd, 16>;)";
+using complexd16 = t2sp::detail::vec<complexd, 16>;
+
+inline complexf conditional_conjugate_c32(bool condition, complexf x) { return condition ? std::conj(x) : x; }
+inline complexd conditional_conjugate_c64(bool condition, complexd x) { return condition ? std::conj(x) : x; }
+)";
 
     // Clean the stream, and include both Halide and sycl runtime headers into a single header.
     em_visitor.clean_stream();
     auto func_name = input.functions()[0].name;
-    {
-        std::vector<std::string> unused;
-        func_name = extract_namespaces(func_name, unused);
-    }
-    em_visitor.write_runtime_headers(func_name);
+    std::vector<std::string> tokens_in_func_name;
+    func_name = extract_namespaces(func_name, tokens_in_func_name);
+    em_visitor.write_runtime_headers(tokens_in_func_name);
 
     internal_assert(input.buffers().size() <= 0) << "OneAPI has no implementation to compile buffers at this time.\n";
     for (const auto &f : input.functions()) {
@@ -2267,9 +2271,7 @@ string CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::ExternCallFuncs::halide_device_
     string buff = p->print_expr(args[0]);
 
     rhs << "if (!" << buff << "->device) { // device malloc\n";
-    rhs << p->get_indent() << Indentation{INDENT} << "#ifndef T2SP_NDEBUG\n";
-    rhs << p->get_indent() << Indentation{INDENT} << "std::cout << \"//\t device malloc "<< buff << "\\n\";\n";
-    rhs << p->get_indent() << Indentation{INDENT} << "#endif\n";
+    rhs << p->get_indent() << Indentation{INDENT} << "DPRINT(std::cout << \"//\t device malloc "<< buff << "\\n\");\n";
     rhs << p->get_indent() << Indentation{INDENT} << "assert(" << buff << "->size_in_bytes() != 0);\n";
     rhs << p->get_indent() << Indentation{INDENT} << "uint64_t lowest_index = 0;\n";
     rhs << p->get_indent() << Indentation{INDENT} << "uint64_t highest_index = 0;\n";
@@ -2296,9 +2298,7 @@ string CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::ExternCallFuncs::halide_host_ma
     vector<Expr> args = op->args;
     string buffer_name = p->print_expr(args[0]);
     rhs << "{ // host malloc\n";
-    rhs << p->get_indent() << Indentation{INDENT} << "#ifndef T2SP_NDEBUG\n";
-    rhs << p->get_indent() << Indentation{INDENT} << "std::cout << \"//\\t host malloc "<< buffer_name << "\\n\";\n";
-    rhs << p->get_indent() << Indentation{INDENT} << "#endif\n";
+    rhs << p->get_indent() << Indentation{INDENT} << "DPRINT(std::cout << \"//\\t host malloc "<< buffer_name << "\\n\");\n";
     rhs << p->get_indent() << Indentation{INDENT} << "assert(" << buffer_name << "->size_in_bytes() != 0);\n";
     rhs << p->get_indent() << Indentation{INDENT} << buffer_name << "->host = (uint8_t*)std::malloc(" << buffer_name << "->size_in_bytes());\n";
     rhs << p->get_indent() << Indentation{INDENT} << "assert(" << buffer_name << "->host != NULL);\n";
@@ -2349,24 +2349,16 @@ string CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::ExternCallFuncs::halide_opencl_
     rhs << p->get_indent() << Indentation{INDENT} << "bool from_host = (" << buffer_name << "->device == 0) || ("<< buffer_name <<"->host_dirty() && "<< buffer_name << "->host != NULL);\n";
     rhs << p->get_indent() << Indentation{INDENT} << "bool to_host = "<< to_host <<";\n";
     rhs << p->get_indent() << Indentation{INDENT} << "if (!from_host && to_host) {\n";
-    rhs << p->get_indent() << Indentation{2 * INDENT} << "#ifndef T2SP_NDEBUG\n";
-    rhs << p->get_indent() << Indentation{2 * INDENT} << "std::cout << \"//\t memcpy device->host " << buffer_name << "\\n\";\n";
-    rhs << p->get_indent() << Indentation{2 * INDENT} << "#endif\n";
+    rhs << p->get_indent() << Indentation{2 * INDENT} << "DPRINT(std::cout << \"//\t memcpy device->host " << buffer_name << "\\n\");\n";
     rhs << p->get_indent() << Indentation{2 * INDENT} << create_memcpy(buffer_name , true)  << ";\n";
     rhs << p->get_indent() << Indentation{INDENT} << "} else if (from_host && !to_host) {\n";
-    rhs << p->get_indent() << Indentation{2 * INDENT} << "#ifndef T2SP_NDEBUG\n";
-    rhs << p->get_indent() << Indentation{2 * INDENT} << "std::cout << \"//\t memcpy host->device " << buffer_name << "\\n\";\n";
-    rhs << p->get_indent() << Indentation{2 * INDENT} << "#endif\n";
+    rhs << p->get_indent() << Indentation{2 * INDENT} << "DPRINT(std::cout << \"//\t memcpy host->device " << buffer_name << "\\n\");\n";
     rhs << p->get_indent() << Indentation{2 * INDENT} << create_memcpy(buffer_name , false)  << ";\n";
     rhs << p->get_indent() << Indentation{INDENT} << "} else if (!from_host && !to_host) {\n";
-    rhs << p->get_indent() << Indentation{2 * INDENT} << "#ifndef T2SP_NDEBUG\n";
-    rhs << p->get_indent() << Indentation{2 * INDENT} << "std::cout << \"//\t memcpy device->device not implemented yet\\n\";\n";
-    rhs << p->get_indent() << Indentation{2 * INDENT} << "#endif\n";
+    rhs << p->get_indent() << Indentation{2 * INDENT} << "DPRINT(std::cout << \"//\t memcpy device->device not implemented yet\\n\");\n";
     rhs << p->get_indent() << Indentation{2 * INDENT} << "assert(false);\n";
     rhs << p->get_indent() << Indentation{INDENT} << "} else {\n";
-    rhs << p->get_indent() << Indentation{2 * INDENT} << "#ifndef T2SP_NDEBUG\n";
-    rhs << p->get_indent() << Indentation{2 * INDENT} << "std::cout << \"//\t memcpy "<< buffer_name << " Do nothing.\\n\";\n";
-    rhs << p->get_indent() << Indentation{2 * INDENT} << "#endif\n";
+    rhs << p->get_indent() << Indentation{2 * INDENT} << "DPRINT(std::cout << \"//\t memcpy "<< buffer_name << " Do nothing.\\n\");\n";
     rhs << p->get_indent() << Indentation{INDENT} << "}\n";
     rhs << p->get_indent() << "}";
     return rhs.str();
@@ -2428,11 +2420,9 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::create_assertion(const string &id
 
     stream << get_indent() << "if (!" << id_cond << ")\n";
     open_scope();
-    stream << get_indent() << "#ifndef T2SP_NDEBUG\n";
-    stream << get_indent() << "std::cout << \"Condition '" <<  id_cond << "' failed "
+    stream << get_indent() << "DPRINT(std::cout << \"Condition '" <<  id_cond << "' failed "
            << "with error id_msg: " << id_msg
-           << "\\n\";\n";
-    stream << get_indent() << "#endif\n";
+           << "\\n\");\n";
     stream << get_indent() << "assert(false);\n";
     close_scope("");
 }
@@ -2442,7 +2432,7 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::clean_stream() {
     stream_ptr->clear();
 }
 
-void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::write_runtime_headers(const string &func_name) {
+void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::write_runtime_headers(const std::vector<std::string> &tokens_in_func_name) {
     stream << 
 R"(#pragma once
 #include "halide_runtime_etc.h"
@@ -2460,7 +2450,17 @@ R"(#pragma once
 #include "unrolled_loop.hpp"
 
 using namespace sycl;
-namespace t2sp::)" << func_name << " {\n\n";
+)";
+
+    stream << "namespace ";
+    if (tokens_in_func_name.size() == 0) {
+        stream << "t2sp"; // A default namespace
+    } else {
+        for (size_t i = 0; i < tokens_in_func_name.size(); i++) {
+            stream << (i == 0 ? "" : "::") << tokens_in_func_name[i];
+        }
+    }
+    stream << " {\n\n";
 }
 
 string CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::get_str() {
@@ -2503,12 +2503,12 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::compile(const LoweredFunc &f) {
     std::string simple_name = extract_namespaces(f.name, namespaces);
 
     // Print out namespace begining
-    if (!namespaces.empty()) {
+    /*if (!namespaces.empty()) {
         for (const auto &ns : namespaces) {
             stream << "namespace " << ns << " {\n";
         }
         stream << "\n";
-    }
+    }*/
 
     // Emit the function prototype
     if (f.linkage == LinkageType::Internal) {
@@ -2518,7 +2518,7 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::compile(const LoweredFunc &f) {
 
     // (TODO) Check that HALIDE_FUNCTION_ATTRS is necessary or not
     // stream << "HALIDE_FUNCTION_ATTRS\n";
-    stream << "auto " << simple_name << "(device_selector_t device_selector_v";
+    stream << "uint64_t " << simple_name << "(device_selector_t device_selector_v";
     if (args.size() > 0) stream << ", ";
     for (size_t i = 0; i < args.size(); i++) {
         if (args[i].is_buffer()) {
@@ -2551,15 +2551,11 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::compile(const LoweredFunc &f) {
     stream << get_indent() << Indentation{2 * INDENT} << "}\n";
     stream << get_indent() << Indentation{INDENT} << "}\n";
     stream << get_indent() << "};\n";
-    stream << get_indent() << "#ifndef T2SP_NDEBUG\n";
-    stream << get_indent() << "std::cout << \"// creating device queues\\n\";\n";
-    stream << get_indent() << "#endif\n";
+    stream << get_indent() << "DPRINT(std::cout << \"// creating device queues\\n\");\n";
     stream << get_indent() << "sycl::queue q_host(sycl::cpu_selector_v, exception_handler, sycl::property::queue::enable_profiling());\n";
     stream << get_indent() << "sycl::queue q_device(device_selector_v, exception_handler, sycl::property::queue::enable_profiling());\n";
-    stream << get_indent() << "#ifndef T2SP_NDEBUG\n";
-    stream << get_indent() << "std::cout << \"// Host: \" << q_host.get_device().get_info<sycl::info::device::name>() << \"\\n\";\n";
-    stream << get_indent() << "std::cout << \"// Device: \" << q_device.get_device().get_info<sycl::info::device::name>() << \"\\n\";\n";
-    stream << get_indent() << "#endif\n";
+    stream << get_indent() << "DPRINT(std::cout << \"// Host: \" << q_host.get_device().get_info<sycl::info::device::name>() << \"\\n\");\n";
+    stream << get_indent() << "DPRINT(std::cout << \"// Device: \" << q_device.get_device().get_info<sycl::info::device::name>() << \"\\n\");\n";
     stream << get_indent() << "sycl::device dev = q_device.get_device();\n";
 
 
@@ -2577,16 +2573,14 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::compile(const LoweredFunc &f) {
 
 
     // Return execution time of the kernels.
-    stream << get_indent() << "#ifndef T2SP_NDEBUG\n";
-    stream << get_indent() << "std::cout << \"// return the kernel execution time in nanoseconds\\n\";\n";
-    stream << get_indent() << "#endif\n";
-    stream << get_indent() << "auto k_earliest_start_time = std::numeric_limits<\n"
+    stream << get_indent() << "DPRINT(std::cout << \"// return the kernel execution time in nanoseconds\\n\");\n";
+    stream << get_indent() << "uint64_t k_earliest_start_time = std::numeric_limits<\n"
            << get_indent() << Indentation{INDENT} << "typename sycl::info::event_profiling::command_start::return_type>::max();\n"
-           << get_indent() << "auto k_latest_end_time = std::numeric_limits<\n"
+           << get_indent() << "uint64_t k_latest_end_time = std::numeric_limits<\n"
            << get_indent() << Indentation{INDENT} << "typename sycl::info::event_profiling::command_end::return_type>::min();\n"
            << get_indent() << "for (auto i : kernels_used_to_measure_time) {\n"
-           << get_indent() << Indentation{INDENT} << "auto tmp_start = oneapi_kernel_events[i].get_profiling_info<sycl::info::event_profiling::command_start>();\n"
-           << get_indent() << Indentation{INDENT} << "auto tmp_end = oneapi_kernel_events[i].get_profiling_info<sycl::info::event_profiling::command_end>();\n"
+           << get_indent() << Indentation{INDENT} << "uint64_t tmp_start = oneapi_kernel_events[i].get_profiling_info<sycl::info::event_profiling::command_start>();\n"
+           << get_indent() << Indentation{INDENT} << "uint64_t tmp_end = oneapi_kernel_events[i].get_profiling_info<sycl::info::event_profiling::command_end>();\n"
            << get_indent() << Indentation{INDENT} << "if (tmp_start < k_earliest_start_time) {\n"
            << get_indent() << Indentation{2 * INDENT} << "k_earliest_start_time = tmp_start;\n"
            << get_indent() << Indentation{INDENT} << "}\n"
@@ -2600,7 +2594,7 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::compile(const LoweredFunc &f) {
 
 
     indent -= INDENT;
-    stream << "}\n}\n";
+    stream << "}\n";
     // Ending of function implementation
 
     // (TODO) Check that HALIDE_FUNCTION_ATTRS is necessary or not
@@ -2612,13 +2606,14 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::compile(const LoweredFunc &f) {
     // }
 
     if (!namespaces.empty()) {
-        stream << "\n";
-        for (size_t i = namespaces.size(); i > 0; i--) {
-            stream << "}  // namespace " << namespaces[i - 1] << "\n";
+        stream << "} // namespace ";
+        for (size_t i = 0; i < namespaces.size(); i++) {
+            stream << (i == 0 ? "" : "::") << namespaces[i];
         }
         stream << "\n";
+    } else {
+        stream << "} // namespace t2sp\n";
     }
-
 }
 
 std::string CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::create_kernel_name(const For *op) {
@@ -2644,9 +2639,7 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::create_kernel_wrapper(
 
     if (beginning) {
         stream << get_indent() << "// " << name << "\n";
-        stream << get_indent() << "#ifndef T2SP_NDEBUG\n";
-        stream << get_indent() << "std::cout << \"// kernel " << name << "\\n\";\n";
-        stream << get_indent() << "#endif\n";
+        stream << get_indent() << "DPRINT(std::cout << \"// kernel " << name << "\\n\");\n";
 
         // convert any pointers we need to get the device memory allocated
         for (const auto &arg : args) {
