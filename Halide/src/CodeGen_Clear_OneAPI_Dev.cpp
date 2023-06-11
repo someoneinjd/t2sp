@@ -1652,208 +1652,6 @@ string CodeGen_Clear_OneAPI_Dev::compile(const Module &input) {
     runtime_file << em_visitor.get_str() + "\n";
     runtime_file << "void halide_device_and_host_free_as_destructor(void *user_context, void *obj) {\n";
     runtime_file << "}\n\n";
-    runtime_file << "#ifndef T2SP_NDEBUG\n";
-    runtime_file << "#define DPRINT(action) action\n";
-    runtime_file << "#else\n";
-    runtime_file << "#define DPRINT(action) \n";
-    runtime_file << "#endif\n\n";
-    //runtime_file << "#define ASSERT(condition, action) if(!condition) { DPRINT(action); assert(false); }\n";
-
-    // Some helper classes (class pipe_wrapper / complexf2/4/8/16 / complexd2/4/8/16, etc.)
-    // into a separate to avoid duplicate definition error
-    std::ofstream pipe_wrapper_h{"pipe_wrapper.hpp"}, complex_helper_h{"complex_helper.hpp"};
-    pipe_wrapper_h <<
-R"(#pragma once
-#include <cstdint>
-#if __has_include(<sycl/sycl.hpp>)
-#include <sycl/sycl.hpp>
-#else
-#include <CL/sycl.hpp>
-#endif
-#include <sycl/ext/intel/fpga_extensions.hpp>
-
-// The SYCL 1.2.1 device_selector class is deprecated in SYCL 2020.
-// Use the callable selector object instead.
-#if SYCL_LANGUAGE_VERSION >= 202001
-using device_selector_t = int(*)(const sycl::device&);
-#else
-using device_selector_t = const sycl::device_selector &;
-#endif
-
-struct device_handle {
-  // Important: order these to avoid any padding between fields;
-  // some Win32 compiler optimizer configurations can inconsistently
-  // insert padding otherwise.
-  uint64_t offset;
-  void *mem;
-};
-
-template <typename name, typename data_type, int32_t min_capacity, int32_t... dims>
-struct pipe_wrapper {
-  template <int32_t...> struct unique_id;
-  template <int32_t... idxs>
-  static data_type read() {
-    static_assert(((idxs >= 0) && ...), "Negative index");
-    static_assert(((idxs < dims) && ...), "Index out of bounds");
-    return sycl::ext::intel::pipe<unique_id<idxs...>, data_type, min_capacity>::read();
-  }
-  template <int32_t... idxs>
-  static void write(const data_type &t) {
-    static_assert(((idxs >= 0) && ...), "Negative index");
-    static_assert(((idxs < dims) && ...), "Index out of bounds");
-    sycl::ext::intel::pipe<unique_id<idxs...>, data_type, min_capacity>::write(t);
-  }
-};)";
-    complex_helper_h <<
-R"(#pragma once
-#include <complex>
-#include <array>
-
-namespace t2sp {
-namespace detail {
-template <typename T, size_t N>
-class vec {
-    std::array<T, N> _arr;
-  public:
-    vec() = default;
-    vec(const vec &) = default;
-    vec(vec &&) = default;
-    vec &operator=(const vec &) = default;
-    vec &operator=(vec &&) = default;
-    vec(const T &arg) {
-        for (size_t i = 0; i < N; i++) _arr[i] = arg;
-    }
-    template <typename ...Args>
-    vec(const Args &...args) : _arr{{args...}} {}
-    vec &operator=(const T& arg) {
-        for (size_t i = 0; i < N; i++) _arr[i] = arg;
-        return *this;
-    }
-    T &operator[](size_t n) {
-        return _arr[n];
-    }
-    const T &operator[](size_t n) const {
-        return _arr[n];
-    }
-    vec &operator+=(const vec &rhs) {
-        for (size_t i = 0; i < N; i++) _arr[i] += rhs._arr[i];
-        return *this;
-    }
-    vec &operator+=(const T &rhs) {
-        for (size_t i = 0; i < N; i++) _arr[i] += rhs;
-        return *this;
-    }
-    vec &operator-=(const vec &rhs) {
-        for (size_t i = 0; i < N; i++) _arr[i] -= rhs._arr[i];
-        return *this;
-    }
-    vec &operator-=(const T &rhs) {
-        for (size_t i = 0; i < N; i++) _arr[i] -= rhs;
-        return *this;
-    }
-    vec &operator*=(const vec &rhs) {
-        for (size_t i = 0; i < N; i++) _arr[i] *= rhs._arr[i];
-        return *this;
-    }
-    vec &operator*=(const T &arg) {
-        for (size_t i = 0; i < N; i++) _arr[i] *= arg;
-        return *this;
-    }
-    friend vec operator+(const vec &arg) {
-        return arg;
-    }
-    friend vec operator-(const vec &arg) {
-        vec ret{};
-        for (size_t i = 0; i < N; i++) ret._arr[i] = -arg._arr[i];
-        return ret;
-    }
-    friend vec operator+(const vec &lhs, const vec &rhs) {
-        vec ret{};
-        for (size_t i = 0; i < N; i++) ret._arr[i] = lhs._arr[i] + rhs._arr[i];
-        return ret;
-    }
-    friend vec operator+(const vec &lhs, const T &rhs) {
-        vec ret{};
-        for (size_t i = 0; i < N; i++) ret._arr[i] = lhs._arr[i] + rhs;
-        return ret;
-    }
-    friend vec operator+(const T &lhs, const vec &rhs) {
-        vec ret{};
-        for (size_t i = 0; i < N; i++) ret._arr[i] = lhs + rhs._arr[i];
-        return ret;
-    }
-    friend vec operator-(const vec &lhs, const vec &rhs) {
-        vec ret{};
-        for (size_t i = 0; i < N; i++) ret._arr[i] = lhs._arr[i] - rhs._arr[i];
-        return ret;
-    }
-    friend vec operator-(const vec &lhs, const T &rhs) {
-        vec ret{};
-        for (size_t i = 0; i < N; i++) ret._arr[i] = lhs._arr[i] - rhs;
-        return ret;
-    }
-    friend vec operator-(const T &lhs, const vec &rhs) {
-        vec ret{};
-        for (size_t i = 0; i < N; i++) ret._arr[i] = lhs - rhs._arr[i];
-        return ret;
-    }
-    friend vec operator*(const vec &lhs, const vec &rhs) {
-        vec ret{};
-        for (size_t i = 0; i < N; i++) ret._arr[i] = lhs._arr[i] * rhs._arr[i];
-        return ret;
-    }
-    friend vec operator*(const vec &lhs, const T &rhs) {
-        vec ret{};
-        for (size_t i = 0; i < N; i++) ret._arr[i] = lhs._arr[i] * rhs;
-        return ret;
-    }
-    friend vec operator*(const T &lhs, const vec &rhs) {
-        vec ret{};
-        for (size_t i = 0; i < N; i++) ret._arr[i] = lhs * rhs._arr[i];
-        return ret;
-    }
-    friend bool operator==(const vec &lhs, const vec &rhs) {
-        bool ret = true;
-        for (size_t i = 0; i < N; i++) ret = ret && lhs._arr[i] == rhs._arr[i];
-        return ret;
-    }
-    friend bool operator==(const vec &lhs, const T &rhs) {
-        bool ret = true;
-        for (size_t i = 0; i < N; i++) ret = ret && lhs._arr[i] == rhs;
-        return ret;
-    }
-    friend bool operator==(const T &lhs, const vec &rhs) {
-        bool ret = true;
-        for (size_t i = 0; i < N; i++) ret = ret && lhs == rhs._arr[i];
-        return ret;
-    }
-    friend bool operator!=(const vec &lhs, const vec &rhs) {
-        return !(lhs == rhs);
-    }
-    friend bool operator!=(const vec &lhs, const T &rhs) {
-        return !(lhs == rhs);
-    }
-    friend bool operator!=(const T &lhs, const vec &rhs) {
-        return !(lhs == rhs);
-    }
-};
-}
-}
-
-using complexf = std::complex<float>;
-using complexd = std::complex<double>;
-using complexf2 = t2sp::detail::vec<complexf, 2>;
-using complexf4 = t2sp::detail::vec<complexf, 4>;
-using complexf8 = t2sp::detail::vec<complexf, 8>;
-using complexf16 = t2sp::detail::vec<complexf, 16>;
-using complexd2 = t2sp::detail::vec<complexd, 2>;
-using complexd4 = t2sp::detail::vec<complexd, 4>;
-using complexd8 = t2sp::detail::vec<complexd, 8>;
-using complexd16 = t2sp::detail::vec<complexd, 16>;
-
-inline complexf conditional_conjugate_c32(bool condition, complexf x) { return condition ? std::conj(x) : x; }
-inline complexd conditional_conjugate_c64(bool condition, complexd x) { return condition ? std::conj(x) : x; }
-)";
 
     // Clean the stream, and include both Halide and sycl runtime headers into a single header.
     em_visitor.clean_stream();
@@ -2435,6 +2233,7 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::clean_stream() {
 void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::write_runtime_headers(const std::vector<std::string> &tokens_in_func_name) {
     stream << 
 R"(#pragma once
+#include "Halide.h"
 #include "halide_runtime_etc.h"
 #if __has_include(<sycl/sycl.hpp>)
 #include <sycl/sycl.hpp>
@@ -2448,6 +2247,12 @@ R"(#pragma once
 #include "constexpr_math.hpp"
 #include "tuple.hpp"
 #include "unrolled_loop.hpp"
+
+#ifndef T2SP_NDEBUG
+    #define DPRINT(action) action
+#else
+    #define DPRINT(action)
+#endif
 
 using namespace sycl;
 )";
@@ -3319,30 +3124,12 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::visit(const AssertStmt *op) {
         }
     }
     return;
-
-    // Currently, we are not mplementaiting
-    // assertions inside a kernel
     if (!currently_inside_kernel) {
-        if (target.has_feature(Target::NoAsserts)) return;
-
-
         std::string id_cond = print_expr(op->condition);
-
-
-
-        stream << get_indent() << "if (!" << id_cond << ") ";
-        open_scope();
-        stream << get_indent() << "std::cout << \"Condition '"
-               <<  id_cond << "' failed ";
-        if (op->message.defined()) {
-            std::string id_msg = print_expr(op->message);
-            stream << "with error id_msg: " << id_msg;
-        }
-        stream << "\\n\";\n";
-        stream << get_indent() << "assert(false);\n";
-        close_scope("");
+        stream << get_indent() << "_halide_user_assert(" << id_cond << ");\n";
     } else {
-        debug(2) << "Ignoring assertion inside OneAPI kernel: " << op->condition << "\n";
+        // Currently, we are not implementing assertions inside a kernel
+        user_warning << "Ignoring assertion inside OneAPI kernel: " << op->condition << "\n";
     }
 }
 

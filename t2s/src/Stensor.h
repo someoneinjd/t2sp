@@ -48,6 +48,7 @@ struct Stensor
     vector<Expr> dims;
     int schain_idx = -1;
     int fifo_depth = 0;
+    vector<Expr> conditions_of_asserts;
 
     Stensor(std::string _n, SMemType _p)
         : name(_n), position(_p) {}
@@ -62,7 +63,9 @@ struct Stensor
     void compile_to_oneapi(const string &file_name,
                            const vector<Argument> &args,
                            const std::string &fn_name,
-                           Starget t);
+                           Starget t,
+                           const vector<Target::Feature> &features = {});
+    Stensor &require(const Expr &condition) { conditions_of_asserts.push_back(condition); return *this; }
     Stensor &scope(Var v);
     Stensor &banks(const std::vector<Var> &banks);
     Stensor &out(const std::vector<Var> &bankwidth_and_banks);

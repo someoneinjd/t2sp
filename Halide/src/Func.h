@@ -2873,6 +2873,10 @@ public:
    /* Infinitize time loops by isolating out all computation related with them into a separate kernel.
     * This feature is applicable only when all unrolled and vectorized loops are at the innermost levels. */
    Func &run_forever() { func.run_forever(true); return *this; }
+
+   /* Add a runtime check (assertion) of a condition. The condition may depend on parameters only, and may not call any Func or use a Var. */
+   Func &require(const Expr &condition) { pipeline().add_requirement(condition); return *this; };
+
 };
 
 namespace Internal {

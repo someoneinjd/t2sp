@@ -751,6 +751,11 @@ Func Stensor::stensor_realize_wrapper(Starget t) {
         RealizeOnGPU gpu(fv, num_gpu_vars);
         f = gpu.realize();
     }
+
+    for (auto condition : conditions_of_asserts) {
+        f.require(condition);
+    }
+
     return f;
 }
 
@@ -799,10 +804,14 @@ void Stensor::compile_to_host(string file_name, const vector<Argument> &args,
 void Stensor::compile_to_oneapi(const string &file_name,
                                 const vector<Argument> &args,
                                 const std::string &fn_name,
-                                Starget t) {
+                                Starget t,
+                                const vector<Target::Feature> &features) {
     Func f = stensor_realize_wrapper(t);
     Target acc = get_host_target();
     acc.set_feature(Target::OneAPI);
+    for (auto feature : features) {
+        acc.set_feature(feature);
+    }
     if (t == Starget::IntelFPGA) {
         acc.set_feature(Target::IntelFPGA);
         acc.set_feature(Target::EnableSynthesis);
