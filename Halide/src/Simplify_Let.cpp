@@ -78,8 +78,6 @@ Body Simplify::simplify_let(const LetOrLetStmt *op, ExprInfo *bounds) {
         Expr new_var = Variable::make(f.new_value.type(), f.new_name);
         Expr replacement = new_var;
 
-        debug(4) << "simplify let " << op->name << " = " << f.value << " in...\n";
-
         while (1) {
             // reserved for creating register reference and variable
             if (starts_with(f.new_name, "var.")
@@ -253,7 +251,9 @@ Body Simplify::simplify_let(const LetOrLetStmt *op, ExprInfo *bounds) {
             count_var_uses(it->new_value, vars_used);
         }
 
-        if (!remove_dead_lets || (info.old_uses > 0 && vars_used.count(it->op->name) > 0)) {
+        if (!remove_dead_lets || (info.old_uses > 0 && vars_used.count(it->op->name) > 0)
+            || ends_with(it->op->name, ".mem_channel.buffer")) { // This LetStmt is for initializing the halide buffer as a memory channel. Unfortunately,
+                                                                 // this LetStmt might seem unused (yet), but it will be used later.
             // The old name is still in use. We'd better keep it as well.
             result = LetOrLetStmt::make(it->op->name, it->value, result);
             count_var_uses(it->value, vars_used);
