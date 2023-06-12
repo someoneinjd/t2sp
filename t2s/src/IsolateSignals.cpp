@@ -275,7 +275,14 @@ private:
         }
         for (int i = (int)(time_loops.size()) - 1; i >= 0; i--) {
             const For *original_loop = time_loops[i];
-            new_s = For::make(original_to_new_loops[original_loop->name].as<Variable>()->name, original_loop->min, original_loop->extent, original_loop->for_type, original_loop->device_api, new_s);
+            // A loop's min/extent may reference outer loops' variables. Need replace these variables with new variables as well.
+            Expr min = original_loop->min;
+            Expr extent = original_loop->extent;
+            for (auto l : time_loops) {
+                min = substitute(l->name, original_to_new_loops[l->name], min);
+                extent = substitute(l->name, original_to_new_loops[l->name], extent);
+            }
+            new_s = For::make(original_to_new_loops[original_loop->name].as<Variable>()->name, min, extent, original_loop->for_type, original_loop->device_api, new_s);
         }
         new_s = For::make(signal_generator_name + ".s0.run_on_device", 0, 1, ForType::Parallel, device_api, new_s);
         Stmt consumer = ProducerConsumer::make(signal_generator_name, false, s);
