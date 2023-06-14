@@ -2373,7 +2373,8 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::compile(const LoweredFunc &f) {
     print(f.body);
 
     // Compute the execution time of the kernels.
-    stream << get_indent() << "uint64_t k_earliest_start_time = std::numeric_limits<\n"
+    stream << "#ifndef T2SP_NDEBUG\n"
+           << get_indent() << "uint64_t k_earliest_start_time = std::numeric_limits<\n"
            << get_indent() << Indentation{INDENT} << "typename sycl::info::event_profiling::command_start::return_type>::max();\n"
            << get_indent() << "uint64_t k_latest_end_time = std::numeric_limits<\n"
            << get_indent() << Indentation{INDENT} << "typename sycl::info::event_profiling::command_end::return_type>::min();\n"
@@ -2386,9 +2387,10 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::compile(const LoweredFunc &f) {
            << get_indent() << Indentation{INDENT} << "if (tmp_end > k_latest_end_time) {\n"
            << get_indent() << Indentation{2 * INDENT} << "k_latest_end_time = tmp_end;\n"
            << get_indent() << Indentation{INDENT} << "}\n"
-           << get_indent() << "}\n";
-    stream << get_indent() << "DPRINT(std::cout << \"// Execution time of the device kernels (in nanoseconds) = \" "
-                                               "<< kernels_used_to_measure_time.empty() ? decltype(k_latest_end_time){} : k_latest_end_time - k_earliest_start_time);\n";
+           << get_indent() << "}\n"
+           << get_indent() << "std::cout << \"// Execution time of the device kernels (in nanoseconds) = \" "
+                                        "<< kernels_used_to_measure_time.empty() ? decltype(k_latest_end_time){} : k_latest_end_time - k_earliest_start_time);\n"
+           << "#endif\n";
 
     // At this point, we have actually made sure that all kenrels have ended. However, to conform to the DPC++ interface of oneMKL BLAS
     // (like the GEMM interface in https://www.intel.com/content/www/us/en/docs/onemkl/developer-reference-dpcpp/2023-0/gemm.html),
