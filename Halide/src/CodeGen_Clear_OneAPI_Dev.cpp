@@ -2231,7 +2231,7 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::clean_stream() {
 }
 
 void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::write_runtime_headers(const std::vector<std::string> &tokens_in_func_name) {
-    stream << 
+    stream <<
 R"(#include "Halide.h"
 #include "halide_runtime_etc.h"
 #if __has_include(<sycl/sycl.hpp>)
@@ -2322,7 +2322,7 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::compile(const LoweredFunc &f) {
 
     // (TODO) Check that HALIDE_FUNCTION_ATTRS is necessary or not
     // stream << "HALIDE_FUNCTION_ATTRS\n";
-    stream << "uint64_t " << simple_name << "(device_selector_t device_selector_v";
+    stream << "sycl::event " << simple_name << "(sycl::queue &q_device";
     if (args.size() > 0) stream << ", ";
     for (size_t i = 0; i < args.size(); i++) {
         if (args[i].is_buffer()) {
@@ -2357,7 +2357,7 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::compile(const LoweredFunc &f) {
     stream << get_indent() << "};\n";
     stream << get_indent() << "DPRINT(std::cout << \"// creating device queues\\n\");\n";
     stream << get_indent() << "sycl::queue q_host(sycl::cpu_selector_v, exception_handler, sycl::property::queue::enable_profiling());\n";
-    stream << get_indent() << "sycl::queue q_device(device_selector_v, exception_handler, sycl::property::queue::enable_profiling());\n";
+    //stream << get_indent() << "sycl::queue q_device(device_selector_v, exception_handler, sycl::property::queue::enable_profiling());\n";
     stream << get_indent() << "DPRINT(std::cout << \"// Host: \" << q_host.get_device().get_info<sycl::info::device::name>() << \"\\n\");\n";
     stream << get_indent() << "DPRINT(std::cout << \"// Device: \" << q_device.get_device().get_info<sycl::info::device::name>() << \"\\n\");\n";
     stream << get_indent() << "sycl::device dev = q_device.get_device();\n";
@@ -2372,12 +2372,7 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::compile(const LoweredFunc &f) {
     // Emit the body
     print(f.body);
 
-    // Make sure all kernels are finished
-    stream << get_indent() << "oneapi_kernel_events.back().wait();\n";
-
-
-    // Return execution time of the kernels.
-    stream << get_indent() << "DPRINT(std::cout << \"// return the kernel execution time in nanoseconds\\n\");\n";
+    // Compute the execution time of the kernels.
     stream << get_indent() << "uint64_t k_earliest_start_time = std::numeric_limits<\n"
            << get_indent() << Indentation{INDENT} << "typename sycl::info::event_profiling::command_start::return_type>::max();\n"
            << get_indent() << "uint64_t k_latest_end_time = std::numeric_limits<\n"
@@ -2391,11 +2386,14 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::compile(const LoweredFunc &f) {
            << get_indent() << Indentation{INDENT} << "if (tmp_end > k_latest_end_time) {\n"
            << get_indent() << Indentation{2 * INDENT} << "k_latest_end_time = tmp_end;\n"
            << get_indent() << Indentation{INDENT} << "}\n"
-           << get_indent() << "}\n"
-           << get_indent() << "// Get time in ns\n"
-           << get_indent() << "return kernels_used_to_measure_time.empty() ? decltype(k_latest_end_time){} : k_latest_end_time - k_earliest_start_time;\n";
+           << get_indent() << "}\n";
+    stream << get_indent() << "DPRINT(std::cout << \"// Execution time of the device kernels (in nanoseconds) = \" "
+                                               "<< kernels_used_to_measure_time.empty() ? decltype(k_latest_end_time){} : k_latest_end_time - k_earliest_start_time);\n";
 
-
+    // At this point, we have actually made sure that all kenrels have ended. However, to conform to the DPC++ interface of oneMKL BLAS
+    // (like the GEMM interface in https://www.intel.com/content/www/us/en/docs/onemkl/developer-reference-dpcpp/2023-0/gemm.html),
+    // we return the event of the submission of the last kernel.
+    stream << get_indent() << "return oneapi_kernel_events.back();\n";
 
     indent -= INDENT;
     stream << "}\n";
