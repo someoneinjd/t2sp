@@ -2232,8 +2232,7 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::clean_stream() {
 
 void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::write_runtime_headers(const std::vector<std::string> &tokens_in_func_name) {
     stream <<
-R"(#include "Halide.h"
-#include "halide_runtime_etc.h"
+R"(#include "halide_runtime_etc.h"
 #if __has_include(<sycl/sycl.hpp>)
 #include <sycl/sycl.hpp>
 #else

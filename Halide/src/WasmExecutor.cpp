@@ -606,7 +606,7 @@ void dump_wasmbuf(const Local<Context> &context, wasm32_ptr_t buf_ptr, const std
 }
 
 static_assert(sizeof(halide_type_t) == 4, "halide_type_t");
-static_assert(sizeof(halide_dimension_t) == 16, "halide_dimension_t");
+static_assert(sizeof(halide_dimension_t) == 32, "halide_dimension_t");
 static_assert(sizeof(wasm_halide_buffer_t) == 40, "wasm_halide_buffer_t");
 
 // Given a halide_buffer_t on the host, allocate a wasm_halide_buffer_t in wasm
@@ -614,7 +614,7 @@ static_assert(sizeof(wasm_halide_buffer_t) == 40, "wasm_halide_buffer_t");
 // contiguous memory, and can be free with a single free().
 wasm32_ptr_t hostbuf_to_wasmbuf(const Local<Context> &context, const halide_buffer_t *src) {
     static_assert(sizeof(halide_type_t) == 4, "halide_type_t");
-    static_assert(sizeof(halide_dimension_t) == 16, "halide_dimension_t");
+    static_assert(sizeof(halide_dimension_t) == 32, "halide_dimension_t");
     static_assert(sizeof(wasm_halide_buffer_t) == 40, "wasm_halide_buffer_t");
 
     wdebug(0) << "\nhostbuf_to_wasmbuf:\n";

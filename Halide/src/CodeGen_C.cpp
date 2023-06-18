@@ -2325,8 +2325,8 @@ void CodeGen_C::visit(const Call *op) {
                 values.push_back(print_expr(op->args[i]));
             }
 
-            static_assert(sizeof(halide_dimension_t) == 4 * sizeof(int32_t),
-                          "CodeGen_C assumes a halide_dimension_t is four densely-packed int32_ts");
+            static_assert(sizeof(halide_dimension_t) == 4 * sizeof(int64_t),
+                          "CodeGen_C assumes a halide_dimension_t is four densely-packed int64_ts");
 
             internal_assert(values.size() % 4 == 0);
             int dimension = values.size() / 4;
