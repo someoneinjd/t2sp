@@ -1646,12 +1646,14 @@ string CodeGen_Clear_OneAPI_Dev::compile(const Module &input) {
     std::ostringstream EmitOneAPIFunc_stream;
     EmitOneAPIFunc em_visitor{&clc, EmitOneAPIFunc_stream, clc.get_target()};
 
+    // Turn on the following code to auto-generate the Halide runtime header once.
+#ifdef GEN_HALIDE_RUNTIME
     // The Halide runtime headers, etc. into a separate file to make the main file cleaner
     std::ofstream runtime_file{"halide_runtime_etc.h"};
     runtime_file << "#pragma once\n";
     runtime_file << em_visitor.get_str() + "\n";
-    runtime_file << "void halide_device_and_host_free_as_destructor(void *user_context, void *obj) {\n";
-    runtime_file << "}\n\n";
+    runtime_file << "extern HALIDE_ALWAYS_INLINE void halide_device_and_host_free_as_destructor(void *user_context, void *obj) {};\n\n";
+#endif
 
     // Clean the stream, and include both Halide and sycl runtime headers into a single header.
     em_visitor.clean_stream();
