@@ -531,12 +531,14 @@ class InjectBufferCopies : public IRMutator {
                 body = Allocate::make(buffer, type, MemoryType::Heap, extents, condition, body,
                                       host, "halide_device_host_nop_free");
 
-                // Then the destructor
-                Stmt destructor =
-                    Evaluate::make(Call::make(Handle(), Call::register_destructor,
-                                              {Expr("halide_device_and_host_free_as_destructor"), buf},
-                                              Call::Intrinsic));
-                body = Block::make(destructor, body);
+                // Then the destructor. However, for FPGA with either oneapi or opencl, this does not seem to has any use
+                if (!target.has_feature(Target::IntelFPGA)) {
+                    Stmt destructor =
+                        Evaluate::make(Call::make(Handle(), Call::register_destructor,
+                                                  {Expr("halide_device_and_host_free_as_destructor"), buf},
+                                                  Call::Intrinsic));
+                    body = Block::make(destructor, body);
+                }
 
                 // Then the device_and_host malloc
                 Expr device_interface = make_device_interface_call(device_api);
@@ -562,10 +564,11 @@ class InjectBufferCopies : public IRMutator {
         vector<Expr> extents;
         Expr condition;
         DeviceAPI device_api;
+        const Target &target;
 
     public:
-        InjectCombinedAllocation(string b, Type t, vector<Expr> e, Expr c, DeviceAPI d)
-            : buffer(b), type(t), extents(e), condition(c), device_api(d) {
+        InjectCombinedAllocation(string b, Type t, vector<Expr> e, Expr c, DeviceAPI d, const Target &target)
+            : buffer(b), type(t), extents(e), condition(c), device_api(d), target(target) {
         }
     };
 
@@ -635,15 +638,17 @@ class InjectBufferCopies : public IRMutator {
             }
 
             return InjectCombinedAllocation(op->name, op->type, op->extents,
-                                            op->condition, touching_device)
+                                            op->condition, touching_device, target)
                 .mutate(body);
         } else {
             // Only touched on host but passed to an extern stage, or
             // only touched on device, or touched on multiple
             // devices. Do separate device and host allocations.
 
-            // Add a device destructor
-            body = InjectDeviceDestructor(buffer_name).mutate(body);
+            // Add a device destructor. However, for FPGA with either oneapi or opencl, this does not seem to has any use
+            if (!target.has_feature(Target::IntelFPGA)) {
+                body = InjectDeviceDestructor(buffer_name).mutate(body);
+            }
 
             // Make a device_free stmt
 
@@ -802,6 +807,7 @@ public:
     GatherAndRemoveFPGABufferActions(const vector<string> &_FPGA_kernels) :
         FPGA_kernels(_FPGA_kernels) {
             in_an_FPGA_kernel = false;
+            FPGA_buffer_actions = call_extern_and_assert("halide_opencl_wait_for_kernels_finish", {});
     }
 
 public:
@@ -837,10 +843,7 @@ public:
 
     Stmt mutate(const Stmt &stmt) override {
         if (is_injected_buffer_action_for_FPGA(stmt)) {
-            if (FPGA_buffer_actions.find(kernel_name) == FPGA_buffer_actions.end()) {
-                FPGA_buffer_actions[kernel_name] = call_extern_and_assert("halide_opencl_wait_for_kernels_finish", {});
-            }
-            FPGA_buffer_actions[kernel_name] = Block::make(FPGA_buffer_actions[kernel_name], stmt);
+            FPGA_buffer_actions = Block::make(FPGA_buffer_actions, stmt);
             debug(4) << "Buffer action for FPGA: ****\n" << stmt << "******\n\n";
             // Effectively remove the buffer action from its current position
             Stmt do_nothing = Evaluate::make(Expr(0));
@@ -861,7 +864,7 @@ public:
     }
 
 public:
-    map<string, Stmt>  FPGA_buffer_actions; // All the actions to be put behind the output kernel
+    Stmt  FPGA_buffer_actions; // All the actions to be put behind the output kernel
 
 private:
     const vector<string> &FPGA_kernels; // Funcs running on an FPGA
@@ -873,7 +876,7 @@ class ApplyFPGABufferActions : public IRMutator {
     using IRMutator::visit;
 
 public:
-    ApplyFPGABufferActions(const map<string, string> &_names_to_match_for_output_kernel, const map<string, Stmt> &_FPGA_buffer_actions) :
+    ApplyFPGABufferActions(const map<string, string> &_names_to_match_for_output_kernel, const Stmt &_FPGA_buffer_actions) :
         names_to_match_for_output_kernel(_names_to_match_for_output_kernel), FPGA_buffer_actions(_FPGA_buffer_actions) { }
 
 public:
@@ -881,9 +884,7 @@ public:
         if (op->is_producer) {
             if (names_to_match_for_output_kernel.find(op->name) != names_to_match_for_output_kernel.end()) {
                 // This is the output kernel. Simply append all the buffer actions behind it.
-                string output_kernel = names_to_match_for_output_kernel.at(op->name);
-                internal_assert(FPGA_buffer_actions.find(output_kernel) != FPGA_buffer_actions.end());
-                Stmt new_stmt = ProducerConsumer::make(op->name, true, Block::make(op->body, FPGA_buffer_actions.at(output_kernel)));
+                Stmt new_stmt = ProducerConsumer::make(op->name, true, Block::make(op->body, FPGA_buffer_actions));
                 return new_stmt;
             }
         }
@@ -896,7 +897,7 @@ private:
     const map<string, string> &names_to_match_for_output_kernel; // We process IR from the outermost to the innermost level. When we encounter IR like
                                                                  // "Produce x ...", and x is one of the given names, this piece of IR
                                                                  // is for the unique output kernel on an FPGA that outputs the final results.
-    const map<string, Stmt> &FPGA_buffer_actions;                // All the actions to be put behind the output kernel
+    const Stmt                &FPGA_buffer_actions;              // All the actions to be put behind the output kernel
 };
 
 }  // namespace
@@ -957,10 +958,10 @@ Stmt move_around_host_dev_buffer_copies(Stmt s, const Target &t, const std::map<
                     }
                 }
                 if (is_output_kernel) {
-                    // user_assert(output_kernel == "") << "There are two FPGA kernels, each having no consumers or having one consumer on the host: "
-                    //         << output_kernel << " and " << r.first << ".\n"
-                    //         << "Suggestion: When an FPGA kernel has no consumer, or has one consumer on the host, it is supposed to be an output "
-                    //         << "kernel (generating the final results). Currently, we require such a kernel to be unique.\n";
+                    user_assert(output_kernels.empty()) << "There are two FPGA kernels, each having no consumers or having one consumer on the host: "
+                             << output_kernels[0] << " and " << r.first << ".\n"
+                             << "Suggestion: When an FPGA kernel has no consumer, or has one consumer on the host, it is supposed to be an output "
+                             << "kernel (generating the final results). Currently, we require such a kernel to be unique.\n";
                     output_kernels.push_back(r.first);
                 }
             }
