@@ -1004,9 +1004,10 @@ public:
     /** Statically compile this function to DPCPP source code.
      * This relies on the original OpenCL device code wrapped in DPCPP/SYCL calls/
      * To compile this code, one will need to install Intel's OneAPI with DPCPP. */
-    void compile_to_oneapi(const std::vector<Argument> &,
-                      const std::string &fn_name = "",
-                      const Target &target = get_target_from_environment());
+    void compile_to_oneapi(const std::string &filename,
+                           const std::vector<Argument> &,
+                           const std::string &fn_name = "",
+                           const Target &target = get_target_from_environment());
 
     /** Write out an internal representation of lowered code. Useful
      * for analyzing and debugging scheduling. Can emit html or plain
@@ -2867,7 +2868,15 @@ public:
                                SpaceTimeTransform check=SpaceTimeTransform::NoCheckTime);
 
     /* Set the minimum depth of the output channel. This interface works only if this Func writes its output to a channel. */
-   void min_depth(int min_depth) { func.min_depth(min_depth); }
+   Func &min_depth(int min_depth) { func.min_depth(min_depth); return *this; }
+
+   /* Infinitize time loops by isolating out all computation related with them into a separate kernel.
+    * This feature is applicable only when all unrolled and vectorized loops are at the innermost levels. */
+   Func &run_forever() { func.run_forever(true); return *this; }
+
+   /* Add a runtime check (assertion) of a condition. The condition may depend on parameters only, and may not call any Func or use a Var. */
+   Func &require(const Expr &condition) { pipeline().add_requirement(condition); return *this; };
+
 };
 
 namespace Internal {

@@ -51,7 +51,7 @@ string to_string(const Expr &expr) {
 string to_string(const vector<Expr> &e) {
     std::ostringstream s;
     for (size_t i = 0; i < e.size(); i++) {
-        s << ((i==0) ? "" : ", ") << e[i] << "\n";
+        s << ((i==0) ? "" : ", ") << e[i];
     }
     return s.str();
 }
@@ -126,12 +126,6 @@ string to_string(const string &name, const vector<Type> &output_types,
                  const Definition &definition,
                  size_t tab, bool defs_only, bool print_merged_ures) {
     std::ostringstream s;
-    if (print_merged_ures) {
-        const vector<Func> &merged_ures = definition.schedule().merged_ures();
-        for (auto f : merged_ures) {
-            s << to_string(f, defs_only, print_merged_ures);
-        }
-    }
     for (auto t : output_types) {
         s << to_string(t) << " ";
     }
@@ -149,6 +143,12 @@ string to_string(const string &name, const vector<Type> &output_types,
         s << to_string(definition.schedule(), tab + 1);
     }
     // TODO: specializations.
+    if (print_merged_ures) {
+        const vector<Func> &merged_ures = definition.schedule().merged_ures();
+        for (auto f : merged_ures) {
+            s << to_string(f, defs_only, print_merged_ures);
+        }
+    }
     return s.str();
 }
 

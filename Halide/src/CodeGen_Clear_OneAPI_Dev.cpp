@@ -455,11 +455,17 @@ void CodeGen_Clear_OneAPI_Dev::CodeGen_Clear_OneAPI_C::visit(const Call *op) {
             string string_index = op->type.is_handle() ? "" : ".s";
             latest_expr = print_name(arr_name) + string_index;
         } else {
-            string string_index = ".s";
-            for (size_t i = 1; i < op->args.size(); i++) {
-                string_index += "[" + print_expr(op->args[i]) + "]";
+            if (op->args.size() == 2) {
+                // The channel array is 1 dimensional, and we have declared its type using fpga_tools::NTuple.
+                // Read it like F.template get<idx>()
+                latest_expr = print_name(arr_name) + ".template get<" + print_expr(op->args[1]) + ">()";
+            } else {
+                string string_index = ".s";
+                for (size_t i = 1; i < op->args.size(); i++) {
+                    string_index += "[" + print_expr(op->args[i]) + "]";
+                }
+                latest_expr = print_name(arr_name) + string_index;
             }
-            latest_expr = print_name(arr_name) + string_index;
         }
     } else if (op->is_intrinsic(Call::write_array)) {
         string arr_name = op->args[0].as<StringImm>()->value;
@@ -470,10 +476,16 @@ void CodeGen_Clear_OneAPI_Dev::CodeGen_Clear_OneAPI_C::visit(const Call *op) {
             stream << get_indent() << print_name(arr_name) << string_index << " = " << write_data << ";\n";
         } else {
             string write_data = print_expr(op->args[1]);
-            string string_index = ".s";
-            for (size_t i = 2; i < op->args.size(); i++)
-                string_index += "[" + print_expr(op->args[i]) + "]";
-            stream << get_indent() << print_name(arr_name) << string_index << " = " << write_data << ";\n";
+            if (op->args.size() == 3) {
+                // The channel array is 1 dimensional, and we have declared its type using fpga_tools::NTuple.
+                // Write it like F.template get<idx>() = ...
+                stream << get_indent() << print_name(arr_name) << ".template get<" << print_expr(op->args[2]) << ">() = " << write_data << ";\n";
+            } else {
+                string string_index = ".s";
+                for (size_t i = 2; i < op->args.size(); i++)
+                    string_index += "[" + print_expr(op->args[i]) + "]";
+                stream << get_indent() << print_name(arr_name) << string_index << " = " << write_data << ";\n";
+            }
         }
     } else if (op->is_intrinsic(Call::read_shift_reg)) {
         string string_index;
@@ -1634,213 +1646,21 @@ string CodeGen_Clear_OneAPI_Dev::compile(const Module &input) {
     std::ostringstream EmitOneAPIFunc_stream;
     EmitOneAPIFunc em_visitor{&clc, EmitOneAPIFunc_stream, clc.get_target()};
 
+    // Turn on the following code to auto-generate the Halide runtime header once.
+#ifdef GEN_HALIDE_RUNTIME
     // The Halide runtime headers, etc. into a separate file to make the main file cleaner
     std::ofstream runtime_file{"halide_runtime_etc.h"};
     runtime_file << "#pragma once\n";
     runtime_file << em_visitor.get_str() + "\n";
-    runtime_file << "void halide_device_and_host_free_as_destructor(void *user_context, void *obj) {\n";
-    runtime_file << "}\n";
-
-    // Some helper classes (class pipe_wrapper / complexf2/4/8/16 / complexd2/4/8/16, etc.)
-    // into a separate to avoid duplicate definition error
-    std::ofstream pipe_wrapper_h{"pipe_wrapper.hpp"}, complex_helper_h{"complex_helper.hpp"};
-    pipe_wrapper_h <<
-R"(#pragma once
-#include <cstdint>
-#if __has_include(<sycl/sycl.hpp>)
-#include <sycl/sycl.hpp>
-#else
-#include <CL/sycl.hpp>
+    runtime_file << "extern HALIDE_ALWAYS_INLINE void halide_device_and_host_free_as_destructor(void *user_context, void *obj) {};\n\n";
 #endif
-#include <sycl/ext/intel/fpga_extensions.hpp>
-
-// The SYCL 1.2.1 device_selector class is deprecated in SYCL 2020.
-// Use the callable selector object instead.
-#if SYCL_LANGUAGE_VERSION >= 202001
-using device_selector_t = int(*)(const sycl::device&);
-#else
-using device_selector_t = const sycl::device_selector &;
-#endif
-
-struct device_handle {
-  // Important: order these to avoid any padding between fields;
-  // some Win32 compiler optimizer configurations can inconsistently
-  // insert padding otherwise.
-  uint64_t offset;
-  void *mem;
-};
-
-template <typename name, typename data_type, int32_t min_capacity, int32_t... dims>
-struct pipe_wrapper {
-  template <int32_t...> struct unique_id;
-  template <int32_t... idxs>
-  static data_type read() {
-    static_assert(((idxs >= 0) && ...), "Negative index");
-    static_assert(((idxs < dims) && ...), "Index out of bounds");
-    return sycl::ext::intel::pipe<unique_id<idxs...>, data_type, min_capacity>::read();
-  }
-  template <int32_t... idxs>
-  static void write(const data_type &t) {
-    static_assert(((idxs >= 0) && ...), "Negative index");
-    static_assert(((idxs < dims) && ...), "Index out of bounds");
-    sycl::ext::intel::pipe<unique_id<idxs...>, data_type, min_capacity>::write(t);
-  }
-};)";
-    complex_helper_h <<
-R"(#pragma once
-#include <complex>
-#include <array>
-
-namespace t2sp {
-namespace detail {
-template <typename T, size_t N>
-class vec {
-    std::array<T, N> _arr;
-  public:
-    vec() = default;
-    vec(const vec &) = default;
-    vec(vec &&) = default;
-    vec &operator=(const vec &) = default;
-    vec &operator=(vec &&) = default;
-    vec(const T &arg) {
-        for (size_t i = 0; i < N; i++) _arr[i] = arg;
-    }
-    template <typename ...Args>
-    vec(const Args &...args) : _arr{{args...}} {}
-    vec &operator=(const T& arg) {
-        for (size_t i = 0; i < N; i++) _arr[i] = arg;
-        return *this;
-    }
-    T &operator[](size_t n) {
-        return _arr[n];
-    }
-    const T &operator[](size_t n) const {
-        return _arr[n];
-    }
-    vec &operator+=(const vec &rhs) {
-        for (size_t i = 0; i < N; i++) _arr[i] += rhs._arr[i];
-        return *this;
-    }
-    vec &operator+=(const T &rhs) {
-        for (size_t i = 0; i < N; i++) _arr[i] += rhs;
-        return *this;
-    }
-    vec &operator-=(const vec &rhs) {
-        for (size_t i = 0; i < N; i++) _arr[i] -= rhs._arr[i];
-        return *this;
-    }
-    vec &operator-=(const T &rhs) {
-        for (size_t i = 0; i < N; i++) _arr[i] -= rhs;
-        return *this;
-    }
-    vec &operator*=(const vec &rhs) {
-        for (size_t i = 0; i < N; i++) _arr[i] *= rhs._arr[i];
-        return *this;
-    }
-    vec &operator*=(const T &arg) {
-        for (size_t i = 0; i < N; i++) _arr[i] *= arg;
-        return *this;
-    }
-    friend vec operator+(const vec &arg) {
-        return arg;
-    }
-    friend vec operator-(const vec &arg) {
-        vec ret{};
-        for (size_t i = 0; i < N; i++) ret._arr[i] = -arg._arr[i];
-        return ret;
-    }
-    friend vec operator+(const vec &lhs, const vec &rhs) {
-        vec ret{};
-        for (size_t i = 0; i < N; i++) ret._arr[i] = lhs._arr[i] + rhs._arr[i];
-        return ret;
-    }
-    friend vec operator+(const vec &lhs, const T &rhs) {
-        vec ret{};
-        for (size_t i = 0; i < N; i++) ret._arr[i] = lhs._arr[i] + rhs;
-        return ret;
-    }
-    friend vec operator+(const T &lhs, const vec &rhs) {
-        vec ret{};
-        for (size_t i = 0; i < N; i++) ret._arr[i] = lhs + rhs._arr[i];
-        return ret;
-    }
-    friend vec operator-(const vec &lhs, const vec &rhs) {
-        vec ret{};
-        for (size_t i = 0; i < N; i++) ret._arr[i] = lhs._arr[i] - rhs._arr[i];
-        return ret;
-    }
-    friend vec operator-(const vec &lhs, const T &rhs) {
-        vec ret{};
-        for (size_t i = 0; i < N; i++) ret._arr[i] = lhs._arr[i] - rhs;
-        return ret;
-    }
-    friend vec operator-(const T &lhs, const vec &rhs) {
-        vec ret{};
-        for (size_t i = 0; i < N; i++) ret._arr[i] = lhs - rhs._arr[i];
-        return ret;
-    }
-    friend vec operator*(const vec &lhs, const vec &rhs) {
-        vec ret{};
-        for (size_t i = 0; i < N; i++) ret._arr[i] = lhs._arr[i] * rhs._arr[i];
-        return ret;
-    }
-    friend vec operator*(const vec &lhs, const T &rhs) {
-        vec ret{};
-        for (size_t i = 0; i < N; i++) ret._arr[i] = lhs._arr[i] * rhs;
-        return ret;
-    }
-    friend vec operator*(const T &lhs, const vec &rhs) {
-        vec ret{};
-        for (size_t i = 0; i < N; i++) ret._arr[i] = lhs * rhs._arr[i];
-        return ret;
-    }
-    friend bool operator==(const vec &lhs, const vec &rhs) {
-        bool ret = true;
-        for (size_t i = 0; i < N; i++) ret = ret && lhs._arr[i] == rhs._arr[i];
-        return ret;
-    }
-    friend bool operator==(const vec &lhs, const T &rhs) {
-        bool ret = true;
-        for (size_t i = 0; i < N; i++) ret = ret && lhs._arr[i] == rhs;
-        return ret;
-    }
-    friend bool operator==(const T &lhs, const vec &rhs) {
-        bool ret = true;
-        for (size_t i = 0; i < N; i++) ret = ret && lhs == rhs._arr[i];
-        return ret;
-    }
-    friend bool operator!=(const vec &lhs, const vec &rhs) {
-        return !(lhs == rhs);
-    }
-    friend bool operator!=(const vec &lhs, const T &rhs) {
-        return !(lhs == rhs);
-    }
-    friend bool operator!=(const T &lhs, const vec &rhs) {
-        return !(lhs == rhs);
-    }
-};
-}
-}
-
-using complexf = std::complex<float>;
-using complexd = std::complex<double>;
-using complexf2 = t2sp::detail::vec<complexf, 2>;
-using complexf4 = t2sp::detail::vec<complexf, 4>;
-using complexf8 = t2sp::detail::vec<complexf, 8>;
-using complexf16 = t2sp::detail::vec<complexf, 16>;
-using complexd2 = t2sp::detail::vec<complexd, 2>;
-using complexd4 = t2sp::detail::vec<complexd, 4>;
-using complexd8 = t2sp::detail::vec<complexd, 8>;
-using complexd16 = t2sp::detail::vec<complexd, 16>;)";
 
     // Clean the stream, and include both Halide and sycl runtime headers into a single header.
     em_visitor.clean_stream();
     auto func_name = input.functions()[0].name;
-    {
-        std::vector<std::string> unused;
-        func_name = extract_namespaces(func_name, unused);
-    }
-    em_visitor.write_runtime_headers(func_name);
+    std::vector<std::string> tokens_in_func_name;
+    func_name = extract_namespaces(func_name, tokens_in_func_name);
+    em_visitor.write_runtime_headers(tokens_in_func_name);
 
     internal_assert(input.buffers().size() <= 0) << "OneAPI has no implementation to compile buffers at this time.\n";
     for (const auto &f : input.functions()) {
@@ -1872,21 +1692,26 @@ void CodeGen_Clear_OneAPI_Dev::CodeGen_Clear_OneAPI_C::DeclareChannels::visit(co
         string bounds_str{};
         string pipe_bounds{};
         string pipe_attributes{};
+        string first_bound;
         for (size_t i = 0; i < bounds.size(); i++) {
             Range b = bounds[i];
             Expr extent = b.extent;
             const IntImm *e_extent = extent.as<IntImm>();
             internal_assert(e_extent != nullptr);
+            string ext = std::to_string(e_extent->value);
             if (i < bounds.size() - 1) {
                 internal_assert(e_extent->value > 0);
-                bounds_str += "[" + std::to_string(e_extent->value) + "]";
-                pipe_bounds += std::to_string(e_extent->value) + ",";
+                bounds_str += "[" + ext + "]";
+                pipe_bounds += ext + ",";
             } else {
-                pipe_attributes = std::to_string(e_extent->value);
+                pipe_attributes = ext;
+            }
+            if (i == 0) {
+                first_bound = ext;
             }
         }
         if (pipe_bounds.back() == ',') pipe_bounds.pop_back();
-        internal_assert(op->types.size() == 1) << "In generating Intel OpenCL for FPGAs, a single type is expected for a channel.\n";
+        internal_assert(op->types.size() == 1) << "In generating OneAPI for FPGAs, a single type is expected for a channel.\n";
         string type = parent->print_type(op->types[0]);
 
         std::ostringstream oss;
@@ -1907,13 +1732,20 @@ void CodeGen_Clear_OneAPI_Dev::CodeGen_Clear_OneAPI_C::DeclareChannels::visit(co
             // And then in function F, generate a local channel array:
             //        F_channel_array_t F_channel_array;
             // Here we add the global channel. We will add the local channel array separately.
+            // Further improvement: to suite the OneAPI coding style, if the channel array is 1-dimensional, we could generate the type like this instead:
+            //        using F_channel_array_t = fpga_tools::NTuple<float4, 2>;
             string stripped = remove_postfix(op->name, ".array");
             string channel_name = parent->print_name(stripped);
             parent->map_verbose_to_succinct_globally(stripped, channel_name);
 
             string printed_name = parent->print_name(op->name);
             string type_name = printed_name + "_t";
-            oss << "struct " << type_name << " { " << type << " s" << bounds_str << "; };\n";
+            if (bounds.size() > 2) {
+                oss << "struct " << type_name << " { " << type << " s" << bounds_str << "; };\n";
+            } else {
+                internal_assert(bounds.size() == 2); // Note the second bound is actually the min depth.
+                oss << "using " << type_name << " = fpga_tools::NTuple<" << type << ", " << first_bound << ">;\n";
+            }
             oss << "using " << channel_name << " = pipe_wrapper<class "
                 << channel_name << "_pipe, " << type_name << ", " << pipe_attributes <<  ">;\n";
             channels += oss.str();
@@ -2043,8 +1875,8 @@ void CodeGen_Clear_OneAPI_Dev::CodeGen_Clear_OneAPI_C::GatherShiftRegsAllocates:
                                   float shreg_1_1[100]; float shreg_1_2[100];
                                                         float shreg_2_2[100];
             */
-
-            string reg_name = extract_first_token(op->name);
+            // We have some different shift registers (e.g. Z.shreg, Z.pipe.shreg) with the same first token. So the whole name needs be used.
+            string reg_name = op->name; // extract_first_token(op->name);
 
             internal_assert(space_vars.find(reg_name) != space_vars.end());
             size_t space_var_num = space_vars[reg_name].size();
@@ -2078,8 +1910,7 @@ void CodeGen_Clear_OneAPI_Dev::CodeGen_Clear_OneAPI_C::GatherShiftRegsAllocates:
                 bounds_str = "[" + std::to_string(e_extent->value) + "]" + bounds_str;
             }
             rhs << type << " " << parent->print_name(op->name) << bounds_str << ";\n";
-            vector<string> names = split_string(op->name, ".");
-            shift_regs_allocates[names[0]].push_back(rhs.str());
+            shift_regs_allocates[op->name].push_back(rhs.str());
         }
         if (!parent->is_standard_opencl_type(op->types[0]) && op->types[0].is_vector()) {
             // Remember the bounds of the shift registers.
@@ -2089,26 +1920,6 @@ void CodeGen_Clear_OneAPI_Dev::CodeGen_Clear_OneAPI_C::GatherShiftRegsAllocates:
     } else if (ends_with(op->name, ".ibuffer")) {
     } else if (ends_with(op->name, ".break")) {
     } else {
-        // Not really shift registers. But we can allocate them as shift regs as well.
-        ostringstream rhs;
-        Region bounds = op->bounds;
-        string bounds_str = "" ;
-        for (size_t i = 0; i < bounds.size(); i++) {
-            Range b = bounds[i];
-            Expr extent = b.extent;
-            const IntImm *e_extent = extent.as<IntImm>();
-            internal_assert(e_extent != NULL);
-            internal_assert(e_extent->value > 0);
-            bounds_str += "[" + std::to_string(e_extent->value) + "]";
-        }
-        string type = parent->print_type(op->types[0]);
-        rhs << type << " " << parent->print_name(op->name) << bounds_str << ";\n";
-        vector<string> names = split_string(op->name, ".");
-        shift_regs_allocates[names[0]].push_back(rhs.str());
-        if (!parent->is_standard_opencl_type(op->types[0]) && op->types[0].is_vector()) {
-            // Remember the bounds of the shift registers.
-            shift_regs_bounds[op->name] = bounds.size();
-        }
     }
     IRVisitor::visit(op);
 }
@@ -2119,8 +1930,13 @@ void CodeGen_Clear_OneAPI_Dev::CodeGen_Clear_OneAPI_C::visit(const Realize *op) 
         // Just skip it and get into the body.
         print_stmt(op->body);
     } else if (ends_with(op->name, ".shreg")) {
-        // We have already gathered shift regs allocates with gather_shift_regs_allocates().
-        // Just skip it and get into the body.
+        // We have already gathered the shift registers' info
+        internal_assert(shift_regs_allocates.find(op->name) != shift_regs_allocates.end());
+        for (size_t i = 0; i < shift_regs_allocates[op->name].size(); i++) {
+            stream << get_indent() << shift_regs_allocates[op->name][i];
+            debug(4) << shift_regs_allocates[op->name][i];
+        }
+        debug(4) << "\n";
         print_stmt(op->body);
     } else if (ends_with(op->name, ".temp")) {
         string stripped = remove_postfix(op->name, ".temp");
@@ -2182,9 +1998,22 @@ void CodeGen_Clear_OneAPI_Dev::CodeGen_Clear_OneAPI_C::visit(const Realize *op) 
     } else if (ends_with(op->name, ".break")) {
         print_stmt(op->body);
     } else {
-        // We have treated this case as shift regs allocates with gather_shift_regs_allocates().
-        // Just skip it and get into the body.
+        ostringstream rhs;
+        Region bounds = op->bounds;
+        string bounds_str = "" ;
+        for (size_t i = 0; i < bounds.size(); i++) {
+            Range b = bounds[i];
+            Expr extent = b.extent;
+            const IntImm *e_extent = extent.as<IntImm>();
+            internal_assert(e_extent != NULL);
+            internal_assert(e_extent->value > 0);
+            bounds_str += "[" + std::to_string(e_extent->value) + "]";
+        }
+        map_verbose_to_succinct_locally(op->name, print_name(op->name));
+        string type = print_type(op->types[0]);
+        stream << get_indent() << type << " " << print_name(op->name) << bounds_str << ";\n";
         print_stmt(op->body);
+        kernel_name_map.erase(op->name);
     }
 }
 
@@ -2242,9 +2071,7 @@ string CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::ExternCallFuncs::halide_device_
     string buff = p->print_expr(args[0]);
 
     rhs << "if (!" << buff << "->device) { // device malloc\n";
-    rhs << p->get_indent() << Indentation{INDENT} << "#ifndef T2SP_NDEBUG\n";
-    rhs << p->get_indent() << Indentation{INDENT} << "std::cout << \"//\t device malloc "<< buff << "\\n\";\n";
-    rhs << p->get_indent() << Indentation{INDENT} << "#endif\n";
+    rhs << p->get_indent() << Indentation{INDENT} << "DPRINT(std::cout << \"//\t device malloc "<< buff << "\\n\");\n";
     rhs << p->get_indent() << Indentation{INDENT} << "assert(" << buff << "->size_in_bytes() != 0);\n";
     rhs << p->get_indent() << Indentation{INDENT} << "uint64_t lowest_index = 0;\n";
     rhs << p->get_indent() << Indentation{INDENT} << "uint64_t highest_index = 0;\n";
@@ -2271,9 +2098,7 @@ string CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::ExternCallFuncs::halide_host_ma
     vector<Expr> args = op->args;
     string buffer_name = p->print_expr(args[0]);
     rhs << "{ // host malloc\n";
-    rhs << p->get_indent() << Indentation{INDENT} << "#ifndef T2SP_NDEBUG\n";
-    rhs << p->get_indent() << Indentation{INDENT} << "std::cout << \"//\\t host malloc "<< buffer_name << "\\n\";\n";
-    rhs << p->get_indent() << Indentation{INDENT} << "#endif\n";
+    rhs << p->get_indent() << Indentation{INDENT} << "DPRINT(std::cout << \"//\\t host malloc "<< buffer_name << "\\n\");\n";
     rhs << p->get_indent() << Indentation{INDENT} << "assert(" << buffer_name << "->size_in_bytes() != 0);\n";
     rhs << p->get_indent() << Indentation{INDENT} << buffer_name << "->host = (uint8_t*)std::malloc(" << buffer_name << "->size_in_bytes());\n";
     rhs << p->get_indent() << Indentation{INDENT} << "assert(" << buffer_name << "->host != NULL);\n";
@@ -2324,24 +2149,16 @@ string CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::ExternCallFuncs::halide_opencl_
     rhs << p->get_indent() << Indentation{INDENT} << "bool from_host = (" << buffer_name << "->device == 0) || ("<< buffer_name <<"->host_dirty() && "<< buffer_name << "->host != NULL);\n";
     rhs << p->get_indent() << Indentation{INDENT} << "bool to_host = "<< to_host <<";\n";
     rhs << p->get_indent() << Indentation{INDENT} << "if (!from_host && to_host) {\n";
-    rhs << p->get_indent() << Indentation{2 * INDENT} << "#ifndef T2SP_NDEBUG\n";
-    rhs << p->get_indent() << Indentation{2 * INDENT} << "std::cout << \"//\t memcpy device->host " << buffer_name << "\\n\";\n";
-    rhs << p->get_indent() << Indentation{2 * INDENT} << "#endif\n";
+    rhs << p->get_indent() << Indentation{2 * INDENT} << "DPRINT(std::cout << \"//\t memcpy device->host " << buffer_name << "\\n\");\n";
     rhs << p->get_indent() << Indentation{2 * INDENT} << create_memcpy(buffer_name , true)  << ";\n";
     rhs << p->get_indent() << Indentation{INDENT} << "} else if (from_host && !to_host) {\n";
-    rhs << p->get_indent() << Indentation{2 * INDENT} << "#ifndef T2SP_NDEBUG\n";
-    rhs << p->get_indent() << Indentation{2 * INDENT} << "std::cout << \"//\t memcpy host->device " << buffer_name << "\\n\";\n";
-    rhs << p->get_indent() << Indentation{2 * INDENT} << "#endif\n";
+    rhs << p->get_indent() << Indentation{2 * INDENT} << "DPRINT(std::cout << \"//\t memcpy host->device " << buffer_name << "\\n\");\n";
     rhs << p->get_indent() << Indentation{2 * INDENT} << create_memcpy(buffer_name , false)  << ";\n";
     rhs << p->get_indent() << Indentation{INDENT} << "} else if (!from_host && !to_host) {\n";
-    rhs << p->get_indent() << Indentation{2 * INDENT} << "#ifndef T2SP_NDEBUG\n";
-    rhs << p->get_indent() << Indentation{2 * INDENT} << "std::cout << \"//\t memcpy device->device not implemented yet\\n\";\n";
-    rhs << p->get_indent() << Indentation{2 * INDENT} << "#endif\n";
+    rhs << p->get_indent() << Indentation{2 * INDENT} << "DPRINT(std::cout << \"//\t memcpy device->device not implemented yet\\n\");\n";
     rhs << p->get_indent() << Indentation{2 * INDENT} << "assert(false);\n";
     rhs << p->get_indent() << Indentation{INDENT} << "} else {\n";
-    rhs << p->get_indent() << Indentation{2 * INDENT} << "#ifndef T2SP_NDEBUG\n";
-    rhs << p->get_indent() << Indentation{2 * INDENT} << "std::cout << \"//\t memcpy "<< buffer_name << " Do nothing.\\n\";\n";
-    rhs << p->get_indent() << Indentation{2 * INDENT} << "#endif\n";
+    rhs << p->get_indent() << Indentation{2 * INDENT} << "DPRINT(std::cout << \"//\t memcpy "<< buffer_name << " Do nothing.\\n\");\n";
     rhs << p->get_indent() << Indentation{INDENT} << "}\n";
     rhs << p->get_indent() << "}";
     return rhs.str();
@@ -2403,11 +2220,9 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::create_assertion(const string &id
 
     stream << get_indent() << "if (!" << id_cond << ")\n";
     open_scope();
-    stream << get_indent() << "#ifndef T2SP_NDEBUG\n";
-    stream << get_indent() << "std::cout << \"Condition '" <<  id_cond << "' failed "
+    stream << get_indent() << "DPRINT(std::cout << \"Condition '" <<  id_cond << "' failed "
            << "with error id_msg: " << id_msg
-           << "\\n\";\n";
-    stream << get_indent() << "#endif\n";
+           << "\\n\");\n";
     stream << get_indent() << "assert(false);\n";
     close_scope("");
 }
@@ -2417,10 +2232,9 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::clean_stream() {
     stream_ptr->clear();
 }
 
-void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::write_runtime_headers(const string &func_name) {
-    stream << 
-R"(#pragma once
-#include "halide_runtime_etc.h"
+void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::write_runtime_headers(const std::vector<std::string> &tokens_in_func_name) {
+    stream <<
+R"(#include "halide_runtime_etc.h"
 #if __has_include(<sycl/sycl.hpp>)
 #include <sycl/sycl.hpp>
 #else
@@ -2430,9 +2244,28 @@ R"(#pragma once
 
 #include "pipe_wrapper.hpp"
 #include "complex_helper.hpp"
+#include "constexpr_math.hpp"
+#include "tuple.hpp"
+#include "unrolled_loop.hpp"
+
+#ifndef T2SP_NDEBUG
+    #define DPRINT(action) action
+#else
+    #define DPRINT(action)
+#endif
 
 using namespace sycl;
-namespace t2sp::)" << func_name << " {\n\n";
+)";
+
+    stream << "namespace ";
+    if (tokens_in_func_name.size() == 0) {
+        stream << "t2sp"; // A default namespace
+    } else {
+        for (size_t i = 0; i < tokens_in_func_name.size(); i++) {
+            stream << (i == 0 ? "" : "::") << tokens_in_func_name[i];
+        }
+    }
+    stream << " {\n\n";
 }
 
 string CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::get_str() {
@@ -2475,12 +2308,12 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::compile(const LoweredFunc &f) {
     std::string simple_name = extract_namespaces(f.name, namespaces);
 
     // Print out namespace begining
-    if (!namespaces.empty()) {
+    /*if (!namespaces.empty()) {
         for (const auto &ns : namespaces) {
             stream << "namespace " << ns << " {\n";
         }
         stream << "\n";
-    }
+    }*/
 
     // Emit the function prototype
     if (f.linkage == LinkageType::Internal) {
@@ -2490,7 +2323,7 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::compile(const LoweredFunc &f) {
 
     // (TODO) Check that HALIDE_FUNCTION_ATTRS is necessary or not
     // stream << "HALIDE_FUNCTION_ATTRS\n";
-    stream << "auto " << simple_name << "(device_selector_t device_selector_v";
+    stream << "sycl::event " << simple_name << "(sycl::queue &q_device";
     if (args.size() > 0) stream << ", ";
     for (size_t i = 0; i < args.size(); i++) {
         if (args[i].is_buffer()) {
@@ -2523,15 +2356,11 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::compile(const LoweredFunc &f) {
     stream << get_indent() << Indentation{2 * INDENT} << "}\n";
     stream << get_indent() << Indentation{INDENT} << "}\n";
     stream << get_indent() << "};\n";
-    stream << get_indent() << "#ifndef T2SP_NDEBUG\n";
-    stream << get_indent() << "std::cout << \"// creating device queues\\n\";\n";
-    stream << get_indent() << "#endif\n";
+    stream << get_indent() << "DPRINT(std::cout << \"// creating device queues\\n\");\n";
     stream << get_indent() << "sycl::queue q_host(sycl::cpu_selector_v, exception_handler, sycl::property::queue::enable_profiling());\n";
-    stream << get_indent() << "sycl::queue q_device(device_selector_v, exception_handler, sycl::property::queue::enable_profiling());\n";
-    stream << get_indent() << "#ifndef T2SP_NDEBUG\n";
-    stream << get_indent() << "std::cout << \"// Host: \" << q_host.get_device().get_info<sycl::info::device::name>() << \"\\n\";\n";
-    stream << get_indent() << "std::cout << \"// Device: \" << q_device.get_device().get_info<sycl::info::device::name>() << \"\\n\";\n";
-    stream << get_indent() << "#endif\n";
+    //stream << get_indent() << "sycl::queue q_device(device_selector_v, exception_handler, sycl::property::queue::enable_profiling());\n";
+    stream << get_indent() << "DPRINT(std::cout << \"// Host: \" << q_host.get_device().get_info<sycl::info::device::name>() << \"\\n\");\n";
+    stream << get_indent() << "DPRINT(std::cout << \"// Device: \" << q_device.get_device().get_info<sycl::info::device::name>() << \"\\n\");\n";
     stream << get_indent() << "sycl::device dev = q_device.get_device();\n";
 
 
@@ -2544,21 +2373,15 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::compile(const LoweredFunc &f) {
     // Emit the body
     print(f.body);
 
-    // Make sure all kernels are finished
-    stream << get_indent() << "oneapi_kernel_events.back().wait();\n";
-
-
-    // Return execution time of the kernels.
-    stream << get_indent() << "#ifndef T2SP_NDEBUG\n";
-    stream << get_indent() << "std::cout << \"// return the kernel execution time in nanoseconds\\n\";\n";
-    stream << get_indent() << "#endif\n";
-    stream << get_indent() << "auto k_earliest_start_time = std::numeric_limits<\n"
+    // Compute the execution time of the kernels.
+    stream << "#ifndef T2SP_NDEBUG\n"
+           << get_indent() << "uint64_t k_earliest_start_time = std::numeric_limits<\n"
            << get_indent() << Indentation{INDENT} << "typename sycl::info::event_profiling::command_start::return_type>::max();\n"
-           << get_indent() << "auto k_latest_end_time = std::numeric_limits<\n"
+           << get_indent() << "uint64_t k_latest_end_time = std::numeric_limits<\n"
            << get_indent() << Indentation{INDENT} << "typename sycl::info::event_profiling::command_end::return_type>::min();\n"
            << get_indent() << "for (auto i : kernels_used_to_measure_time) {\n"
-           << get_indent() << Indentation{INDENT} << "auto tmp_start = oneapi_kernel_events[i].get_profiling_info<sycl::info::event_profiling::command_start>();\n"
-           << get_indent() << Indentation{INDENT} << "auto tmp_end = oneapi_kernel_events[i].get_profiling_info<sycl::info::event_profiling::command_end>();\n"
+           << get_indent() << Indentation{INDENT} << "uint64_t tmp_start = oneapi_kernel_events[i].get_profiling_info<sycl::info::event_profiling::command_start>();\n"
+           << get_indent() << Indentation{INDENT} << "uint64_t tmp_end = oneapi_kernel_events[i].get_profiling_info<sycl::info::event_profiling::command_end>();\n"
            << get_indent() << Indentation{INDENT} << "if (tmp_start < k_earliest_start_time) {\n"
            << get_indent() << Indentation{2 * INDENT} << "k_earliest_start_time = tmp_start;\n"
            << get_indent() << Indentation{INDENT} << "}\n"
@@ -2566,13 +2389,17 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::compile(const LoweredFunc &f) {
            << get_indent() << Indentation{2 * INDENT} << "k_latest_end_time = tmp_end;\n"
            << get_indent() << Indentation{INDENT} << "}\n"
            << get_indent() << "}\n"
-           << get_indent() << "// Get time in ns\n"
-           << get_indent() << "return kernels_used_to_measure_time.empty() ? decltype(k_latest_end_time){} : k_latest_end_time - k_earliest_start_time;\n";
+           << get_indent() << "std::cout << \"// Execution time of the device kernels (in nanoseconds) = \" "
+                                        "<< kernels_used_to_measure_time.empty() ? decltype(k_latest_end_time){} : k_latest_end_time - k_earliest_start_time;\n"
+           << "#endif\n";
 
-
+    // At this point, we have actually made sure that all kenrels have ended. However, to conform to the DPC++ interface of oneMKL BLAS
+    // (like the GEMM interface in https://www.intel.com/content/www/us/en/docs/onemkl/developer-reference-dpcpp/2023-0/gemm.html),
+    // we return the event of the submission of the last kernel.
+    stream << get_indent() << "return oneapi_kernel_events.back();\n";
 
     indent -= INDENT;
-    stream << "}\n}\n";
+    stream << "}\n";
     // Ending of function implementation
 
     // (TODO) Check that HALIDE_FUNCTION_ATTRS is necessary or not
@@ -2584,13 +2411,14 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::compile(const LoweredFunc &f) {
     // }
 
     if (!namespaces.empty()) {
-        stream << "\n";
-        for (size_t i = namespaces.size(); i > 0; i--) {
-            stream << "}  // namespace " << namespaces[i - 1] << "\n";
+        stream << "} // namespace ";
+        for (size_t i = 0; i < namespaces.size(); i++) {
+            stream << (i == 0 ? "" : "::") << namespaces[i];
         }
         stream << "\n";
+    } else {
+        stream << "} // namespace t2sp\n";
     }
-
 }
 
 std::string CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::create_kernel_name(const For *op) {
@@ -2616,9 +2444,7 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::create_kernel_wrapper(
 
     if (beginning) {
         stream << get_indent() << "// " << name << "\n";
-        stream << get_indent() << "#ifndef T2SP_NDEBUG\n";
-        stream << get_indent() << "std::cout << \"// kernel " << name << "\\n\";\n";
-        stream << get_indent() << "#endif\n";
+        stream << get_indent() << "DPRINT(std::cout << \"// kernel " << name << "\\n\");\n";
 
         // convert any pointers we need to get the device memory allocated
         for (const auto &arg : args) {
@@ -2758,18 +2584,6 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::visit(const For *loop) {
         } else if (ends_with(loop->name, ".run_on_device")) {
             // The loop just tells the compiler to generate an OpenCL kernel for
             // the loop body.
-            std::string name = extract_first_token(loop->name);
-            if (shift_regs_allocates.find(name) != shift_regs_allocates.end()) {
-                for (size_t i = 0; i < shift_regs_allocates[name].size(); i++) {
-                    stream << get_indent() << shift_regs_allocates[name][i];
-                }
-            }
-            name += "_temp";
-            if (shift_regs_allocates.find(name) != shift_regs_allocates.end()) {
-                for (size_t i = 0; i < shift_regs_allocates[name].size(); i++) {
-                    stream << get_indent() << shift_regs_allocates[name][i];
-                }
-            }
             loop->body.accept(this);
         } else if (ends_with(loop->name, ".infinite")) {
             stream << get_indent() << "while(1) {\n";
@@ -2796,8 +2610,19 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::visit(const For *loop) {
             }
         } else if (loop->for_type == ForType::PragmaUnrolled) {
             in_unroll_loop = {true, loop->name, loop->min, stream.tellp(), get_indent()};
-            stream << get_indent() << "#pragma unroll\n";
-            CodeGen_Clear_C::visit(loop);
+            internal_assert(loop->extent.as<IntImm>());
+            auto unroll_factor = loop->extent.as<IntImm>()->value;
+            if (unroll_factor <= 256) {
+                stream << get_indent() << "fpga_tools::UnrolledLoop<" << (!is_zero(loop->min) ? to_string(loop->min) + ", " : "") << simplify(loop->min + loop->extent) << ">([&](auto " << print_name(loop->name) << ") {\n";
+                indent += INDENT;
+                loop->body.accept(this);
+                indent -= INDENT;
+                stream << get_indent() << "});\n";
+            } else {
+                // To workaround an error when using fpga_tools::UnrolledLoop<1024>: instantiating fold expression with 1023 arguments exceeded expression nesting limit of 256
+                stream << get_indent() << "#pragma unroll\n";
+                loop->body.accept(this);
+            }
             std::get<0>(in_unroll_loop) = false;
         } else {
             /*
@@ -2851,8 +2676,18 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::visit(const For *loop) {
                     }
                 } else {
                     in_unroll_loop = {true, loop->name, loop->min, stream.tellp(), get_indent()};
-                    stream << get_indent() << "#pragma unroll\n";
-                    print_normal_loop(loop);
+                    internal_assert(loop->extent.as<IntImm>());
+                    auto unroll_factor = loop->extent.as<IntImm>()->value;
+                    if (unroll_factor <= 256) {
+                        stream << get_indent() << "fpga_tools::UnrolledLoop<" << (!is_zero(loop->min) ? to_string(loop->min) + ", " : "") << simplify(loop->min + loop->extent) << ">([&](auto " << print_name(loop->name) << ") {\n";
+                        indent += INDENT;
+                        loop->body.accept(this);
+                        indent -= INDENT;
+                        stream << get_indent() << "});\n";
+                    } else {
+                        stream << get_indent() << "#pragma unroll\n";
+                        print_normal_loop(loop);
+                    }
                     std::get<0>(in_unroll_loop) = false;
                 }
             } else {
@@ -3289,30 +3124,12 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::visit(const AssertStmt *op) {
         }
     }
     return;
-
-    // Currently, we are not mplementaiting
-    // assertions inside a kernel
     if (!currently_inside_kernel) {
-        if (target.has_feature(Target::NoAsserts)) return;
-
-
         std::string id_cond = print_expr(op->condition);
-
-
-
-        stream << get_indent() << "if (!" << id_cond << ") ";
-        open_scope();
-        stream << get_indent() << "std::cout << \"Condition '"
-               <<  id_cond << "' failed ";
-        if (op->message.defined()) {
-            std::string id_msg = print_expr(op->message);
-            stream << "with error id_msg: " << id_msg;
-        }
-        stream << "\\n\";\n";
-        stream << get_indent() << "assert(false);\n";
-        close_scope("");
+        stream << get_indent() << "_halide_user_assert(" << id_cond << ");\n";
     } else {
-        debug(2) << "Ignoring assertion inside OneAPI kernel: " << op->condition << "\n";
+        // Currently, we are not implementing assertions inside a kernel
+        user_warning << "Ignoring assertion inside OneAPI kernel: " << op->condition << "\n";
     }
 }
 
@@ -3386,7 +3203,12 @@ std::string CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::print_type(Type type, Appe
         bool include_space = space == AppendSpace;
         bool needs_space = true;
         bool c_plus_plus = true;
-        if (type.is_bfloat()) {
+        if (type.is_generated_struct()) {
+            int type_id = type.bits();
+            const std::pair<std::string, std::vector<Type>> &entry = GeneratedStructType::structs[type_id];
+            string struct_name = entry.first;
+            oss << struct_name;
+        } else if (type.is_bfloat()) {
             oss << "bfloat" << type.bits();
         } else if (type.is_float()) {
             if (type.bits() == 32) {

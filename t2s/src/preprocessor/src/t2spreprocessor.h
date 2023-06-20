@@ -97,7 +97,7 @@ int main(){
 	// ...
 	ImageParam A("A", TTYPE, 2), B("B", TTYPE, 2);
 	// T2S Speficiations ... 
-	C.compile_to_oneapi( { A, B }, "gemm", IntelFPGA);
+	C.compile_to_oneapi("gemm.cpp", { A, B }, "gemm", IntelFPGA);
 
 #pragma t2s_spec_end
 

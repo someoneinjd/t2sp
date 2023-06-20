@@ -341,9 +341,10 @@ void Pipeline::compile_to_c(const string &filename,
     m.compile(single_output(filename, m, Output::c_source));
 }
 
-void Pipeline::compile_to_oneapi(const vector<Argument> &args,
-                            const string &fn_name,
-                            const Target &target) {
+void Pipeline::compile_to_oneapi(const string &filename,
+                                 const vector<Argument> &args,
+                                 const string &fn_name,
+                                 const Target &target) {
     // check that target has IntelFPGA and OneAPI targets set. Else throw an error
     user_assert( target.has_feature(Target::IntelFPGA) || target.has_feature(Target::IntelGPU) ) << " IntelFPGA or IntelGPU Target not found.\n";
     user_assert( target.has_feature((Target::OneAPI)) ) << " OneAPI Target not found.\n";
@@ -355,7 +356,7 @@ void Pipeline::compile_to_oneapi(const vector<Argument> &args,
     }
     else if (target.has_feature(Target::IntelFPGA)) {
         auto ext = get_output_info(target);
-        m.compile(single_output( fn_name + ext.at(Output::oneapi_fpga).extension, m, Output::oneapi_fpga));
+        m.compile(single_output(filename, m, Output::oneapi_fpga));
     }
 }
 

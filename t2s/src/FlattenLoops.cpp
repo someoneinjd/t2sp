@@ -1020,7 +1020,8 @@ private:
             // internal_assert(type=="buffer" || type=="min" || type=="extent" || type=="stride")
             //     << "Unexpected let statement \n";
             if (type == "buffer") {
-                body = rebuild_buffer_stmt(channel, buf_t, dims, body);
+                // 6/11/2023: The removal of the buffer initialization has been fixed now, and thus no need to rebuild it.
+                // body = rebuild_buffer_stmt(channel, buf_t, dims, body);
                 continue;
             }
             if (cgs_for_mem_channels.find(channel) == cgs_for_mem_channels.end()) {

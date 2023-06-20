@@ -767,9 +767,9 @@ public:
      f(...) = ...;
      g(...) = ...;
      h(...) = ...;
-     h.merge_ures(f, g);
+     f.merge_ures(g, h);
      \endcode
-     Then Func h's merged_ures is {f, g}.
+     Then Func f's merged_ures is {g, h}.
     */
     // @{
     const std::vector<Func> &merged_ures() const;

@@ -659,7 +659,7 @@ void CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::visit(const Call *op) {
     } else if (op->is_intrinsic(Call::read_shift_reg)) {
         std::string string_index;
         const StringImm *v = op->args[0].as<StringImm>();
-        std::string reg_name = extract_first_token(v->value);
+        std::string reg_name = v->value; //extract_first_token(v->value);
         // shift reg has regular bounds
         if (space_vars.find(reg_name) == space_vars.end()) {
             for (size_t i = 1; i < op->args.size(); i++) {
@@ -763,7 +763,7 @@ void CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::visit(const Call *op) {
         }
     } else if (op->is_intrinsic(Call::write_shift_reg)) {
         const StringImm *v = op->args[0].as<StringImm>();
-        std::string reg_name = extract_first_token(v->value);
+        std::string reg_name = v->value; //extract_first_token(v->value);
         // shift reg has regular bounds
         if (space_vars.find(reg_name) == space_vars.end()) {
             ostringstream rhs;
@@ -2603,7 +2603,7 @@ void CodeGen_Clear_OpenCL_Dev::CodeGen_Clear_OpenCL_C::GatherShiftRegsAllocates:
                                                         float shreg_2_2[100];
             */
 
-            std::string reg_name = extract_first_token(op->name);
+            std::string reg_name = op->name; //extract_first_token(op->name);
 
             internal_assert(space_vars.find(reg_name) != space_vars.end());
             size_t space_var_num = space_vars[reg_name].size();

@@ -905,7 +905,11 @@ Expr fast_inverse(Expr x);
  * even when strict_float is enabled. */
 Expr fast_inverse_sqrt(Expr x);
 
+/* Conjugate expression x */
 Expr conjugate(Expr x);
+
+/* Conjugate the expression x if the condition is true and the expression is complex. */
+Expr conditional_conjugate(Expr condition, Expr x);
 
 /** Return the greatest whole number less than or equal to a
  * floating-point expression. If the argument is not floating-point,

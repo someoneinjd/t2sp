@@ -139,7 +139,7 @@ int main(){
     std::cout << "(NOTE) T2S w/ OneAPI on GPU is Not implemented at this time\n";
 #else
     // C.compile_to_host("gemm-interface", { A, B }, "gemm", IntelFPGA);
-    C.compile_to_oneapi( { A, B }, "gemm", IntelFPGA);
+    C.compile_to_oneapi("gemm.cpp", { A, B }, "gemm", IntelFPGA);
 #endif
 
 #pragma t2s_spec_end

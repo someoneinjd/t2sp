@@ -97,7 +97,7 @@ int main(){
 	// ...
 	ImageParam A("A", TTYPE, 2), B("B", TTYPE, 2);
 	// T2S Speficiations ... 
-	C.compile_to_oneapi( { A, B }, "gemm", IntelFPGA);
+	C.compile_to_oneapi("gemm.cpp", { A, B }, "gemm", IntelFPGA);
 
 #pragma t2s_spec_end
 
@@ -185,7 +185,7 @@ namespace t2sprinter {
     // << space   << "#pragma t2s_spec_start" << "\n\n" 
     // << space << space << "ImageParam A(\"A\", TTYPE, 2), B(\"B\", TTYPE, 2);" << "\n" 
     // << space << space << "// T2S Speficiations ... " << "\n" 
-    // << space << space << "C.compile_to_oneapi( { A, B }, \"gemm\", IntelFPGA);" << "\n\n" 
+    // << space << space << "C.compile_to_oneapi(\"gemm.cpp\", { A, B }, \"gemm\", IntelFPGA);" << "\n\n"
     // << space   << "#pragma t2s_spec_end" << "\n\n"
     // << "}\n\n";
     return rhs.str();

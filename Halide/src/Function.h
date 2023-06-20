@@ -423,6 +423,12 @@ public:
     /* Get the minimum depth of the output channel. Meaningful only if this function writes its output to a channel. */
     int min_depth() const;
 
+    /* Set the running forever property of the function. */
+    void run_forever(bool run_forever);
+
+    /* Return true if the function runs forever. */
+    bool run_forever() const;
+
 };
 
 /** Deep copy an entire Function DAG. */

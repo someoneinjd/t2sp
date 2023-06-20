@@ -135,10 +135,10 @@ int main(){
 #ifdef GPU
     // C.compile_to_host("gemm-interface", { A, B }, "gemm", IntelGPU);
     // C.compile_to_oneapi( { A, B }, "gemm", IntelGPU);
-    C.compile_to_oneapi( { A, B }, "gemm", IntelGPU);
+    C.compile_to_oneapi("gemm.cpp", { A, B }, "gemm", IntelGPU);
 #else
     // C.compile_to_host("gemm-interface", { A, B }, "gemm", IntelFPGA);
-    C.compile_to_oneapi( { A, B }, "gemm", IntelFPGA);
+    C.compile_to_oneapi("gemm.cpp", { A, B }, "gemm", IntelFPGA);
 #endif
 
 #pragma t2s_spec_end

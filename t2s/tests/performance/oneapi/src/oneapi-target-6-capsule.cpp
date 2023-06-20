@@ -113,7 +113,7 @@ int main(void)
     std::cout << "(NOTE) T2S w/ OneAPI on GPU is Not implemented at this time\n";
 #else
     // V.compile_to_host("capsule-interface", { P, W }, "capsule", IntelFPGA);
-    V.compile_to_oneapi({ P, W }, "capsule", IntelFPGA);
+    V.compile_to_oneapi("capsule.cpp", { P, W }, "capsule", IntelFPGA);
 #endif
 
 

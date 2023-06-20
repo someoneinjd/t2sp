@@ -307,7 +307,7 @@ protected:
                         const std::vector<DeviceArgument> &args);
         std::string get_str();
         void clean_stream();
-        void write_runtime_headers(const std::string &func_name); 
+        void write_runtime_headers(const std::vector<std::string> &tokens_in_func_name);
     };
 };
 

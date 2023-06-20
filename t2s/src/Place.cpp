@@ -161,6 +161,31 @@ private:
     }
 };
 
+// Rename the 3rd argument of halide_buffer_init, the host, from func_name into func_name.mem_channel
+class BufferInitRenameHostAsMemChannel: public IRMutator {
+    using IRMutator::visit;
+    const string &func_name;
+public:
+    BufferInitRenameHostAsMemChannel(const string &func_name) : func_name(func_name) {}
+
+    Expr visit(const Call *call) override {
+        if (call->name == Call::buffer_init) {
+            internal_assert(call->args.size() >= 3)
+                << "BufferInitRenameHostAsMemChannel: _halide_buffer_init call with fewer than two args.\n";
+
+            // Grab the host pointer argument
+            const Variable *var = call->args[2].as<Variable>();
+            if (var->name == func_name) {
+                std::vector<Expr> args = call->args;
+                args[2] = Variable::make(var->type, func_name + ".mem_channel", var->image, var->param, var->reduction_domain);
+                return Call::make(type_of<struct halide_buffer_t *>(), Call::buffer_init, args, Call::Extern);
+            }
+        }
+        // If any part of the match failed, do default mutator action.
+        return IRMutator::visit(call);
+    }
+};
+
 class ReplaceReferencesWithMemChannels : public IRMutator {
     using IRMutator::visit;
 public:
@@ -229,14 +254,18 @@ private:
         string name = op->name;
         Expr value = op->value;
         if (!get_channel_name(op->name).empty()) {
+            // Typically, the IR has
+            //   allocate f[...]
+            //   let f.buffer = halide_buffer_init(size, shape, f, ...) // f is the 3rd argument of halide_buffer_init representing the host
+            // Change them into
+            //   allocate f.mem_channel[...]
+            //   let f.mem_channel.buffer = halide_buffer_init(size, shape, f.mem_channel, ...)
+            // No change to other names in other Let statements
             string func_name = extract_first_token(op->name);
-            string new_func_name = func_name + ".mem_channel";
-            name = name.replace(name.find(func_name), func_name.length(), new_func_name);
-            if (extract_token(op->name, 2) == "stride") {
-                int idx = atoi(extract_token(op->name, 3).c_str());
-                string last_dim = func_name + ".stride." + to_string(idx -1);
-                string new_last_dim = new_func_name + ".stride." + to_string(idx -1);
-                value = substitute(last_dim, Variable::make(Int(32), new_last_dim), value);
+            if (name == func_name + ".buffer") {
+                name = func_name + ".mem_channel" + ".buffer";
+                BufferInitRenameHostAsMemChannel renamer(func_name);
+                value = renamer.mutate(value);
             }
             letstmts_backup.push_back({ name, value });
         } else {

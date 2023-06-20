@@ -272,16 +272,32 @@ void collect_dependences_for_shift_regs(const Stmt s,
     }
 }
 
+void debug_print_dependences(const map<string, FlowDependences> &func_to_deps) {
+    if (func_to_deps.empty()) {
+        return;
+    }
+    debug(4) << "Flow dependences:\n";
+    for (auto entry : func_to_deps) {
+        debug(4) << "\t" << entry.first << ":\n";
+        debug(4) << "\t\targs: " << to_string<Expr>(entry.second.args_without_prefix) << "\n";
+        debug(4) << "\t\tdeps:\n";
+        for (auto d : entry.second.dependences) {
+            debug(4) << "\t\t<" << to_string<int>(d.distance) << ">, " << (d.is_up ? "Up" : "Down") << "\n";
+        }
+    }
+}
+
 class LoopInfoCollector : public IRVisitor {
     using IRVisitor::visit;
   public:
-    LoopInfoCollector(vector<Expr> &loop_vars, vector<Expr> &unrolled_loop_vars, Expr &vectorized_loop_var,
+    LoopInfoCollector(Expr &root_loop, vector<Expr> &loop_vars, vector<Expr> &unrolled_loop_vars, Expr &vectorized_loop_var,
                       map<string, Expr> &loop_mins, map<string, Expr> &loop_extents, 
                       map<string, Expr> &global_min, map<string, Expr> &global_max) :
-                      loop_vars(loop_vars), unrolled_loop_vars(unrolled_loop_vars), vectorized_loop_var(vectorized_loop_var),
+                      root_loop(root_loop), loop_vars(loop_vars), unrolled_loop_vars(unrolled_loop_vars), vectorized_loop_var(vectorized_loop_var),
                       loop_mins(loop_mins), loop_extents(loop_extents), global_min(global_min), global_max(global_max) {}
 
   private:
+    Expr              &root_loop;
     vector<Expr>      &loop_vars;
     vector<Expr>      &unrolled_loop_vars;
     Expr              &vectorized_loop_var;
@@ -292,6 +308,9 @@ class LoopInfoCollector : public IRVisitor {
 
     void visit(const For* op) override {
         Expr var = Variable::make(Int(32), op->name);
+        if (ends_with(op->name, ".run_on_device")) {
+            root_loop = var;
+        }
         loop_vars.push_back(var);
         if (op->for_type == ForType::Unrolled) {
             unrolled_loop_vars.push_back(var);
@@ -319,10 +338,10 @@ class LoopInfoCollector : public IRVisitor {
     }
 };
 
-void collect_loop_info(Stmt s, vector<Expr>& loop_vars, vector<Expr> &unrolled_loop_vars, Expr &vectorized_loop_var,
+void collect_loop_info(Stmt s, Expr &root_loop, vector<Expr>& loop_vars, vector<Expr> &unrolled_loop_vars, Expr &vectorized_loop_var,
                        map<string, Expr> &loop_mins, map<string, Expr> &loop_extents,
                        map<string, Expr> &global_min, map<string, Expr> &global_max) {
-    LoopInfoCollector collector(loop_vars, unrolled_loop_vars, vectorized_loop_var, loop_mins, loop_extents, global_min, global_max);
+    LoopInfoCollector collector(root_loop, loop_vars, unrolled_loop_vars, vectorized_loop_var, loop_mins, loop_extents, global_min, global_max);
     s.accept(&collector);
 }
 
@@ -724,7 +743,8 @@ void debug_print_alloc(const string &func_name, const ShiftRegAlloc &alloc) {
                  << "\n\t\tStrategy: " << (alloc.strategy[i] == RegStrategy::Rotate ? "rotate" : (alloc.strategy[i] == RegStrategy::Shift ? "shift" : "direct access"));
     }
     debug(4) << "\n\tPE_dims: " << to_string<Expr>(sub_vector<Expr>(alloc.args, alloc.PE_dims))
-             << "\n\t\tExtents: " << to_string<Expr>(alloc.PE_extents) << "\n";
+             << "\n\t\tExtents: " << to_string<Expr>(alloc.PE_extents)
+             << "\n\tScope: " << alloc.scope_loop << "\n";
 }
 
 // Linearize args of the specific dimensions into a single arg.
@@ -746,6 +766,7 @@ Expr linearize_args(const vector<Expr>      &args,
 void decide_shift_reg_alloc_for_unscheduled_stt(const string            &func_name,
                                                 const Function          &func,
                                                 const FlowDependences   &dependences,
+                                                const Expr              &root_loop,
                                                 const vector<Expr>      &loop_vars,
                                                 const vector<Expr>      &unrolled_loop_vars,
                                                 const Expr              &vectorized_loop_var,
@@ -793,7 +814,16 @@ void decide_shift_reg_alloc_for_unscheduled_stt(const string            &func_na
         alloc.PE_extents.push_back(loop_extent(args, loop_extents, i));
     }
 
-    debug_print_alloc(func_name, alloc);
+    // The loop enclosing the PE loops, or the outermost loop that has no dependence, whichever outer, is the minimum scope of the shift regs.
+    int scope = outermost_non_zero_dim + 1;
+    for (auto u : unrolled_dims) {
+        scope = std::max(scope, u + 1);
+    }
+    if (scope >= (int)args.size()) {
+        alloc.scope_loop = root_loop.as<Variable>()->name;
+    } else {
+        alloc.scope_loop = args[scope].as<Variable>()->name;
+    }
 }
 
 // Map the args of an access to a variable (i.e. the args of a write/read_shift_reg()) to the new args according to the register
@@ -1107,14 +1137,12 @@ private:
     vector<Expr>      unrolled_loop_vars;     // Unrolled loop vars, ordered from the innermost.
     Expr              vectorized_loop_var;
 
-    // Temporaries for helping rotating registers.
-    vector<tuple<string, Type, Region>> temporaries; // Every element: Temporary's name, type, bounds
-
 public:
     // Func name --> register allocation decision of the func.
     map<string, ShiftRegAlloc> func_to_regalloc;
     map<string, Expr> arg_map;
-    MinimizeShiftRegs(const map<string, Function> &env) : env(env) {}
+    vector<string> shift_regs_used_in_output; // Shift registers that are read in writing output
+    MinimizeShiftRegs(const map<string, Function> &env) : env(env) { }
 
     Stmt visit(const ProducerConsumer *op) override {
         Function stt_func;
@@ -1129,6 +1157,7 @@ public:
             // multiple UREs can be merged into the stt_func.
             map<string, FlowDependences> func_to_deps;
             collect_dependences_for_shift_regs(op->body, func_to_deps);
+            debug_print_dependences(func_to_deps);
             if (func_to_deps.empty()) {
                 return op;
             }
@@ -1138,7 +1167,8 @@ public:
             // Loop info.
             vector<Expr> all_loop_vars, all_unrolled_loop_vars; // No order is enforced on these vars. Instead, we will
                                                                 // get order info based on the args of a dependence.
-            collect_loop_info(op->body, all_loop_vars, all_unrolled_loop_vars, vectorized_loop_var, loop_mins, loop_extents, global_min, global_max);
+            Expr root_loop;                                     // The innermost dummy loop like "parallel X.s0.run_on_device"
+            collect_loop_info(op->body, root_loop, all_loop_vars, all_unrolled_loop_vars, vectorized_loop_var, loop_mins, loop_extents, global_min, global_max);
             for (auto &entry: func_to_deps) {
                 const auto &deps = entry.second;
                 vector<int> unrolled_dims = locate_loops(deps.args, all_unrolled_loop_vars);
@@ -1156,16 +1186,30 @@ public:
                 const auto &deps = entry.second;
                 ShiftRegAlloc alloc;
                 Function func = env.at(func_name);
-                decide_shift_reg_alloc_for_unscheduled_stt(func_name, func, deps, all_loop_vars, all_unrolled_loop_vars, vectorized_loop_var, 
+                decide_shift_reg_alloc_for_unscheduled_stt(func_name, func, deps, root_loop, all_loop_vars, all_unrolled_loop_vars, vectorized_loop_var,
                                                            loop_mins, loop_extents, global_min, global_max, alloc);
                 func_to_regalloc[func_name] = std::move(alloc);
             }
 
             Stmt stmt = IRMutator::visit(op);
 
-            for (auto &t : temporaries) {
-                stmt = Realize::make(std::get<0>(t), {std::get<1>(t)}, MemoryType::Auto, std::get<2>(t), const_true(), stmt);
+            // When shift registers are storing the final values of one tile to output, we generally output the values and in the same time, start computing the next tile,
+            // so the shift registers must be live before the values are all drained. To be safe, we would put the shift registers at the root.
+            for (auto &entry: func_to_deps) {
+                const string &func_name = entry.first;
+                if (func_to_regalloc.find(func_name) != func_to_regalloc.end()) {
+                    ShiftRegAlloc &alloc = func_to_regalloc[func_name];
+                    if (!alloc.PE_dims.empty()) {
+                        if (std::find(shift_regs_used_in_output.begin(), shift_regs_used_in_output.end(), func_name + ".shreg") != shift_regs_used_in_output.end()) {
+                            alloc.scope_loop = root_loop.as<Variable>()->name;
+                        }
+                    } else {
+                        // The function does not have a systolic array
+                    }
+                    debug_print_alloc(func_name, alloc);
+                }
             }
+
             return stmt;
         }
         return IRMutator::visit(op);
@@ -1209,6 +1253,17 @@ public:
             Expr new_call = Call::make(op->type, Call::read_shift_reg, new_args, op->call_type, op->func, op->value_index,
                                        op->image, op->param);
             return new_call;
+        } else if (op->is_intrinsic(Call::write_channel)) {
+            // See if shift registers are written out
+            const StringImm *v = op->args[0].as<StringImm>();
+            internal_assert(v);
+            const Call *data = op->args[1].as<Call>();
+            if (data && data->is_intrinsic(Call::read_shift_reg)) {
+                const StringImm *val = data->args[0].as<StringImm>();
+                internal_assert(val);
+                shift_regs_used_in_output.push_back(val->value);
+            }
+            return IRMutator::visit(op);
         }
         return IRMutator::visit(op);
     }
@@ -1220,6 +1275,7 @@ public:
         // If a linearized_dims immediately encloses this loop, insert shifting of the linearized_dims before this loop.
         // That is, shift registers for the linearized_dims when the linearized_dims is justed entered.
         Stmt shifts;
+        vector<tuple<string, Type, Region>> temporaries; // Temporaries for helping rotating registers. Every element: Temporary's name, type, bounds
         for (auto &entry : func_to_regalloc) {
             const string &func_name = entry.first;
             const ShiftRegAlloc &alloc = entry.second;
@@ -1227,6 +1283,9 @@ public:
         }
         if (shifts.defined()) {
             stmt = Block::make(shifts, stmt);
+            for (auto &t : temporaries) {
+                stmt = Realize::make(std::get<0>(t), {std::get<1>(t)}, MemoryType::Auto, std::get<2>(t), const_true(), stmt);
+            }
         }
         return stmt;
     }
@@ -1242,6 +1301,65 @@ public:
         }
         Stmt new_realize = Realize::make(op->name, op->types, op->memory_type, new_bounds, op->condition, new_body);
         return new_realize;
+    }
+};
+
+// Move the Realizes of shift registers to their scope loops, so as to minimize lens of the lifetimes of the registers.
+class ScopeShiftRegs : public IRMutator {
+    using IRMutator::visit;
+private:
+    // Func name --> register allocation decision of the func.
+    const map<string, ShiftRegAlloc> &func_to_regalloc;
+
+    // Info of the new Realizes to replace the original Realizes of the shift registers, after allocation. These
+    // new Realizes will be inserted at the beginning of their scope loops
+    vector<tuple<string, vector<Type>, MemoryType, Region, Expr>> new_realizes_info; // For each new Realize: shift registers' name, types, memory_type, bounds and condition
+public:
+    ScopeShiftRegs(const map<string, ShiftRegAlloc> &func_to_regalloc) : func_to_regalloc(func_to_regalloc) {}
+
+    Stmt visit(const For *op) override {
+        Stmt new_body = mutate(op->body);
+
+        // Insert Realizes of shift registers.
+        for (auto &entry : func_to_regalloc) {
+            const string &func_name = entry.first;
+            const ShiftRegAlloc &alloc = entry.second;
+
+            // Insert a Realize of the shift registers, if the loop is the scope loop of the shift registers.
+            if (alloc.scope_loop == op->name) { // This loop is the scope loop
+                for (auto info : new_realizes_info) {
+                    if (std::get<0>(info) == func_name + ".shreg") {
+                        new_body = Realize::make(std::get<0>(info), std::get<1>(info), std::get<2>(info), std::get<3>(info), std::get<4>(info), new_body);
+                        break;
+                    }
+                }
+            }
+        }
+        Stmt stmt = For::make(op->name, op->min, op->extent, op->for_type, op->device_api, new_body);
+        return stmt;
+    }
+
+    Stmt visit(const Realize *op) override {
+        if (ends_with(op->name, ".shreg")) {
+            for (auto &entry : func_to_regalloc) {
+                const string &func_name = entry.first;
+                if (func_name == remove_postfix(op->name, ".shreg")) {
+                    // Move the Realize of the shift registers to its scope loop. Note that our current IR structure is like this:
+                    //    Realize X  // We are here now
+                    //       Produce X
+                    //        parallel X.s0.run_on_device // A dummy parallel loop indicating that X is a kernel on a device.
+                    //          loops // The scope loop will be within these loops, or the above dummy parallel loop (the root loop)
+                    // So we have not seen the scope loop yet. Thus record the Realize info, and insert it to the scope loop later.
+                    // And remove the current Realize.
+                    new_realizes_info.push_back(tuple<string, vector<Type>, MemoryType, Region, Expr>(op->name, op->types, op->memory_type, op->bounds, op->condition));
+                    Stmt new_body = mutate(op->body);
+                    return new_body;
+                }
+            }
+        }
+        Stmt new_body = mutate(op->body);
+        Stmt stmt = Realize::make(op->name, op->types, op->memory_type, op->bounds, op->condition, new_body);
+        return stmt;
     }
 };
 
@@ -1326,6 +1444,8 @@ Stmt minimize_shift_registers(Stmt s, const map<string, Function> &env, map<stri
     MinimizeShiftRegs msr(env);
     s = msr.mutate(s);
     func_to_regalloc = msr.func_to_regalloc;
+    ScopeShiftRegs ssr(func_to_regalloc);
+    s = ssr.mutate(s);
     s = RemoveUnitBoundsOfShiftRegs().mutate(s);
     return s;
 }

@@ -47,6 +47,7 @@ Func::Func(const string &name, Place place)
     : func(unique_name(name)) {
     func.place(place);
     func.min_depth(0);
+    func.run_forever(false);
 }
 
 Func::Func(Place place) : Func(make_entity_name(this, "Halide:.*:Func", 'f'), place) { }
@@ -56,12 +57,14 @@ Func::Func(Expr e, Place place)
     (*this)(_) = e;
     func.place(place);
     func.min_depth(0);
+    func.run_forever(false);
 }
 
 Func::Func(const string &name, const std::vector<Type> &return_types, const std::vector<Var> &args, Place place) :
     func(name) {
     func.place(place);
     func.min_depth(0);
+    func.run_forever(false);
     func.output_types() = return_types;
     std::vector<Expr> _args(args.size());
     for (size_t i = 0; i < args.size(); i++) {
@@ -75,6 +78,7 @@ Func::Func(const string &name, Type return_type, const std::vector<Var> &args, P
     func(name) {
     func.place(place);
     func.min_depth(0);
+    func.run_forever(false);
     func.output_types() = {return_type};
     std::vector<Expr> _args(args.size());
     for (size_t i = 0; i < args.size(); i++) {
@@ -91,6 +95,7 @@ Func::Func(Function f, Place place)
     : func(f) {
     func.place(place);
     func.min_depth(f.min_depth());
+    func.run_forever(f.run_forever());
 }
 
 Func::Func(Function f) : Func(f, f.place()) {}
@@ -3360,11 +3365,11 @@ void Func::compile_to_c(const string &filename, const vector<Argument> &args,
     pipeline().compile_to_c(filename, args, fn_name, target);
 }
 
-void Func::compile_to_oneapi(const vector<Argument> &args,
+void Func::compile_to_oneapi(const string &filename, const vector<Argument> &args,
                         const string &fn_name, const Target &target) {
     user_assert( target.has_feature(Target::IntelFPGA) || target.has_feature(Target::IntelGPU) ) << " IntelFPGA or IntelGPU Target not found.\n";
     user_assert( target.has_feature((Target::OneAPI)) ) << " OneAPI Target not found.\n";
-    pipeline().compile_to_oneapi(args, fn_name, target);
+    pipeline().compile_to_oneapi(filename, args, fn_name, target);
 }
 
 void Func::compile_to_cm(const string &fn_name,

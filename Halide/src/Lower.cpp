@@ -81,6 +81,7 @@
 #include "../../t2s/src/Devectorize.h"
 #include "../../t2s/src/FlattenLoops.h"
 #include "../../t2s/src/Gather.h"
+#include "../../t2s/src/IsolateSignals.h"
 #include "../../t2s/src/LateFuse.h"
 #include "../../t2s/src/LoopRemoval.h"
 #include "../../t2s/src/MemorySchedule.h"
@@ -597,6 +598,10 @@ Module lower(const vector<Function> &output_funcs,
     s = flatten_tirangualr_loop_nest(s, env);
     debug(2) << "Lowering after triangular loop optimizing:\n" << s << "\n\n";
 
+    debug(1) << "Isolate signals out of run_forever kernels ...\n";
+    s = isolate_signals(s, env);
+    debug(2) << "Lowering after isolating signals out of run_forever kernels:\n" << s << "\n\n";
+
     if (getenv("DISABLE_AUTORUN") == NULL) {
         if (t.has_feature(Target::IntelFPGA)) {
             debug(1) << "Making device funcs as autorun ...\n";
@@ -625,9 +630,9 @@ Module lower(const vector<Function> &output_funcs,
 
     // The code generator should blindly generate code according to the IR, without tricks if possible.
     // So here standardize the IR to make it have the same abstraction level as the target language to generate.
-    // Although below it is done only for OpenCL and clear code gen only, ideally it should be done for any target
+    // Although below it is done only for OpenCL/OneAPI and clear code gen only, ideally it should be done for any target
     // HW and language, and any code generator.
-    if (t.features_any_of({Target::OpenCL}) && (getenv("CLEARCODE") != NULL)) {
+    if (t.features_any_of({Target::OpenCL, Target::OneAPI}) && (getenv("CLEARCODE") != NULL)) {
         debug(1) << "Standardize IR for generating OpenCL code...\n";
         s = standardize_ir_for_opencl_code_gen(s);
         debug(2) << "Lowering after standardizing IR for generating OpenCL code:\n" << s << "\n\n";
