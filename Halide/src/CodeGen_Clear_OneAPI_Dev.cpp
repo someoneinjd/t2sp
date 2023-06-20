@@ -1649,7 +1649,7 @@ string CodeGen_Clear_OneAPI_Dev::compile(const Module &input) {
     // Turn on the following code to auto-generate the Halide runtime header once.
 #ifdef GEN_HALIDE_RUNTIME
     // The Halide runtime headers, etc. into a separate file to make the main file cleaner
-    std::ofstream runtime_file{"halide_runtime_etc.h"};
+    std::ofstream runtime_file{"halide_runtime_etc.hpp"};
     runtime_file << "#pragma once\n";
     runtime_file << em_visitor.get_str() + "\n";
     runtime_file << "extern HALIDE_ALWAYS_INLINE void halide_device_and_host_free_as_destructor(void *user_context, void *obj) {};\n\n";
@@ -2069,26 +2069,7 @@ string CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::ExternCallFuncs::halide_device_
     std::ostringstream rhs;
     vector<Expr> args = op->args;
     string buff = p->print_expr(args[0]);
-
-    rhs << "if (!" << buff << "->device) { // device malloc\n";
-    rhs << p->get_indent() << Indentation{INDENT} << "DPRINT(std::cout << \"//\t device malloc "<< buff << "\\n\");\n";
-    rhs << p->get_indent() << Indentation{INDENT} << "assert(" << buff << "->size_in_bytes() != 0);\n";
-    rhs << p->get_indent() << Indentation{INDENT} << "uint64_t lowest_index = 0;\n";
-    rhs << p->get_indent() << Indentation{INDENT} << "uint64_t highest_index = 0;\n";
-    rhs << p->get_indent() << Indentation{INDENT} << "for (int i = 0; i < " << buff << "->dimensions; i++) {\n";
-    rhs << p->get_indent() << Indentation{2 * INDENT} << "if (" << buff << "->dim[i].stride < 0) {\n";
-    rhs << p->get_indent() << Indentation{3 * INDENT} << "lowest_index += (uint64_t)(" << buff << "->dim[i].stride) * (" << buff << "->dim[i].extent - 1);\n";
-    rhs << p->get_indent() << Indentation{2 * INDENT} << "}\n";
-    rhs << p->get_indent() << Indentation{2 * INDENT} << "if (" << buff << "->dim[i].stride > 0) {\n";
-    rhs << p->get_indent() << Indentation{3 * INDENT} << "highest_index += (uint64_t)(" << buff << "->dim[i].stride) * (" << buff << "->dim[i].extent - 1);\n";
-    rhs << p->get_indent() << Indentation{2 * INDENT} << "}\n";
-    rhs << p->get_indent() << Indentation{INDENT} << "}\n";
-    rhs << p->get_indent() << Indentation{INDENT} << "device_handle *dev_handle = (device_handle *)std::malloc(sizeof(device_handle));\n";
-    rhs << p->get_indent() << Indentation{INDENT} << "dev_handle->mem = (void*)sycl::malloc_device(" << buff << "->size_in_bytes(), q_device);\n";
-    rhs << p->get_indent() << Indentation{INDENT} << "dev_handle->offset = 0;\n";
-    rhs << p->get_indent() << Indentation{INDENT} << buff << "->device = (uint64_t)dev_handle;\n";
-    rhs << p->get_indent() << "}";
-
+    rhs << "halide_sycl_device_malloc(" << buff << ", q_device);\n";
     return rhs.str();
 }
 
@@ -2097,12 +2078,7 @@ string CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::ExternCallFuncs::halide_host_ma
     std::ostringstream rhs;
     vector<Expr> args = op->args;
     string buffer_name = p->print_expr(args[0]);
-    rhs << "{ // host malloc\n";
-    rhs << p->get_indent() << Indentation{INDENT} << "DPRINT(std::cout << \"//\\t host malloc "<< buffer_name << "\\n\");\n";
-    rhs << p->get_indent() << Indentation{INDENT} << "assert(" << buffer_name << "->size_in_bytes() != 0);\n";
-    rhs << p->get_indent() << Indentation{INDENT} << buffer_name << "->host = (uint8_t*)std::malloc(" << buffer_name << "->size_in_bytes());\n";
-    rhs << p->get_indent() << Indentation{INDENT} << "assert(" << buffer_name << "->host != NULL);\n";
-    rhs << p->get_indent() << "}";
+    rhs << "halide_sycl_host_malloc(" << buffer_name << ");\n";
     return rhs.str();
 }
 
@@ -2144,7 +2120,8 @@ string CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::ExternCallFuncs::halide_opencl_
     std::ostringstream rhs;
     vector<Expr> args = op->args;
     string buffer_name = p->print_expr(args[0]);
-
+    rhs << "halide_sycl_buffer_copy(" << buffer_name << ", q_device);\n";
+/*
     rhs << "{ // memcpy \n";
     rhs << p->get_indent() << Indentation{INDENT} << "bool from_host = (" << buffer_name << "->device == 0) || ("<< buffer_name <<"->host_dirty() && "<< buffer_name << "->host != NULL);\n";
     rhs << p->get_indent() << Indentation{INDENT} << "bool to_host = "<< to_host <<";\n";
@@ -2161,6 +2138,7 @@ string CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::ExternCallFuncs::halide_opencl_
     rhs << p->get_indent() << Indentation{2 * INDENT} << "DPRINT(std::cout << \"//\t memcpy "<< buffer_name << " Do nothing.\\n\");\n";
     rhs << p->get_indent() << Indentation{INDENT} << "}\n";
     rhs << p->get_indent() << "}";
+*/
     return rhs.str();
 }
 
@@ -2169,18 +2147,16 @@ string CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::ExternCallFuncs::halide_device_
     std::ostringstream rhs;
     std::vector<Expr> args = op->args;
     std::string buffer_name = p->print_expr(args[0]);
-    rhs << halide_device_host_nop_free(buffer_name);
+    rhs << "halide_sycl_device_and_host_free(" << buffer_name << ", q_device);\n";
     return rhs.str();
 }
 
 string CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::ExternCallFuncs::halide_device_and_host_malloc(const Call *op) {
     check_valid(op, 2, 1);
     std::ostringstream rhs;
-    // Device Malloc
-    rhs << halide_device_malloc(op);
-    rhs << ";\n";
-    // Host Malloc
-    rhs << p->get_indent() << halide_host_malloc(op);
+    std::vector<Expr> args = op->args;
+    std::string buffer_name = p->print_expr(args[0]);
+    rhs << "halide_sycl_device_and_host_malloc(" << buffer_name << ", q_device);\n";
     return rhs.str();
 }
 
@@ -2253,14 +2229,14 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::clean_stream() {
 
 void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::write_runtime_headers(const std::vector<std::string> &tokens_in_func_name) {
     stream <<
-R"(#include "halide_runtime_etc.h"
-#if __has_include(<sycl/sycl.hpp>)
+R"(#if __has_include(<sycl/sycl.hpp>)
 #include <sycl/sycl.hpp>
 #else
 #include <CL/sycl.hpp>
 #endif
 #include <sycl/ext/intel/fpga_extensions.hpp>
 
+#include "halide_runtime_etc.hpp"
 #include "pipe_wrapper.hpp"
 #include "complex_helper.hpp"
 #include "constexpr_math.hpp"
@@ -3179,7 +3155,7 @@ std::string CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::print_extern_call(const Ca
             if (function_takes_user_context(op->name)) {
                 // functions that take user context return 0 on success
                 // simple place 0 as the value and run the actual function in the next line
-                rhs << "0; // " << op->name << "(" << with_commas(args) << ") replaced with line(s) below \n";
+                rhs << "0;\n"; // " << op->name << "(" << with_commas(args) << ") replaced with line(s) below \n";
                 rhs << get_indent() << (ext_funcs.*(search->second))(op);
             } else {
                 rhs << (ext_funcs.*(search->second))(op) << " /* " << op->name << "(" << with_commas(args) << ") replaced */";
