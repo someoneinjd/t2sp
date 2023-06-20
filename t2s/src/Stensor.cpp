@@ -188,6 +188,10 @@ struct FindVars
                     op->args[i].accept(this);
                 }
                 image_param.clear();
+            } else if (op->is_extern()) {
+                for (size_t i = 0; i < op->args.size(); i++) {
+                    op->args[i]->accept(this);
+                }
             }
         }
     } fuv;
