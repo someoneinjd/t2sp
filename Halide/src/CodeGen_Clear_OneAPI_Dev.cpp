@@ -2120,7 +2120,7 @@ string CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::ExternCallFuncs::halide_opencl_
     std::ostringstream rhs;
     vector<Expr> args = op->args;
     string buffer_name = p->print_expr(args[0]);
-    rhs << "halide_sycl_buffer_copy(" << buffer_name << ", q_device);\n";
+    rhs << "halide_sycl_buffer_copy(" << buffer_name << ", " << to_host << ", q_device);\n";
 /*
     rhs << "{ // memcpy \n";
     rhs << p->get_indent() << Indentation{INDENT} << "bool from_host = (" << buffer_name << "->device == 0) || ("<< buffer_name <<"->host_dirty() && "<< buffer_name << "->host != NULL);\n";
