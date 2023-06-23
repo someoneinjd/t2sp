@@ -554,6 +554,17 @@ Func &Func::isolate_producer(const vector<FuncOrExpr> &_fs, Func p) {
         a.function().isolated_operands_as_producer() = matched_operands;
     }
 
+    // TOFIX: for now, we do not vectorize host functions. Change vectorized loops of host funcs into serial.
+    for (auto a : all_new_funcs) {
+        if (a.function().place() == Place::Host) {
+            for (auto &dim : a.function().definition().schedule().dims()) {
+                if (dim.for_type == ForType::Vectorized) {
+                    dim.for_type = ForType::Serial;
+                }
+            }
+        }
+    }
+
     // In this Func, for every URE, replace the matched expressions with calls to the new Funcs.
     vector<Expr> substitute_args;
     for (auto a : this->args()) {

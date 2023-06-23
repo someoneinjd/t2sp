@@ -1344,7 +1344,8 @@ void CodeGen_Clear_OneAPI_Dev::CodeGen_Clear_OneAPI_C::visit(const Select *op) {
     // So first convert to if_then_else.
     user_assert(op->condition.type().is_scalar())
         << "The OneAPI does not support branch divergence. "
-        << "Please do not perform vectorization if the value of a URE depends on the incoming data.\n";
+        << "Please do not perform vectorization if the value of a URE depends on the incoming data.\n"
+        << "Problematic expression: " << to_string(op) << "\n";
 
     if (op->false_value.defined()) {
         string cond_id = print_expr(op->condition);

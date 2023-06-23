@@ -12,6 +12,7 @@
 #include "IRPrinter.h"
 #include "Util.h"
 #include "Var.h"
+#include "../../t2s/src/DebugPrint.h"
 
 namespace Halide {
 
@@ -1173,7 +1174,8 @@ Expr unsafe_promise_clamped(Expr value, Expr min, Expr max) {
 }
 
 Expr operator+(Expr a, Expr b) {
-    user_assert(a.defined() && b.defined()) << "operator+ of undefined Expr\n";
+    user_assert(a.defined() && b.defined()) << "operator+ of undefined Expr\n" << "\tOperand a: " + (a.defined()? to_string(a) : "undefined") + "\n"
+                                                                               << "\tOperand b: " + (b.defined()? to_string(b) : "undefined") + "\n";
     Internal::match_types(a, b);
     return Internal::Add::make(std::move(a), std::move(b));
 }
