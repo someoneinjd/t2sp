@@ -17,10 +17,11 @@
 * SPDX-License-Identifier: BSD-2-Clause-Patent
 *******************************************************************************/
 #include "./DebugPrint.h"
-#include "./Utilities.h"
-#include "./PreprocessBeforeLower.h"
-#include "./Stensor.h"
 #include "./BuildCallRelation.h"
+#include "./PreprocessBeforeLower.h"
+#include "./SliceExprTree.h"
+#include "./Stensor.h"
+#include "./Utilities.h"
 
 namespace Halide {
 
@@ -37,11 +38,13 @@ public:
     bool write_to_host;
     // Starting point(s) of the chain
     Func outf;                          // Valid only if is_output is true. An output chain starts from a function
-    vector<ImageParam> imp;              // Valid only if is_output is false. An input chain starts from external inputs (image params, i.e. tensors)
-    Func control_ure;                   // The above outf or imp belongs to a group of merged UREs. This is the control URE of the group.
+    vector<ImageParam> imp;             // Valid only if is_output is false. The image params (i.e. tensors), if any, that start an input chain.
+    vector<Expr> starting_exprs;        // Valid only if is_output is false. The expressions, if any, that start an input chain. These expressions usually load tensor data, or create fake data (like padding zeros)
+    Func control_ure;                   // The above outf, imp or starting_exprs, belongs to a group of merged UREs. This is the control URE of the group.
     vector<Var> free_vars;              // Variables appeared in the definition of the control URE
     map<string, set<string>> used_vars; // From image param to its indices.
-    vector<Stensor> stensors;           // Stensors in the chain
+    vector<set<string>> expr_used_vars; // For each starting expression, the variables used in it
+    vector<Stensor> stensors;           // Stensors in the chain.
 
     int var_index(Var v) {
         for (size_t i = 0; i < free_vars.size(); i++) {
@@ -64,13 +67,13 @@ public:
         return this->exists(vector<Var>{v});
     }
 
-    vector<VarOrRVar> find_reuse_vars(string imp, Var scope) {
+    vector<VarOrRVar> find_reuse_vars(const set<string> &used_vars, Var scope) {
         vector<VarOrRVar> reuse_vars;
         for (const auto &v : free_vars) {
             if (v.same_as(scope)) {
                 break;
             }
-            if (used_vars[imp].count(v.name()) == 0) {
+            if (used_vars.count(v.name()) == 0) {
                 reuse_vars.push_back(v);
             }
         }
@@ -154,6 +157,21 @@ Stensor &operator>>(const ImageParam &im, Stensor &s) {
     return vector<ImageParam>{im} >> s;
 }
 
+Stensor &operator>>(const vector<Expr> &e, Stensor &s) {
+    Schain tmp;
+    s.schain_idx = schains.size();
+    tmp.is_output = false;
+    tmp.write_to_host = false;
+    tmp.starting_exprs = e;
+    tmp.stensors.push_back(s);
+    schains.push_back(std::move(tmp));
+    return schains.back().stensors.back();
+}
+
+Stensor &operator>>(const Expr &e, Stensor &s) {
+    return vector<Expr>{e} >> s;
+}
+
 Stensor &operator>>(Func &f, Stensor &s) {
     Schain tmp;
     s.schain_idx = schains.size();
@@ -195,6 +213,16 @@ struct FindVars
             }
         }
     } fuv;
+
+    class FindExprUsedVars : public IRVisitor {
+        using IRVisitor::visit;
+    public:
+        set<string> vars;
+
+        void visit(const Variable *op) override {
+            vars.insert(op->name);
+        }
+    };
 
     Func control_ure_of_func(const map<string, Func> &env, const Func &func) {
         for (const auto &entry : env) {
@@ -245,19 +273,57 @@ struct FindVars
             if (chain.is_output) {
                 chain.control_ure = control_ure_of_func(env, chain.outf);
             } else {
-                for (const auto &i : chain.imp) {
-                    auto image_param = ends_with(i.name(), "_im") ? remove_postfix(i.name(), "_im") : i.name();
-                    for (const auto &refs_in_a_func : references) {
-                        for (const auto &ref : refs_in_a_func.used_vars) {
-                            if (image_param == ref.first) {
-                                Func control_ure = control_ure_of_func(env, refs_in_a_func.func);
-                                user_assert(!chain.control_ure.defined() or chain.control_ure.function().name() == control_ure.function().name()) << "Error: ImageParams " << to_string(chain.imp) << " are not from the same group of merged UREs";
-                                chain.control_ure = control_ure;
-                                chain.used_vars[ref.first] = ref.second;
-                                for (const auto &d : control_ure.function().definition().schedule().dims())
-                                    chain.free_vars.push_back(d.var);
+                // An input stensor chain starts either with an ImageParam or an expression, but not both
+                internal_assert( chain.imp.empty() ||  chain.starting_exprs.empty());
+                internal_assert(!chain.imp.empty() || !chain.starting_exprs.empty());
+                if (!chain.imp.empty()) {
+                    // The input chain starts with image params
+                    for (const auto &i : chain.imp) {
+                        auto image_param = ends_with(i.name(), "_im") ? remove_postfix(i.name(), "_im") : i.name();
+                        for (const auto &refs_in_a_func : references) {
+                            for (const auto &ref : refs_in_a_func.used_vars) {
+                                if (image_param == ref.first) {
+                                    Func control_ure = control_ure_of_func(env, refs_in_a_func.func);
+                                    user_assert(!chain.control_ure.defined() or chain.control_ure.function().name() == control_ure.function().name()) << "Error: ImageParams " << to_string(chain.imp) << " are not from the same group of merged UREs";
+                                    chain.control_ure = control_ure;
+                                    for (const auto &d : control_ure.function().definition().schedule().dims())
+                                        chain.free_vars.push_back(d.var);
+                                }
                             }
                         }
+                    }
+                } else {
+                    // The input chain starts with expressions. Find out which function's definition uses which expression
+                    for (auto &expr : chain.starting_exprs) {
+                        bool found = false;
+                        for (const auto &entry : env) {
+                            const Func& func = entry.second;
+                            vector<Expr> values = func.values().as_vector();
+                            for (auto value : values) {
+                                SliceExprTree slicer("", expr, "Looking for expression " + to_string(expr) + "in Func " + func.name());
+                                value.accept(&slicer);
+                                if (slicer.matched_operand.defined()) {
+                                    // Function contains the expression. Our assumption is that this expression can be contained in one and only one such function.
+                                    found = true;
+                                    Func control_ure = control_ure_of_func(env, func);
+                                    user_assert(!chain.control_ure.defined() or chain.control_ure.function().name() == control_ure.function().name()) << "Error: Expressions " << to_string<Expr>(chain.starting_exprs) << " are not from the same group of merged UREs";
+                                    chain.control_ure = control_ure;
+
+                                    // Find variables referenced by this expression
+                                    FindExprUsedVars finder;
+                                    expr.accept(&finder);
+                                    chain.expr_used_vars.push_back(std::move(finder.vars));
+
+                                    // Record the loop dimensions of the control URE.
+                                    for (const auto &d : control_ure.function().definition().schedule().dims()) {
+                                        chain.free_vars.push_back(d.var);
+                                    }
+                                    break;
+                                }
+                            }
+                            if (found) break;
+                        }
+                        user_assert(found) << "Expression " + to_string(expr) + " starts an input chain but it is not contained in any function/URE\n";
                     }
                 }
             }
@@ -308,6 +374,7 @@ class RealizeOnFPGA
             c.stensors.insert(c.stensors.begin(), s_host);
         }
         std::copy(c.imp.begin(), c.imp.end(), back_inserter(c.stensors[0].operations));
+        std::copy(c.starting_exprs.begin(), c.starting_exprs.end(), back_inserter(c.stensors[0].operations));
         vector<size_t> fs_idxs{};
         vector<Func> producers{};
         size_t idx = 0;
@@ -320,15 +387,15 @@ class RealizeOnFPGA
             idx++;
         }
         vector<Func> _producers(producers.begin() + fs_idxs.back(), producers.end());
-        c.control_ure.isolate_producer_chain(c.stensors[fs_idxs.back()].operations, _producers);
         debug(1) << "T2X emits: " << c.control_ure.name() << ".isolate_producer_chain({"
                  << names_to_string(c.stensors[fs_idxs.back()].operations) << "}, " << names_to_string(_producers) << ");\n";
+        c.control_ure.isolate_producer_chain(c.stensors[fs_idxs.back()].operations, _producers);
         for (int i = fs_idxs.size() - 2; i >= 0; i--) {
             _producers.clear();
             _producers.insert(_producers.end(), producers.begin() + fs_idxs[i], producers.begin() + fs_idxs[i + 1]);
-            producers[fs_idxs[i + 1]].isolate_producer_chain(c.stensors[fs_idxs[i]].operations, _producers);
             debug(1) << "T2X emits: " << producers[fs_idxs[i + 1]].name() << ".isolate_producer_chain({"
                      << names_to_string(c.stensors[fs_idxs[i]].operations) << "}, " << names_to_string(_producers) << ");\n";
+            producers[fs_idxs[i + 1]].isolate_producer_chain(c.stensors[fs_idxs[i]].operations, _producers);
         }
         return producers;
     }
@@ -423,8 +490,19 @@ class RealizeOnFPGA
         vector<VarOrRVar> loops;
         Var scope = c.stensors.back().v_scope;
 
+        // Merge all the image params' (and starting expressions') used variables
+        set<string> all_used_vars;
+        for (auto image_param : c.imp) {
+            const set<string> & used_variables = c.used_vars[image_param.name()];
+            all_used_vars.insert(used_variables.begin(), used_variables.end());
+        }
+        for (size_t i = 0; i < c.starting_exprs.size(); i++) {
+            const set<string> & used_variables = c.expr_used_vars[i];
+            all_used_vars.insert(used_variables.begin(), used_variables.end());
+        }
+
         for (int i = producers.size()-2; i >= 0; i--) {
-            loops = c.find_reuse_vars(c.imp[0].name(), scope);
+            loops = c.find_reuse_vars(all_used_vars, scope);
             debug(1) << "T2X emits: " << producers[i].name() << ".remove("
                      << names_to_string(loops) << ");\n";
             producers[i].remove(loops);
