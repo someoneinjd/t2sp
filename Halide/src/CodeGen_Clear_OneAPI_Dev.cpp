@@ -1741,11 +1741,10 @@ void CodeGen_Clear_OneAPI_Dev::CodeGen_Clear_OneAPI_C::DeclareChannels::visit(co
 
             string printed_name = parent->print_name(op->name);
             string type_name = printed_name + "_t";
-            if (bounds.size() > 2) {
-                oss << "struct " << type_name << " { " << type << " s" << bounds_str << "; };\n";
-            } else {
-                internal_assert(bounds.size() == 2); // Note the second bound is actually the min depth.
+            if (bounds.size() == 2) { // the channel array is 1-dimensional
                 oss << "using " << type_name << " = fpga_tools::NTuple<" << type << ", " << first_bound << ">;\n";
+            } else {
+                oss << "struct " << type_name << " { " << type << " s" << bounds_str << "; };\n";
             }
             oss << "using " << channel_name << " = pipe_wrapper<class "
                 << channel_name << "_pipe, " << type_name << ", " << pipe_attributes <<  ">;\n";

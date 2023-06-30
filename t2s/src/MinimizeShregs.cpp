@@ -1320,6 +1320,7 @@ public:
     Stmt visit(const For *op) override {
         Stmt new_body = mutate(op->body);
 
+        decltype(new_realizes_info) need_re_realize{};
         // Insert Realizes of shift registers.
         for (auto &entry : func_to_regalloc) {
             const string &func_name = entry.first;
@@ -1327,16 +1328,30 @@ public:
 
             // Insert a Realize of the shift registers, if the loop is the scope loop of the shift registers.
             if (alloc.scope_loop == op->name) { // This loop is the scope loop
-                for (auto info : new_realizes_info) {
+                for (const auto &info : new_realizes_info) {
                     if (std::get<0>(info) == func_name + ".shreg") {
-                        new_body = Realize::make(std::get<0>(info), std::get<1>(info), std::get<2>(info), std::get<3>(info), std::get<4>(info), new_body);
+                        need_re_realize.push_back(info);
                         break;
                     }
                 }
             }
         }
-        Stmt stmt = For::make(op->name, op->min, op->extent, op->for_type, op->device_api, new_body);
-        return stmt;
+
+        // There should not be any realize statements inside the vectorized loop,
+        // otherwise the Devectorize operation will go wrong later.
+        if (op->for_type == ForType::Vectorized) {
+            Stmt stmt = For::make(op->name, op->min, op->extent, op->for_type, op->device_api, new_body);
+            for (const auto &info : need_re_realize) {
+                stmt = Realize::make(std::get<0>(info), std::get<1>(info), std::get<2>(info), std::get<3>(info), std::get<4>(info), stmt);
+            }
+            return stmt;
+        } else {
+            for (const auto &info : need_re_realize) {
+                new_body = Realize::make(std::get<0>(info), std::get<1>(info), std::get<2>(info), std::get<3>(info), std::get<4>(info), new_body);
+            }
+            Stmt stmt = For::make(op->name, op->min, op->extent, op->for_type, op->device_api, new_body);
+            return stmt;
+        }
     }
 
     Stmt visit(const Realize *op) override {
@@ -1351,7 +1366,7 @@ public:
                     //          loops // The scope loop will be within these loops, or the above dummy parallel loop (the root loop)
                     // So we have not seen the scope loop yet. Thus record the Realize info, and insert it to the scope loop later.
                     // And remove the current Realize.
-                    new_realizes_info.push_back(tuple<string, vector<Type>, MemoryType, Region, Expr>(op->name, op->types, op->memory_type, op->bounds, op->condition));
+                    new_realizes_info.emplace_back(op->name, op->types, op->memory_type, op->bounds, op->condition);
                     Stmt new_body = mutate(op->body);
                     return new_body;
                 }
