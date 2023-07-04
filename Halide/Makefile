@@ -842,7 +842,7 @@ T2S_SOURCE_FILES = \
   ScatterAndBuffer.cpp \
   SliceExprTree.cpp \
   SpaceTimeTransform.cpp \
-  StandardizeIRForOpenCL.cpp \
+  StandardizeIRForClearCodeGen.cpp \
   Stensor.cpp \
   StructType.cpp \
   TriangularLoopOptimize.cpp \
@@ -878,7 +878,7 @@ T2S_HEADER_FILES = \
   ScatterAndBuffer.h \
   SliceExprTree.h \
   SpaceTimeTransform.h \
-  StandardizeIRForOpenCL.h \
+  StandardizeIRForClearCodeGen.h \
   Stensor.h \
   StructType.h \
   TriangularLoopOptimize.h \

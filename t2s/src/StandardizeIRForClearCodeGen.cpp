@@ -26,7 +26,7 @@
 #include "Scope.h"
 #include "Simplify.h"
 #include "../../t2s/src/DebugPrint.h"
-#include "../../t2s/src/StandardizeIRForOpenCL.h"
+#include "../../t2s/src/StandardizeIRForClearCodeGen.h"
 #include "../../t2s/src/Utilities.h"
 
 #include <map>
@@ -66,30 +66,30 @@ bool is_variable(const Expr &e) {
     return as_variable(e) != NULL;
 }
 
-class MiscLoweringStmtForOpenCL : public IRMutator {
+class MiscLoweringStmt : public IRMutator {
 private:
-    bool in_opencl_device_kernel;
+    bool in_device_kernel;
 public:
-    MiscLoweringStmtForOpenCL() : in_opencl_device_kernel(false) {}
+    MiscLoweringStmt() : in_device_kernel(false) {}
 
     Stmt mutate(const Stmt &s) override {
         if (!s.defined()) {
             return s;
         }
         const For *loop = s.as<For>();
-        if (loop && loop->device_api == DeviceAPI::OpenCL && ends_with(loop->name, ".run_on_device")) {
-            in_opencl_device_kernel = true;
+        if (loop && ends_with(loop->name, ".run_on_device")) {
+            in_device_kernel = true;
         }
         Stmt new_s = IRMutator::mutate(s);
 
-        if (loop && loop->device_api == DeviceAPI::OpenCL && ends_with(loop->name, ".run_on_device")) {
-            in_opencl_device_kernel = false;
+        if (loop && ends_with(loop->name, ".run_on_device")) {
+            in_device_kernel = false;
         }
         return new_s;
     }
 
     Expr mutate(const Expr &e) override {
-        if (!in_opencl_device_kernel) {
+        if (!in_device_kernel) {
             return e;
         }
 
@@ -125,6 +125,13 @@ public:
             } else if (ediv && op->type.is_int()) {
                 return lower_euclidean_mod(mutate(op->a), mutate(op->b));
             }
+        } else if (const Mul* op = e.as<Mul>()) {
+            // Change something like (complex32x4)A * x4((float32)B) => ((complex32x4)A) * (float32)B
+            if (op->a.type().is_complex() && op->a.type().is_vector() && op->b.as<Broadcast>()) {
+                const Broadcast *operand_b = op->b.as<Broadcast>();
+                internal_assert(op->a.type().lanes() == operand_b->lanes);
+                return Mul::make(op->a, operand_b->value);
+            }
         }
         return IRMutator::mutate(e);
     }
@@ -132,10 +139,10 @@ public:
 
 class IntermediateVarsForVectorAccess : public IRMutator {
 private:
-    bool in_opencl_device_kernel;
+    bool in_device_kernel;
 
     Stmt mutate_store(const Store *op) {
-        user_assert(is_one(op->predicate)) << "Predicated store is not supported inside OpenCL kernel.\n";
+        user_assert(is_one(op->predicate)) << "Predicated store is not supported inside a kernel.\n";
         Stmt new_s = op;
         Expr ramp_base = strided_ramp_base(op->index);
         if (ramp_base.defined()) {
@@ -173,7 +180,7 @@ private:
     }
 
     Expr mutate_load(const Load *op) {
-        user_assert(is_one(op->predicate)) << "Predicated load is not supported inside OpenCL kernel.\n";
+        user_assert(is_one(op->predicate)) << "Predicated load is not supported inside a kernel.\n";
         Expr ramp_base = strided_ramp_base(op->index);
         if (!ramp_base.defined() and op->index.type().is_vector()) {
             // If index is a vector, gather vector elements. But if the index is an expression, it is illegal to use index.s0, etc.
@@ -210,18 +217,18 @@ private:
 public:
     using IRMutator::mutate;
 
-    IntermediateVarsForVectorAccess() : in_opencl_device_kernel(false) {}
+    IntermediateVarsForVectorAccess() : in_device_kernel(false) {}
 
     Stmt mutate(const Stmt &s) override {
         if (!s.defined()) {
             return s;
         }
         const For *loop = s.as<For>();
-        if (loop && loop->device_api == DeviceAPI::OpenCL && ends_with(loop->name, ".run_on_device")) {
-            in_opencl_device_kernel = true;
+        if (loop && ends_with(loop->name, ".run_on_device")) {
+            in_device_kernel = true;
         }
         Stmt new_s;
-        if (in_opencl_device_kernel) {
+        if (in_device_kernel) {
             if (const Store *op = s.as<Store>()) {
                 new_s = mutate_store(op);
             } else {
@@ -231,14 +238,14 @@ public:
             new_s = IRMutator::mutate(s);
         }
 
-        if (loop && loop->device_api == DeviceAPI::OpenCL && ends_with(loop->name, ".run_on_device")) {
-            in_opencl_device_kernel = false;
+        if (loop && ends_with(loop->name, ".run_on_device")) {
+            in_device_kernel = false;
         }
         return new_s;
     }
 
     Expr mutate(const Expr &e) override {
-        if (!in_opencl_device_kernel) {
+        if (!in_device_kernel) {
             return e;
         }
         if (const Load* op = e.as<Load>()) {
@@ -284,7 +291,7 @@ public:
 
 class CastToBoolVector : public IRMutator {
 private:
-    bool in_opencl_device_kernel;
+    bool in_device_kernel;
 
     Expr mutate_bool_vector_type(Expr &e, const Type &operand_type) {
         internal_assert(e.type().is_bool() && e.type().is_vector());
@@ -302,26 +309,26 @@ private:
 public:
     using IRMutator::mutate;
 
-    CastToBoolVector() : in_opencl_device_kernel(false) {}
+    CastToBoolVector() : in_device_kernel(false) {}
 
     Stmt mutate(const Stmt &s) override {
         if (!s.defined()) {
             return s;
         }
         const For *loop = s.as<For>();
-        if (loop && loop->device_api == DeviceAPI::OpenCL && ends_with(loop->name, ".run_on_device")) {
-            in_opencl_device_kernel = true;
+        if (loop && ends_with(loop->name, ".run_on_device")) {
+            in_device_kernel = true;
         }
         Stmt new_s = IRMutator::mutate(s);
 
-        if (loop && loop->device_api == DeviceAPI::OpenCL && ends_with(loop->name, ".run_on_device")) {
-            in_opencl_device_kernel = false;
+        if (loop && ends_with(loop->name, ".run_on_device")) {
+            in_device_kernel = false;
         }
         return new_s;
     }
 
     Expr mutate(const Expr &e) override {
-        if (!in_opencl_device_kernel) {
+        if (!in_device_kernel) {
             return e;
         }
 
@@ -359,7 +366,7 @@ public:
 //          ... = select(cond, body, ...)
 class Let2LetStmt : public IRMutator {
 private:
-    bool in_opencl_device_kernel;
+    bool in_device_kernel;
     Expr path_condition; // Condition of the path, within the current statement, to the current Expr.
 
     // For each "Let x=value" found, record the path condition, x and value.
@@ -444,7 +451,7 @@ private:
 
 public:
     using IRMutator::mutate;
-    Let2LetStmt() : in_opencl_device_kernel(false) { }
+    Let2LetStmt() : in_device_kernel(false) { }
 
     // Create LetStms, according to cond_name_value_tuples, before the current statement s
     Stmt make_LetStmts(const Stmt &s) {
@@ -469,12 +476,12 @@ public:
             return s;
         }
         const For *loop = s.as<For>();
-        if (loop && loop->device_api == DeviceAPI::OpenCL && ends_with(loop->name, ".run_on_device")) {
-            in_opencl_device_kernel = true;
+        if (loop && ends_with(loop->name, ".run_on_device")) {
+            in_device_kernel = true;
         }
         path_condition = const_true(); // The path condition is meant to be within the current statement
         Stmt new_s = s;
-        if (in_opencl_device_kernel) {
+        if (in_device_kernel) {
             internal_assert(cond_name_value_tuples.size() == 0); // The vector is empty before a statement is processed, and is cleared after that statement is processed..
             if (const LetStmt *op = s.as<LetStmt>()) {
                 Stmt new_body = mutate(op->body);
@@ -485,7 +492,7 @@ public:
             } else if (const ProducerConsumer *op = s.as<ProducerConsumer>()) {
                 new_s = ProducerConsumer::make(op->name, op->is_producer, mutate(op->body));
             } else if (const Store *op = s.as<Store>()) {
-                user_assert(is_one(op->predicate)) << "Predicated store is not supported inside OpenCL kernel.\n";
+                user_assert(is_one(op->predicate)) << "Predicated store is not supported inside a kernel.\n";
                 new_s = make_LetStmts(Store::make(op->name, mutate(op->value), mutate(op->index), op->param, op->predicate, op->alignment));
             } else if (const For *op = s.as<For>()) {
                 Stmt new_body = mutate(op->body);
@@ -562,14 +569,14 @@ public:
             new_s = IRMutator::mutate(s);
         }
 
-        if (loop && loop->device_api == DeviceAPI::OpenCL && ends_with(loop->name, ".run_on_device")) {
-            in_opencl_device_kernel = false;
+        if (loop && ends_with(loop->name, ".run_on_device")) {
+            in_device_kernel = false;
         }
         return new_s;
     }
 
     Expr mutate(const Expr &e) override {
-        if (!in_opencl_device_kernel) {
+        if (!in_device_kernel) {
             return e;
         }
 
@@ -598,7 +605,7 @@ public:
     }
 };
 
-Stmt standardize_ir_for_opencl_code_gen(Stmt s) {
+Stmt standardize_ir_for_clear_code_gen(Stmt s) {
     // Standardize every statement independently. The standardization process has the following steps:
     // 1. MISC lowering. Lower expressions in a statement to desirable compute, e.g. divide by 2 ==> shift by 1
     // 2. If an expression returns a vector, and individual elements of that vector have to be accessed later, then we should
@@ -616,8 +623,8 @@ Stmt standardize_ir_for_opencl_code_gen(Stmt s) {
     // 5. TODO: Also hoist CSEs.
 
     // Misc lowering of some expressions in this statement according to OpenCL's capability
-    Stmt new_s = MiscLoweringStmtForOpenCL().mutate(s);
-    debug(4) << "After MiscLoweringStmtForOpenCL:\n" << to_string(new_s) << "\n\n";
+    Stmt new_s = MiscLoweringStmt().mutate(s);
+    debug(4) << "After MiscLoweringStmt:\n" << to_string(new_s) << "\n\n";
 
     // Save expressions to intermediate variables, if the expressions result in vectors but we need access their individual elements
     new_s = IntermediateVarsForVectorAccess().mutate(new_s);

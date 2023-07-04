@@ -43,10 +43,10 @@ Expr Sub::make(Expr a, Expr b) {
 Expr Mul::make(Expr a, Expr b) {
     internal_assert(a.defined()) << "Mul of undefined\n";
     internal_assert(b.defined()) << "Mul of undefined\n";
-    internal_assert(a.type() == b.type()) << "Mul of mismatched types\n";
+    internal_assert(a.type() == b.type() || (a.type().is_float() && b.type().is_complex()) || (a.type().is_complex() && b.type().is_float())) << "Mul of mismatched types\n";
 
     Mul *node = new Mul;
-    node->type = a.type();
+    node->type = (a.type() == b.type()) ? a.type() : (a.type().is_complex() ? a.type() : b.type());
     node->a = std::move(a);
     node->b = std::move(b);
     return node;
