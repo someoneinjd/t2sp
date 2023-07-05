@@ -831,6 +831,9 @@ Expr atanh(Expr x);
  * vectorizes cleanly. */
 Expr sqrt(Expr x);
 
+/* Return the square root of the expression x if the condition is true. */
+Expr conditional_sqrt(Expr condition, Expr x);
+
 /** Return the square root of the sum of the squares of two
  * floating-point expressions. If the argument is not floating-point,
  * it is cast to Float(32). Vectorizes cleanly. */
