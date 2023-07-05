@@ -502,9 +502,12 @@ void match_types(Expr &a, Expr &b) {
     if (ta == tb) return;
 
     if (!ta.is_float() && tb.is_float()) {
-        // int(a) * float(b) -> float(b)
-        // uint(a) * float(b) -> float(b)
+        // int  * float -> float * float
+        // uint * float -> float * float
         a = cast(tb, std::move(a));
+    } else if ((ta.is_float() && tb.is_complex()) || (tb.is_float() && ta.is_complex())) {
+        // float * complex is allowed
+        return;
     } else if (ta.is_float() && !tb.is_float()) {
         b = cast(ta, std::move(b));
     } else if (ta.is_float() && tb.is_float()) {
