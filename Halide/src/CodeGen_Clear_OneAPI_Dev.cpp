@@ -2404,7 +2404,7 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::compile(const LoweredFunc &f) {
            << get_indent() << Indentation{INDENT} << "}\n"
            << get_indent() << "}\n"
            << get_indent() << "std::cout << \"// Execution time of the device kernels (in nanoseconds) = \" "
-                                        "<< kernels_used_to_measure_time.empty() ? decltype(k_latest_end_time){} : k_latest_end_time - k_earliest_start_time;\n"
+                                        "<< (kernels_used_to_measure_time.empty() ? 0 : k_latest_end_time - k_earliest_start_time) << \"\\n\";\n"
            << "#endif\n";
 
     // At this point, we have actually made sure that all kenrels have ended. However, to conform to the DPC++ interface of oneMKL BLAS
