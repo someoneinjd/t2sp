@@ -2121,24 +2121,6 @@ string CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::ExternCallFuncs::halide_opencl_
     vector<Expr> args = op->args;
     string buffer_name = p->print_expr(args[0]);
     rhs << "halide_sycl_buffer_copy(" << buffer_name << ", " << to_host << ", q_device);\n";
-/*
-    rhs << "{ // memcpy \n";
-    rhs << p->get_indent() << Indentation{INDENT} << "bool from_host = (" << buffer_name << "->device == 0) || ("<< buffer_name <<"->host_dirty() && "<< buffer_name << "->host != NULL);\n";
-    rhs << p->get_indent() << Indentation{INDENT} << "bool to_host = "<< to_host <<";\n";
-    rhs << p->get_indent() << Indentation{INDENT} << "if (!from_host && to_host) {\n";
-    rhs << p->get_indent() << Indentation{2 * INDENT} << "DPRINT(std::cout << \"//\t memcpy device->host " << buffer_name << "\\n\");\n";
-    rhs << p->get_indent() << Indentation{2 * INDENT} << create_memcpy(buffer_name , true)  << ";\n";
-    rhs << p->get_indent() << Indentation{INDENT} << "} else if (from_host && !to_host) {\n";
-    rhs << p->get_indent() << Indentation{2 * INDENT} << "DPRINT(std::cout << \"//\t memcpy host->device " << buffer_name << "\\n\");\n";
-    rhs << p->get_indent() << Indentation{2 * INDENT} << create_memcpy(buffer_name , false)  << ";\n";
-    rhs << p->get_indent() << Indentation{INDENT} << "} else if (!from_host && !to_host) {\n";
-    rhs << p->get_indent() << Indentation{2 * INDENT} << "DPRINT(std::cout << \"//\t memcpy device->device not implemented yet\\n\");\n";
-    rhs << p->get_indent() << Indentation{2 * INDENT} << "assert(false);\n";
-    rhs << p->get_indent() << Indentation{INDENT} << "} else {\n";
-    rhs << p->get_indent() << Indentation{2 * INDENT} << "DPRINT(std::cout << \"//\t memcpy "<< buffer_name << " Do nothing.\\n\");\n";
-    rhs << p->get_indent() << Indentation{INDENT} << "}\n";
-    rhs << p->get_indent() << "}";
-*/
     return rhs.str();
 }
 
@@ -2234,9 +2216,9 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::create_assertion(const string &id
 
     stream << get_indent() << "if (!" << id_cond << ")\n";
     open_scope();
-    stream << get_indent() << "DPRINT(std::cout << \"Condition '" <<  id_cond << "' failed "
+    stream << get_indent() << "log(\"Condition '" <<  id_cond << "' failed "
            << "with error id_msg: " << id_msg
-           << "\\n\");\n";
+           << "\");\n";
     stream << get_indent() << "assert(false);\n";
     close_scope("");
 }
@@ -2262,11 +2244,12 @@ R"(#if __has_include(<sycl/sycl.hpp>)
 #include "tuple.hpp"
 #include "unrolled_loop.hpp"
 
+template <typename... Args>
+void log(Args &&...args) {
 #ifndef T2SP_NDEBUG
-    #define DPRINT(action) action
-#else
-    #define DPRINT(action)
+  ((std::cout << "[INFO] ") << ... << args) << "\n";
 #endif
+}
 
 using namespace sycl;
 )";
@@ -2370,11 +2353,11 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::compile(const LoweredFunc &f) {
     stream << get_indent() << Indentation{2 * INDENT} << "}\n";
     stream << get_indent() << Indentation{INDENT} << "}\n";
     stream << get_indent() << "};\n";
-    stream << get_indent() << "DPRINT(std::cout << \"// creating device queues\\n\");\n";
+    stream << get_indent() << "log(\"creating device queues\");\n";
     stream << get_indent() << "sycl::queue q_host(sycl::cpu_selector_v, exception_handler, sycl::property::queue::enable_profiling());\n";
     //stream << get_indent() << "sycl::queue q_device(device_selector_v, exception_handler, sycl::property::queue::enable_profiling());\n";
-    stream << get_indent() << "DPRINT(std::cout << \"// Host: \" << q_host.get_device().get_info<sycl::info::device::name>() << \"\\n\");\n";
-    stream << get_indent() << "DPRINT(std::cout << \"// Device: \" << q_device.get_device().get_info<sycl::info::device::name>() << \"\\n\");\n";
+    stream << get_indent() << "log(\"Host: \", q_host.get_device().get_info<sycl::info::device::name>());\n";
+    stream << get_indent() << "log(\"Device: \", q_device.get_device().get_info<sycl::info::device::name>());\n";
     stream << get_indent() << "sycl::device dev = q_device.get_device();\n";
 
 
@@ -2458,7 +2441,7 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::create_kernel_wrapper(
 
     if (beginning) {
         stream << get_indent() << "// " << name << "\n";
-        stream << get_indent() << "DPRINT(std::cout << \"// kernel " << name << "\\n\");\n";
+        stream << get_indent() << "log(\"kernel " << name << "\");\n";
 
         // convert any pointers we need to get the device memory allocated
         for (const auto &arg : args) {
