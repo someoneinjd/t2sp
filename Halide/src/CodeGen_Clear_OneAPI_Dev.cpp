@@ -1311,6 +1311,11 @@ void CodeGen_Clear_OneAPI_Dev::CodeGen_Clear_OneAPI_C::visit(const GE *op) {
 }
 
 void CodeGen_Clear_OneAPI_Dev::CodeGen_Clear_OneAPI_C::visit(const Cast *op) {
+    if (op->type == op->value.type()) {
+        set_latest_expr(op->type, print_expr(op->value));
+        return;
+    }
+
     if (!target.has_feature(Target::CLHalf) &&
         ((op->type.is_float() && op->type.bits() < 32) ||
          (op->value.type().is_float() && op->value.type().bits() < 32))) {
@@ -1320,9 +1325,9 @@ void CodeGen_Clear_OneAPI_Dev::CodeGen_Clear_OneAPI_C::visit(const Cast *op) {
     }
 
     if (op->type.is_vector()) {
-        string value = print_expr(op->value);
         if (op->type.is_bool()) {
             // We have standardized the IR so that op value must be a viriable.
+            string value = print_expr(op->value);
             internal_assert(op->value.as<Variable>());
             std::ostringstream oss;
             for (int i = 0; i < op->type.lanes(); i++) {
@@ -1330,8 +1335,22 @@ void CodeGen_Clear_OneAPI_Dev::CodeGen_Clear_OneAPI_C::visit(const Cast *op) {
             }
             oss << "}";
             set_latest_expr(op->type, oss.str());
+        } else if (op->value.as<Load>()) {
+            op->value.set_type(op->type);
+            set_latest_expr(op->type, print_expr(op->value));
+        } else if (op->type.is_float() && op->value.type().is_float()) {
+            needs_intermediate_expr = true;
+            auto var = generate_intermediate_var(print_expr(op->value));
+            std::ostringstream oss;
+            oss << print_type(op->type) << "{";
+            for (int i = 0; i < op->type.lanes(); i++) {
+                oss << (i == 0 ? "" : ", ") << var << "[" << i << "]";
+            }
+            oss << "}";
+            set_latest_expr(op->type, oss.str());
         } else {
-            set_latest_expr(op->type, "convert_" + print_type(op->type) + "(" + print_expr(op->value) + ")");
+            user_error << "The conversion from type " << print_type(op->value.type())
+                       << " to type " << print_type(op->type) << " is not yet implemented.";
         }
     } else {
         CodeGen_Clear_C::visit(op);
