@@ -2,6 +2,8 @@
 #include "IRMutator.h"
 #include "IRPrinter.h"
 #include "IRVisitor.h"
+#include "../../t2s/src/DebugPrint.h"
+
 
 namespace Halide {
 namespace Internal {
@@ -43,10 +45,26 @@ Expr Sub::make(Expr a, Expr b) {
 Expr Mul::make(Expr a, Expr b) {
     internal_assert(a.defined()) << "Mul of undefined\n";
     internal_assert(b.defined()) << "Mul of undefined\n";
-    internal_assert(a.type() == b.type() || (a.type().is_float() && b.type().is_complex()) || (a.type().is_complex() && b.type().is_float())) << "Mul of mismatched types\n";
 
+    // For something like (complex32x4)A * x4((float32)B) => ((complex32x4)A) * (float32)B
+    if (a.type().is_vector() && b.as<Broadcast>()) {
+        const Broadcast *operand_b = b.as<Broadcast>();
+        internal_assert(a.type().lanes() == operand_b->lanes);
+        return Mul::make(a, operand_b->value);
+    } else if (b.type().is_vector() && a.as<Broadcast>()) {
+        return Mul::make(b, a);
+    }
+
+    internal_assert((a.type() == b.type()) ||
+                    (a.type().is_scalar() && a.type().is_float() && b.type().is_scalar() && b.type().is_complex()) || // float * complex => complex
+                    (b.type().is_scalar() && b.type().is_float() && a.type().is_scalar() && a.type().is_complex()) || // complex * float => complex
+                    (a.type().is_vector() && a.type().is_complex() && b.type().is_scalar() && b.type().is_float()) || // complex vector * float => complex vector
+                    (b.type().is_vector() && b.type().is_complex() && a.type().is_scalar() && a.type().is_float()) || // float * complex vector => complex vector
+                    (a.type().is_vector() && b.type().is_scalar()  && a.type().element_of() == b.type()) ||           // vector<T> * T => vector<T>
+                    (b.type().is_vector() && a.type().is_scalar()  && b.type().element_of() == a.type()))             // T * vector<T> => vector<T>
+                    << "Mul of mismatched types.\n\tExpression a: " << to_string(a) << "\n\tExpression b: " << to_string(b) << "\n";
     Mul *node = new Mul;
-    node->type = (a.type() == b.type()) ? a.type() : (a.type().is_complex() ? a.type() : b.type());
+    node->type = (a.type() == b.type()) ? a.type() : (a.type().is_vector() ? a.type() : (b.type().is_vector() ? b.type() : (a.type().is_complex() ? a.type() : b.type())));
     node->a = std::move(a);
     node->b = std::move(b);
     return node;
