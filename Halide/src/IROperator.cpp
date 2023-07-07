@@ -1761,6 +1761,19 @@ Expr sqrt(Expr x) {
     }
 }
 
+Expr conditional_sqrt(Expr condition, Expr x) {
+    user_assert(x.defined()) << "sqrt of undefined Expr\n";
+    if (x.type() == Float(32)) {
+        return Internal::Call::make(Float(32), "conditional_sqrt_f32", {std::move(condition), std::move(x)}, Internal::Call::PureExtern);
+    } else if (x.type() == Float(64)) {
+        return Internal::Call::make(Float(64), "conditional_sqrt_f64", {std::move(condition), std::move(x)}, Internal::Call::PureExtern);
+    } else if (x.type() == Complex(32)) {
+        return Internal::Call::make(Complex(32), "conditional_sqrt_c32", {std::move(condition), std::move(x)}, Internal::Call::PureExtern);
+    } else {
+        return Internal::Call::make(Complex(64), "conditional_sqrt_c64", {std::move(condition), std::move(x)}, Internal::Call::PureExtern);
+    }
+}
+
 Expr hypot(Expr x, Expr y) {
     return sqrt(x * x + y * y);
 }
