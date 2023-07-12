@@ -1021,6 +1021,69 @@ public:
     }
 };
 
+/* Once __fpga_reg is inserted, an original shift of the registers get redundant, and it has been changed into such
+ * a form like Evaluate(write_shift_reg("X.shreg", 0, 0, read_shift_reg("X.shreg", 0, 0))). Since the indices (i.e. 0, 0)
+ * of the write_shift_reg are the same as those of the read_shift_reg, the statement has no effect and can be removed.
+ */
+class RemoveRedundantShifts : public IRMutator {
+    using IRMutator::visit;
+public:
+    RemoveRedundantShifts() {}
+
+    Stmt visit(const Evaluate *op) override {
+        const Call *write_call = op->value.as<Call>();
+        if (write_call && write_call->is_intrinsic(Call::write_shift_reg)) {
+            const Call *read_call = write_call->args[write_call->args.size() - 1].as<Call>();
+            if (read_call && read_call->is_intrinsic(Call::read_shift_reg)) {
+                if (write_call->args.size() == read_call->args.size() + 1) {
+                    for (size_t i = 0; i < write_call->args.size()- 1; i++) {
+                        if (!equal(write_call->args[i], read_call->args[i])) {
+                            // Not redundant shift. No change.
+                            return op;
+                        }
+                    }
+                    // The write and read match in both register names and indices. Redundant.
+                    return Stmt();
+                }
+            }
+        }
+        return op;
+    }
+
+    Stmt visit(const Block *op) override {
+        Stmt first = mutate(op->first);
+        Stmt rest = mutate(op->rest);
+        if (!first.defined() && !rest.defined()) {
+            return Stmt();
+        } else if (!first.defined()) {
+            return rest;
+        } else if (!rest.defined()) {
+            return first;
+        } else {
+            // It is possible that no or only a part of the statements in op->first/rest has been removed, thus they are not empty. So make a new statement
+            return Block::make(first, rest);
+        }
+    }
+
+    Stmt visit(const IfThenElse *op) override {
+        Stmt then_case = mutate(op->then_case);
+        Stmt else_case = mutate(op->else_case);
+        if (!then_case.defined() && !else_case.defined()) {
+            return Stmt();
+        } else if (!then_case.defined()) {
+            Stmt node = IfThenElse::make(!op->condition, else_case, Stmt());
+            return node;
+        } else if (!else_case.defined()) {
+            Stmt node = IfThenElse::make(op->condition, then_case, Stmt());
+            return node;
+        } else {
+            // It is possible that no or only a part of the statements in then/else_case has been removed, thus they are not empty. So make a new statement
+            Stmt node = IfThenElse::make(op->condition, then_case, else_case);
+            return node;
+        }
+    }
+};
+
 class GetAllRealize : public IRVisitor {
   public:
     vector<string> realizes;
@@ -1121,6 +1184,11 @@ Stmt insert_fpga_reg(Stmt s, const map<string, Function> &env) {
     }
     RegCallInserter inserter(space_loops);
     s = inserter.mutate(s);
+
+    // The original register shifts get useless. Remove them.
+    RemoveRedundantShifts remover;
+    s = remover.mutate(s);
+
     return s;
 }
 
