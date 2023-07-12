@@ -1026,6 +1026,36 @@ private:
         }
     };
 
+    // For an expression containing a Select(cond, x, y), simplify the expression if cond is known to be true or false,
+    class SimplifyExprWithSelect : public IRMutator {
+        using IRMutator::visit;
+    private:
+        const Expr &condition;
+        bool condition_holds;
+    public:
+        Expr simplified_expr;
+        SimplifyExprWithSelect(const Expr &condition, bool condition_holds) : condition(condition), condition_holds(condition_holds) { }
+
+    public:
+        Expr mutate(const Expr &e) override {
+            const Select *select = e.as<Select>();
+            if (select) {
+                if (equal(condition, select->condition)) {
+                    if (condition_holds) {
+                        return select->true_value;
+                    } else {
+                        return select->false_value;
+                    }
+                }
+            }
+            return IRMutator::mutate(e);
+        }
+
+        Stmt mutate(const Stmt &s) override {
+            return IRMutator::mutate(s);
+        }
+    };
+
     // See if a loop variable is used in the expression
     bool loop_referred(const string &loop, const Expr &e) {
         VarReferred ref(loop);
@@ -1050,12 +1080,64 @@ private:
         return true;
     }
 
+    // The total iterations of this triangular space:
+    //   for i = i_min : I
+    //    for j = i : J
+    Expr total_iterations_of_triangular_space(string loop_i_name, Expr loop_i_min, Expr loop_i_extent, ForType loop_i_type,
+                                              string loop_j_name, Expr loop_j_min, Expr loop_j_extent, ForType loop_j_type) {
+        // The space is a trapezoid. Some facts:
+        // (1) i is less than I and J, thus the effective upper bound of i equals min(I, J). So the two loops are equivalent to
+        //   for i = i_min : min(I, J)
+        //    for j = i : J
+        // (2) when i == i_min, loop i and j together runs J - i_min number of iterations. This is one base of the trapezoid.
+        // (3) when i == min(I, J) - 1, loop i and j together runs J - min(I, J) + 1 number of iterations. This is the other base of the trapezoid.
+        // (4) the height of the trapezoid is min(I, J) - i_min.
+        // (5) So the total iterations equals (base1+base2) * height / 2 = (2J - i_min - min(I, J) + 1) * (min(I, J) - i_min) / 2
+        user_assert(loop_j_min.as<Variable>() && loop_j_min.as<Variable>()->name == loop_i_name)  << "Loop " << loop_i_name << " and " << loop_j_name << " seem to build  a triangular iteration space, "
+                << "in which case " << loop_j_name << " must start from " << loop_i_name << ", Select(condition, " << loop_j_name << ", some constant), or "
+                << "or Select(condition, some constant, " << loop_j_name << ").";
+        user_assert(loop_i_type == ForType::Serial && loop_j_type == ForType::Serial) << "Loop " << loop_i_name << " and " << loop_j_name << " seem to build  a triangular iteration space, "
+                << "in which case both loops must be serial.";
+
+        Expr I = simplify(loop_i_min + loop_i_extent);
+        Expr J = simplify(loop_j_min + loop_j_extent);
+        Expr iterations = (2 * J - loop_i_min - min(I, J) + 1) * (min(I, J) - loop_i_min) / 2;
+        return iterations;
+    }
+
+    // The total iterations of this space, whis can be triangular or rectangular, depending on the condition of the Select:
+    //   for i = i_min : I
+    //     for j = select(cond, i, j_min) : J
+    // or
+    //   for i = i_min : I
+    //     for j = select(cond, j_min, i) : J
+    Expr total_iterations_of_triangular_or_rectangular_space(string loop_i_name, Expr loop_i_min, Expr loop_i_extent, ForType loop_i_type,
+                                                             string loop_j_name, Expr loop_j_min, Expr loop_j_extent, ForType loop_j_type, bool cond_holds) {
+        const Select *loop_j_min_as_select = loop_j_min.as<Select>();
+        internal_assert(loop_j_min_as_select);
+
+        // The extent of loop j might be like J - Select(cond, i, constant). When cond is true, the content should be simplified into J - i.
+        // When cond is false, the content should be simplified into J - constant. The min of loop j can be simplified similarly.
+        SimplifyExprWithSelect simplifier(loop_j_min_as_select->condition, cond_holds);
+        Expr simplified_loop_j_extent = simplifier.mutate(loop_j_extent);
+        Expr simplified_loop_j_min    = simplifier.mutate(loop_j_min);
+        if (simplified_loop_j_min.as<Variable>()) {
+            // Must be the triangular case
+            return total_iterations_of_triangular_space(loop_i_name, loop_i_min, loop_i_extent, loop_i_type,
+                                                        loop_j_name, simplified_loop_j_min, simplified_loop_j_extent, loop_j_type);
+        } else {
+            // Rectangular case
+            return simplified_loop_j_extent * loop_i_extent;
+        }
+    }
+
     void initialize_common_constants() {
         internal_assert(original_read_node.defined());
         TYPE = original_read_node.type();
-        WRITES = 1, READS = 1, PERIODS = 1;
+        WRITES = 1, READS = 1;
         scatter_loop_removed_in_producer = false;
         bool inside_buffer_loop = false;
+        size_t buffer_loop_index = -1;
         for(size_t i = 0; i < loops.size(); i++) {
             auto &l = loops[i];
             string loop_name = std::get<0>(l);
@@ -1093,11 +1175,10 @@ private:
                     READS = READS * loop_extent_val;
                     READ_LOOPS.push_back(i);
                 }
-            } else {
-                PERIODS = PERIODS * loop_extent;
             }
             if(ends_with(loop_name, "." + buffer_loop)) {
                 inside_buffer_loop = true;
+                buffer_loop_index = i;
             }
             if(ends_with(loop_name, "." + scatter_loop)){
                 original_scatter_loop = i;
@@ -1119,6 +1200,61 @@ private:
         for (auto R : READ_LOOPS) {
             debug(4) << std::get<0>(loops[R]) << " ";
         }
+
+        // Calculate PERIODS
+        // Usually, the loop nest is rectangular, and we can simply multiply the extents of the loops enclosing the buffer to get the total periods.
+        // However, we have to handle one common exception: triangular loop nest whose outermost two loops are like this:
+        //   for i = i_min : I
+        //     for j = i : J  (We call loop j a "triangular loop")
+        // In this case, we must consider loop i and j together to calculate a total extent from them.
+        // A variant to allow is
+        //   for i = i_min : I
+        //     for j = select(cond, i, j_min) : J
+        // or
+        //   for i = i_min : I
+        //     for j = select(cond, j_min, i) : J
+        // Depending when cond is true or false, this is a triangular or rectangular space.
+        size_t next_loop_index_for_PERIODS = 0;
+        PERIODS = 1;
+        if (buffer_loop_index >= 2) {
+            auto &outermost_loop = loops[0]; // loop i
+            string loop_i_name = std::get<0>(outermost_loop);
+            Expr loop_i_min = std::get<1>(outermost_loop);
+            Expr loop_i_extent = std::get<2>(outermost_loop);
+            ForType loop_i_type = std::get<3>(outermost_loop);
+
+            auto &second_outermost_loop = loops[1]; // loop j
+            string loop_j_name = std::get<0>(second_outermost_loop);
+            Expr loop_j_min = std::get<1>(second_outermost_loop);
+            Expr loop_j_extent = std::get<2>(second_outermost_loop);
+            ForType loop_j_type = std::get<3>(second_outermost_loop);
+
+            const Variable *loop_j_min_as_var = loop_j_min.as<Variable>();
+            const Select   *loop_j_min_as_select = loop_j_min.as<Select>();
+            if (loop_j_min_as_var) {
+                // Must be the case of "for j = i : J"
+                PERIODS = total_iterations_of_triangular_space(loop_i_name, loop_i_min, loop_i_extent, loop_i_type,
+                                                               loop_j_name, loop_j_min, loop_j_extent, loop_j_type);
+            } else if (loop_j_min_as_select) {
+                Expr PERIODS_true_case  = total_iterations_of_triangular_or_rectangular_space(loop_i_name, loop_i_min, loop_i_extent, loop_i_type,
+                                                                                              loop_j_name, loop_j_min, loop_j_extent, loop_j_type, true);
+                Expr PERIODS_false_case = total_iterations_of_triangular_or_rectangular_space(loop_i_name, loop_i_min, loop_i_extent, loop_i_type,
+                                                                                              loop_j_name, loop_j_min, loop_j_extent, loop_j_type, false);
+                PERIODS = Select::make(loop_j_min_as_select->condition, PERIODS_true_case, PERIODS_false_case);
+            } else {
+                // Should be a rectangular space
+                PERIODS = loop_j_extent * loop_i_extent;
+            }
+            // Continue with the rest of the loops
+            next_loop_index_for_PERIODS = 2;
+        }
+
+        for(size_t i = next_loop_index_for_PERIODS; i <= buffer_loop_index; i++) {
+            auto &l = loops[i];
+            Expr loop_extent = std::get<2>(l);
+            PERIODS = PERIODS * loop_extent;
+        }
+
         debug(4) << "\nPERIODS: " << PERIODS << "\n";
 
         if (READS < WRITES) {
@@ -1471,7 +1607,7 @@ public:
             read_input = LetStmt::make(var_name(total_writes_so_far), period * Expr(WRITES) + offset - Expr(INIT), read_input);
         }
 
-        Expr condition = time_to_write_buffer;
+        Expr condition = (period < PERIODS) && time_to_write_buffer;
         read_input = IfThenElse::make(condition, read_input);
 
         read_input = LetStmt::make(var_name(time_to_write_buffer), (offset >= Expr(INIT)), read_input);
@@ -2182,8 +2318,8 @@ Stmt scatter_buffer(Stmt s, const std::map<std::string, Function> &env){
     s = sbi.mutate(s);
 
     // For double buffering, a producer needs send one more period of trash data to the consumer
-    OneMorePeriod omp(scatterbuffer_args, env);
-    s = omp.mutate(s);
+    // OneMorePeriod omp(scatterbuffer_args, env);
+    // s = omp.mutate(s);
 
     // Finalize scatter loops.
     // First, find all the loops to be serialized in the entire IR.
