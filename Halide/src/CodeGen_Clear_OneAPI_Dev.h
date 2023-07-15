@@ -266,6 +266,7 @@ protected:
             std::string halide_opencl_wait_for_kernels_finish(const Call *op);
             std::string conditional_conjugate(const Call *op);
             std::string conditional_sqrt(const Call *op);
+            std::string conditional_signbit(const Call *op);
 
             // Defined in DeviceInterface.cpp
             std::string halide_oneapi_device_interface(const Call *op){
@@ -295,7 +296,11 @@ protected:
             {"conditional_sqrt_f32", &ExternCallFuncs::conditional_sqrt},
             {"conditional_sqrt_f64", &ExternCallFuncs::conditional_sqrt},
             {"conditional_sqrt_c32", &ExternCallFuncs::conditional_sqrt},
-            {"conditional_sqrt_c64", &ExternCallFuncs::conditional_sqrt}
+            {"conditional_sqrt_c64", &ExternCallFuncs::conditional_sqrt},
+            {"conditional_signbit_f32", &ExternCallFuncs::conditional_signbit},
+            {"conditional_signbit_f64", &ExternCallFuncs::conditional_signbit},
+            {"conditional_signbit_c32", &ExternCallFuncs::conditional_signbit},
+            {"conditional_signbit_c64", &ExternCallFuncs::conditional_signbit}
         };
 
         // Create a simple assert(false) depending on the id_cond passed in
