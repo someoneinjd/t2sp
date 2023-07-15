@@ -1406,7 +1406,7 @@ void CodeGen_Clear_OneAPI_Dev::CodeGen_Clear_OneAPI_C::visit(const Select *op) {
         string cond_id1 = (precedence_of_op(select_op) <= precedence_of_expr(op->condition)) ? "(" + cond_id + ")" : cond_id;
         string true_value1 = (precedence_of_op(select_op) <= precedence_of_expr(op->true_value)) ? "(" + true_value + ")" : true_value;
         string false_value1 = (precedence_of_op(select_op) <= precedence_of_expr(op->false_value)) ? "(" + false_value + ")" : false_value;
-        set_latest_expr(op->type,  cond_id1 + " ? " + true_value1 + " : " + false_value1);
+        set_latest_expr(op->type,  "(" + cond_id1 + " ? " + true_value1 + " : " + false_value1 + ")");
         return;
     }
 

@@ -590,7 +590,7 @@ Module lower(const vector<Function> &output_funcs,
     char *overlay_num = getenv("HL_OVERLAY_NUM");
     if (t.has_feature(Target::IntelFPGA) && overlay_num == NULL) {
         debug(1) << "Flatten the loops...\n";
-        s = simplify(flatten_loops(s, env));
+        //s = simplify(flatten_loops(s, env));
         debug(2) << "Lowering after loop flattening:\n" << s << "\n\n";
     }
 

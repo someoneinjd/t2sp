@@ -34,9 +34,11 @@ class CheckConditionForIsolation : public IRVisitor {
     using IRVisitor::visit;
 private:
     const vector<const For *> &time_loops;
+    const map<string, Expr>   &name2value; // Variable name to value, collected from Let or LetStmt
 public:
     bool isolatable;
-    CheckConditionForIsolation(const vector<const For *> &time_loops) : time_loops(time_loops), isolatable(true) { }
+    CheckConditionForIsolation(const vector<const For *> &time_loops, const map<string, Expr> &name2value) :
+        time_loops(time_loops), name2value(name2value), isolatable(true) { }
 
     void visit(const Variable *op) override {
         if (op->param.defined()) { // The variable is referring to an ImageParam's min or extent.
@@ -49,10 +51,12 @@ public:
                 return;
             }
         }
-        isolatable = false;
-    }
+        if (name2value.find(op->name) != name2value.end()) {
+            Expr value = name2value.find(op->name)->second;
+            value.accept(this);
+            return;
+        }
 
-    void visit(const Select *op) override {
         isolatable = false;
     }
 
@@ -76,8 +80,8 @@ public:
     }
 };
 
-bool condition_can_be_isolated(const Expr &condition, const vector<const For *> &time_loops) {
-    CheckConditionForIsolation checker(time_loops);
+bool condition_can_be_isolated(const Expr &condition, const vector<const For *> &time_loops, const map<string, Expr> &name2value) {
+    CheckConditionForIsolation checker(time_loops, name2value);
     condition.accept(&checker);
     return checker.isolatable;
 }
@@ -86,6 +90,8 @@ class IsolateCondition : public IRMutator {
     using IRMutator::visit;
 private:
     const vector<const For *> &time_loops;
+    const map<string, Expr>   &name2value; // Variable name to value, collected from Let or LetStmt
+
 public:
     vector<pair<Expr, string>>  &signals; // Each pair is for a signal: the original expression of the signal, the new name to replace the expression
 
@@ -103,8 +109,8 @@ public:
     }
 
 #define VISIT_LOGIC_OP(EXPR, OPERATION, OPERANDA, OPERANDB)  \
-    bool OK_to_isolate_operand_a = condition_can_be_isolated(OPERANDA, time_loops); \
-    bool OK_to_isolate_operand_b = condition_can_be_isolated(OPERANDB, time_loops); \
+    bool OK_to_isolate_operand_a = condition_can_be_isolated(OPERANDA, time_loops, name2value); \
+    bool OK_to_isolate_operand_b = condition_can_be_isolated(OPERANDB, time_loops, name2value); \
     if (OK_to_isolate_operand_a && OK_to_isolate_operand_b) { \
         return create_signal(EXPR);  \
     } else if (OK_to_isolate_operand_a) { \
@@ -116,14 +122,15 @@ public:
     }
 
 #define VISIT_CONDITION(EXPR) \
-    if (condition_can_be_isolated(EXPR, time_loops)) { \
+    if (condition_can_be_isolated(EXPR, time_loops, name2value)) { \
         return create_signal(EXPR); \
     } else { \
         return IRMutator::visit(EXPR); \
     }
 
 public:
-    IsolateCondition(const vector<const For *> &time_loops, vector<pair<Expr, string>> &signals) : time_loops(time_loops), signals(signals) { }
+    IsolateCondition(const vector<const For *> &time_loops, const map<string, Expr> &name2value, vector<pair<Expr, string>> &signals) :
+        time_loops(time_loops), name2value(name2value), signals(signals) { }
 
     Expr visit(const EQ *op) override {
         VISIT_CONDITION(op);
@@ -158,7 +165,7 @@ public:
     }
 
     Expr visit(const Not *op) override {
-        bool OK_to_isolate_operand_a = condition_can_be_isolated(op->a, time_loops);
+        bool OK_to_isolate_operand_a = condition_can_be_isolated(op->a, time_loops, name2value);
         if (OK_to_isolate_operand_a) { \
             return create_signal(op);
         } else {
@@ -188,6 +195,7 @@ private:
     DeviceAPI device_api;               // The device api for the run_forever function
     vector<const For *> time_loops;     // Time loops to isolate
     vector<pair<Expr, string>> signals; // Each pair is for a signal: original expression, the new name to replace it (whose value will be sent from a signal generator)
+    map<string, Expr> name2value;       // Variable name to value, collected from Let or LetStmt
     Type struct_type_for_signals;       // A struct type whose fields are the types of each signal
     string signals_var_name;            // A variable representing all the signals
     string signal_generator_name;       // Name of the signal generator function
@@ -203,7 +211,7 @@ private:
     }
 
     Expr try_isolate(const Expr &condition) {
-        IsolateCondition isolator(time_loops, signals);
+        IsolateCondition isolator(time_loops, name2value, signals);
         Expr e = isolator.mutate(condition);
         return e;
     }
@@ -386,7 +394,8 @@ public:
                     CheckVarUsage checker(op->name);
                     new_body.accept(&checker);
                     internal_assert(!checker.used) << "Function " << run_forever_func_name << " cannot be made to run forever. "
-                                                   << "Check if the loop variable " << op->name << " is used anywhere outside a condition in IfThenElse or Select.";
+                                                   << "Check if the loop variable " << op->name << " is used anywhere outside a condition in IfThenElse or Select.\n"
+                                                   << "The problematic IR is as follows:\n" << to_string(new_body) << "\n";
 
                     if (outermost_time_loop) {
                         signal_generator_name = unique_name("SignalGenerator");
@@ -429,6 +438,20 @@ public:
         } else {
             return IRMutator::visit(op);
         }
+    }
+
+    Expr visit(const Let *op) override {
+        name2value[op->name] = op->value;
+        Expr new_op = IRMutator::visit(op);
+        name2value.erase(op->name);
+        return new_op;
+    }
+
+    Stmt visit(const LetStmt *op) override {
+        name2value[op->name] = op->value;
+        Stmt new_op = IRMutator::visit(op);
+        name2value.erase(op->name);
+        return new_op;
     }
 };
 
