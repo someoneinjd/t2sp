@@ -2213,19 +2213,29 @@ string CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::ExternCallFuncs::conditional_co
 string CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::ExternCallFuncs::conditional_sqrt(const Call *op) {
     std::ostringstream rhs;
     if (op->args[1].type().is_vector()) {
-        auto cond = op->args[0].as<Broadcast>();
-        if (cond != nullptr) {
-            rhs << "(" << p->print_expr(cond->value) << " ? ";
-        } else {
-            rhs << "(" << p->print_expr(op->args[0]) << " ? ";
-        }
-        rhs << p->print_expr(op->args[1]) << ".sqrt() : "
-            << p->print_expr(op->args[1]) << ")";
+        user_error << "Currently we don't support vector type " << p->print_type(op->args[1].type()) << " in conditonal_sqrt.";
     } else {
         rhs << "(" << p->print_expr(op->args[0]) << " ? "
             << "std::sqrt(" << p->print_expr(op->args[1]) << ") : "
             << p->print_expr(op->args[1]) << ")";
     }
+    return rhs.str();
+}
+
+string CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::ExternCallFuncs::conditional_signbit(const Call *op) {
+    std::ostringstream rhs;
+    rhs << "halide_conditional_signbit(";
+    if (op->args[1].type().is_vector()) {
+        auto cond = op->args[0].as<Broadcast>();
+        if (cond != nullptr) {
+            rhs << p->print_expr(cond->value);
+        } else {
+            rhs << p->print_expr(op->args[0]);
+        }
+    } else {
+        rhs << p->print_expr(op->args[0]);
+    }
+    rhs << ", " << p->print_expr(op->args[1]) << ")";
     return rhs.str();
 }
 
