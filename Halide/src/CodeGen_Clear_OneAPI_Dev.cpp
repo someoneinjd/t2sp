@@ -1587,19 +1587,19 @@ struct BufferSize {
 };
 }  // namespace
 
-// Check if this is a piece of code for an autorun kernel.
-class IsAutorun : public IRVisitor {
+// Check if this is a piece of code with an infinite loop inside.
+class HasInfiniteLoop : public IRVisitor {
     using IRVisitor::visit;
     void visit(const For *op) override {
-        if (ends_with(op->name, ".autorun.run_on_device")) {
-            is_autorun = true;
+        if (ends_with(op->name, ".infinite")) {
+            has_infinite_loop = true;
             return;
         }
         IRVisitor::visit(op);
     }
     public:
-        bool is_autorun;
-        IsAutorun() : is_autorun(false) {}
+        bool has_infinite_loop;
+        HasInfiniteLoop() : has_infinite_loop(false) {}
 };
 
 bool CodeGen_Clear_OneAPI_Dev::CodeGen_Clear_OneAPI_C::succinct_name_is_unique(const string &verbose, const string &succinct) {
@@ -2544,10 +2544,10 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::add_kernel(
     IsRunOnDevice device_run_checker;
     s.accept(&device_run_checker);
 
-    IsAutorun autorun_checker{};
-    s.accept(&autorun_checker);
+    HasInfiniteLoop infinite_loop_checker{};
+    s.accept(&infinite_loop_checker);
 
-    if (device_run_checker.is_run_on_device && !autorun_checker.is_autorun) {
+    if (device_run_checker.is_run_on_device && !infinite_loop_checker.has_infinite_loop) {
         stream << get_indent() << "kernels_used_to_measure_time.push_back(oneapi_kernel_events.size());\n";
     }
 
