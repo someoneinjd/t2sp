@@ -2399,6 +2399,8 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::compile(const LoweredFunc &f) {
     // Emit the body
     print(f.body);
 
+    // Turn on the following code in future to study the execution time distribution in detail.
+#if 0
     // Compute the execution time of the kernels.
     stream << "#ifndef T2SP_NDEBUG\n"
            << get_indent() << "uint64_t k_earliest_start_time = std::numeric_limits<\n"
@@ -2418,6 +2420,7 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::compile(const LoweredFunc &f) {
            << get_indent() << "std::cout << \"// Execution time of the device kernels (in nanoseconds) = \" "
                                         "<< (kernels_used_to_measure_time.empty() ? 0 : k_latest_end_time - k_earliest_start_time) << \"\\n\";\n"
            << "#endif\n";
+#endif
 
     // At this point, we have actually made sure that all kenrels have ended. However, to conform to the DPC++ interface of oneMKL BLAS
     // (like the GEMM interface in https://www.intel.com/content/www/us/en/docs/onemkl/developer-reference-dpcpp/2023-0/gemm.html),
