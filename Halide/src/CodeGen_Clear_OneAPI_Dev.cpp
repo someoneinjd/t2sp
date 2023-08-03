@@ -86,21 +86,25 @@ Expr CodeGen_Clear_OneAPI_Dev::CodeGen_Clear_OneAPI_C::DefineVectorStructTypes::
         if (!GeneratedStructType::nonstandard_vector_type_exists(type)) {
             GeneratedStructType::record_nonstandard_vector_type(type);
             // Define a vector type like this:
-            //   typedef union {
-            //      float __attribute__ ((aligned(4*17 rounded up to power of 2))) s[17];
+            //   typedef union float17_t {
+            //      float __attribute__ ((aligned(4*17 rounded up to power of 2))) s[17] {};
             //      struct {float s0, s1, s2, s3, s4, s5, s6,s7, s8, s9, sa, sb, sc, sd, se, sf, s16;};
+            //      float &operator[](int i) {return s[i];}
             //   } float17;
             // The first 16 elements follow the standard OpenCL vector notation.
+            // Note "s[17]" is followed by "{}", which is an initializer, in order to avoid an error "Union's default constructor is implicitly deleted",
+            // which is seen with some type and vector length like complexd6 (complex double, len=6).
              std::ostringstream oss;
-             oss << "typedef union {\n"
+             oss << "typedef union " << parent->print_type(type.element_of()) << type.lanes() << "_t {\n    "
                  << parent->print_type(type.element_of())
                  << " __attribute__ ((aligned(" << closest_power_of_two(type.lanes() * type.with_lanes(1).bytes())
-                 << ")))" << " s[" << type.lanes() << "];\n"
+                 << ")))" << " s[" << type.lanes() << "] {};\n    "
                  << "struct {" << parent->print_type(type.element_of());
              for (int i = 0; i < type.lanes(); i++) {
                  oss << (i == 0 ? "" : ", ") << " s" << parent->vector_index_to_string(i);
              }
-             oss << ";};\n"
+             oss << ";};\n    "
+                 << parent->print_type(type.element_of()) << " &operator[](int i) { return s[i]; }\n"
                  << "} " << parent->print_type(type.element_of()) << type.lanes() << ";\n";
              vectors += oss.str();
         }
@@ -1274,12 +1278,18 @@ void CodeGen_Clear_OneAPI_Dev::CodeGen_Clear_OneAPI_C::visit_binop(Type t, Expr 
     } else {
         // Output something like bool16 x = {a.s0 op b.s0, a.s1 op b.s0, ...}
         internal_assert(t.is_vector() && a.type().is_vector() && t.lanes() == a.type().lanes());
+        // Two cases: (1) vector * vector, where the two vectors must have the same length (2) vector * scalar
+        internal_assert(!b.type().is_vector() || t.lanes() == b.type().lanes());
         std::ostringstream oss;
         string sa = print_expr(a);
         string sb = print_expr(b);
         for (int i = 0; i < t.lanes(); i++) {
-            oss << ((i == 0) ? "(" + print_type(t) + ") {" : ", ") << sa << ".s" << vector_index_to_string(i) << op
-                << sb << ".s" << vector_index_to_string(i);
+            oss << ((i == 0) ? "(" + print_type(t) + ") {" : ", ") << sa << ".s" << vector_index_to_string(i) << op << " ";
+            if (b.type().is_vector()) {
+                oss << sb << ".s" << vector_index_to_string(i);
+            } else {
+                oss << sb;
+            }
         }
         oss << "}";
         set_latest_expr(t, oss.str());
