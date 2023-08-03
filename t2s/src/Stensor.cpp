@@ -597,9 +597,18 @@ class RealizeOnFPGA
                 << "Currently we only support packing one dimension as a vector\n";
             Var v_width = c.stensors[i].v_width[0];
             if (c.exists(v_width)) {
-                debug(1) << "T2X emits: " << funcs[i].name() << ".vectorize("
-                         << v_width << ");\n";
-                funcs[i].vectorize(v_width);
+                const auto &dims = funcs[i].function().definition().schedule().dims();
+                const auto iter = std::find_if(dims.begin(), dims.end(), [](const Dim &d){
+                    return d.for_type == ForType::Vectorized;
+                });
+                if (iter != dims.end() && iter->var != v_width.name() && !ends_with(iter->var, "." + v_width.name())) {
+                    user_warning << "Func " << funcs[i].name() << " can't vectorize across "
+                                 << v_width <<", because Func is already vectorized across " << iter->var << "\n";
+                } else {
+                    debug(1) << "T2X emits: " << funcs[i].name() << ".vectorize("
+                            << v_width << ");\n";
+                    funcs[i].vectorize(v_width);
+                }
             }
         }
 
@@ -607,9 +616,18 @@ class RealizeOnFPGA
         auto &last_stensor = c.stensors.back();
         if (!c.is_output && last_stensor.v_width.size() > 0) {
             Var last_width = last_stensor.v_width[0];
-            debug(1) << "T2X emits: " << c.control_ure.name() << ".vectorize("
-                     << last_width << ");\n";
-            c.control_ure.vectorize(last_width);
+            const auto &dims = c.control_ure.function().definition().schedule().dims();
+            const auto iter = std::find_if(dims.begin(), dims.end(), [](const Dim &d){
+                return d.for_type == ForType::Vectorized;
+            });
+            if (iter != dims.end() && iter->var != last_width.name() && !ends_with(iter->var, "." + last_width.name())) {
+                user_warning << "Func " << c.control_ure.name() << " can't vectorize across "
+                             << last_width <<", because Func is already vectorized across " << iter->var << "\n";
+            } else {
+                debug(1) << "T2X emits: " << c.control_ure.name() << ".vectorize("
+                        << last_width << ");\n";
+                c.control_ure.vectorize(last_width);
+            }
         }
     }
 
