@@ -503,9 +503,11 @@ class RealizeOnFPGA
 
         for (int i = producers.size()-2; i >= 0; i--) {
             loops = c.find_reuse_vars(all_used_vars, scope);
-            debug(1) << "T2X emits: " << producers[i].name() << ".remove("
-                     << names_to_string(loops) << ");\n";
-            producers[i].remove(loops);
+            if (!loops.empty()) {
+                debug(1) << "T2X emits: " << producers[i].name() << ".remove("
+                         << names_to_string(loops) << ");\n";
+                producers[i].remove(loops);
+            }
             scope = (i > 0) ? c.stensors[i].v_scope : scope;
         }
     }
@@ -528,11 +530,14 @@ class RealizeOnFPGA
         for (size_t i = 1; i < c.stensors.size(); i++) {
             auto v_banks = c.stensors[i].v_banks;
             if (v_banks.size() == prev_dims.size()+1) {
-                Func prev = producers[i-1];
-                Var v_scatter = find_differences(v_banks, prev_dims);
-                debug(1) << "T2X emits: " << producers[i].name() << ".scatter("
-                        << prev.name() << ", " << v_scatter << ");\n";
-                producers[i].scatter(prev, v_scatter);
+                // Scatter happens only between two device kernels
+                if (producers[i-1].function().place() == Place::Device && producers[i].function().place() == Place::Device) {
+                    Func prev = producers[i-1];
+                    Var v_scatter = find_differences(v_banks, prev_dims);
+                    debug(1) << "T2X emits: " << producers[i].name() << ".scatter("
+                            << prev.name() << ", " << v_scatter << ");\n";
+                    producers[i].scatter(prev, v_scatter);
+                }
             }
             prev_dims = v_banks;
         }

@@ -47,6 +47,7 @@ void SliceExprTree::match_expr(const T* op) {
 // Commonly, we try to match an expression. No matter it matches or not, we will
 // continue to match the sub-expressions: even if a match already happens, we
 // would like to check that there is only 1 match in the entire tree.
+void SliceExprTree::visit(const Cast *op) { match_expr(op); IRVisitor::visit(op); }
 void SliceExprTree::visit(const Add *op) { match_expr(op); IRVisitor::visit(op); }
 void SliceExprTree::visit(const Sub *op) { match_expr(op); IRVisitor::visit(op); }
 void SliceExprTree::visit(const Mul *op) { match_expr(op); IRVisitor::visit(op); }
