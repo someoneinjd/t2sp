@@ -94,19 +94,58 @@ Expr CodeGen_Clear_OneAPI_Dev::CodeGen_Clear_OneAPI_C::DefineVectorStructTypes::
             // The first 16 elements follow the standard OpenCL vector notation.
             // Note "s[17]" is followed by "{}", which is an initializer, in order to avoid an error "Union's default constructor is implicitly deleted",
             // which is seen with some type and vector length like complexd6 (complex double, len=6).
-             std::ostringstream oss;
-             oss << "typedef union " << parent->print_type(type.element_of()) << type.lanes() << "_t {\n    "
-                 << parent->print_type(type.element_of())
-                 << " __attribute__ ((aligned(" << closest_power_of_two(type.lanes() * type.with_lanes(1).bytes())
-                 << ")))" << " s[" << type.lanes() << "] {};\n    "
-                 << "struct {" << parent->print_type(type.element_of());
-             for (int i = 0; i < type.lanes(); i++) {
-                 oss << (i == 0 ? "" : ", ") << " s" << parent->vector_index_to_string(i);
-             }
-             oss << ";};\n    "
-                 << parent->print_type(type.element_of()) << " &operator[](int i) { return s[i]; }\n"
-                 << "} " << parent->print_type(type.element_of()) << type.lanes() << ";\n";
-             vectors += oss.str();
+            std::ostringstream oss;
+            oss << "typedef union " << parent->print_type(type.element_of()) << type.lanes() << "_t {\n    "
+                << parent->print_type(type.element_of())
+                << " __attribute__ ((aligned(" << closest_power_of_two(type.lanes() * type.with_lanes(1).bytes())
+                << ")))" << " s[" << type.lanes() << "] {};\n    "
+                << "struct {" << parent->print_type(type.element_of());
+            for (int i = 0; i < type.lanes(); i++) {
+                oss << (i == 0 ? "" : ", ") << " s" << parent->vector_index_to_string(i);
+            }
+            oss << ";};\n    "
+                << parent->print_type(type.element_of()) << " &operator[](int i) { return s[i]; }\n"
+                << "    const "
+                << parent->print_type(type.element_of()) << " &operator[](int i) const { return s[i]; }\n"
+                << "} " << parent->print_type(type.element_of()) << type.lanes() << ";\n";
+            // For some reason, the compiler generates unwanted bool / int vector types.
+            // There is no need to overload arithmetic operations for these types.
+            if (type.element_of().is_float() || type.element_of().is_complex()) {
+                std::ostringstream tmp;
+                tmp << parent->print_type(type.element_of()) << type.lanes();
+                string vector_type_name = tmp.str();
+                tmp.str("");
+                tmp.clear();
+                tmp << parent->print_type(type.element_of());
+                string element_type_name = tmp.str();
+                for (char op : {'+', '-', '*'}) {
+                    // vector op vector
+                    oss << vector_type_name << " "
+                        << "operator" << op << "(const " << vector_type_name << " &a, const " << vector_type_name << " &b) {\n"
+                        << "        " << vector_type_name << " ret{};\n";
+                    for (auto i = 0; i < type.lanes(); i++) {
+                        oss << "        " << "ret[" << i << "] = " << "a[" << i << "] " << op << " b[" << i << "];\n";
+                    }
+                    oss << "        return ret;\n}\n";
+                    // vector op scalar
+                    oss << vector_type_name << " "
+                        << "operator" << op << "(const " << vector_type_name << " &a, const " << element_type_name << " &b) {\n"
+                        << "        " << vector_type_name << " ret{};\n";
+                    for (auto i = 0; i < type.lanes(); i++) {
+                        oss << "        " << "ret[" << i << "] = " << "a[" << i << "] " << op << " b;\n";
+                    }
+                    oss << "        return ret;\n}\n";
+                    // scalar op vector
+                    oss << vector_type_name << " "
+                        << "operator" << op << "(const " << element_type_name << " &a, const " << vector_type_name << " &b) {\n"
+                        << "        " << vector_type_name << " ret{};\n";
+                    for (auto i = 0; i < type.lanes(); i++) {
+                        oss << "        " << "ret[" << i << "] = a " << op << " b[" << i << "];\n";
+                    }
+                    oss << "        return ret;\n}\n";
+                }
+            }
+            vectors += oss.str();
         }
     } else if (type.is_generated_struct()) {
         std::ostringstream oss;
@@ -1269,30 +1308,6 @@ void CodeGen_Clear_OneAPI_Dev::CodeGen_Clear_OneAPI_C::visit(const Store *op) {
         }
         stream << "[" << id_index << "] = "
                << id_value << ";\n";
-    }
-}
-
-void CodeGen_Clear_OneAPI_Dev::CodeGen_Clear_OneAPI_C::visit_binop(Type t, Expr a, Expr b, const char *op) {
-    if (is_standard_opencl_type(t) && is_standard_opencl_type(a.type())) {
-        CodeGen_Clear_C::visit_binop(t, a, b, op);
-    } else {
-        // Output something like bool16 x = {a.s0 op b.s0, a.s1 op b.s0, ...}
-        internal_assert(t.is_vector() && a.type().is_vector() && t.lanes() == a.type().lanes());
-        // Two cases: (1) vector * vector, where the two vectors must have the same length (2) vector * scalar
-        internal_assert(!b.type().is_vector() || t.lanes() == b.type().lanes());
-        std::ostringstream oss;
-        string sa = print_expr(a);
-        string sb = print_expr(b);
-        for (int i = 0; i < t.lanes(); i++) {
-            oss << ((i == 0) ? "(" + print_type(t) + ") {" : ", ") << sa << ".s" << vector_index_to_string(i) << op << " ";
-            if (b.type().is_vector()) {
-                oss << sb << ".s" << vector_index_to_string(i);
-            } else {
-                oss << sb;
-            }
-        }
-        oss << "}";
-        set_latest_expr(t, oss.str());
     }
 }
 
