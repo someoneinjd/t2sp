@@ -16,6 +16,8 @@
 *
 * SPDX-License-Identifier: BSD-2-Clause-Patent
 *******************************************************************************/
+#include "../../Halide/src/Simplify.h"
+#include "../../Halide/src/Substitute.h"
 #include "./DebugPrint.h"
 #include "./BuildCallRelation.h"
 #include "./PreprocessBeforeLower.h"
@@ -286,6 +288,7 @@ struct FindVars
                                     Func control_ure = control_ure_of_func(env, refs_in_a_func.func);
                                     user_assert(!chain.control_ure.defined() or chain.control_ure.function().name() == control_ure.function().name()) << "Error: ImageParams " << to_string(chain.imp) << " are not from the same group of merged UREs";
                                     chain.control_ure = control_ure;
+                                    chain.used_vars[image_param] = ref.second;
                                     for (const auto &d : control_ure.function().definition().schedule().dims())
                                         chain.free_vars.push_back(d.var);
                                 }
@@ -493,11 +496,11 @@ class RealizeOnFPGA
         // Merge all the image params' (and starting expressions') used variables
         set<string> all_used_vars;
         for (auto image_param : c.imp) {
-            const set<string> & used_variables = c.used_vars[image_param.name()];
+            const set<string> &used_variables = c.used_vars[image_param.name()];
             all_used_vars.insert(used_variables.begin(), used_variables.end());
         }
         for (size_t i = 0; i < c.starting_exprs.size(); i++) {
-            const set<string> & used_variables = c.expr_used_vars[i];
+            const set<string> &used_variables = c.expr_used_vars[i];
             all_used_vars.insert(used_variables.begin(), used_variables.end());
         }
 
@@ -525,21 +528,33 @@ class RealizeOnFPGA
     // The scatter primitive only applies to the stensors with increasing dimensional banks (0->1, 1->2)
     void scatter(Schain &c, vector<Func> &producers) {
         internal_assert(c.stensors.size() == producers.size());
-        vector<Var> &prev_dims = c.stensors[0].v_banks;
 
         for (size_t i = 1; i < c.stensors.size(); i++) {
             auto v_banks = c.stensors[i].v_banks;
-            if (v_banks.size() == prev_dims.size()+1) {
-                // Scatter happens only between two device kernels
-                if (producers[i-1].function().place() == Place::Device && producers[i].function().place() == Place::Device) {
-                    Func prev = producers[i-1];
+            auto position = c.stensors[i].position;
+            Func prev;
+            vector<Var> prev_dims;
+            if (i != 0) {
+                prev = producers[i-1];
+                prev_dims = c.stensors[i-1].v_banks;
+            } else {
+                internal_assert(position != SRAM);
+                prev = producers[0];
+                prev_dims = c.stensors[0].v_banks;
+            }
+            if (position == SRAM) {
+                if (v_banks.size() == prev_dims.size()+1) {
                     Var v_scatter = find_differences(v_banks, prev_dims);
-                    debug(1) << "T2X emits: " << producers[i].name() << ".scatter("
-                            << prev.name() << ", " << v_scatter << ");\n";
                     producers[i].scatter(prev, v_scatter);
+                    debug(1) << "T2X emits: " << producers[i].name() << ".scatter("
+                             << prev.name() << ", " << v_scatter << ");\n";
+                }
+                if (v_banks.size() == 1 && v_banks.size() == prev_dims.size()) {
+                    producers[i].scatter(prev, v_banks[0], ScatterStrategy::ForwardVector);
+                    debug(1) << "T2X emits: " << producers[i].name() << ".scatter("
+                             << prev.name() << ", " << v_banks[0] << ", ScatterStrategy::ForwardVector);\n";
                 }
             }
-            prev_dims = v_banks;
         }
     }
 
@@ -671,6 +686,53 @@ class RealizeOnFPGA
         }
     }
 
+    // Triangular loops often look like this:
+    // for (i, 0, I)
+    //   for (k, i, K-i)
+    // We set the storage bound of loop k as K/2+1
+    void set_triangular_bound(Schain &c, vector<Func> &funcs) {
+        // For producer, the buffer is allocated in the first host stensor (serializer), otherwise the last DRAM stensor
+        Func f;
+        if (!c.is_output) {
+            if (c.stensors[0].position != HOST) return;
+            f = funcs[0];
+        } else {
+            for (size_t i = 0; i < c.stensors.size(); i++) {
+                if (c.stensors[i].position == DRAM) {
+                    f = funcs[i];
+                    break;
+                }
+            }
+            if (!f.defined()) return;
+        }
+        auto dims = f.function().definition().schedule().dims();
+        for (size_t i = 0; i < dims.size()-1; i++) {
+            auto bound = f.function().get_bounds(dims[i].var);
+            if (!is_const(bound.first)) {
+                // We assume the outer triangular loop is at the outermost level
+                auto outermost_var = dims[dims.size()-2].var;
+                auto min_var = bound.first.as<Variable>();
+                internal_assert(min_var && min_var->name == outermost_var);
+                auto ori_ext = simplify(bound.second + bound.first);
+                auto remove_dims = f.function().definition().schedule().remove_params();
+                Var inner(dims[i].var);
+                if (std::find(remove_dims.begin(), remove_dims.end(), inner.name()) == remove_dims.end()) {
+                    if (std::find(remove_dims.begin(), remove_dims.end(), min_var->name) == remove_dims.end()) {
+                        // If the outer triangular loop is not removed, we set the storage bound as the half
+                        f.bound_storage(inner, 0, ori_ext/2+1);
+                        debug(1) << "T2X emits: " << f.name() << ".bound_storage("
+                                 << inner.name() << ", 0, " << ori_ext << "/2+1);\n";
+                    } else {
+                        // If the outer triangular loop is removed, we set the storage bound as its original bound
+                        f.bound_storage(inner, 0, ori_ext);
+                        debug(1) << "T2X emits: " << f.name() << ".bound_storage("
+                                 << inner.name() << ", 0, " << ori_ext << ");\n";
+                    }
+                }
+            }
+        }
+    }
+
     void find_banks(Schain &c) {
         // No space-time transformation, no need to allocate banks
         if (c.control_ure.function().definition().schedule().transform_params().empty())
@@ -705,6 +767,7 @@ public:
                 vector<Func> producers;
                 producers = isolate_producer(c);
                 remove(c, producers);
+                set_triangular_bound(c, producers);
                 scatter(c, producers);
                 buffer(c, producers);
                 vectorize(c, producers);
@@ -712,6 +775,7 @@ public:
             } else {
                 vector<Func> consumers;
                 consumers = isolate_consumer(c);
+                set_triangular_bound(c, consumers);
                 gather(c, consumers);
                 vectorize(c, consumers);
                 min_depth(c, consumers);

@@ -547,6 +547,7 @@ int make_one_group_of_zero_dims(const vector<FlowDependence> &dependences,
     vector<int> dims = range_to_vector(next_start, next_end - 1);
     alloc.linearized_dims.push_back(dims);
     Expr extent = linearized_extent(alloc.args, loop_extents, dims);
+    alloc.is_zero_dims.push_back(true);
     alloc.linearized_extents.push_back(extent);
     alloc.strategy.push_back(RegStrategy::Rotate); // Rotate registers for a zero_dims.
     return next_end;
@@ -727,6 +728,7 @@ void make_time_dims(const vector<FlowDependence> &dependences,
     }
     internal_assert(lin_time_position <= (int)alloc.linearized_dims.size());
     alloc.linearized_dims.insert(alloc.linearized_dims.begin() + lin_time_position, time_dims);
+    alloc.is_zero_dims.insert(alloc.is_zero_dims.begin() + lin_time_position, false);
     alloc.linearized_extents.insert(alloc.linearized_extents.begin() + lin_time_position, lin_time_extent);
     alloc.strategy.insert(alloc.strategy.begin() + lin_time_position, strategy);
 }

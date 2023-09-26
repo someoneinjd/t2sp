@@ -49,6 +49,7 @@ struct ShiftRegAlloc {
                                                     // Otherwise, the vectorized_dim will be part of the time_dims.
     vector<vector<int>>    linearized_dims;         // Zero_dims_* and time_dims.
     vector<int>            PE_dims;                 // Indices of the unrolled loops in the args.
+    vector<bool>           is_zero_dims;
 
     // (Linearized) extents of the dimensions.
     Expr                   vectorized_extent;       // Extent of the vectorized_dim

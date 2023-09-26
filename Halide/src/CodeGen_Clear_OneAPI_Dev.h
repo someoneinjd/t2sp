@@ -104,6 +104,23 @@ protected:
         // Ids of struct types defined
         std::vector<int> defined_struct_ids;
 
+        // Generate code for the compiler-generated arrays.
+        // This class does not really mutate the IR.
+        class DefineArrayTypes : public IRMutator {
+            using IRMutator::visit;
+        private:
+            CodeGen_Clear_OneAPI_C* parent;
+        public:
+            // Definitions of arrays.
+            std::string arrays;
+
+            DefineArrayTypes(CodeGen_Clear_OneAPI_C* parent) : parent(parent) {}
+            Expr mutate(const Expr &expr) override;
+            Stmt mutate(const Stmt &stmt) override;
+        };
+        // Ids of struct types defined
+        std::vector<int> defined_array_ids;
+
         // For declaring channels
         class DeclareChannels : public IRVisitor {
             using IRVisitor::visit;

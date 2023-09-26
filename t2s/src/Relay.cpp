@@ -106,8 +106,11 @@ class DataRelaying : public IRMutator {
     string flattened_loop;
     int loop_level = 0;
     bool inside_pipe = false;
+    string outermost_loop;  // The outermost loop name
+    Expr original_outer_extent;
     struct {
         string name;
+        string original_channel_name;
         Type t;
         Expr emit_cond;
         Expr valid_cond;
@@ -158,22 +161,42 @@ class DataRelaying : public IRMutator {
                  << "\n\t depth: "      << pipe_alloc.depth << "\n";
     }
 
+    vector<int> get_zero_dims() {
+        vector<int> zero_dims;
+        for (size_t i = 0; i < alloc.linearized_dims.size(); i++) {
+            if (alloc.is_zero_dims[i]) {
+                for (auto z : alloc.linearized_dims[i])
+                    zero_dims.push_back(z);
+            }
+        }
+        std::sort(zero_dims.begin(), zero_dims.end());
+        return zero_dims;
+    }
+
+    std::pair<Expr, Expr> get_arg_bound(Function func, size_t idx) {
+        auto var = alloc.args[idx].as<Variable>();
+        internal_assert(var);
+        string var_name = extract_last_token(var->name);
+        return func.get_bounds(var_name);;
+    }
+
     void get_flatten_loop_level() {
         Function func;
         internal_assert(function_is_in_environment(param.from_func, env, func));
 
         int loop_extents = 1;
         int required_extents = pipe_alloc.depth.as<IntImm>()->value - 1;
-        for (size_t i = 0; i < alloc.args.size(); i++) {
-            auto var = alloc.args[i].as<Variable>();
-            internal_assert(var);
-            string var_name = extract_last_token(var->name);
-            bool is_vectorized = alloc.vectorized_dim == (int)i;
-            bool is_pe = std::find(alloc.PE_dims.begin(), alloc.PE_dims.end(), i) != alloc.PE_dims.end();
-            if (!is_vectorized && !is_pe) {
-                auto ext_expr = func.get_bounds(var_name).second;
+        // Find a loop level to flatten, under that loop there are sufficient cycles to drain all elements
+        size_t i = 0;
+        for (i = 0; i < alloc.args.size(); i++) {
+            vector<int> all_zero_dims = get_zero_dims();
+            bool is_zero_dims = std::find(all_zero_dims.begin(), all_zero_dims.end(), i) != all_zero_dims.end();
+            // Only the zero_dims or the outermost const loops can be used to drain out elements
+            if (is_zero_dims || int(i) > all_zero_dims.back()) {
+                auto ext_expr = get_arg_bound(func, i).second;
                 user_assert(ext_expr.as<IntImm>())\
-                    << "Only outermost loops can have dynamic bounds\n";
+                    << "We need a loop with constant bound to find if there are enough cycles to drain the pipes. "
+                    << "Please set a constant bound instead of " << ext_expr << ".\n";
                 loop_extents *= ext_expr.as<IntImm>()->value;
                 if (loop_extents >= required_extents) {
                     internal_assert(i < alloc.args.size() -1);
@@ -182,6 +205,13 @@ class DataRelaying : public IRMutator {
                     flattened_loop = extract_last_token(loop_var->name);
                     break;
                 }
+            }
+        }
+        // For triangular loops, disable loop flattening
+        for (size_t j = i; j < alloc.args.size(); j++) {
+            auto min_expr = get_arg_bound(func, j).first;
+            if (!min_expr.as<IntImm>()) {
+                flattened_loop = "";
             }
         }
         user_assert(loop_extents >= required_extents)
@@ -238,7 +268,7 @@ class DataRelaying : public IRMutator {
     //   write_channel("Out.channel", Out.channel.temp)
     // }
     Stmt make_write() {
-        string chn_temp_name = param.to_func + ".channel.temp";
+        string chn_temp_name = pipe_alloc.original_channel_name + ".temp";
         auto num_bank = pipe_alloc.bank_extent.as<IntImm>();
         internal_assert(num_bank);
 
@@ -246,7 +276,7 @@ class DataRelaying : public IRMutator {
         Type vec_t = pipe_alloc.t.with_lanes(num_bank->value);
         Expr read_temp = Call::make(vec_t, chn_temp_name, {}, Call::Intrinsic);
         vector<Expr> write_args;
-        write_args.push_back(param.to_func + ".channel");
+        write_args.push_back(pipe_alloc.original_channel_name);
         write_args.push_back(read_temp);
         Expr write_chn = Call::make(vec_t, Call::IntrinsicOp::write_channel, write_args, Call::CallType::PureIntrinsic);
 
@@ -294,24 +324,21 @@ class DataRelaying : public IRMutator {
         return body;
     }
 
-    Stmt make_flag_update() {
-        debug(4) << "....make_flag_update. lincode=" << to_string(pipe_alloc.lin_cond) << "\n"
-                << "           emit_code=" << to_string(pipe_alloc.emit_cond) << "\n";
+    Stmt make_flag_update(int check_loop_lvl) {
         Expr update_cond = pipe_alloc.lin_cond;
         vector<Expr> conds = break_logic_into_conjunction(pipe_alloc.emit_cond);
-        // Remove conjunctions with variables inside PE dims
-        int PE_dim = alloc.PE_dims.back();
+        // Remove conjunctions which uses the variables inside the check_loop_lvl
         for (auto &e : conds) {
             int i = 0;
-            for (; i <= PE_dim; i++) {
-                debug(4) << "      i=" << i << "allocargs=" << to_string(alloc.args[i]) << "\n";
+             for (; i < check_loop_lvl; i++) {
+                debug(4) << "      i=" << i << " allocargs=" << to_string(alloc.args[i]) << "\n";
                 internal_assert(alloc.args[i].as<Variable>());
                 auto name = alloc.args[i].as<Variable>()->name;
                 CheckVarUsage cvu(name);
                 e.accept(&cvu);
                 if (cvu.used) break;
             }
-            if (i > PE_dim) {
+            if (i == check_loop_lvl) {
                 update_cond = update_cond && e;
             }
         }
@@ -345,7 +372,7 @@ public:
             }
             auto name = op->args[0].as<StringImm>();
             internal_assert(name);
-            if (name->value == param.to_func + ".channel") {
+            if (name->value == pipe_alloc.original_channel_name) {
                 vector<Expr> args;
                 args.push_back(name->value);
                 for (auto &e : op->args) {
@@ -368,7 +395,8 @@ public:
             if (call && call->is_intrinsic(Call::IntrinsicOp::write_channel)) {
                 auto p = call->args[0].as<StringImm>();
                 internal_assert(p);
-                if (inside_pipe && p->value == param.to_func + ".channel") {
+                if (inside_pipe && extract_first_token(p->value) == param.to_func) {
+                    pipe_alloc.original_channel_name = p->value;
                     pipe_alloc.emit_cond = op->condition;
                     // Replace the write_channel with write_shift_reg to the pipe
                     vector<Expr> args;
@@ -392,6 +420,8 @@ public:
         // Record the outermost loop's extent to be used for guarding read_channel
         if (inside_pipe && loop_level == 0) {
             pipe_alloc.valid_cond = Variable::make(Int(32), op->name) < op->extent;
+            outermost_loop = op->name;
+            original_outer_extent = op->extent;
         }
         loop_level += 1;
         Stmt body = mutate(op->body);
@@ -403,12 +433,18 @@ public:
                              op->for_type, op->device_api, body);
             return make_flag_init(body);
         }
-        if (op->name == to_string(alloc.args[alloc.PE_dims.back()])) {
-            body = For::make(op->name, op->min, op->extent,
+        if (inside_pipe && !is_const(op->min) && op->min.as<Variable>() && op->min.as<Variable>()->name == outermost_loop) {
+            Expr outer_loop_var = Variable::make(Int(32), outermost_loop);
+            return For::make(op->name, op->min, op->extent + outer_loop_var / original_outer_extent,
                              op->for_type, op->device_api, body);
+        }
+        // Find the first zero dims under which data relaying operations are inserted
+        vector<int> zero_dims = get_zero_dims();
+        if (op->name == to_string(alloc.args[zero_dims[0]])) {
             Expr read_iter = Call::make(Int(32), pipe_alloc.name+".iter.temp", {}, Call::Intrinsic);
             Stmt inc_iter = Provide::make(pipe_alloc.name+".iter.temp", { read_iter+1 }, {});
-            body = Block::make({ body, make_flag_update(), make_write(), make_pipe_shift(), inc_iter });
+            body = Block::make({ body, make_flag_update(zero_dims[0]), make_write(), make_pipe_shift(), inc_iter });
+            body = For::make(op->name, op->min, op->extent, op->for_type, op->device_api, body);
             return body;
         }
         return IRMutator::visit(op);
@@ -417,7 +453,10 @@ public:
     Stmt visit(const ProducerConsumer *op) override {
         if (op->is_producer && op->name == param.from_func) {
             inside_pipe = true;
-            Stmt body = op->body; //flatten_outer_loops(op->body, flattened_loop, env);
+            Stmt body = op->body;
+            if (!flattened_loop.empty()) {
+                body = flatten_outer_loops(op->body, flattened_loop, env);
+            }
             body = mutate(body);
             inside_pipe = false;
             return ProducerConsumer::make(op->name, op->is_producer, body);
@@ -431,7 +470,7 @@ public:
         }
         Stmt body = mutate(op->body);
         // Other dimensions are encapsulated inside the systolic array
-        if (op->name == param.to_func + ".channel") {
+        if (op->name == pipe_alloc.original_channel_name) {
             Region channel_bounds;
             channel_bounds.push_back(Range(0, pipe_alloc.bank_extent));
             channel_bounds.push_back(op->bounds.back());
@@ -519,13 +558,19 @@ public:
     Stmt visit(const Realize *op) override {
         Stmt body = mutate(op->body);
         auto it = std::find(funcs.begin(), funcs.end(), op->name);
+        auto ori_bounds = op->bounds;
         if (it != funcs.end()) {
-            Region bounds(op->bounds.size(), Range(0, 1));
+            Region new_bounds(op->bounds.size(), Range(0, 1));
+            // Reorder the storage. Assume the non-const dimensions are stay in place
             for (size_t i = 0; i < loops.size(); i++) {
                 auto &loop_info = ori_loops.at(loops[i]);
-                bounds[i] = Range(loop_info.min, loop_info.extent);
+                if (is_const(loop_info.min)) {
+                    new_bounds[i] = Range(loop_info.min, loop_info.extent);
+                } else {
+                    new_bounds[i] = ori_bounds[i];
+                }
             }
-            return Realize::make(op->name, op->types, op->memory_type, bounds, op->condition, body);
+            return Realize::make(op->name, op->types, op->memory_type, new_bounds, op->condition, body);
         }
         return Realize::make(op->name, op->types, op->memory_type, op->bounds, op->condition, body);
     }
@@ -608,6 +653,7 @@ Stmt relay_data(Stmt s, std::map<std::string, Function> &env, const map<string, 
 
             // The data layout is altered after data relaying, so we reorder loops in the consumer
             vector<string> loops = find_output_loops(relay_params[0].bank_loop, output_dims, alloc);
+
             // The unit loops are not accounted
             int num_unit_loops = 0;
             for (auto &a : dim_args) {

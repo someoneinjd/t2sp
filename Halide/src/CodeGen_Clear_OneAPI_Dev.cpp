@@ -171,6 +171,31 @@ Stmt CodeGen_Clear_OneAPI_Dev::CodeGen_Clear_OneAPI_C::DefineVectorStructTypes::
     return IRMutator::mutate(op);
 }
 
+Expr CodeGen_Clear_OneAPI_Dev::CodeGen_Clear_OneAPI_C::DefineArrayTypes::mutate(const Expr &op) {
+    Type type = op.type();
+    if (type.is_generated_array()) {
+        std::ostringstream oss;
+        int type_id = type.bits();
+        if (std::find(parent->defined_array_ids.begin(), parent->defined_array_ids.end(), type_id) == parent->defined_array_ids.end()) {
+            parent->defined_array_ids.push_back(type_id);
+            const auto &entry = GeneratedArrayType::arrays[type_id];
+            // Define a struct like: struct foo {int f0, char f1, int f2};
+            oss << "struct" << parent->print_name(std::get<0>(entry))  << " { " << parent->print_type(std::get<1>(entry)) << " s";
+            for (const auto &r : std::get<2>(entry)) {
+                oss << "[" << parent->print_expr(r.extent) << "]";
+            }
+            oss << "; };\n";
+            arrays += oss.str();
+        }
+    }
+
+    return IRMutator::mutate(op);
+}
+
+Stmt CodeGen_Clear_OneAPI_Dev::CodeGen_Clear_OneAPI_C::DefineArrayTypes::mutate(const Stmt &op) {
+    return IRMutator::mutate(op);
+}
+
 namespace {
 string simt_intrinsic(const string &name) {
     if (ends_with(name, ".__thread_id_x")) {
@@ -377,9 +402,6 @@ void CodeGen_Clear_OneAPI_Dev::CodeGen_Clear_OneAPI_C::visit(const Call *op) {
         }
         debug(4) << "modified channel name: " << channel_name << "\n";
         string type = print_type(op->type);
-        if (op->type.is_handle() && !op->type.is_generated_struct()) {
-            type = print_name(channel_name + ".array.t");
-        }
         latest_expr = print_name(channel_name) + "::read<" + string_pipe_index + ">()";
         needs_intermediate_expr = true;
     } else if (op->is_intrinsic(Call::read_channel_nb)) {
@@ -3233,6 +3255,7 @@ std::string CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::print_extern_call(const Ca
     }
 }
 
+
 // EmitOneAPIFunc
 std::string CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::print_reinterpret(Type type, Expr e) {
     ostringstream oss;
@@ -3262,6 +3285,11 @@ std::string CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::print_type(Type type, Appe
             const std::pair<std::string, std::vector<Type>> &entry = GeneratedStructType::structs[type_id];
             string struct_name = entry.first;
             oss << struct_name;
+        } else if (type.is_generated_array()) {
+            int type_id = type.bits();
+            const std::tuple<std::string, Type, Region> &entry = GeneratedArrayType::arrays[type_id];
+            string array_name = std::get<0>(entry);
+            oss << print_name(array_name);
         } else if (type.is_bfloat()) {
             oss << "bfloat" << type.bits();
         } else if (type.is_float()) {

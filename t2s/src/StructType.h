@@ -25,6 +25,7 @@
  *
  */
 
+#include "../../Halide/src/IREquality.h"
 #include "../../Halide/src/IR.h"
 
 namespace Halide {
@@ -33,6 +34,7 @@ namespace Internal {
 using std::string;
 using std::vector;
 using std::pair;
+using std::tuple;
 
 class GeneratedStructType {
 private:
@@ -98,9 +100,46 @@ public:
     }
 };
 
+class GeneratedArrayType {
+
+    bool array_type_exists(Type t, const Region &ranges, size_t &index) {
+        for (size_t i = 0; i < arrays.size(); i++) {
+            bool found = true;
+            auto cur_type = std::get<1>(arrays[i]);
+            auto cur_ranges = std::get<2>(arrays[i]);
+            if (t != cur_type || ranges.size() != cur_ranges.size())
+                continue;
+            for (size_t j = 0; j < ranges.size(); j++) {
+                if (!equal(ranges[j].min, cur_ranges[j].min)
+                    || !equal(ranges[j].extent, cur_ranges[j].extent)) found = false;
+            }
+            if (found) {
+                index = i;
+                return true;
+            }
+        }
+        return false;
+    }
+
+public:
+    static vector<tuple<string, Type, Region>> arrays; // Each entry: array name, base type, and bounds
+    static halide_handle_cplusplus_type dummy;         // A dummy handle named "CGA" (compiler_generated_array)
+
+    GeneratedArrayType(const Region &ranges, Type t, size_t &index) {
+        if (array_type_exists(t, ranges, index)) {
+            return;
+        }
+        index = arrays.size();
+        internal_assert(index <= 0xFF) << "Too many arrays generated.";
+        string array_name = unique_name("cga");
+        arrays.push_back(tuple<string, Type, Region>(array_name, t, ranges));
+    }
+};
+
 /* Given the types of the fields, generate a struct wrapped up as a Halide type so that it can be
  * used in the Halide IR. */
 Type generate_struct(const vector<Type> &field_types);
+Type generate_array(Type t, const vector<Range> &ranges);
 
 }// Internal
 } // Halide

@@ -72,6 +72,7 @@
 
 
 // T2S related
+#include "../../t2s/src/AddressableBuffer.h"
 #include "../../t2s/src/AutorunKernels.h"
 #include "../../t2s/src/ChannelPromotion.h"
 #include "../../t2s/src/CheckRecursiveCalls.h"
@@ -425,6 +426,11 @@ Module lower(const vector<Function> &output_funcs,
 
     debug(1) << "Scattering and buffering...\n";
     s = simplify(scatter_buffer(s,env));
+    debug(2) << "Lowering after Scattering and buffering:\n"
+             << s << "\n\n";
+
+     debug(1) << "Inserting addressable buffer...\n";
+    s = simplify(insert_addressable_buffer(s, env));
     debug(2) << "Lowering after Scattering and buffering:\n"
              << s << "\n\n";
 

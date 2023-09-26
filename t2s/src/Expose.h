@@ -16,20 +16,34 @@
 *
 * SPDX-License-Identifier: BSD-2-Clause-Patent
 *******************************************************************************/
-#ifndef T2S_PATTERN_MATCHER_H
-#define T2S_PATTERN_MATCHER_H
+#ifndef T2S_EXPOSE_H
+#define T2S_EXPOSE_H
 
-#include "../../Halide/src/IR.h"
+#include <string>
+#include <set>
+
+#include "Stensor.h"
+
+using std::string;
+using std::set;
 
 namespace Halide {
+
 namespace Internal {
+struct GetName {
+    GetName(const Stensor &s) : name{s.name} {}
+    GetName(const URE &u) : name{u.name()} {}
+    string name;
+};
+}
 
-Stmt match_patterns(Stmt s);
+struct Expose {
+    string func_name;
+    set<string> parts;
+};
 
-Stmt rewrite_memory_partition(Stmt s, const std::map<std::string, Function> &env);
+Expose expose(const string &func_name, const vector<GetName> &parts);
 
 }
-}
-
 
 #endif

@@ -51,7 +51,12 @@ enum class ScatterStrategy {
      * to iteration N-1, then from iteration N-1 to iteration N-2, etc.*/
     Down,
 
-    FPGAReg
+    FPGAReg,
+        
+    /** Scatter a vector of data along a loop. Suppose a producer has l0 PEs and a
+     * consumer has l1 banks. This strategy scatters a vector of l0 elements along
+     * l1 banks, which makes the banks written in parallel with their own data. */
+    ForwardVector,
 
     /** TODO: add some other scattering styles, e.g. tree style. */
 };
@@ -66,7 +71,7 @@ enum class GatherStrategy {
      * to iteration N-1, then from iteration N-1 to iteration N-2, etc.*/
     Down,
 
-    FPGAReg
+    FPGAReg,
 
     /** TODO: add some other gathering styles, e.g. tree style. */
 };
@@ -505,6 +510,16 @@ struct LateFuseParams {
     int v_outs;
 };
 
+class PartitionItem{
+public:
+    std::string consumer;
+    std::string loop_name;
+    int num_partitions;
+    int stride;
+    PartitionItem(std::string _consumer, std::string _loop_name, int _num_partitions, int _stride):
+        consumer(_consumer), loop_name(_loop_name), num_partitions(_num_partitions), stride(_stride) {}
+};
+
 /** Record arguments for each invocation. */
 class ScatterItem{
 public:
@@ -551,6 +566,22 @@ public:
                 std::string _loop_name,
                 BufferStrategy _strategy,BufferReadStrategy _read_strategy):
                 func_name(_func_name),loop_name(_loop_name),strategy(_strategy),read_strategy(_read_strategy){}
+};
+
+// Parallel Access Buffer
+class AddressableBufferItem {
+public:
+    std::string func_name;
+    std::string buffer_loop;
+    std::vector<Expr> write_indices;
+    std::vector<Expr> read_indices;
+    BufferStrategy strategy;
+    AddressableBufferItem(std::string _func_name, std::string _buffer_loop,
+                      std::vector<Expr> &_write_indices, std::vector<Expr> &_read_indices,
+                      BufferStrategy _strategy):
+                      func_name(_func_name), buffer_loop(_buffer_loop),
+                      write_indices(_write_indices), read_indices(_read_indices),
+                      strategy(_strategy) {}
 };
 
 class CmdQueueItem {
@@ -669,6 +700,8 @@ public:
     const LoopLevel &compute_level() const;
     const LateFuseParams &late_fuse_params() const;
     LoopLevel &store_level();
+    const std::vector<Bound> &storage_bounds() const;
+    std::vector<Bound> &storage_bounds();
     LoopLevel &compute_level();
     LateFuseParams &late_fuse_params();
     // @}
@@ -808,6 +841,14 @@ public:
     // @}
 
     /**
+     * partitioning memory channels
+     */
+    // @{
+    const std::vector<PartitionItem> &partition_params() const;
+    std::vector<PartitionItem> &partition_params();
+    // @}
+
+    /**
      * gathering through channel
      */
     // @{
@@ -832,6 +873,14 @@ public:
     // @{
     const std::map<int, std::vector<Expr>> &task_deps() const;
     std::map<int, std::vector<Expr>> &task_deps();
+    // @}
+
+    /**
+     * insert parallel access buffer into the Func
+     */
+    // @{
+    const std::vector<AddressableBufferItem> &addressable_buffer_params() const;
+    std::vector<AddressableBufferItem> &addressable_buffer_params();
     // @}
 
     /**
