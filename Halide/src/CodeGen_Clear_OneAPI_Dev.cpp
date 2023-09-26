@@ -1627,6 +1627,33 @@ class HasInfiniteLoop : public IRVisitor {
         HasInfiniteLoop() : has_infinite_loop(false) {}
 };
 
+class FindAllTemplateOps : public IRVisitor {
+    using IRVisitor::visit;
+    void visit(const Call *op) override {
+        if (op->call_type == Call::PureExtern && op->name == "abstract") {
+            string func_name;
+            if (const auto *b = op->args[0].as<Broadcast>()) {
+                func_name = b->value.as<StringImm>()->value;
+            } else {
+                func_name = op->args[0].as<StringImm>()->value;
+            }
+            auto lower_func_name = func_name;
+            std::transform(func_name.begin(), func_name.end(), lower_func_name.begin(),
+                    [](unsigned char c) { return std::tolower(c); });
+            if (starts_with(lower_func_name, "add")) {
+                ops[func_name] =  "std::plus";
+            } else if (starts_with(lower_func_name, "mul")) {
+                ops[func_name] = "std::multiplies";
+            } else {
+                ops[func_name] = "";
+            }
+        }
+        IRVisitor::visit(op);
+    }
+  public:
+    map<string, string> ops;
+};
+
 bool CodeGen_Clear_OneAPI_Dev::CodeGen_Clear_OneAPI_C::succinct_name_is_unique(const string &verbose, const string &succinct) {
     for (auto &n : global_name_map) {
         if (n.second == succinct && n.first != verbose) {
@@ -2264,6 +2291,21 @@ string CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::ExternCallFuncs::conditional_si
     return rhs.str();
 }
 
+string CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::ExternCallFuncs::abstract(const Call *op) {
+    std::ostringstream rhs;
+    string func_name;
+    if (const auto *b = op->args[0].as<Broadcast>()) {
+        func_name = b->value.as<StringImm>()->value;
+    } else {
+        func_name = op->args[0].as<StringImm>()->value;
+    }
+    rhs << func_name << "(" << p->print_expr(op->args[1]);
+    for (size_t i = 2; i < op->args.size(); i++)
+        rhs << ", " << p->print_expr(op->args[i]);
+    rhs << ")";
+    return rhs.str();
+}
+
 void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::create_assertion(const string &id_cond, const string &id_msg) {
     // (NOTE) Implementation mimic CodeGen_C::create_assertion()
     if (target.has_feature(Target::NoAsserts)) return;
@@ -2365,6 +2407,26 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::compile(const LoweredFunc &f) {
         }
         stream << "\n";
     }*/
+
+
+    // Print template declaration
+    FindAllTemplateOps finder{};
+    f.body.accept(&finder);
+
+    if (not finder.ops.empty()) {
+        const auto &op_name = finder.ops.begin()->first;
+        const auto default_impl = finder.ops.begin()->second.empty()
+            ? string{} : " = " + finder.ops.begin()->second;
+        stream << "template <typename " << op_name << default_impl;
+
+        for (auto p = std::next(finder.ops.begin()); p != finder.ops.end(); p = std::next(p)) {
+            const auto &op_name = p->first;
+            const auto default_impl = p->second.empty() ? string{} : " = " + p->second;
+            stream << ", typename " << op_name << default_impl;
+        }
+
+        stream << ">\n";
+    }
 
     // Emit the function prototype
     if (f.linkage == LinkageType::Internal) {
@@ -3217,7 +3279,7 @@ std::string CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::print_extern_call(const Ca
                 rhs << "0;\n"; // " << op->name << "(" << with_commas(args) << ") replaced with line(s) below \n";
                 rhs << get_indent() << (ext_funcs.*(search->second))(op);
             } else {
-                rhs << (ext_funcs.*(search->second))(op) << " /* " << op->name << "(" << with_commas(args) << ") replaced */";
+                rhs << (ext_funcs.*(search->second))(op);
             }
         } else {
             if (op->name.find("_halide_buffer") != std::string::npos && !function_takes_user_context(op->name)) {

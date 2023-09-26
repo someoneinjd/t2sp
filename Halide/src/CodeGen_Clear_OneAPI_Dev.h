@@ -266,6 +266,7 @@ protected:
             std::string conditional_conjugate(const Call *op);
             std::string conditional_sqrt(const Call *op);
             std::string conditional_signbit(const Call *op);
+            std::string abstract(const Call *op);
 
             // Defined in DeviceInterface.cpp
             std::string halide_oneapi_device_interface(const Call *op){
@@ -299,7 +300,8 @@ protected:
             {"conditional_signbit_f32", &ExternCallFuncs::conditional_signbit},
             {"conditional_signbit_f64", &ExternCallFuncs::conditional_signbit},
             {"conditional_signbit_c32", &ExternCallFuncs::conditional_signbit},
-            {"conditional_signbit_c64", &ExternCallFuncs::conditional_signbit}
+            {"conditional_signbit_c64", &ExternCallFuncs::conditional_signbit},
+            {"abstract", &ExternCallFuncs::abstract}
         };
 
         // Create a simple assert(false) depending on the id_cond passed in

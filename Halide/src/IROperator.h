@@ -918,6 +918,15 @@ Expr conditional_conjugate(Expr condition, Expr x);
  * of conditional_sign_c32/c64 */
 Expr conditional_signbit(Expr condition, Expr x);
 
+template <typename ...Args>
+inline Expr abstract(const std::string &op_name, Expr x, Args &&... args) {
+    auto t = x.type();
+    return Internal::Call::make(
+            t, "abstract",
+            {Internal::StringImm::make(op_name), std::move(x), std::forward<Args>(args)...},
+            Internal::Call::PureExtern);
+}
+
 /** Return the greatest whole number less than or equal to a
  * floating-point expression. If the argument is not floating-point,
  * it is cast to Float(32). The return value is still in floating
