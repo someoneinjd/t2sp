@@ -909,6 +909,7 @@ void Stensor::compile_to_host(string file_name, const vector<Argument> &args,
 void Stensor::compile_to_oneapi(const string &file_name,
                                 const vector<Argument> &args,
                                 const std::string &fn_name,
+                                const vector<Expose> &exposed_parts,
                                 Starget t,
                                 const vector<Target::Feature> &features) {
     Func f = stensor_realize_wrapper(t);
@@ -920,9 +921,8 @@ void Stensor::compile_to_oneapi(const string &file_name,
     if (t == Starget::IntelFPGA) {
         acc.set_feature(Target::IntelFPGA);
         acc.set_feature(Target::EnableSynthesis);
-        f.compile_to_oneapi(file_name, args, fn_name, acc);
+        f.compile_to_oneapi(file_name, args, fn_name, exposed_parts, acc);
     }
 }
-
 
 }

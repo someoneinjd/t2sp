@@ -17,6 +17,8 @@
 #include "ModulusRemainder.h"
 #include "Target.h"
 
+#include "../../t2s/src/Expose.h"
+
 namespace Halide {
 
 /** Enums specifying various kinds of outputs that can be produced from a Halide Pipeline. */
@@ -159,7 +161,7 @@ public:
 
     /** Compile a halide Module to variety of outputs, depending on
      * the fields set in output_files. */
-    void compile(const std::map<Output, std::string> &output_files) const;
+    void compile(const std::map<Output, std::string> &output_files, const std::vector<Expose> &exposed_parts = {}) const;
 
     /** Compile a halide Module to in-memory object code. Currently
      * only supports LLVM based compilation, but should be extended to

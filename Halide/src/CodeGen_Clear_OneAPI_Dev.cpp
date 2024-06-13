@@ -380,7 +380,7 @@ void CodeGen_Clear_OneAPI_Dev::CodeGen_Clear_OneAPI_C::visit(const Call *op) {
         if (op->type.is_handle() && !op->type.is_generated_struct()) {
             type = print_name(channel_name + ".array.t");
         }
-        latest_expr = print_name(channel_name) + "::read<" + string_pipe_index + ">()";
+        latest_expr = print_name(channel_name) + "::template read<" + string_pipe_index + ">()";
         needs_intermediate_expr = true;
     } else if (op->is_intrinsic(Call::read_channel_nb)) {
         string string_channel_index;
@@ -452,7 +452,7 @@ void CodeGen_Clear_OneAPI_Dev::CodeGen_Clear_OneAPI_C::visit(const Call *op) {
 
         ostringstream rhs;
         string write_data = print_expr(op->args[1]);
-        rhs << print_name(channel_name) << "::write<" << pipe_index << ">(" << write_data << ")";
+        rhs << print_name(channel_name) << "::template write<" << pipe_index << ">(" << write_data << ")";
         stream << get_indent() << rhs.str() << ";\n";
     } else if (op->is_intrinsic(Call::write_channel_nb)) {
         const StringImm *v = op->args[0].as<StringImm>();
@@ -1711,12 +1711,12 @@ string CodeGen_Clear_OneAPI_Dev::print_gpu_name(const string &name) {
     return name;
 }
 
-string CodeGen_Clear_OneAPI_Dev::compile(const Module &input) {
+string CodeGen_Clear_OneAPI_Dev::compile(const Module &input, const vector<Expose> &exposed_parts) {
     // Initialize the module
     init_module();
 
     std::ostringstream EmitOneAPIFunc_stream;
-    EmitOneAPIFunc em_visitor{&clc, EmitOneAPIFunc_stream, clc.get_target()};
+    EmitOneAPIFunc em_visitor{&clc, EmitOneAPIFunc_stream, clc.get_target(), exposed_parts};
 
     // Turn on the following code to auto-generate the Halide runtime header once.
 #ifdef GEN_HALIDE_RUNTIME
@@ -1732,7 +1732,7 @@ string CodeGen_Clear_OneAPI_Dev::compile(const Module &input) {
     auto func_name = input.functions()[0].name;
     std::vector<std::string> tokens_in_func_name;
     func_name = extract_namespaces(func_name, tokens_in_func_name);
-    em_visitor.write_runtime_headers(tokens_in_func_name);
+    em_visitor.write_runtime_headers(tokens_in_func_name, EmitOneAPIFunc_stream);
 
     internal_assert(input.buffers().size() <= 0) << "OneAPI has no implementation to compile buffers at this time.\n";
     for (const auto &f : input.functions()) {
@@ -1740,6 +1740,11 @@ string CodeGen_Clear_OneAPI_Dev::compile(const Module &input) {
         em_visitor.gather_shift_regs_allocates(&f.body);
         em_visitor.compile(f);
     }
+
+    std::ofstream exposed_funcs_file{"exposed_funcs.hpp"};
+    exposed_funcs_file << "#pragma once\n\n";
+    em_visitor.write_runtime_headers(tokens_in_func_name, exposed_funcs_file);
+    em_visitor.write_exposed_funcs(exposed_funcs_file);
 
     string str = em_visitor.get_str() + "\n";
     return str;
@@ -2324,8 +2329,9 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::clean_stream() {
     stream_ptr->clear();
 }
 
-void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::write_runtime_headers(const std::vector<std::string> &tokens_in_func_name) {
-    stream <<
+void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::write_runtime_headers(
+        const std::vector<std::string> &tokens_in_func_name, std::ostream &os) {
+    os <<
 R"(#if __has_include(<sycl/sycl.hpp>)
 #include <sycl/sycl.hpp>
 #else
@@ -2339,26 +2345,20 @@ R"(#if __has_include(<sycl/sycl.hpp>)
 #include "constexpr_math.hpp"
 #include "tuple.hpp"
 #include "unrolled_loop.hpp"
-
-template <typename... Args>
-void log(Args &&...args) {
-#ifndef T2SP_NDEBUG
-  ((std::cout << "[INFO] ") << ... << args) << "\n";
-#endif
-}
+#include "utils.hpp"
 
 using namespace sycl;
 )";
 
-    stream << "namespace ";
+    os << "namespace ";
     if (tokens_in_func_name.size() == 0) {
-        stream << "t2sp"; // A default namespace
+        os << "t2sp"; // A default namespace
     } else {
         for (size_t i = 0; i < tokens_in_func_name.size(); i++) {
-            stream << (i == 0 ? "" : "::") << tokens_in_func_name[i];
+            os << (i == 0 ? "" : "::") << tokens_in_func_name[i];
         }
     }
-    stream << " {\n\n";
+    os << " {\n\n";
 }
 
 string CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::get_str() {
@@ -2372,6 +2372,33 @@ string CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::get_str() {
     string str = stream_ptr->str();
     return str;
 };
+
+void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::write_exposed_funcs(std::ostream &os) {
+    for (const auto &p : exposed_funcs) {
+        if (not p.second.channels.empty()) {
+            os << "template <typename " << print_name(*p.second.channels.begin());
+            for (auto iter = std::next(p.second.channels.begin()); iter != p.second.channels.end();
+                 iter++) {
+                os << ", typename " << print_name(*iter);
+            }
+            os << ">\n";
+        }
+        os << "std::vector<sycl::event> " << p.first << "(sycl::queue &q_device";
+        for (const auto &arg : p.second.args) {
+            os << ", " << arg;
+        }
+        os << ") {\n";
+        indent += INDENT;
+        os << get_indent() << "std::vector<sycl::event> oneapi_kernel_events{};\n\n";
+
+        for (const auto &stmt : p.second.stmts) {
+            os << stmt << "\n";
+        }
+
+        os << get_indent() << "return oneapi_kernel_events;\n}\n\n";
+    }
+    os << "}\n";
+}
 
 // EmitOneAPIFunc
 void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::compile(const LoweredFunc &f) {
@@ -2617,8 +2644,41 @@ class IsRunOnDevice : public IRVisitor {
         IsRunOnDevice() : is_run_on_device(false) {}
 };
 
+class FindAllChannels : public IRVisitor {
+    using IRVisitor::visit;
+    void visit(const Call *op) override {
+        if (op->is_intrinsic(Call::write_channel) ||
+            op->is_intrinsic(Call::read_channel)) {
+            const StringImm *v = op->args[0].as<StringImm>();
+            string channel_name = v->value;
+            int size = v->value.rfind(".");
+            if (size < (int)(v->value.size()) - 1) {
+                string suffix = v->value.substr(size + 1, (int)v->value.size() - size - 1);
+                // eliminate useless suffix
+                while (suffix != "channel") {
+                    channel_name = channel_name.substr(0, size);
+                    size = channel_name.rfind(".");
+                    if (size < (int)(channel_name.size()) - 1) {
+                        suffix = channel_name.substr(size + 1, (int)channel_name.size() - size - 1);
+                    } else {
+                        break;
+                    }
+                }
+                if (suffix != "channel") {
+                    channel_name = v->value;
+                }
+            }
+            channels.insert(channel_name);
+        }
+        IRVisitor::visit(op);
+    }
+  public:
+    std::set<string> channels;
+};
+
 void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::add_kernel(
-    Stmt s, const string &name, const vector<DeviceArgument> &args) {
+    Stmt s, const string &name, const vector<DeviceArgument> &args,
+    decltype(exposed_funcs.begin()) exposed_func) {
 
     currently_inside_kernel = true;
 
@@ -2644,14 +2704,59 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::add_kernel(
     std::string queue_name = device_run_checker.is_run_on_device ? "q_device"  : "q_host";
     debug(2) << "Adding OneAPI kernel " << name << "\n";
 
+    if (exposed_func != exposed_funcs.end()) {
+        FindAllChannels finder{};
+        s.accept(&finder);
+        exposed_func->second.channels.insert(finder.channels.begin(), finder.channels.end());
+
+        for (const auto &arg : args) {
+            if (arg.is_buffer) {
+                string arg_type = (arg.write ? "" : "const ") + print_type(arg.type) + " *";
+                exposed_func->second.args.insert(arg_type + print_name(arg.name));
+            } else {
+                exposed_func->second.args.insert("const " + print_type(arg.type) + " " + print_name(arg.name));
+            }
+        }
+
+        std::ostringstream os;
+        if (device_run_checker.is_run_on_device) {
+            os << get_indent() << "oneapi_kernel_events.push_back(" << queue_name << ".submit([&](sycl::handler &h){\n";
+            indent += INDENT;
+            os << get_indent() << "h.single_task<class " + name + "_class>([=](){\n";
+            indent -= INDENT;
+        } else {
+            os << get_indent() << "{\n";
+        }
+
+        exposed_func->second.stmts.push_back(os.str());
+    }
+
     // create kernel wrapper top half
     create_kernel_wrapper(name, queue_name, args, true, device_run_checker.is_run_on_device);
 
+    auto i = stream.tellp();
     // Output q.submit kernel code
     DeclareArrays da(this);
     s.accept(&da);
     stream << da.arrays.str();
     print(s);
+
+    if (exposed_func != exposed_funcs.end()) {
+        exposed_func->second.stmts.back() += stream_ptr->str().substr(i, stream.tellp());
+        std::ostringstream os;
+        if (device_run_checker.is_run_on_device) {
+            indent -= INDENT;
+            os << get_indent() << "}); //  h.single_task " << name + "_class\n";
+            indent -= INDENT;
+            os << get_indent() << "})); // "<< queue_name << ".submit\n";
+            indent += 2 * INDENT;
+        } else {
+            indent -= INDENT;
+            os << get_indent() << "}\n";
+            indent += INDENT;
+        }
+        exposed_func->second.stmts.back() += os.str();
+    }
 
     // create kernel wrapper btm half
     create_kernel_wrapper(name, queue_name, args, false, device_run_checker.is_run_on_device);
@@ -2848,7 +2953,13 @@ void CodeGen_Clear_OneAPI_Dev::EmitOneAPIFunc::visit(const For *loop) {
     //     }
     // }
 
-    add_kernel(loop, kernel_name, closure_args);
+    auto iter = exposed_funcs.begin();
+    for (; iter != exposed_funcs.end(); iter++) {
+        if (iter->second.parts.find(extract_first_token(loop->name)) != iter->second.parts.end())
+            break;
+    }
+
+    add_kernel(loop, kernel_name, closure_args, iter);
 }
 
 // EmitOneAPIFunc

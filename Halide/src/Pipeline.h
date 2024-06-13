@@ -24,6 +24,7 @@
 namespace Halide {
 
 struct Argument;
+struct Expose;
 class Func;
 struct PipelineContents;
 
@@ -288,6 +289,7 @@ public:
     void compile_to_oneapi(const std::string &filename,
                            const std::vector<Argument> &,
                            const std::string &fn_name,
+                           const std::vector<Expose> &,
                            const Target &target = get_target_from_environment());
 
     /** Write out an internal representation of lowered code. Useful

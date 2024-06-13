@@ -46,7 +46,7 @@ public:
         return "oneapi";
     }
 
-    std::string compile(const Module &input);
+    std::string compile(const Module &input, const std::vector<Expose> &exposed_parts);
 
 protected:
     class CodeGen_Clear_OneAPI_C : public CodeGen_Clear_C {
@@ -307,21 +307,35 @@ protected:
         // Create a simple assert(false) depending on the id_cond passed in
         void create_assertion(const std::string &id_cond, const std::string &id_msg);
 
+        struct ExposedFuncsInfo {
+            std::set<std::string> parts;
+            std::set<std::string> channels;
+            std::set<std::string> args;
+            std::vector<std::string> stmts; 
+        };
+        std::map<std::string, ExposedFuncsInfo> exposed_funcs;
+
     public:
-        EmitOneAPIFunc(CodeGen_Clear_OneAPI_C* parent, std::ostringstream &s, Target t) : CodeGen_Clear_OneAPI_C(s, t),
-            parent(parent) { // Note this assocates s with stream in CodeGen_Clear_OneAPI_C, which is inherited from IRPrinter
+        EmitOneAPIFunc(CodeGen_Clear_OneAPI_C* parent, std::ostringstream &s, Target t, const std::vector<Expose> &exposed_parts)
+            : CodeGen_Clear_OneAPI_C(s, t), parent(parent) {
+                // Note this assocates s with stream in CodeGen_Clear_OneAPI_C, which is inherited from IRPrinter
                 stream_ptr = &s;
                 ext_funcs.p = this;
                 currently_inside_kernel = false;
+                for (const auto &part : exposed_parts) {
+                    exposed_funcs[part.func_name].parts = part.parts;
+                }
         }
 
         void compile(const LoweredFunc &func) override;
         void add_kernel(Stmt stmt,
                         const std::string &name,
-                        const std::vector<DeviceArgument> &args);
+                        const std::vector<DeviceArgument> &args, 
+                        decltype(exposed_funcs.end()) exposed_func);
         std::string get_str();
         void clean_stream();
-        void write_runtime_headers(const std::vector<std::string> &tokens_in_func_name);
+        void write_runtime_headers(const std::vector<std::string> &tokens_in_func_name, std::ostream &os);
+        void write_exposed_funcs(std::ostream &os);
     };
 };
 

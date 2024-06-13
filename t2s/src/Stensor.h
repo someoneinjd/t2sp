@@ -22,6 +22,8 @@
 #include "../../Halide/src/Var.h"
 #include "../../Halide/src/ImageParam.h"
 
+#include "Expose.h"
+
 namespace Halide {
 
 enum SMemType {
@@ -63,6 +65,7 @@ struct Stensor
     void compile_to_oneapi(const string &file_name,
                            const vector<Argument> &args,
                            const std::string &fn_name,
+                           const vector<Expose> &exposed_parts,
                            Starget t,
                            const vector<Target::Feature> &features = {});
     Stensor &require(const Expr &condition) { conditions_of_asserts.push_back(condition); return *this; }

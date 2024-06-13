@@ -21,6 +21,7 @@
 
 // T2S related
 #include "../../t2s/src/CmdQueue.h"
+#include "../../t2s/src/Expose.h"
 #include "../../t2s/src/Gather.h"
 #include "../../t2s/src/ScatterAndBuffer.h"
 
@@ -1007,6 +1008,7 @@ public:
     void compile_to_oneapi(const std::string &filename,
                            const std::vector<Argument> &,
                            const std::string &fn_name = "",
+                           const std::vector<Expose> & exposed_parts = {},
                            const Target &target = get_target_from_environment());
 
     /** Write out an internal representation of lowered code. Useful

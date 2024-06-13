@@ -559,7 +559,7 @@ std::map<std::string, std::string> Module::get_metadata_name_map() const {
     return contents->metadata_name_map;
 }
 
-void Module::compile(const std::map<Output, std::string> &output_files) const {
+void Module::compile(const std::map<Output, std::string> &output_files, const std::vector<Expose> &exposed_parts) const {
     validate_outputs(output_files);
 
     // output stmt and html prior to resolving submodules. We need to
@@ -678,7 +678,7 @@ void Module::compile(const std::map<Output, std::string> &output_files) const {
         std::ofstream file(output_files.at(Output::oneapi_fpga));
         if (getenv("CLEARCODE") != NULL) {
             Internal::CodeGen_Clear_OneAPI_Dev cg(t);
-            std::string out_str = cg.compile(*this);
+            std::string out_str = cg.compile(*this, exposed_parts);
             file << out_str;
         } else {
             Internal::CodeGen_OneAPI_Dev cg(t);

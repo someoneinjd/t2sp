@@ -821,6 +821,7 @@ T2S_SOURCE_FILES = \
   ComputeLoopBounds.cpp \
   DebugPrint.cpp \
   Devectorize.cpp \
+  Expose.cpp \
   FlattenLoops.cpp \
   Gather.cpp \
   IsolateConsumers.cpp \
@@ -860,6 +861,7 @@ T2S_HEADER_FILES = \
   ComputeLoopBounds.h \
   DebugPrint.h \
   Devectorize.h \
+  Expose.h \
   FlattenLoops.h \
   Gather.h \
   IsolateSignals.h \
