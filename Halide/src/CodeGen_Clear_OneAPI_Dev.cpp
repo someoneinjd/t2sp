@@ -1787,7 +1787,7 @@ void CodeGen_Clear_OneAPI_Dev::CodeGen_Clear_OneAPI_C::DeclareChannels::visit(co
                 first_bound = ext;
             }
         }
-        if (pipe_bounds.back() == ',') pipe_bounds.pop_back();
+        if (!pipe_bounds.empty() && pipe_bounds.back() == ',') pipe_bounds.pop_back();
         internal_assert(op->types.size() == 1) << "In generating OneAPI for FPGAs, a single type is expected for a channel.\n";
         string type = parent->print_type(op->types[0]);
 
