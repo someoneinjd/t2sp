@@ -354,7 +354,7 @@ void CodeGen_Clear_OneAPI_Dev::CodeGen_Clear_OneAPI_C::visit(const Call *op) {
             assert(!sindex.empty());
             string_pipe_index += sindex + ",";
         }
-        if (string_pipe_index.back() == ',') string_pipe_index.pop_back();
+        if (!string_pipe_index.empty() && string_pipe_index.back() == ',') string_pipe_index.pop_back();
         latest_expr = '_' + unique_name('_');
         int size = v->value.rfind(".");
         string channel_name = v->value;
@@ -448,7 +448,7 @@ void CodeGen_Clear_OneAPI_Dev::CodeGen_Clear_OneAPI_C::visit(const Call *op) {
             auto print_e = print_expr(e);
             pipe_index += print_e + ",";
         }
-        if (pipe_index.back() == ',') pipe_index.pop_back();
+        if (!pipe_index.empty() && pipe_index.back() == ',') pipe_index.pop_back();
 
         ostringstream rhs;
         string write_data = print_expr(op->args[1]);
