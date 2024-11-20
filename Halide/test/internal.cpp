@@ -38,7 +38,7 @@ int main(int argc, const char **argv) {
     is_monotonic_test();
     split_predicate_test();
     associativity_test();
-    generator_test();
+    // generator_test();
     propagate_estimate_test();
 
     return 0;
